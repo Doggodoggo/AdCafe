@@ -28,6 +28,7 @@ import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.DatabaseManager;
+import com.bry.adcafe.services.TimeManager;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -349,24 +350,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private String getDate(){
-        long date = System.currentTimeMillis();
-        SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
-        String MonthString = sdfMonth.format(date);
-
-        SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
-        String dayString = sdfDay.format(date);
-
-        SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
-        String yearString = sdfYear.format(date);
-
-        Calendar c = Calendar.getInstance();
-        String yy = Integer.toString(c.get(Calendar.YEAR));
-        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
-
-        String todaysDate = (dd+":"+mm+":"+yy);
-
-        return todaysDate;
+        return TimeManager.getDate();
     }
 
     private void setUserPasswordInFireBase(String password){

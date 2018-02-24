@@ -198,6 +198,9 @@
     <string name="payoutDetails">Click the proceed button if you wish to withdraw your money totals into your
         mobile account. We only support MPesa payouts as of now.</string>
 
+    <string name="payoutAdvertiserDetails">Click the proceed button if you wish for us to reimburse you the remaining amount
+        to your mobile account. We only support MPesa reimbursements for now.</string>
+
     <string name="requiredUserDetails">We only need your phone number and your account password to make the payout.</string>
 
     <string name="noteAboutCreditCardInfo">Note: We do not store any of your credit/debit card information for security reasons.</string>

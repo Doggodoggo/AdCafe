@@ -111,4 +111,7 @@ public class Constants {
     public static String PAUSE_TIMER = "PAUSE_TIMER";
     public static String RESUME_TIMER = "RESUME_TIMER";
 
+    public static long HRS_3_IN_MILLS = (1000*60*60*3);
+    public static long HRS_24_IN_MILLS = (1000*60*60*24);
+
 }

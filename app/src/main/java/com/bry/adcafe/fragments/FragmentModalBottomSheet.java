@@ -102,6 +102,8 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
     };
 
 
+
+
     @Override
     public void setupDialog(Dialog dialog, int style) {
 //        super.setupDialog(dialog, style);
@@ -235,6 +237,9 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
             }
         });
     }
+
+
+
 
     private void showNextSlide2() {
         startNextAnimation();

@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.bry.adcafe.R;
 import com.bry.adcafe.services.SliderPrefManager;
+import com.bry.adcafe.services.TimeManager;
 import com.crashlytics.android.Crashlytics;
 
 import java.text.DateFormatSymbols;
@@ -196,12 +197,7 @@ public class Splash extends AppCompatActivity {
     }
 
     private String getDateInDays(){
-        long currentTimeMillis = System.currentTimeMillis();
-        long extraTimeFromMidnight = currentTimeMillis%(1000*60*60*24);
-//        long currentDay = (currentTimeMillis-extraTimeFromMidnight)/(1000*60*60*24);
-        long currentDay = (currentTimeMillis)/(1000*60*60*24);
-        Log.d("Splash","The current day is : "+currentDay);
-        return Long.toString(-currentDay);
+        return Long.toString(-TimeManager.getDateInDays());
     }
 
 

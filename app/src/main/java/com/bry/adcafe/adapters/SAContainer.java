@@ -14,6 +14,7 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.services.TimeManager;
 import com.bry.adcafe.services.Utils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -269,10 +270,7 @@ public class SAContainer {
     }
 
     private long getDateInDays(){
-        long currentTimeMillis = System.currentTimeMillis();
-        long currentDay = (currentTimeMillis+1000*60*60*3)/(1000*60*60*24);
-        Log.d(TAG,"The current day is : "+currentDay);
-        return currentDay;
+        return TimeManager.getDateInDays();
     }
 
     private String getMonthName_Abbr(int month) {

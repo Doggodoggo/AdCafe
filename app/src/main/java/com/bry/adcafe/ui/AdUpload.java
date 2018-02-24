@@ -41,6 +41,7 @@ import com.bry.adcafe.fragments.FragmentModalBottomSheet;
 import com.bry.adcafe.fragments.FragmentSelectPaymentOptionBottomSheet;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
+import com.bry.adcafe.services.TimeManager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -1109,40 +1110,14 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
 
     private String getDate(){
-        long date = System.currentTimeMillis();
-        SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
-        String MonthString = sdfMonth.format(date);
-
-        SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
-        String dayString = sdfDay.format(date);
-
-        SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
-        String yearString = sdfYear.format(date);
-
-        Calendar c = Calendar.getInstance();
-        String yy = Integer.toString(c.get(Calendar.YEAR));
-        String mm = Integer.toString(c.get(Calendar.MONTH));
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
-
-        String todaysDate = (dayString+":"+MonthString+":"+yearString);
-
-        return todaysDate;
+        return TimeManager.getDate();
     }
 
 
 
 
     private String getNextDay(){
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH,1);
-        String yy = Integer.toString(c.get(Calendar.YEAR));
-        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
-
-        String tomorrowsDate = (dd+":"+mm+":"+yy);
-
-        Log.d(TAG,"Tomorrows date is : "+tomorrowsDate);
-        return tomorrowsDate;
+        return TimeManager.getNextDay();
 
     }
 
@@ -1176,12 +1151,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
 
     private Long getDateInDays(){
-        long currentTimeMillis = System.currentTimeMillis();
-        long extraTimeFromMidnight = currentTimeMillis%(1000*60*60*24);
-//        long currentDay = (currentTimeMillis-extraTimeFromMidnight)/(1000*60*60*24);
-        long currentDay = (currentTimeMillis)/(1000*60*60*24);
-        Log.d(TAG,"The current day is : "+currentDay);
-        return currentDay;
+        return TimeManager.getDateInDays();
     }
 
 }

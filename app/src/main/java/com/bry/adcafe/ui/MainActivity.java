@@ -52,6 +52,7 @@ import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.services.NetworkStateReceiver;
+import com.bry.adcafe.services.TimeManager;
 import com.bry.adcafe.services.Utils;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -1673,19 +1674,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private boolean isAlmostMidNight() {
-        Calendar c = Calendar.getInstance();
-        int hours = c.get(Calendar.HOUR_OF_DAY);
-        int minutes = c.get(Calendar.MINUTE);
-        int seconds = c.get(Calendar.SECOND);
-
-        Log.d(TAG, "Current time is " + hours + ":" + minutes + ":" + seconds);
-        if (hours == 23 && (minutes == 59) && (seconds >= 0)) {
-            Log.d(TAG, "---Day is approaching midnight,returning true to reset the activity and values. Time is:" + hours + " : " + minutes + " : " + seconds);
-            return true;
-        } else {
-            Log.d(TAG, "---Day is not approaching midnight,so activity will continue normally.");
-            return false;
-        }
+        return TimeManager.isAlmostMidNight();
     }
 
 
@@ -1719,24 +1708,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private String getDate() {
-        long date = System.currentTimeMillis();
-        SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
-        String MonthString = sdfMonth.format(date);
-
-        SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
-        String dayString = sdfDay.format(date);
-
-        SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
-        String yearString = sdfYear.format(date);
-
-        Calendar c = Calendar.getInstance();
-        String yy = Integer.toString(c.get(Calendar.YEAR));
-        String mm = Integer.toString(c.get(Calendar.MONTH) + 1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
-
-        String todaysDate = (dd + ":" + mm + ":" + yy);
-
-        return todaysDate;
+        return TimeManager.getDate();
     }
 
     private void resetAdTotalSharedPreferencesAndDayAdTotals() {
@@ -1796,17 +1768,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private String getNextDay() {
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH, 1);
-        String yy = Integer.toString(c.get(Calendar.YEAR));
-        String mm = Integer.toString(c.get(Calendar.MONTH) + 1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
-
-        String tomorrowsDate = (dd + ":" + mm + ":" + yy);
-
-        Log.d(TAG, "Tomorrows date is : " + tomorrowsDate);
-        return tomorrowsDate;
-
+        return TimeManager.getNextDay();
     }
 
     private void setCurrentDateToSharedPrefs() {
@@ -2202,10 +2164,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private String getDateInDays(){
-        long currentTimeMillis = System.currentTimeMillis();
-        long currentDay = (currentTimeMillis+1000*60*60*3)/(1000*60*60*24);
-        Log.d(TAG,"The current day is : "+currentDay);
-        return Long.toString(-currentDay);
+        return Long.toString(-TimeManager.getDateInDays());
     }
 
     private void informUserOfSubscriptionChanges(){

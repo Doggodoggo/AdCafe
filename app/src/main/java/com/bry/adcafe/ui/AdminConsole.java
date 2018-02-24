@@ -24,6 +24,7 @@ import com.bry.adcafe.adapters.AdminAdsItem;
 import com.bry.adcafe.adapters.AdminFeedBackItem;
 import com.bry.adcafe.adapters.AdminStatItem;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.services.TimeManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -226,30 +227,12 @@ public class AdminConsole extends AppCompatActivity implements View.OnClickListe
     }
 
     private String getPreviousDay(){
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH,-1);
-        String yy = Integer.toString(c.get(Calendar.YEAR));
-        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
-
-        String tomorrowsDate = (dd+":"+mm+":"+yy);
-
-        Log.d(TAG,"Tomorrows date is : "+tomorrowsDate);
-        return tomorrowsDate;
+        return TimeManager.getPreviousDay();
 
     }
 
     private String getNextDay(){
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH,1);
-        String yy = Integer.toString(c.get(Calendar.YEAR));
-        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
-
-        String tomorrowsDate = (dd+":"+mm+":"+yy);
-
-        Log.d(TAG,"Tomorrows date is : "+tomorrowsDate);
-        return tomorrowsDate;
+        return TimeManager.getNextDay();
 
     }
 

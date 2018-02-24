@@ -75,6 +75,8 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
         }
     };
 
+
+
     @Override
     public void setupDialog(Dialog dialog, int style) {
         View contentView = View.inflate(getContext(), R.layout.fragment_payout_bottomsheet, null);

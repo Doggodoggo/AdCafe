@@ -652,24 +652,7 @@ public class DatabaseManager {
     }
 
     private String getDate(){
-        long date = System.currentTimeMillis();
-        SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
-        String MonthString = sdfMonth.format(date);
-
-        SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
-        String dayString = sdfDay.format(date);
-
-        SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
-        String yearString = sdfYear.format(date);
-
-        Calendar c = Calendar.getInstance();
-        String yy = Integer.toString(c.get(Calendar.YEAR));
-        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
-
-        String todaysDate = (dd+":"+mm+":"+yy);
-
-        return todaysDate;
+        return TimeManager.getDate();
     }
 
 
@@ -1010,10 +993,7 @@ public class DatabaseManager {
     }
 
     private long getDateInDays(){
-        long currentTimeMillis = System.currentTimeMillis();
-        long currentDay = (currentTimeMillis+1000*60*60*3)/(1000*60*60*24);
-        Log.d(TAG,"The current day is : "+currentDay);
-        return currentDay;
+        return TimeManager.getDateInDays();
     }
 
 

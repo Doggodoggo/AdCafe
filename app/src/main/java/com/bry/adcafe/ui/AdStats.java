@@ -32,6 +32,7 @@ import com.bry.adcafe.adapters.TomorrowsAdStatItem;
 import com.bry.adcafe.fragments.FragmentAdvertiserPayoutBottomsheet;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
+import com.bry.adcafe.services.TimeManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -380,51 +381,16 @@ public class AdStats extends AppCompatActivity {
 
 
     private String getDate(){
-        long date = System.currentTimeMillis();
-        SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
-        String MonthString = sdfMonth.format(date);
-
-        SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
-        String dayString = sdfDay.format(date);
-
-        SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
-        String yearString = sdfYear.format(date);
-
-        Calendar c = Calendar.getInstance();
-        String yy = Integer.toString(c.get(Calendar.YEAR));
-        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
-
-        String todaysDate = (dd+":"+mm+":"+yy);
-
-        return todaysDate;
+        return TimeManager.getDate();
     }
 
     private String getPreviousDay(){
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH,-1);
-        String yy = Integer.toString(c.get(Calendar.YEAR));
-        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
-
-        String tomorrowsDate = (dd+":"+mm+":"+yy);
-
-        Log.d(TAG,"Tomorrows date is : "+tomorrowsDate);
-        return tomorrowsDate;
+        return TimeManager.getPreviousDay();
 
     }
 
     private String getNextDay(){
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH,1);
-        String yy = Integer.toString(c.get(Calendar.YEAR));
-        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
-
-        String tomorrowsDate = (dd+":"+mm+":"+yy);
-
-        Log.d(TAG,"Tomorrows date is : "+tomorrowsDate);
-        return tomorrowsDate;
+        return TimeManager.getNextDay();
 
     }
 

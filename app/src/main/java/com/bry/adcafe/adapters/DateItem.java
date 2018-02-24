@@ -29,6 +29,7 @@ import com.mindorks.placeholderview.annotations.Resolve;
 import com.mindorks.placeholderview.annotations.View;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -186,34 +187,7 @@ public class DateItem {
 
     }
 
-//    private void loadBroadcastListeners() {
-//        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForRemoveBlank,
-//                new IntentFilter("REMOVE_BLANK_ITEMS"));
-//        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToUnregisterAllReceivers,
-//                new IntentFilter("UNREGISTER"));
-//    }
-//
-//    private BroadcastReceiver mMessageReceiverForRemoveBlank = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            Log.d("DateItemBlank","Received broadcast to Remove blank");
-//            removeItem();
-//            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
-//            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverToUnregisterAllReceivers);
-//
-//        }
-//    };
-//
-//    private BroadcastReceiver mMessageReceiverToUnregisterAllReceivers = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            Log.d("DateItemBlank-","Received broadcast to Unregister all receivers");
-//
-//            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
-//            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForRemoveBlank);
-//
-//        }
-//    };
+
 
     private void removeItem(){
         removeListeners();
@@ -258,5 +232,6 @@ public class DateItem {
             }
         }
     }
+
 
 }

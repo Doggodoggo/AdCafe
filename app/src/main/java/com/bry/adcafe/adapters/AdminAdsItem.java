@@ -16,6 +16,7 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.services.TimeManager;
 import com.bumptech.glide.Glide;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -134,16 +135,7 @@ public class AdminAdsItem {
     }
 
     private String getNextDay(){
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH,1);
-        String yy = Integer.toString(c.get(Calendar.YEAR));
-        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
-
-        String tomorrowsDate = (dd+":"+mm+":"+yy);
-
-        Log.d("AdminAdsItem - ","Tomorrows date is : "+tomorrowsDate);
-        return tomorrowsDate;
+        return TimeManager.getNextDay();
 
     }
 

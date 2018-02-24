@@ -28,6 +28,7 @@ import android.util.Log;
 
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
+import com.bry.adcafe.services.TimeManager;
 import com.bry.adcafe.ui.LoginActivity;
 import com.bry.adcafe.ui.Splash;
 import com.google.firebase.auth.FirebaseAuth;
@@ -139,6 +140,9 @@ public class AlarmReceiver1 extends BroadcastReceiver {
         });
     }
 
+
+
+
     private void checkNumberForEach(){
         int currentClusterToBeChecked = getClusterValue(iterations);
         String Subscription = getSubscriptionValue(iterations);
@@ -203,6 +207,9 @@ public class AlarmReceiver1 extends BroadcastReceiver {
         }
     }
 
+
+
+
     private void handleEverything(int number) {
         String message;
         if (number > 1)message = "Hey "+userName+", "+ "we've got " + number + " ads for you today."+Html.fromHtml("&#128076;") ;
@@ -243,39 +250,16 @@ public class AlarmReceiver1 extends BroadcastReceiver {
     }
 
     private String getDate(){
-        long date = System.currentTimeMillis();
-        SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
-        String MonthString = sdfMonth.format(date);
-
-        SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
-        String dayString = sdfDay.format(date);
-
-        SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
-        String yearString = sdfYear.format(date);
-
-        Calendar c = Calendar.getInstance();
-        String yy = Integer.toString(c.get(Calendar.YEAR));
-        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
-
-        String todaysDate = (dd+":"+mm+":"+yy);
-
-        return todaysDate;
+        return TimeManager.getDate();
     }
 
     private String getNextDay(){
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH,1);
-        String yy = Integer.toString(c.get(Calendar.YEAR));
-        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
-
-        String tomorrowsDate = (dd+":"+mm+":"+yy);
-
-        Log.d("AlarmReceiver","Tomorrows date is : "+tomorrowsDate);
-        return tomorrowsDate;
+        return TimeManager.getNextDay();
 
     }
+
+
+
 
     private void cancelAlarm(){
         if(notificationManager!=null)

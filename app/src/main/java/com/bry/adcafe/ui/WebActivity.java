@@ -19,7 +19,7 @@ public class WebActivity extends AppCompatActivity {
 
         WebView myWebView = (WebView)findViewById(R.id.myWebView);
         WebSettings myWebSetttings = myWebView.getSettings();
-        myWebSetttings.setJavaScriptEnabled(true);
+//        myWebSetttings.setJavaScriptEnabled(true);
         myWebView.loadUrl("");
         myWebView.setWebViewClient(new WebViewClient());
     }
