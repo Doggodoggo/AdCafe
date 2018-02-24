@@ -46,6 +46,11 @@ public class AdCounterBar {
     private String mKey = "";
 
     private InitTask IT = null;
+    private int i = 7000;
+    private boolean hasPausedTimer = false;
+    private boolean isTimerBeingResumed = false;
+    private boolean areReceiversRegistered = false;
+    private boolean cancelTimerEntirely = false;
 
 
 
@@ -57,16 +62,33 @@ public class AdCounterBar {
     @Resolve
     private void onResolved() {
         adCounter.setText(Integer.toString(Variables.getAdTotal(mKey)));
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToStartTimer, new IntentFilter(Constants.ADVERT_CARD_BROADCAST_TO_START_TIMER));
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToUnregisterAllReceivers, new IntentFilter(Constants.UNREGISTER_ALL_RECEIVERS));
-//        startTimer3();
+        if(!areReceiversRegistered) registerReceivers();
+    }
+
+    private void registerReceivers(){
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToStartTimer,
+                new IntentFilter(Constants.ADVERT_CARD_BROADCAST_TO_START_TIMER));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToUnregisterAllReceivers,
+                new IntentFilter(Constants.UNREGISTER_ALL_RECEIVERS));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToPauseTimer,
+                new IntentFilter(Constants.PAUSE_TIMER));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToResumeTimer,
+                new IntentFilter(Constants.RESUME_TIMER));
+        areReceiversRegistered = true;
+    }
+
+    private void unregisterReceivers(){
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverToStartTimer);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverToUnregisterAllReceivers);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverToPauseTimer);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverToResumeTimer);
+        areReceiversRegistered = false;
     }
 
     private BroadcastReceiver mMessageReceiverToStartTimer = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("AD_COUNTER_BAR - ", "Broadcast has been received to start timer.");
-//            startTimer();
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -81,10 +103,39 @@ public class AdCounterBar {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("AD_COUNTER_BAR--", "Received broadcast to Unregister all receivers");
-            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverToStartTimer);
-            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverToUnregisterAllReceivers);
-            if(hasTimerStarted) IT.cancel(true);
+            unregisterReceivers();
+            if(hasTimerStarted){
+                cancelTimerEntirely = true;
+//                IT.cancel(true);
+            }
 
+        }
+    };
+
+    private BroadcastReceiver mMessageReceiverToPauseTimer = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("AD_COUNTER_BAR - ", "Broadcast has been received to pause timer.");
+            if(hasTimerStarted) {
+                hasPausedTimer = true;
+            }
+        }
+    };
+
+    private BroadcastReceiver mMessageReceiverToResumeTimer = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("AD_COUNTER_BAR - ", "Broadcast has been received to resume timer.");
+            if(hasPausedTimer) {
+                hasPausedTimer = false;
+                isTimerBeingResumed = true;
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        startTimer2();
+                    }
+                }, 10);
+            }
         }
     };
 
@@ -126,9 +177,17 @@ public class AdCounterBar {
 
     private void startTimer2() {
         if (!hasTimerStarted) {
+            Variables.hasBeenPinned = false;
             hasTimerStarted = true;
             Log.d("AdCounterBar", "Starting timer from asynch task");
             hasTimerMessageBeenSent = false;
+            if(IT!=null) IT = null;
+            IT = new InitTask();
+            IT.execute();
+        }
+        if(isTimerBeingResumed){
+            Log.d("AdCounterBar", "Resuming timer from asynch task");
+            isTimerBeingResumed = false;
             if(IT!=null) IT = null;
             IT = new InitTask();
             IT.execute();
@@ -206,14 +265,13 @@ public class AdCounterBar {
             Log.d("AdCounterBar","Preparing to start timer");
             Variables.hasTimerStarted = true;
             hasTimerStarted = true;
-            Variables.hasBeenPinned = false;
             super.onPreExecute();
         }
 
         @Override
         protected String doInBackground(Context... params) {
-            int i = 7000;
-            while (i > 0) {
+//            int i = 7000;
+            while (i > 0 && !hasPausedTimer && !cancelTimerEntirely) {
                 try {
                     Thread.sleep(50);
                     if(Variables.isAllClearToContinueCountDown){
@@ -240,13 +298,10 @@ public class AdCounterBar {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            resetTimer();
-            Log.d("Timer --- ", "Timer has finnished");
-//            sendBroadcast(Constants.TIMER_HAS_ENDED);
-//            addToSharedPreferencesViaBroadcast();
-//            hasTimerStarted = false;
-//            adCounter.setText(Integer.toString(Variables.getAdTotal(mKey)+1));
-//            textViewTime.setText(Integer.toString(7));
+            if(!hasPausedTimer && !cancelTimerEntirely){
+                resetTimer();
+                Log.d("Timer --- ", "Timer has finnished");
+            }
         }
     }
 
@@ -263,12 +318,12 @@ public class AdCounterBar {
 
         @Override
         protected String doInBackground(Context... params) {
-            int i = 0;
-            while (i <= 140) {
+            int j = 0;
+            while (j <= 140) {
                 try {
                     Thread.sleep(50);
-                    i += 20;
-                    publishProgress(i);
+                    j += 20;
+                    publishProgress(j);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -287,6 +342,7 @@ public class AdCounterBar {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             progressBarTimer.setProgress(140);
+            i = 7000;
             sendBroadcast(Constants.TIMER_HAS_ENDED);
             addToSharedPreferencesViaBroadcast();
             hasTimerStarted = false;
@@ -295,4 +351,6 @@ public class AdCounterBar {
         }
 
     }
+
+
 }

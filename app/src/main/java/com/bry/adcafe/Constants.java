@@ -108,5 +108,7 @@ public class Constants {
     public static double TOTAL_PAYOUT_PERCENTAGE = 0.05;
 
     public static String USER_PASSCODE = "Password";
+    public static String PAUSE_TIMER = "PAUSE_TIMER";
+    public static String RESUME_TIMER = "RESUME_TIMER";
 
 }

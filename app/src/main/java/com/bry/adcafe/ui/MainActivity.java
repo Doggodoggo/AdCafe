@@ -184,15 +184,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override protected void onResume() {
         Variables.isMainActivityOnline = true;
-        super.onResume();
-        if(isTimerPausedBecauseOfOfflineActivity) setBooleanForResumingTimer();
-//        try{
-//            onclicks();
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }finally {
-//
-//        }
+        if(isTimerPausedBecauseOfOfflineActivity) {
+            Log.d(TAG,"resuming timer by starting it");
+            resumeTimerByStartingIt();
+        }
         if (!getCurrentDateInSharedPreferences().equals("0") && !getCurrentDateInSharedPreferences().equals(getDate())) {
             Log.d(TAG, "---Date in shared preferences does not match current date,therefore resetting everything.");
             sendBroadcastToUnregisterAllReceivers();
@@ -231,15 +226,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
         h.postDelayed(r, 60000);
+        super.onResume();
     }
 
     @Override protected void onPause() {
         super.onPause();
         h.removeCallbacks(r);
-        setBooleanForPausingTimer();
-        isTimerPausedBecauseOfOfflineActivity = true;
+        if(Variables.hasTimerStarted){
+            pauseTimerByStoppingItEntirely();
+            isTimerPausedBecauseOfOfflineActivity = true;
+        }
         setCurrentDateToSharedPrefs();
         setUserDataInSharedPrefs();
+
     }
 
 
@@ -2031,7 +2030,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void startShareImage(){
         if(Variables.getCurrentAdvert().getImageBitmap()!=null) shareImage(Variables.getCurrentAdvert().getImageBitmap());
-        else if(Variables.getCurrentAdvert().getImageUrl()!=null){
+        else if(!Variables.getCurrentAdvert().getImageUrl().equals("")){
             try{
                 Bitmap image = decodeFromFirebaseBase64(Variables.getCurrentAdvert().getImageUrl());
                 shareImage(image);
@@ -2040,11 +2039,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }else{
             try{
-                int number = Variables.hasTimerStarted ? Variables.getCurrentAdNumberForAllAdsList()
-                        : Variables.getCurrentAdNumberForAllAdsList() - 1;
-                Bitmap image = decodeFromFirebaseBase64(Variables.getAdFromVariablesAdList
-                        (number).getImageUrl());
+                Bitmap image = decodeFromFirebaseBase64(Variables.getCurrentAdvert().getImageUrl());
                 shareImage(image);
+//                int number = Variables.hasTimerStarted ? Variables.getCurrentAdNumberForAllAdsList()
+//                        : Variables.getCurrentAdNumberForAllAdsList() - 1;
+//                Bitmap image = decodeFromFirebaseBase64(Variables.getAdFromVariablesAdList
+//                        (number).getImageUrl());
+//                shareImage(image);
             }catch (Exception e){
                 e.printStackTrace();
                 Intent intent  = new Intent("SET_IMAGE_FOR_SHARING"+Variables.getCurrentAdvert().getPushRefInAdminConsole());
@@ -2320,6 +2321,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void setBooleanForResumingTimer(){
         Log.d(TAG,"Setting boolean for resuming timer.");
         if(!Variables.isAllClearToContinueCountDown)Variables.isAllClearToContinueCountDown = true;
+    }
+
+    private void pauseTimerByStoppingItEntirely(){
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Constants.PAUSE_TIMER));
+    }
+
+    private void resumeTimerByStartingIt(){
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Constants.RESUME_TIMER));
     }
 
 //    Font: AR ESSENCE.

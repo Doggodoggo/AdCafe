@@ -261,6 +261,10 @@ public class SAContainer {
             ret = "Yesterday";
         }
 
+        if((-days) == getDateInDays()){
+            ret = "Today";
+        }
+
         return ret;
     }
 
