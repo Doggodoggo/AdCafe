@@ -128,10 +128,9 @@ public class TimeManager {
 
     public static String getNextDay() {
         Calendar c = cal;
-        c.add(Calendar.DAY_OF_MONTH, 1);
         String yy = Integer.toString(c.get(Calendar.YEAR));
         String mm = Integer.toString(c.get(Calendar.MONTH) + 1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
+        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH)+1);
 
         String tomorrowsDate = (dd + ":" + mm + ":" + yy);
 
@@ -152,10 +151,9 @@ public class TimeManager {
 
     public static String getPreviousDay(){
         Calendar c = cal;
-        c.add(Calendar.DAY_OF_MONTH,-1);
         String yy = Integer.toString(c.get(Calendar.YEAR));
         String mm = Integer.toString(c.get(Calendar.MONTH)+1);
-        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
+        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH)-1);
 
         String tomorrowsDate = (dd+":"+mm+":"+yy);
 
@@ -174,6 +172,20 @@ public class TimeManager {
         int year = cal.get(Calendar.YEAR);
 
         return (dayOfMonth + ":" + monthOfYear + ":" + year);
+    }
+
+    public static String getNextDayPlus(){
+        Calendar c = cal;
+        String yy = Integer.toString(c.get(Calendar.YEAR));
+        String mm;
+        if((c.get(Calendar.MONTH) + 1)>10) mm = Integer.toString(c.get(Calendar.MONTH) + 1);
+        else mm = "0"+Integer.toString(c.get(Calendar.MONTH) + 1);
+        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH)+1);
+
+        String tomorrowsDate = (dd + ":" + mm + ":" + yy);
+
+        Log.d(TAG, "Tomorrows date is : " + tomorrowsDate);
+        return tomorrowsDate;
     }
 
 

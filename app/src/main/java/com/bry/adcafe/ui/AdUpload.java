@@ -590,7 +590,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         FragmentModalBottomSheet fragmentModalBottomSheet = new FragmentModalBottomSheet();
 
         fragmentModalBottomSheet.setDetails((mNumberOfClusters*Constants.NUMBER_OF_USERS_PER_CLUSTER),
-                mAmountPlusOurShare, getNextDay(), mCategory,userEmail,Variables.userName);
+                mAmountPlusOurShare, TimeManager.getNextDayPlus(), mCategory,userEmail,Variables.userName);
         fragmentModalBottomSheet.setActivity(AdUpload.this);
 
         fragmentModalBottomSheet.show(getSupportFragmentManager(),"BottomSheet Fragment");
