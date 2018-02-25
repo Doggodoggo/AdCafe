@@ -13,7 +13,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -42,7 +46,9 @@ public class TimeManager {
 
     private static void getCurrentNetworkTime(final String callbackString, final Context context) {
         OkHttpClient client = new OkHttpClient();
-        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://api.timezonedb.com/v2/list-time-zone?key=KGGAQAWJNQZS&format=json&country=KE").newBuilder();
+        String url1 = "http://api.timezonedb.com/v2/get-time-zone?key=KGGAQAWJNQZS&format=json&by=zone&zone=Africa/Nairobi";
+        String url2 = "http://api.timezonedb.com/v2/list-time-zone?key=KGGAQAWJNQZS&format=json&country=KE";
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(url1).newBuilder();
         String url = urlBuilder
                 .build()
                 .toString();
@@ -68,15 +74,33 @@ public class TimeManager {
             String jsonData = response.body().string();
             if (response.isSuccessful()) {
                 JSONObject timeJSON = new JSONObject(jsonData);
-                JSONArray arrayPart = timeJSON.getJSONArray("zones");
-                JSONObject timePlaceOb = arrayPart.getJSONObject(0);
-                Long timestamp = timePlaceOb.getLong("timestamp");
-                Log.d("Response","Timestamp time gotten is : "+timestamp);
-                setCalendar((timestamp-(3*60*60))*1000);
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(callbackString));
+                if(timeJSON.getString("status").equals("OK")){
+                    Long timestamp = timeJSON.getLong("timestamp");
+                    String date = timeJSON.getString("formatted");
+                    Log.d("Response","Time and date gotten is : "+date);
+                    Log.d("Response","Timestamp time gotten is : "+timestamp);
+
+                    setCalendar2(date,((timestamp-(3*60*60))*1000));
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(callbackString));
+                }
             }
         }catch (IOException | JSONException e) {
             e.printStackTrace();
+        }
+
+    }
+
+    private static void setCalendar2(String timeNDay,long timeInMills){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+        try {
+            Date dt = sdf.parse(timeNDay);
+            cal = Calendar.getInstance();
+            cal.setTime(dt);
+            updateTimer();
+            isTimeManagerInitialized = true;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            setCalendar(timeInMills);
         }
 
     }
