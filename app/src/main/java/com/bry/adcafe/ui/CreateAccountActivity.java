@@ -184,19 +184,18 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         mAuth.addAuthStateListener(mAuthListener);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFinishedCreatingUserSpace,
                 new IntentFilter(Constants.CREATE_USER_SPACE_COMPLETE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForSetUpTime,
+                new IntentFilter(Constants.LOAD_TIME));
+
     }
 
     @Override
     public void onStop(){
         super.onStop();
         if(mAuthListener!=null) mAuth.removeAuthStateListener(mAuthListener);
-//        if(mRef1!=null){
-//            mRef1.removeEventListener(val);
-//        }
-//        if(mRef2!=null){
-//            mRef2.removeEventListener(val);
-//        }
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedCreatingUserSpace);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForSetUpTime);
+
     }
 
     private BroadcastReceiver mMessageReceiverForFinishedCreatingUserSpace = new BroadcastReceiver() {
@@ -207,11 +206,11 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         }
     };
 
-    private BroadcastReceiver mMessageReceiverForFinishedCreatingUserSubscriptionList = new BroadcastReceiver() {
+    private BroadcastReceiver mMessageReceiverForSetUpTime = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG,"Finished creating user subscription list");
-//            startMainActivity();
+            Log.d(TAG,"Finished setting up time.");
+            reallySetUpUserSpace();
         }
     };
 
@@ -270,6 +269,8 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
             Toast.makeText(mContext,"Your email is not verified!",Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
 
     private void startMainActivity(){
@@ -336,13 +337,13 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
 
 
 
-
-    private String getDate(){
-        return TimeManager.getDate();
-    }
-
     private void setUpUserSpace(){
         mRelative.setVisibility(View.GONE);
+        if(!TimeManager.isTimeManagerInitialized) TimeManager.setUpTimeManager(Constants.LOAD_TIME, mContext);
+        else reallySetUpUserSpace();
+    }
+
+    private void reallySetUpUserSpace(){
         DatabaseManager dbManager = new DatabaseManager();
         dbManager.createUserSpace(mContext);
     }

@@ -77,8 +77,23 @@ public class AlarmReceiver1 extends BroadcastReceiver {
 
         SharedPreferences prefs = context.getSharedPreferences(Constants.PREFERRED_NOTIF, MODE_PRIVATE);
         Boolean doesUserWantNotf = prefs.getBoolean(Constants.PREFERRED_NOTIF, true);
-        if(isUserLoggedIn() && doesUserWantNotf) checkIfUserWasLastOnlineToday();
+        if(isUserLoggedIn() && doesUserWantNotf) loadTimeFirst();
     }
+
+    private void loadTimeFirst(){
+        TimeManager.setUpTimeManager(Constants.LOAD_TIME, mContext);
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSetUpTime,
+                new IntentFilter(Constants.LOAD_TIME));
+    }
+
+    private BroadcastReceiver mMessageReceiverForSetUpTime = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG,"Finished setting up time.");
+            checkIfUserWasLastOnlineToday();
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+        }
+    };
 
     private void checkIfUserWasLastOnlineToday(){
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();

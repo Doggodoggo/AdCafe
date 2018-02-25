@@ -27,6 +27,7 @@ import com.bry.adcafe.Variables;
 import com.bry.adcafe.adapters.SelectCategoryAdvertiserItem;
 import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.GetAmmountPerUserFragment;
+import com.bry.adcafe.services.TimeManager;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -63,7 +64,7 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
         ButterKnife.bind(this);
         mContext = this.getApplicationContext();
         acCont = SelectCategoryAdvertiser.this;
-        if(isOnline(mContext)) loadUserStatsFirst();
+        if(isOnline(mContext)) setUpTimeIfNeedBe();
         else{
             mainView.setVisibility(View.GONE);
             failedToLoadLayout.setVisibility(View.VISIBLE);
@@ -76,6 +77,26 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
                 new IntentFilter("START_NEXT_ACTIVITY"));
 
     }
+
+    private void setUpTimeIfNeedBe(){
+        if(!TimeManager.isTimeManagerInitialized) {
+            failedToLoadLayout.setVisibility(View.GONE);
+            mainView.setVisibility(View.GONE);
+            loadingLayout.setVisibility(View.VISIBLE);
+            TimeManager.setUpTimeManager(Constants.LOAD_TIME, mContext);
+            LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForSetUpTime,
+                    new IntentFilter(Constants.LOAD_TIME));
+        } else loadUserStatsFirst();
+    }
+
+    private BroadcastReceiver mMessageReceiverForSetUpTime = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG,"Finished setting up time.");
+            loadUserStatsFirst();
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+        }
+    };
 
     private void loadUserStatsFirst(){
         failedToLoadLayout.setVisibility(View.GONE);

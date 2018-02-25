@@ -1,5 +1,6 @@
 package com.bry.adcafe.ui;
 
+import android.animation.TimeAnimator;
 import android.app.AlarmManager;
 import android.app.FragmentManager;
 import android.app.NotificationManager;
@@ -161,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mBottomNavButtons.setVisibility(View.GONE);
             cannotLoadLayout.setVisibility(View.VISIBLE);
             retryLoadingFromCannotLoad.setOnClickListener(this);
-        } else loadAdsFromThread();
+        } else setUpTimeIfNeedBe();
         logUser();
 
         mAviLoadingMoreAds.hide();
@@ -171,6 +172,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    private void setUpTimeIfNeedBe(){
+        if(!TimeManager.isTimeManagerInitialized) {
+            hideViews();
+            TimeManager.setUpTimeManager(Constants.LOAD_TIME, mContext);
+            LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForSetUpTime,
+                    new IntentFilter(Constants.LOAD_TIME));
+        } else loadAdsFromThread();
     }
 
 
@@ -1257,6 +1267,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         finish();
     }
 
+    private BroadcastReceiver mMessageReceiverForSetUpTime = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG,"Finished setting up time.");
+            loadAdsFromThread();
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+        }
+    };
 
     private BroadcastReceiver mMessageReceiverForUnhideVeiws = new BroadcastReceiver() {
         @Override

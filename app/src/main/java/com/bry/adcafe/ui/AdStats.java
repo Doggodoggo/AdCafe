@@ -88,8 +88,7 @@ public class AdStats extends AppCompatActivity {
             findViewById(R.id.LoadingViews).setVisibility(View.VISIBLE);
             registerReceivers();
             createProgressDialog();
-//            loadAdsThatHaveBeenUploaded();
-            loadTomorrowsUploadedAds();
+            setUpTimeIfNeedBe();
         }else{
             showNoConnectionView();
         }
@@ -133,6 +132,23 @@ public class AdStats extends AppCompatActivity {
     }
 
 
+
+    private void setUpTimeIfNeedBe(){
+        if(!TimeManager.isTimeManagerInitialized) {
+            TimeManager.setUpTimeManager(Constants.LOAD_TIME, mContext);
+            LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForSetUpTime,
+                    new IntentFilter(Constants.LOAD_TIME));
+        } else loadTomorrowsUploadedAds();
+    }
+
+    private BroadcastReceiver mMessageReceiverForSetUpTime = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG,"Finished setting up time.");
+            loadTomorrowsUploadedAds();
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+        }
+    };
 
 
     private void loadTomorrowsUploadedAds() {

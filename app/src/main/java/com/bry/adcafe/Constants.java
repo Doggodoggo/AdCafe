@@ -113,5 +113,6 @@ public class Constants {
 
     public static long HRS_3_IN_MILLS = (1000*60*60*3);
     public static long HRS_24_IN_MILLS = (1000*60*60*24);
+    public static String LOAD_TIME = "LOAD_TIME";
 
 }

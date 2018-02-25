@@ -77,14 +77,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Context mContext;
     private String mKey = "";
     private boolean mIsLoggingIn = false;
-//    private boolean mHasLoadingMonthTotalsFailed;
-//    private boolean mHasLoadingDayTotalsFailed;
-    private boolean mIsLastOnlineToday;
 
     private boolean hasEverythingLoaded;
     private boolean isActivityVisible;
 
-
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
@@ -96,6 +93,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mContext = this.getApplicationContext();
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForFinishedLoadingData,new IntentFilter(Constants.LOADED_USER_DATA_SUCCESSFULLY));
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForFailedToLoadData,new IntentFilter(Constants.FAILED_TO_LOAD_USER_DATA));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForSetUpTime,new IntentFilter(Constants.LOAD_TIME));
         Variables.isLoginOnline = true;
 
         mPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -124,11 +122,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         mAvi.setVisibility(View.VISIBLE);
                         mLoadingMessage.setVisibility(View.VISIBLE);
                         mIsLoggingIn = false;
-                        Variables.Subscriptions.clear();
-                        DatabaseManager dbMan = new DatabaseManager();
-                        dbMan.setContext(mContext);
-                        dbMan.loadUserData(mContext);
-//                        lastUsed();
+
+                        startLoadingUserData();
                     }else{
                         setNoInternetView();
                     }
@@ -201,6 +196,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     };
 
+    private BroadcastReceiver mMessageReceiverForSetUpTime = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG,"Finished setting up time.");
+            reallyStartLoadingUserData();
+        }
+    };
+
     @Override
     protected void onStart(){
         super.onStart();
@@ -246,6 +249,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         Variables.isLoginOnline = false;
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFailedToLoadData);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedLoadingData);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForSetUpTime);
         super.onDestroy();
     }
 
@@ -273,10 +277,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 mRelative.setVisibility(View.GONE);
                 mAvi.setVisibility(View.VISIBLE);
                 mLoadingMessage.setVisibility(View.VISIBLE);
-                Variables.Subscriptions.clear();
-                DatabaseManager dbMan = new DatabaseManager();
-                dbMan.loadUserData(mContext);
-//                lastUsed();
+                startLoadingUserData();
             }else{
                 Log.d(TAG,"No internet connection!!");
                 Toast.makeText(mContext,"You've may not have an internet connection.",Toast.LENGTH_SHORT).show();
@@ -288,10 +289,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             mAvi.setVisibility(View.VISIBLE);
             mLoadingMessage.setVisibility(View.VISIBLE);
             Toast.makeText(mContext,"Retrying...",Toast.LENGTH_SHORT).show();
-//            lastUsed();
-            Variables.Subscriptions.clear();
-            DatabaseManager dbMan = new DatabaseManager();
-            dbMan.loadUserData(mContext);
+            startLoadingUserData();
         }
     }
 
@@ -342,6 +340,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
 
 
+
+
     public boolean isOnline(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -349,12 +349,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         return (netInfo != null && netInfo.isConnected());
     }
 
-    private String getDate(){
-        return TimeManager.getDate();
-    }
-
     private void setUserPasswordInFireBase(String password){
         new DatabaseManager().setUsersNewPassword(password);
+    }
+
+
+    private void startLoadingUserData(){
+        if(!TimeManager.isTimeManagerInitialized) TimeManager.setUpTimeManager(Constants.LOAD_TIME,mContext);
+        else reallyStartLoadingUserData();
+    }
+
+    private void reallyStartLoadingUserData(){
+        Variables.Subscriptions.clear();
+        DatabaseManager dbMan = new DatabaseManager();
+        dbMan.setContext(mContext);
+        dbMan.loadUserData(mContext);
     }
 
 }
