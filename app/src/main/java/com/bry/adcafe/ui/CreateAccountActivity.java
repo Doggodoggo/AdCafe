@@ -339,7 +339,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
 
     private void setUpUserSpace(){
         mRelative.setVisibility(View.GONE);
-        if(!TimeManager.isTimeManagerInitialized) TimeManager.setUpTimeManager(Constants.LOAD_TIME, mContext);
+        if(!TimeManager.isTimerOnline()) TimeManager.setUpTimeManager(Constants.LOAD_TIME, mContext);
         else reallySetUpUserSpace();
     }
 

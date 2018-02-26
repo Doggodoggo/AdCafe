@@ -32,12 +32,15 @@ import okhttp3.Response;
 
 public class TimeManager {
     private static final String TAG = TimeManager.class.getSimpleName();
-
     private static Calendar cal;
     private static Handler h = new Handler();
     private static Runnable r;
-
     public static boolean isTimeManagerInitialized = false;
+
+
+    public static boolean isTimerOnline(){
+        return cal != null;
+    }
 
 
     public static void setUpTimeManager(String callbackString , Context context){
@@ -89,6 +92,9 @@ public class TimeManager {
         }
 
     }
+
+
+
 
     private static void setCalendar2(String timeNDay,long timeInMills){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);

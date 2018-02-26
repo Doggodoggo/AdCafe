@@ -194,6 +194,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override protected void onResume() {
+        super.onResume();
+        if (!TimeManager.isTimerOnline()) handleOnResumeMethodsIfTimeIsOffline();
+        else handleOnResumeMethodsAndLogic();
+    }
+
+    private void handleOnResumeMethodsAndLogic(){
         Variables.isMainActivityOnline = true;
         if(isTimerPausedBecauseOfOfflineActivity) {
             Log.d(TAG,"resuming timer by starting it");
@@ -237,7 +243,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
         h.postDelayed(r, 60000);
-        super.onResume();
+    }
+
+    private void handleOnResumeMethodsIfTimeIsOffline(){
+        TimeManager.setUpTimeManager("RESET_UP_TIMER",mContext);
+        mAvi.setVisibility(View.VISIBLE);
+        mLoadingText.setVisibility(View.VISIBLE);
+        mBottomNavButtons.setVisibility(View.GONE);
+        mSwipeView.setVisibility(View.INVISIBLE);
+        mAdCounterView.setVisibility(View.INVISIBLE);
+        findViewById(R.id.easterText).setVisibility(View.GONE);
+        mAviLoadingMoreAds.setVisibility(View.GONE);
+        LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                handleOnResumeMethodsAndLogic();
+                LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
+                Log.d(TAG,"Unhiding views");
+                mAdCounterView.setVisibility(View.VISIBLE);
+                mAvi.setVisibility(View.GONE);
+                mLoadingText.setVisibility(View.GONE);
+                mBottomNavButtons.setVisibility(View.VISIBLE);
+                findViewById(R.id.easterText).setVisibility(View.VISIBLE);
+                mSwipeView.setVisibility(View.VISIBLE);
+            }
+        },new IntentFilter("RESET_UP_TIMER"));
     }
 
     @Override protected void onPause() {

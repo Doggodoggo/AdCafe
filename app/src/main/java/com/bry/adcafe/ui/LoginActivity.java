@@ -355,7 +355,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
     private void startLoadingUserData(){
-        if(!TimeManager.isTimeManagerInitialized) TimeManager.setUpTimeManager(Constants.LOAD_TIME,mContext);
+        if(!TimeManager.isTimerOnline()) TimeManager.setUpTimeManager(Constants.LOAD_TIME,mContext);
         else reallyStartLoadingUserData();
     }
 

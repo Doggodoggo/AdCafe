@@ -79,7 +79,7 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
     }
 
     private void setUpTimeIfNeedBe(){
-        if(!TimeManager.isTimeManagerInitialized) {
+        if(!TimeManager.isTimerOnline()) {
             failedToLoadLayout.setVisibility(View.GONE);
             mainView.setVisibility(View.GONE);
             loadingLayout.setVisibility(View.VISIBLE);

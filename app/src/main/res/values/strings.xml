@@ -105,6 +105,9 @@
     <string name="adcounterExplanation">The AdCounter simply shows you the number of adverts you\'ve seen in the day.</string>
 
 
+
+
+
     <string name="slide10text">Below the AdCards are buttons which can help you do more cool stuff.</string>
     <string name="logoutbuttonexplanation">Logout Button : You can logout of your account using this button.</string>
     <string name="pinlisticon">Ad Archive Button : This will open a window where you can view all your pinned ads.</string>
@@ -148,6 +151,10 @@
     <string name="advertisePageExplaation">The page is designed similar to the main page. This basically will give you a feel of how the
         banner will look in real time.</string>
 
+
+
+
+
     <string name="advertisebuttonstext">Below the mock card are a few buttons which will help you select and upload your ad.</string>
 
     <string name="selectimagebutton">Select Image button : This button will help you choose an image from your gallery.</string>
@@ -185,6 +192,9 @@
     <string name="tutorialExplanationAdvertiser6.3">So if you were to target the 3Ksh users, you would pay 5250Ksh per 1000 users reached
         &#13;&#10; i.e   3Ksh + 2Ksh per user reached, plus 5% on the total amount paid (for transaction fees).</string>
 
+
+
+
     <string name="tutorialExplanationAdvertiser6.4">We charge 2Ksh on top of the amount charged by the users, for every user reached
         <br />(thus the 3Ksh + 2Ksh). Also an extra transaction fee is charged for making the payments. Remember that.</string>
 
@@ -211,7 +221,16 @@
     <string name="resetPasswordDetails">We can send you a password reset email. After resetting, the changes will take effect in a couple
         of moments.</string>
 
+
+
+
+
     <string name="logoutAfterReset">However we may need to log you out of your account.</string>
+
+    <string name="failedPaymentsExplanation">Something unexpected occurred while making the payments. Perhaps your card was declined.
+        </string>
+
+    <string name="failedPaymentsExplanation2">Please contact your bank and resolve this issue then come back and retry.</string>
 
     <string name="feedbacktype">Feedback Type</string>
     <string name="feedbacktype1">Praise</string>

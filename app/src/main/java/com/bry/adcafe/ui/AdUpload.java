@@ -596,6 +596,20 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         fragmentModalBottomSheet.show(getSupportFragmentManager(),"BottomSheet Fragment");
     }
 
+    private void showFailedCardPayments(){
+        final Dialog d = new Dialog(AdUpload.this);
+        d.setTitle("Payment failed");
+        d.setContentView(R.layout.dialog93);
+        Button b2 =  d.findViewById(R.id.okBtn);
+        b2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+        d.show();
+    }
+
 
 
     @Override

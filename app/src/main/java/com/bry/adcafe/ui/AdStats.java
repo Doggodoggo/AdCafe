@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
@@ -74,18 +75,22 @@ public class AdStats extends AppCompatActivity {
     private int numberOfClusters =0;
     private int runCount = 0;
 
+    Handler h = new Handler();
+    Runnable r;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ad_stats);
         mContext = this.getApplicationContext();
         ButterKnife.bind(this);
+        setCurrentDateToSharedPrefs();
 
         if(isNetworkConnected(mContext)){
             DataListsView.setVisibility(View.GONE);
             findViewById(R.id.topText).setVisibility(View.GONE);
-
             findViewById(R.id.LoadingViews).setVisibility(View.VISIBLE);
+
             registerReceivers();
             createProgressDialog();
             setUpTimeIfNeedBe();
@@ -93,6 +98,79 @@ public class AdStats extends AppCompatActivity {
             showNoConnectionView();
         }
         DataListsView.getBuilder().setLayoutManager(new GridLayoutManager(mContext,2));
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        setCurrentDateToSharedPrefs();
+        h.removeCallbacks(r);
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        if(TimeManager.isTimerOnline()) handleOnResumeMethodsAndLogic();
+        else handleOnResumeMethodsIfTimeIsOffline();
+    }
+
+    private void handleOnResumeMethodsAndLogic(){
+        if (!getCurrentDateInSharedPreferences().equals("0") && !getCurrentDateInSharedPreferences().equals(getDate())) {
+            Log.d(TAG, "---Date in shared preferences does not match current date,therefore resetting everything.");
+            if(isNetworkConnected(mContext)){
+                DataListsView.setVisibility(View.GONE);
+                findViewById(R.id.topText).setVisibility(View.GONE);
+                findViewById(R.id.LoadingViews).setVisibility(View.VISIBLE);
+                createProgressDialog();
+                setCurrentDateToSharedPrefs();
+                setUpTimeIfNeedBe();
+            }else{
+                showNoConnectionView();
+            }
+        }else if(isAlmostMidNight()){
+            if(isNetworkConnected(mContext)){
+                DataListsView.setVisibility(View.GONE);
+                findViewById(R.id.topText).setVisibility(View.GONE);
+                findViewById(R.id.LoadingViews).setVisibility(View.VISIBLE);
+                createProgressDialog();
+                setUpTimeIfNeedBe();
+            }else{
+                showNoConnectionView();
+            }
+        }
+        r = new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "---started the time checker for when it is almost midnight.");
+                if (isAlmostMidNight()) {
+                    DataListsView.setVisibility(View.GONE);
+                    findViewById(R.id.topText).setVisibility(View.GONE);
+                    findViewById(R.id.LoadingViews).setVisibility(View.VISIBLE);
+                    createProgressDialog();
+                    setUpTimeIfNeedBe();
+                }
+                h.postDelayed(r, 60000);
+            }
+        };
+        h.postDelayed(r, 60000);
+    }
+
+    private void handleOnResumeMethodsIfTimeIsOffline(){
+        TimeManager.setUpTimeManager("AD_STATS_RESET_UP_TIMER",mContext);
+        DataListsView.setVisibility(View.GONE);
+        findViewById(R.id.topText).setVisibility(View.GONE);
+        findViewById(R.id.LoadingViews).setVisibility(View.VISIBLE);
+        LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                handleOnResumeMethodsAndLogic();
+                LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
+                Log.d(TAG,"Unhiding views");
+                DataListsView.setVisibility(View.VISIBLE);
+                findViewById(R.id.topText).setVisibility(View.VISIBLE);
+                findViewById(R.id.LoadingViews).setVisibility(View.GONE);
+            }
+        },new IntentFilter("AD_STATS_RESET_UP_TIMER"));
     }
 
     @Override
@@ -134,7 +212,7 @@ public class AdStats extends AppCompatActivity {
 
 
     private void setUpTimeIfNeedBe(){
-        if(!TimeManager.isTimeManagerInitialized) {
+        if(!TimeManager.isTimerOnline()) {
             TimeManager.setUpTimeManager(Constants.LOAD_TIME, mContext);
             LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForSetUpTime,
                     new IntentFilter(Constants.LOAD_TIME));
@@ -152,6 +230,7 @@ public class AdStats extends AppCompatActivity {
 
 
     private void loadTomorrowsUploadedAds() {
+        if(DataListsView.getChildCount()!=0)DataListsView.removeAllViews();
         Log.d(TAG,"Loading ads uploaded by user for tomorrow.");
         Query query = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(User.getUid()).child(Constants.UPLOADED_AD_LIST).child(getNextDay());
@@ -625,6 +704,25 @@ public class AdStats extends AppCompatActivity {
             }
         });
         d.show();
+    }
+
+    private void setCurrentDateToSharedPrefs() {
+        Log.d(TAG, "---Setting current date in shared preferences.");
+        SharedPreferences prefs = getSharedPreferences("AdStatsDate", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        if(isAlmostMidNight()) editor.putString("date",getNextDay());
+        else editor.putString("date", getDate());
+        editor.apply();
+    }
+
+    private String getCurrentDateInSharedPreferences() {
+        Log.d(TAG, "---Getting current date in shared preferences.");
+        SharedPreferences prefs = getSharedPreferences("AdStatsDate", MODE_PRIVATE);
+        return prefs.getString("date", "0");
+    }
+
+    private boolean isAlmostMidNight() {
+        return TimeManager.isAlmostMidNight();
     }
 
 }
