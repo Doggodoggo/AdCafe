@@ -99,7 +99,6 @@ public class AdvertCard{
     private void onResolved(){
         if(mLastOrNotLast.equals(Constants.NO_ADS)) loadAdPlaceHolderImage();
         else new LongOperationFI().execute("");
-
         setListeners();
     }
 
@@ -289,6 +288,7 @@ public class AdvertCard{
     private void onSwipeHeadCard() {
         Log.d("EVENT----------", "onSwipeHeadCard");
         profileImageView.setImageBitmap(bs);
+        Variables.currentAdvertImageBitmap = bs;
         Log.d("AdvertCard","Set the normal image to the image view");
 
         if(!firstAd()){
@@ -444,7 +444,7 @@ public class AdvertCard{
     private BroadcastReceiver mMessageReceiverForSetImageForSharing = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Variables.imageToBeShared = mAdvert.getImageUrl();
+            Variables.imageToBeShared = bs;
             Intent intent2  = new Intent("TRY_SHARE_IMAGE_AGAIN");
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent2);
         }

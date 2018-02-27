@@ -1,6 +1,5 @@
 package com.bry.adcafe.ui;
 
-import android.animation.TimeAnimator;
 import android.app.AlarmManager;
 import android.app.FragmentManager;
 import android.app.NotificationManager;
@@ -182,6 +181,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     new IntentFilter(Constants.LOAD_TIME));
         } else loadAdsFromThread();
     }
+
+
+
 
 
     @Override protected void onStart() {
@@ -2039,8 +2041,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void startShareImage(){
-        if(Variables.getCurrentAdvert().getImageBitmap()!=null) shareImage(Variables.getCurrentAdvert().getImageBitmap());
-        else if(!Variables.getCurrentAdvert().getImageUrl().equals("")){
+        if(Variables.currentAdvertImageBitmap!=null) {
+            shareImage(Variables.currentAdvertImageBitmap);
+        } else if(!Variables.getCurrentAdvert().getImageUrl().equals("")){
             try{
                 Bitmap image = decodeFromFirebaseBase64(Variables.getCurrentAdvert().getImageUrl());
                 shareImage(image);
@@ -2048,25 +2051,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
         }else{
-            try{
-                Bitmap image = decodeFromFirebaseBase64(Variables.getCurrentAdvert().getImageUrl());
-                shareImage(image);
-//                int number = Variables.hasTimerStarted ? Variables.getCurrentAdNumberForAllAdsList()
-//                        : Variables.getCurrentAdNumberForAllAdsList() - 1;
-//                Bitmap image = decodeFromFirebaseBase64(Variables.getAdFromVariablesAdList
-//                        (number).getImageUrl());
-//                shareImage(image);
-            }catch (Exception e){
-                e.printStackTrace();
-                Intent intent  = new Intent("SET_IMAGE_FOR_SHARING"+Variables.getCurrentAdvert().getPushRefInAdminConsole());
-                LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-            }
+            Intent intent  = new Intent("SET_IMAGE_FOR_SHARING"+Variables.getCurrentAdvert().getPushRefInAdminConsole());
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         }
     }
 
     private void startShareImage2(){
         try{
-            Bitmap imageBm = decodeFromFirebaseBase64(Variables.imageToBeShared);
+            Bitmap imageBm = Variables.imageToBeShared;
             shareImage(imageBm);
         }catch (Exception e){
             e.printStackTrace();

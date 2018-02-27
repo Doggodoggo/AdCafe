@@ -81,7 +81,7 @@ public class Variables {
     public static Advert firstAd;
     public static Point windowSize;
 
-    public static String imageToBeShared;
+    public static Bitmap imageToBeShared = null;
     public static int numberOfUnpinns = 0;
     public static boolean isNormalAdsBeingSeen = true;
     public static int constantAmountPerView = 3;
@@ -102,6 +102,8 @@ public class Variables {
     public static double amountToPayForUpload;
     public static Advert adToBeReimbursed;
     public static boolean isGottenNewPasswordFromLogInOrSignUp = false;
+
+    public static Bitmap currentAdvertImageBitmap = null;
 
     public static void resetAllValues(){
          todaysAdTotal = 0;
