@@ -2327,6 +2327,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void resumeTimerByStartingIt(){
+        setBooleanForResumingTimer();
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Constants.RESUME_TIMER));
     }
 

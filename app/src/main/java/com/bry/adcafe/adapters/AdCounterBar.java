@@ -270,7 +270,6 @@ public class AdCounterBar {
 
         @Override
         protected String doInBackground(Context... params) {
-//            int i = 7000;
             while (i > 0 && !hasPausedTimer && !cancelTimerEntirely) {
                 try {
                     Thread.sleep(50);
