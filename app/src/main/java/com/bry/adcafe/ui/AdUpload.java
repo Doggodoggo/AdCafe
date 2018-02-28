@@ -1,6 +1,7 @@
 package com.bry.adcafe.ui;
 
 import android.app.Dialog;
+import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -35,9 +36,12 @@ import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.FragmentModalBottomSheet;
 import com.bry.adcafe.fragments.FragmentMpesaPayBottomsheet;
+import com.bry.adcafe.fragments.FragmentMpesaPaymentInitiation;
 import com.bry.adcafe.fragments.FragmentSelectPaymentOptionBottomSheet;
+import com.bry.adcafe.fragments.GetAmmountPerUserFragment;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
+import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.TimeManager;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -561,19 +565,40 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
 
     private void startBankPayments() {
-        Toast.makeText(mContext,"Payments should start",Toast.LENGTH_SHORT).show();
         String cardNumber = Variables.cardNumber;
         String expiration = Variables.expiration;
         String cvv = Variables.cvv;
         String postalCode = Variables.postalCode;
-        double amount = Variables.amountToPayForUpload;
-        startProcessForUpload();
+        float amount = (float)Variables.amountToPayForUpload;
+        String FAILED_BANK_PAYMENTS = "FAILED_BANK_PAYMENTS";
+        String SUCCESSFUL_BANK_PAYMENTS = "SUCCESSFUL_BANK_PAYMENTS";
+
+        Payments.makeBankPayment(FAILED_BANK_PAYMENTS,SUCCESSFUL_BANK_PAYMENTS,mContext,cardNumber,expiration,cvv,postalCode,amount);
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                startProcessForUpload();
+            }
+        },new IntentFilter(SUCCESSFUL_BANK_PAYMENTS));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                showFailedCardPayments();
+            }
+        },new IntentFilter(FAILED_BANK_PAYMENTS));
     }
 
     private void startMpesaPayments(){
-        Toast.makeText(mContext,"MPesa Payments should start",Toast.LENGTH_SHORT).show();
+//        Toast.makeText(mContext,"MPesa Payments should start",Toast.LENGTH_SHORT).show();
         double amount = Variables.amountToPayForUpload;
         String phoneNo = Variables.phoneNo;
+
+        FragmentManager fm = getFragmentManager();
+        FragmentMpesaPaymentInitiation fragmentMpesaPaymentInitiation = new FragmentMpesaPaymentInitiation();
+        fragmentMpesaPaymentInitiation.setMenuVisibility(false);
+        fragmentMpesaPaymentInitiation.setContext(mContext);
+        fragmentMpesaPaymentInitiation.setDetails(amount,phoneNo);
+        fragmentMpesaPaymentInitiation.show(fm, "Mpesa pay.");
     }
 
     private void showMessageBeforeBottomsheet(){

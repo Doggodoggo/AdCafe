@@ -150,7 +150,6 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
                     try{
                         Integer.parseInt(phoneNo);
                         mPhoneNo = phoneNo;
-                        Variables.phoneNo = phoneNo;
                         mEnterPaymentDetailsPart.setVisibility(View.GONE);
                         loadConfirmDetailsPart();
                     }catch (Exception e){
@@ -186,6 +185,8 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
             @Override
             public void onClick(View view) {
                 dismiss();
+                Variables.phoneNo = mPhoneNo;
+                Variables.amountToPayForUpload = paymentTotals;
                 LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent("START_PAYMENTS_INTENT"));
             }
         });
