@@ -11,8 +11,11 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioButton;
 
+import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
+import com.bry.adcafe.Variables;
 
 /**
  * Created by bryon on 19/02/2018.
@@ -73,6 +76,8 @@ public class FragmentSelectPaymentOptionBottomSheet extends BottomSheetDialogFra
 
         Button cancelBtn = contentView.findViewById(R.id.cancelBtn);
         Button proceedBtn = contentView.findViewById(R.id.continueButton);
+        final RadioButton rbCard = contentView.findViewById(R.id.radioButtonC);
+        final RadioButton rbMpesa = contentView.findViewById(R.id.radioButtonM);
 
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,6 +89,10 @@ public class FragmentSelectPaymentOptionBottomSheet extends BottomSheetDialogFra
             @Override
             public void onClick(View view) {
                 dismiss();
+                if(rbCard.isChecked()) Variables.paymentOption = Constants.BANK_OPTION;
+                else if(rbMpesa.isChecked())Variables.paymentOption = Constants.MPESA_OPTION;
+                else Variables.paymentOption = Constants.BANK_OPTION;
+
                 Intent intent = new Intent("PROCEED_CARD_DETAILS_PART");
                 LocalBroadcastManager.getInstance(mActivity).sendBroadcast(intent);
             }

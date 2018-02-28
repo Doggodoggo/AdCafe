@@ -182,7 +182,7 @@
     <string name="changeTimeExplanation">Click continue if you wish to change the time you are notified daily about new ads.</string>
 
     <string name="needToMakePayments">Next you need to make a payment before the upload.
-        We only support credit/debit card payments as of now.</string>
+        We only support Mpesa and credit/debit card payments as of now.</string>
 
     <string name="needUserDetails">We also need a few more details from you before we can continue.</string>
 
@@ -227,10 +227,12 @@
 
     <string name="logoutAfterReset">However we may need to log you out of your account.</string>
 
-    <string name="failedPaymentsExplanation">Something unexpected occurred while making the payments. Perhaps your card was declined.
-        </string>
+    <string name="failedPaymentsExplanation">Something unexpected occurred while making the payments. Perhaps your card was declined.</string>
 
     <string name="failedPaymentsExplanation2">Please contact your bank and resolve this issue then come back and retry.</string>
+
+    <string name="mpesaPaymentDetails">We only need your phone number to continue. You\'ll then receive a prompt requesting your
+        mpesa password and the transaction will be completed.</string>
 
     <string name="feedbacktype">Feedback Type</string>
     <string name="feedbacktype1">Praise</string>

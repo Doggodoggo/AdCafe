@@ -1,6 +1,5 @@
 package com.bry.adcafe.ui;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -8,12 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -38,13 +34,12 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.FragmentModalBottomSheet;
+import com.bry.adcafe.fragments.FragmentMpesaPayBottomsheet;
 import com.bry.adcafe.fragments.FragmentSelectPaymentOptionBottomSheet;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.TimeManager;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -55,17 +50,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
-import com.google.firebase.storage.StorageReference;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.Bind;
@@ -489,7 +478,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
 
     private void setUpListeners(){
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForAddingToSharedPreferences,
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForShowingSelectedBottomsheet,
                 new IntentFilter("PROCEED_CARD_DETAILS_PART"));
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForStartPayments,
@@ -497,7 +486,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
 
     private void removeListeners(){
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForAddingToSharedPreferences);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForShowingSelectedBottomsheet);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForStartPayments);
     }
 
@@ -550,11 +539,12 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         showMessageBeforeBottomsheet();
     }
 
-    private BroadcastReceiver mMessageReceiverForAddingToSharedPreferences = new BroadcastReceiver() {
+    private BroadcastReceiver mMessageReceiverForShowingSelectedBottomsheet = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Broadcast has been received show bottomsheet.");
-            showBottomSheetFragment();
+            if(Variables.paymentOption.equals(Constants.MPESA_OPTION))showMpesaBottomSheetFragment();
+            else if(Variables.paymentOption.equals(Constants.BANK_OPTION))showBottomSheetFragment();
         }
     };
 
@@ -562,14 +552,15 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Broadcast has been received show bottomsheet.");
-            startPayments();
+            if(Variables.paymentOption.equals(Constants.MPESA_OPTION))startMpesaPayments();
+            else if(Variables.paymentOption.equals(Constants.BANK_OPTION)) startBankPayments();
         }
     };
 
 
 
 
-    private void startPayments() {
+    private void startBankPayments() {
         Toast.makeText(mContext,"Payments should start",Toast.LENGTH_SHORT).show();
         String cardNumber = Variables.cardNumber;
         String expiration = Variables.expiration;
@@ -577,6 +568,12 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         String postalCode = Variables.postalCode;
         double amount = Variables.amountToPayForUpload;
         startProcessForUpload();
+    }
+
+    private void startMpesaPayments(){
+        Toast.makeText(mContext,"MPesa Payments should start",Toast.LENGTH_SHORT).show();
+        double amount = Variables.amountToPayForUpload;
+        String phoneNo = Variables.phoneNo;
     }
 
     private void showMessageBeforeBottomsheet(){
@@ -595,6 +592,20 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
         fragmentModalBottomSheet.show(getSupportFragmentManager(),"BottomSheet Fragment");
     }
+
+    private void showMpesaBottomSheetFragment(){
+        String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        FragmentMpesaPayBottomsheet fragmentModalBottomSheet = new FragmentMpesaPayBottomsheet();
+
+        fragmentModalBottomSheet.setDetails((mNumberOfClusters*Constants.NUMBER_OF_USERS_PER_CLUSTER),
+                mAmountPlusOurShare, TimeManager.getNextDayPlus(), mCategory,userEmail,Variables.userName);
+        fragmentModalBottomSheet.setActivity(AdUpload.this);
+
+        fragmentModalBottomSheet.show(getSupportFragmentManager(),"BottomSheet Fragment");
+    }
+
+
+
 
     private void showFailedCardPayments(){
         final Dialog d = new Dialog(AdUpload.this);

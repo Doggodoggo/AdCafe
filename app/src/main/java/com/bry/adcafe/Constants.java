@@ -106,6 +106,7 @@ public class Constants {
     public static double PAYMENT_TRANSFER_PERENTAGE = 0.035;
     public static double PAYOUT_TRANSFER_FEE = 0.015;
     public static double TOTAL_PAYOUT_PERCENTAGE = 0.05;
+    public static double TOTAL_MPESA_PAYOUT_PERCENTAGE = 0.03;
 
     public static String USER_PASSCODE = "Password";
     public static String PAUSE_TIMER = "PAUSE_TIMER";
@@ -114,5 +115,8 @@ public class Constants {
     public static long HRS_3_IN_MILLS = (1000*60*60*3);
     public static long HRS_24_IN_MILLS = (1000*60*60*24);
     public static String LOAD_TIME = "LOAD_TIME";
+
+    public static String MPESA_OPTION = "MPESA";
+    public static String BANK_OPTION = "CREDIT_DEBIT";
 
 }

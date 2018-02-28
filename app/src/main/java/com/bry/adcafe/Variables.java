@@ -104,6 +104,7 @@ public class Variables {
     public static boolean isGottenNewPasswordFromLogInOrSignUp = false;
 
     public static Bitmap currentAdvertImageBitmap = null;
+    public static String paymentOption;
 
     public static void resetAllValues(){
          todaysAdTotal = 0;

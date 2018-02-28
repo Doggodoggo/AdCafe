@@ -49,7 +49,36 @@
                 android:layout_marginLeft="10dp"
                 android:layout_height="30dp" />
 
+            <ImageView
+                android:layout_width="60dp"
+                android:background="@drawable/mpesa_icon"
+                android:layout_marginLeft="10dp"
+                android:layout_height="30dp" />
+
         </LinearLayout>
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:id="@+id/selectPaymentRadioGroup"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioButtonM"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Pay via Mpesa."/>
+
+            <RadioButton
+                android:id="@+id/radioButtonC"
+                android:checked="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Pay via Credit/Debit Card."/>
+
+        </RadioGroup>
 
         <RelativeLayout
             android:layout_width="match_parent"
