@@ -7,6 +7,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.bry.adcafe.Variables;
 import com.lipisha.sdk.LipishaClient;
 import com.lipisha.sdk.response.CardTransactionResponse;
 import com.lipisha.sdk.response.Payout;
@@ -221,7 +222,7 @@ public class Payments {
             public void onResponse(Call<Payout> call, Response<Payout> response) {
                 Payout res = response.body();
                 if(res.getStatusDescription().equals("Balance Found")){
-                    String payoutId = res.getReference();
+                    Variables.transactionID = res.getReference();
                     LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(intentFilter));
                 }else{
                     Log.d(TAG,"Payout failed: "+res.getStatusDescription());

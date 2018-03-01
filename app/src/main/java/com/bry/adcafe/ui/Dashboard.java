@@ -10,6 +10,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Vibrator;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -33,7 +35,9 @@ import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.ChangeCPVFragment;
 import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
+import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.SliderPrefManager;
+import com.bry.adcafe.services.TimeManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -104,6 +108,7 @@ public class Dashboard extends AppCompatActivity {
     private void removeListeners(){
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForShowingPrompt);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForStartPayout);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForSuccessfulPayout);
     }
 
     private BroadcastReceiver mMessageReceiverForShowingPrompt = new BroadcastReceiver() {
@@ -157,7 +162,7 @@ public class Dashboard extends AppCompatActivity {
                     Intent intent = new Intent(Dashboard.this, AdminConsole.class);
                     startActivity(intent);
                 }else{
-                    Log.d("Dashboard","NOT administrator.");
+//                    Log.d("Dashboard","NOT administrator.");
                 }
                 return false;
             }
@@ -210,7 +215,8 @@ public class Dashboard extends AppCompatActivity {
                 if(Variables.getTotalReimbursementAmount()<1){
                     promptUserForUnableToPayout();
                 }else{
-                    promptUserAboutPayout();
+                    if(isOnline(mContext)) promptUserAboutPayout();
+                    else Toast.makeText(mContext,"You need internet connection to do that",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -582,10 +588,26 @@ public class Dashboard extends AppCompatActivity {
             reimbursementTotals = prefs3.getInt(Constants.REIMBURSEMENT_TOTALS, 0);
 
         }else reimbursementTotals = Variables.getTotalReimbursementAmount();
-        Toast.makeText(mContext,"payout!",Toast.LENGTH_SHORT).show();
+
         String payoutPhoneNumber = Variables.phoneNo;
         String payoutAmount = Integer.toString(reimbursementTotals);
+        String PAYOUT_SUCCESSFUL = "PAYOUT_SUCCESSFUL";
+        String PAYOUT_FAILED = "PAYOUT_FAILED";
+
+        Payments mPayments = new Payments();
+        mPayments.makePayouts(PAYOUT_FAILED,PAYOUT_SUCCESSFUL,mContext,payoutPhoneNumber,payoutAmount);
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayout,
+                new IntentFilter(PAYOUT_SUCCESSFUL));
     }
+
+    private BroadcastReceiver mMessageReceiverForSuccessfulPayout = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("Dashboard", "Broadcast has been received that payout is finished.");
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+            resetUserMoneyTotals();
+        }
+    };
 
     private void promptUserForUnableToPayout(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -602,6 +624,8 @@ public class Dashboard extends AppCompatActivity {
 
     //call this when the payout process has occurred...
     private void resetUserMoneyTotals(){
+        int amount = Variables.getTotalReimbursementAmount();
+        setPayoutReceiptInFireBase(amount);
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         DatabaseReference adRef9 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
@@ -619,6 +643,19 @@ public class Dashboard extends AppCompatActivity {
 
         setValues();
 
+    }
+
+    private void setPayoutReceiptInFireBase(int amount) {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.REIMBURSEMENT_HISTORY);
+        DatabaseReference pushRef = adRef.push();
+        String pushId= pushRef.getKey();
+        pushRef.child("Date").setValue(TimeManager.getDate());
+        pushRef.child("TransactionID").setValue(Variables.transactionID);
+        pushRef.child("PhoneNo").setValue(Variables.phoneNo);
+        pushRef.child("Ammount").setValue(amount);
+        pushRef.child("pushID").setValue(pushId);
     }
 
     private void clearUserDataFromSharedPreferences(){
@@ -678,6 +715,13 @@ public class Dashboard extends AppCompatActivity {
             }
         });
         d.show();
+    }
+
+    private boolean isOnline(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        //should check null because in airplane mode it will be null
+        return (netInfo != null && netInfo.isConnected());
     }
 
 

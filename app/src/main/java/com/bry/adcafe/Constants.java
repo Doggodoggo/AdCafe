@@ -119,5 +119,7 @@ public class Constants {
     public static String MPESA_OPTION = "MPESA";
     public static String BANK_OPTION = "CREDIT_DEBIT";
     public static String PAY_POOL = "Pay_pool";
+    public static String REIMBURSEMENT_HISTORY = "ReimbursementHistory";
+    public static String ADVERT_REIMBURSEMENT_HISTORY = "AdvertReimbursementHistory";
 
 }

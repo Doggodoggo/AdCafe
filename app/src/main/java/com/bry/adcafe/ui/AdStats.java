@@ -33,9 +33,11 @@ import com.bry.adcafe.adapters.TomorrowsAdStatItem;
 import com.bry.adcafe.fragments.FragmentAdvertiserPayoutBottomsheet;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
+import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.TimeManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -72,6 +74,7 @@ public class AdStats extends AppCompatActivity {
     private int cycleCount3 = 0;
 
     private ProgressDialog mAuthProgressDialog;
+    private ProgressDialog mProgForPayments;
     private int numberOfClusters =0;
     private int runCount = 0;
 
@@ -198,6 +201,7 @@ public class AdStats extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForStartPayout);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForShowBottomSheet);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForCantTakeDown);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForSuccessfulPayout);
 
         Intent intent = new Intent("REMOVE-LISTENERS");
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
@@ -508,6 +512,13 @@ public class AdStats extends AppCompatActivity {
         mAuthProgressDialog.setTitle("AdCafe.");
         mAuthProgressDialog.setMessage("Taking down the ad...");
         mAuthProgressDialog.setCancelable(false);
+
+        mProgForPayments = new ProgressDialog(this,R.style.AppCompatAlertDialogStyle);
+        mProgForPayments.setTitle("AdCafe");
+        mProgForPayments.setMessage("This should take a few seconds... ");
+        mProgForPayments.setCancelable(false);
+        mProgForPayments.setProgress(ProgressDialog.STYLE_SPINNER);
+        mProgForPayments.setIndeterminate(true);
     }
 
     private void showConfirmSubscribeMessage() {
@@ -670,8 +681,12 @@ public class AdStats extends AppCompatActivity {
         }
     };
 
+
+
+
     //Payout api implementation comes here...
     private void startPayout(){
+        mProgForPayments.show();
         Advert ad = Variables.adToBeReimbursed;
         int numberOfUsersWhoDidntSeeAd = ad.getNumberOfUsersToReach()- ad.getNumberOfTimesSeen();
         double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*ad.getAmountToPayPerTargetedView());
@@ -679,7 +694,61 @@ public class AdStats extends AppCompatActivity {
         Toast.makeText(mContext,"payout!",Toast.LENGTH_SHORT).show();
         String payoutPhoneNumber = Variables.phoneNo;
         String totalsToReimburse = Double.toString(reimbursementTotals);
+
+        String PAYOUT_SUCCESSFUL = "PAYOUT_SUCCESSFUL";
+        String PAYOUT_FAILED = "PAYOUT_FAILED";
+
+        Payments mPayments = new Payments();
+        mPayments.makePayouts(PAYOUT_FAILED,PAYOUT_SUCCESSFUL,mContext,payoutPhoneNumber,totalsToReimburse);
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayout,
+                new IntentFilter(PAYOUT_SUCCESSFUL));
     }
+
+
+    private BroadcastReceiver mMessageReceiverForSuccessfulPayout = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("Dashboard", "Broadcast has been received that payout is finished.");
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+            SetPaymentValues();
+        }
+    };
+
+    private void SetPaymentValues() {
+        Advert ad = Variables.adToBeReimbursed;
+        boolean bol = !ad.isHasBeenReimbursed();
+        DatabaseReference  mRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                .child(getPreviousDay())
+                .child(ad.getPushRefInAdminConsole())
+                .child("hasBeenReimbursed");
+        mRef.setValue(bol).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                mProgForPayments.hide();
+            }
+        });
+
+        int numberOfUsersWhoDidntSeeAd = ad.getNumberOfUsersToReach()- ad.getNumberOfTimesSeen();
+        double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*ad.getAmountToPayPerTargetedView());
+
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.ADVERT_REIMBURSEMENT_HISTORY);
+        DatabaseReference pushRef = adRef.push();
+        String pushId= pushRef.getKey();
+        pushRef.child("Date").setValue(TimeManager.getDate());
+        pushRef.child("TransactionID").setValue(Variables.transactionID);
+        pushRef.child("PhoneNo").setValue(Variables.phoneNo);
+        pushRef.child("Ammount").setValue(reimbursementTotals);
+        pushRef.child("pushID").setValue(pushId);
+        ad.setImageUrl(null);
+        ad.setImageBitmap(null);
+        pushRef.child("Advert").setValue(ad);
+
+    }
+
+
+
 
     private void showBottomSheetForReimbursement(){
         Advert ad = Variables.adToBeReimbursed;
@@ -714,6 +783,9 @@ public class AdStats extends AppCompatActivity {
         else editor.putString("date", getDate());
         editor.apply();
     }
+
+
+
 
     private String getCurrentDateInSharedPreferences() {
         Log.d(TAG, "---Getting current date in shared preferences.");

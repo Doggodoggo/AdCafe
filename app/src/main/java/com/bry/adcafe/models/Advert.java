@@ -36,6 +36,7 @@ public class Advert {
     private int dateInDays;
     private String natureOfBanner;
     private int amountToPayPerTargetedView;
+    private String advertiserUid;
 
     public Advert(String ImageUrl){
         this.imageUrl = ImageUrl;
@@ -199,5 +200,13 @@ public class Advert {
 
     public void setAmountToPayPerTargetedView(int amountToPayPerTargetedView) {
         this.amountToPayPerTargetedView = amountToPayPerTargetedView;
+    }
+
+    public String getAdvertiserUid() {
+        return advertiserUid;
+    }
+
+    public void setAdvertiserUid(String advertiserUid) {
+        this.advertiserUid = advertiserUid;
     }
 }

@@ -422,10 +422,10 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             findViewById(R.id.uploadIcon).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(!mHasNumberBeenChosen){
-                        Toast.makeText(mContext,"You may need to choose number of users to advertise to first!",Toast.LENGTH_LONG).show();
-                    }else if(!mHasUserChosenAnImage){
+                    if(!mHasUserChosenAnImage){
                         Toast.makeText(mContext, R.string.pleaseChooseIcon,Toast.LENGTH_SHORT).show();
+                    } else if(!mHasNumberBeenChosen){
+                        Toast.makeText(mContext,"You may need to choose number of users to advertise to first!",Toast.LENGTH_LONG).show();
                     }else if(!isOnline(mContext)){
                         Snackbar.make(findViewById(R.id.adUploadCoordinatorLayout), R.string.UploadAdNoConnection,
                             Snackbar.LENGTH_LONG).show();
@@ -866,6 +866,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
         Advert advert = new Advert(encodedImageToUpload);
         advert.setNumberOfTimesSeen(0);
+        advert.setAdvertiserUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
         advert.setNumberOfUsersToReach(mNumberOfClusters*Constants.NUMBER_OF_USERS_PER_CLUSTER);
         advert.setPushRefInAdminConsole(pushId);
         advert.setUserEmail(FirebaseAuth.getInstance().getCurrentUser().getEmail());

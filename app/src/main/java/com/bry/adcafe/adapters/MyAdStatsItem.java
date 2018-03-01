@@ -99,12 +99,6 @@ public class MyAdStatsItem {
         }
         if(isCardForYesterdayAds())mReimburseButton.setVisibility(android.view.View.VISIBLE);
         loadListeners();
-//        mReimburseButton.setOnClickListener(new android.view.View.OnClickListener() {
-//            @Override
-//            public void onClick(android.view.View v) {
-//
-//            }
-//        });
     }
 
     private void setImage() {
@@ -181,10 +175,11 @@ public class MyAdStatsItem {
                     if(mAdvert.isHasBeenReimbursed()) {
                         mHasBeenReimbursed.setText("Status: Reimbursed.");
                         mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
+                        if(isCardForYesterdayAds())mReimburseButton.setVisibility(android.view.View.GONE);
                     }else{
                         mHasBeenReimbursed.setText("Status: NOT Reimbursed.");
                         int numberOfUsersWhoDidntSeeAd = (mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen());
-                        int ammountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView());
+                        int ammountToBeRepaid = (numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView());
                         String number = Integer.toString(ammountToBeRepaid);
                         mAmountToReimburse.setText("Amount to be reimbursed : "+number+" Ksh");
                     }
