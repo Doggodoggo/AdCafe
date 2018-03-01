@@ -24,25 +24,29 @@ import retrofit2.Response;
  */
 
 public class Payments {
-    private static final String TAG = "Payments";
-    private static LipishaClient lipishaClient;
-    private static final String BASE_URL = LipishaClient.SANDBOX_BASE_URL;
-    private static final String API_KEY = "5352b553494510c1a37ecf38af75637e";
-    private static final String API_SIGNATURE = "ZrP18KxY5WNYuJ4b4OBfP/+Y93hd5fydy4l/YKuYPKeEZWywFubXIVbhopQ" +
+    private final String TAG = "Payments";
+    private LipishaClient lipishaClient;
+    private final String BASE_URL = LipishaClient.SANDBOX_BASE_URL;
+    private final String API_KEY = "5352b553494510c1a37ecf38af75637e";
+    private final String API_SIGNATURE = "ZrP18KxY5WNYuJ4b4OBfP/+Y93hd5fydy4l/YKuYPKeEZWywFubXIVbhopQ" +
             "HFXB7u9UdVUq8Zs9ItfVS21UDcOsLQ0M7OOgw3jef6QlqkiHy3Hsd+1xtQ2ZFu1qTipVWl82dJVtRDWWzLYazipTMyZVl6S609X5Hxf/OGudvPUA=";
-    private static final String mAccountNo = "12345";
-    private static final String mMpesaAccountNo = "12345";
-    private static final String mMpesaPayOptionString = "Paybill (M-Pesa)";
-    private static final String mCurrency = "KES";
+    private final String mAccountNo = "12345";
+    private final String mMpesaAccountNo = "12345";
+    private final String mMpesaPayOptionString = "Paybill (M-Pesa)";
+    private final String mCurrency = "KES";
 
-    private static boolean isConfirmingPayments = false;
-    private static Handler h = new Handler();
-    private static Runnable r;
-    private static boolean isStoppingChecker = false;
-    private static final int delayMills = 3000;
+    private boolean isConfirmingPayments = false;
+    private Handler h = new Handler();
+    private Runnable r;
+    private boolean isStoppingChecker = false;
+    private final int delayMills = 3000;
 
 
-    public static void makeBankPayment(final String failedIntentFilter,final String intentFilter, final Context context,String cardNo,
+    public Payments(){
+        lipishaClient = new LipishaClient(API_KEY, API_SIGNATURE, BASE_URL);
+    }
+
+    public  void makeBankPayment(final String failedIntentFilter,final String intentFilter, final Context context,String cardNo,
                                        String expiry, String securityCode, String zipCode, float amount){
         lipishaClient = new LipishaClient(API_KEY, API_SIGNATURE, BASE_URL);
         lipishaClient.authorizeCardTransaction(mAccountNo, cardNo, "", "", expiry, "",
@@ -72,7 +76,7 @@ public class Payments {
         });
     }
 
-    private static void completeBankPayments(final String intentFilter, final Context context,final String failedIntentFilter,
+    private void completeBankPayments(final String intentFilter, final Context context,final String failedIntentFilter,
                                              String transactionReference, String transactionIndex) {
         lipishaClient.completeCardTransaction(transactionIndex,transactionReference).enqueue(new Callback<CardTransactionResponse>() {
             @Override
@@ -99,8 +103,10 @@ public class Payments {
 
 
 
-    public static void requestMpesaPayment(final String failedIntentFilter, final String intentFilter, final Context context,
+    public void requestMpesaPayment(final String failedIntentFilter, final String intentFilter, final Context context,
                                            String amount, String phoneNo, final String reference){
+        lipishaClient = new LipishaClient(API_KEY, API_SIGNATURE, BASE_URL);
+        Log.d(TAG,"Starting mPesa request for money for payments");
         lipishaClient.requestMoney(API_KEY,API_SIGNATURE,mMpesaAccountNo,phoneNo,mMpesaPayOptionString,
                 amount,mCurrency, reference).enqueue(new Callback<RequestResponse>() {
             @Override
@@ -108,6 +114,9 @@ public class Payments {
                 if(response.body().getStatus().getStatusCode().equals("0000")){
                     Log.d(TAG,"The call was a success : "+response.body().getStatus().getStatusDescription());
                     LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(intentFilter));
+                }else{
+                    RequestResponse res= response.body();
+                    Log.d(TAG,"Request failed : "+res.getStatus().getStatusDescription());
                 }
             }
 
@@ -119,7 +128,7 @@ public class Payments {
         });
     }
 
-    public static void confirmPayments(final String failedIntentFilter, final String intentFilter, final Context context,
+    public void confirmPayments(final String failedIntentFilter, final String intentFilter, final Context context,
                                        String transactionID){
         if(!isConfirmingPayments){
             isConfirmingPayments = true;
@@ -151,11 +160,13 @@ public class Payments {
 
 
 
-    private static void startRecursiveCheckerForConfirmingPayments(final String failedIntentFilter, final String intentFilter,
+    public void startRecursiveCheckerForConfirmingPayments(final String failedIntentFilter, final String intentFilter,
                                                                    final Context context, final String transactionID){
+
         r = new Runnable() {
             @Override
             public void run() {
+                Log.d(TAG,"Starting checker for confirming payments");
                 confirmTransactionBackground(failedIntentFilter,intentFilter,context,transactionID);
                 h.postDelayed(r, delayMills);
             }
@@ -163,7 +174,7 @@ public class Payments {
         h.postDelayed(r, delayMills);
     }
 
-    private static void confirmTransactionBackground(final String failedIntentFilter, final String intentFilter, final Context context,
+    private void confirmTransactionBackground(final String failedIntentFilter, final String intentFilter, final Context context,
                                                      String transactionID){
         if(!isConfirmingPayments){
             isConfirmingPayments = true;
@@ -173,6 +184,7 @@ public class Payments {
                     TransactionResponse res = response.body();
                     if(res.getTransaction().getTransactionStatus().equals("Completed") && !isStoppingChecker){
                         LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(intentFilter));
+                        stopRecursiveChecker();
                     }
                     isConfirmingPayments = false;
                 }
@@ -193,12 +205,16 @@ public class Payments {
 
 
 
-    public static void stopRecursiveChecker(){
+    public void stopRecursiveChecker(){
         isStoppingChecker = true;
-        h.removeCallbacks(r);
+        try{
+            h.removeCallbacks(r);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
-    public static void makePayouts(final String failedIntentFilter, final String intentFilter, final Context context,
+    public void makePayouts(final String failedIntentFilter, final String intentFilter, final Context context,
                                    String phoneNo, String amount){
         lipishaClient.sendMoney(phoneNo,Integer.parseInt(amount),mMpesaAccountNo).enqueue(new Callback<Payout>() {
             @Override

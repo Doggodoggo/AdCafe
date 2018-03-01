@@ -13,6 +13,7 @@
 
         <TextView
             android:layout_width="wrap_content"
+            android:textColor="@color/colorPrimary"
             android:text="Successfully uploaded!"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="30dp"

@@ -105,6 +105,7 @@ public class Variables {
 
     public static Bitmap currentAdvertImageBitmap = null;
     public static String paymentOption;
+    public static String transactionID;
 
     public static void resetAllValues(){
          todaysAdTotal = 0;
@@ -129,6 +130,7 @@ public class Variables {
          password = null;
          amountToPayForUpload = 0;
          adToBeReimbursed = null;
+         paymentOption = null;
     }
 
 

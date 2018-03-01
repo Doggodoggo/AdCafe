@@ -121,6 +121,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private String mLink = "none";
     private String mCategory;
     private ProgressDialog mAuthProgressDialog;
+    private ProgressDialog mProgForPayments;
     private int numberOfClustersBeingUploadedTo = 0;
 
     private int mAmountToPayPerTargetedView;
@@ -492,6 +493,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private void removeListeners(){
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForShowingSelectedBottomsheet);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForStartPayments);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForSuccessfulMpesaPayments);
+        removePaymentListeners();
     }
 
 
@@ -564,7 +567,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
 
 
-    private void startBankPayments() {
+    private void startBankPayments(){
         String cardNumber = Variables.cardNumber;
         String expiration = Variables.expiration;
         String cvv = Variables.cvv;
@@ -573,23 +576,17 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         String FAILED_BANK_PAYMENTS = "FAILED_BANK_PAYMENTS";
         String SUCCESSFUL_BANK_PAYMENTS = "SUCCESSFUL_BANK_PAYMENTS";
 
-        Payments.makeBankPayment(FAILED_BANK_PAYMENTS,SUCCESSFUL_BANK_PAYMENTS,mContext,cardNumber,expiration,cvv,postalCode,amount);
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                startProcessForUpload();
-            }
-        },new IntentFilter(SUCCESSFUL_BANK_PAYMENTS));
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                showFailedCardPayments();
-            }
-        },new IntentFilter(FAILED_BANK_PAYMENTS));
+        Payments payments = new Payments();
+
+        payments.makeBankPayment(FAILED_BANK_PAYMENTS,SUCCESSFUL_BANK_PAYMENTS,mContext,cardNumber,expiration,cvv,postalCode,amount);
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayment
+                ,new IntentFilter(SUCCESSFUL_BANK_PAYMENTS));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForfailedPayment,
+                new IntentFilter(FAILED_BANK_PAYMENTS));
+        mProgForPayments.show();
     }
 
     private void startMpesaPayments(){
-//        Toast.makeText(mContext,"MPesa Payments should start",Toast.LENGTH_SHORT).show();
         double amount = Variables.amountToPayForUpload;
         String phoneNo = Variables.phoneNo;
 
@@ -599,6 +596,44 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         fragmentMpesaPaymentInitiation.setContext(mContext);
         fragmentMpesaPaymentInitiation.setDetails(amount,phoneNo);
         fragmentMpesaPaymentInitiation.show(fm, "Mpesa pay.");
+
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulMpesaPayments,
+                new IntentFilter("FINISHED_MPESA_PAYMENTS"));
+    }
+
+    private BroadcastReceiver mMessageReceiverForSuccessfulMpesaPayments = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "Broadcast has been received that Mpesa payment is successful.");
+            mProgForPayments.hide();
+            startProcessForUpload();
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+        }
+    };
+
+    private BroadcastReceiver mMessageReceiverForSuccessfulPayment = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "Broadcast has been received that payment is successful.");
+            mProgForPayments.hide();
+            startProcessForUpload();
+            removePaymentListeners();
+        }
+    };
+
+    private BroadcastReceiver mMessageReceiverForfailedPayment = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "Broadcast has been received that payments has failed.");
+            mProgForPayments.hide();
+            showFailedCardPayments();
+            removePaymentListeners();
+        }
+    };
+
+    private void removePaymentListeners(){
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForSuccessfulPayment);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForfailedPayment);
     }
 
     private void showMessageBeforeBottomsheet(){
@@ -853,12 +888,17 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private void createProgressDialog(){
         mAuthProgressDialog = new ProgressDialog(this,R.style.AppCompatAlertDialogStyle);
         mAuthProgressDialog.setTitle("AdCafe.");
-//        mAuthProgressDialog.setMessage("Uploading your ad... "+0+"%");
         mAuthProgressDialog.setMessage("Uploading your ad... ");
         mAuthProgressDialog.setCancelable(false);
         mAuthProgressDialog.setProgress(ProgressDialog.STYLE_SPINNER);
         mAuthProgressDialog.setIndeterminate(true);
-//        mAuthProgressDialog.setProgress(0);
+
+        mProgForPayments = new ProgressDialog(this,R.style.AppCompatAlertDialogStyle);
+        mProgForPayments.setTitle("AdCafe");
+        mProgForPayments.setMessage("This should take a few seconds... ");
+        mProgForPayments.setCancelable(false);
+        mProgForPayments.setProgress(ProgressDialog.STYLE_SPINNER);
+        mProgForPayments.setIndeterminate(true);
     }
 
     private void uploadImage(final Bitmap bm) {
