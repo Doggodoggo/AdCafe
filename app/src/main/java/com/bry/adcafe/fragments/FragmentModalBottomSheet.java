@@ -135,13 +135,14 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
                 .mobileNumberRequired(false)
                 .actionLabel("Purchase")
                 .setup(mActivity);
+        cardForm.getPostalCodeEditText().setText("00200");
 
         mContinueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(cardForm.isValid()){
                     mEnterCardDetailsPart.setVisibility(View.GONE);
-                    showNextSlide2();
+                    showNextSlide();
                     setDetailsForConfirmation(cardForm);
                     if (view != null) {
                         InputMethodManager imm = (InputMethodManager)mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -189,7 +190,12 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
         final EditText phone = mContentView.findViewById(R.id.phoneEditText);
 
         email.setText(mUploaderEmail);
-        name.setText(mName);
+        try{
+            name.setText(mName.toUpperCase());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        state.setText("NAIROBI");
 
         mContentView.findViewById(R.id.cancelCHDBtn).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -223,7 +229,7 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
                 String phoneText = phone.getText().toString().trim();
 
                 if(nameString.equals("")){
-                    name.setError("We need your name.");
+                    name.setError("Your name is needed.");
                 }else if(emailString.equals("")){
                     email.setError("We need your email.");
                 }else if(stateText.equals("")){
@@ -231,8 +237,19 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
                 }else if(phoneText.equals("")){
                     phone.setError("We need your Phone Number.");
                 }else{
-                    CardHolderDetailsPart.setVisibility(View.GONE);
-                    showNextSlide2();
+                    try{
+                        Integer.parseInt(phoneText);
+                        Variables.cardHolderName = nameString;
+                        Variables.cardHolderEmail = emailString;
+                        Variables.phoneNo = phoneText;
+                        Variables.cardHolderState = stateText;
+                        CardHolderDetailsPart.setVisibility(View.GONE);
+                        showNextSlide2();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        phone.setError("That's not a real phone number.");
+                    }
+
                 }
             }
         });

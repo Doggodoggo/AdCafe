@@ -148,7 +148,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
         setUpViews();
         createProgressDialog();
-        startGetNumberOfClusters();
+        if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
+            startGetNumberOfClusters();
         setUpListeners();
 
     }
@@ -573,12 +574,17 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         String cvv = Variables.cvv;
         String postalCode = Variables.postalCode;
         float amount = (float)Variables.amountToPayForUpload;
+        String cardHolderName = Variables.cardHolderName;
+        String cardHolderAdress = Variables.phoneNo;
+        String state = Variables.cardHolderState;
         String FAILED_BANK_PAYMENTS = "FAILED_BANK_PAYMENTS";
         String SUCCESSFUL_BANK_PAYMENTS = "SUCCESSFUL_BANK_PAYMENTS";
+        Log.d(TAG,"Expiration date: "+expiration);
 
         Payments payments = new Payments();
 
-        payments.makeBankPayment(FAILED_BANK_PAYMENTS,SUCCESSFUL_BANK_PAYMENTS,mContext,cardNumber,expiration,cvv,postalCode,amount);
+        payments.makeBankPayment(FAILED_BANK_PAYMENTS,SUCCESSFUL_BANK_PAYMENTS,mContext,cardNumber,expiration,cvv,postalCode,
+                amount,cardHolderName,cardHolderAdress,state);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayment
                 ,new IntentFilter(SUCCESSFUL_BANK_PAYMENTS));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForfailedPayment,
@@ -866,6 +872,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
         Advert advert = new Advert(encodedImageToUpload);
         advert.setNumberOfTimesSeen(0);
+        advert.setPaymentReference(Variables.transactionID);
+        advert.setPaymentMethod(Variables.paymentOption);
         advert.setAdvertiserUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
         advert.setNumberOfUsersToReach(mNumberOfClusters*Constants.NUMBER_OF_USERS_PER_CLUSTER);
         advert.setPushRefInAdminConsole(pushId);

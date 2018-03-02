@@ -31,10 +31,11 @@ public class Payments {
     private final String API_KEY = "5352b553494510c1a37ecf38af75637e";
     private final String API_SIGNATURE = "ZrP18KxY5WNYuJ4b4OBfP/+Y93hd5fydy4l/YKuYPKeEZWywFubXIVbhopQ" +
             "HFXB7u9UdVUq8Zs9ItfVS21UDcOsLQ0M7OOgw3jef6QlqkiHy3Hsd+1xtQ2ZFu1qTipVWl82dJVtRDWWzLYazipTMyZVl6S609X5Hxf/OGudvPUA=";
-    private final String mAccountNo = "12345";
-    private final String mMpesaAccountNo = "12345";
+    private final String mAccountNo = "12663";
+    private final String mMpesaAccountNo = "12579";
     private final String mMpesaPayOptionString = "Paybill (M-Pesa)";
     private final String mCurrency = "KES";
+    private final String mCountry = "KENYA";
 
     private boolean isConfirmingPayments = false;
     private Handler h = new Handler();
@@ -47,11 +48,11 @@ public class Payments {
         lipishaClient = new LipishaClient(API_KEY, API_SIGNATURE, BASE_URL);
     }
 
-    public  void makeBankPayment(final String failedIntentFilter,final String intentFilter, final Context context,String cardNo,
-                                       String expiry, String securityCode, String zipCode, float amount){
+    public  void makeBankPayment(final String failedIntentFilter,final String intentFilter, final Context context,String cardNo, String expiry,
+                                 String securityCode, String zipCode, float amount,String name,String address,String state){
         lipishaClient = new LipishaClient(API_KEY, API_SIGNATURE, BASE_URL);
-        lipishaClient.authorizeCardTransaction(mAccountNo, cardNo, "", "", expiry, "",
-                "", "", zipCode, securityCode, amount, mCurrency).enqueue(new Callback<CardTransactionResponse>() {
+        lipishaClient.authorizeCardTransaction(mAccountNo, cardNo, address, "", expiry, name,
+                state, mCountry, zipCode, securityCode, amount, mCurrency).enqueue(new Callback<CardTransactionResponse>() {
             @Override
             public void onResponse(Call<CardTransactionResponse> call, Response<CardTransactionResponse> response) {
                 Log.d(TAG,"RESPONSE: "+response.message());
@@ -64,14 +65,14 @@ public class Payments {
                 if(requestResponse.getTransactionReference()!=null && requestResponse.getTransactionIndex()!=null){
                     completeBankPayments(intentFilter,context,failedIntentFilter,requestResponse.getTransactionReference(),requestResponse.getTransactionIndex());
                 }else{
-                    Log.d(TAG,"There was an error"+requestResponse.getStatusDescription());
+                    Log.d(TAG,"There was an error : "+requestResponse.getStatusDescription());
                     LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
                 }
             }
 
             @Override
             public void onFailure(Call<CardTransactionResponse> call, Throwable t) {
-                Log.d(TAG,"There was an error"+t.getMessage());
+                Log.d(TAG,"There was an error : "+t.getMessage());
                 LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
             }
         });
@@ -84,10 +85,11 @@ public class Payments {
             public void onResponse(Call<CardTransactionResponse> call, Response<CardTransactionResponse> response) {
                 CardTransactionResponse requestResponse = response.body();
                 if(requestResponse.getTransactionIndex()!=null && requestResponse.getTransactionReference()!=null){
-                    Log.d(TAG,"Transaction was successfully done");
+                    Log.d(TAG,"Transaction has been successfully finished");
+                    Variables.transactionID = requestResponse.getTransactionReference();
                     LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(intentFilter));
                 }else{
-                    Log.d(TAG,"There was an error"+response.message());
+                    Log.d(TAG,"There was an error : "+response.message());
                     LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
                 }
             }
@@ -108,8 +110,8 @@ public class Payments {
                                            String amount, String phoneNo, final String reference){
         lipishaClient = new LipishaClient(API_KEY, API_SIGNATURE, BASE_URL);
         Log.d(TAG,"Starting mPesa request for money for payments");
-        lipishaClient.requestMoney(API_KEY,API_SIGNATURE,mMpesaAccountNo,phoneNo,mMpesaPayOptionString,
-                amount,mCurrency, reference).enqueue(new Callback<RequestResponse>() {
+        lipishaClient.requestMoney(API_KEY,API_SIGNATURE,mMpesaAccountNo,phoneNo,mMpesaPayOptionString,amount,mCurrency,reference)
+                .enqueue(new Callback<RequestResponse>() {
             @Override
             public void onResponse(Call<RequestResponse> call, Response<RequestResponse> response) {
                 if(response.body().getStatus().getStatusCode().equals("0000")){
@@ -117,13 +119,14 @@ public class Payments {
                     LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(intentFilter));
                 }else{
                     RequestResponse res= response.body();
-                    Log.d(TAG,"Request failed : "+res.getStatus().getStatusDescription());
+                    Log.d(TAG,"Request failed : "+response.body().getStatus().getStatusDescription());
                 }
             }
 
             @Override
             public void onFailure(Call<RequestResponse> call, Throwable t) {
-                Log.d(TAG,"There was an error : "+t.getMessage());
+                t.printStackTrace();
+//                Log.d(TAG,"There was an error : "+t.getMessage());
                 LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
             }
         });

@@ -693,7 +693,7 @@ public class AdStats extends AppCompatActivity {
 
         Toast.makeText(mContext,"payout!",Toast.LENGTH_SHORT).show();
         String payoutPhoneNumber = Variables.phoneNo;
-        String totalsToReimburse = Double.toString(reimbursementTotals);
+        String totalsToReimburse = Integer.toString((int)reimbursementTotals);
 
         String PAYOUT_SUCCESSFUL = "PAYOUT_SUCCESSFUL";
         String PAYOUT_FAILED = "PAYOUT_FAILED";
@@ -739,7 +739,7 @@ public class AdStats extends AppCompatActivity {
         pushRef.child("Date").setValue(TimeManager.getDate());
         pushRef.child("TransactionID").setValue(Variables.transactionID);
         pushRef.child("PhoneNo").setValue(Variables.phoneNo);
-        pushRef.child("Ammount").setValue(reimbursementTotals);
+        pushRef.child("Amount").setValue(reimbursementTotals);
         pushRef.child("pushID").setValue(pushId);
         ad.setImageUrl(null);
         ad.setImageBitmap(null);

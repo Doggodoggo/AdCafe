@@ -95,7 +95,6 @@
             android:orientation="vertical"
             android:id="@+id/cardHolderDetailsLayout"
             android:padding="20dp"
-            android:background="@color/grey"
             android:visibility="gone"
             android:translationX="500dp"
             android:layout_height="wrap_content">
@@ -115,70 +114,103 @@
                 android:layout_marginBottom="20dp"
                 android:layout_height="wrap_content" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_marginTop="15dp"
+                android:textSize="12sp"
+                android:text="Your Name (As Printed On The Card)."
+                android:layout_height="wrap_content" />
+
             <EditText
+                android:layout_width="match_parent"
                 android:id="@+id/nameEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/white"
-                android:hint="Your Name (As Printed On The Card)."
-                android:inputType="textPersonName"
+                android:inputType="textCapCharacters"
+                android:padding="10dp"
+                android:textSize="15sp"
+                android:cursorVisible="true"
+                android:textColorHint="@color/greyHint"
                 android:nextFocusDown="@+id/emailEditText"
-                android:padding="10dp"
-                android:cursorVisible="true"
-                android:layout_marginBottom="10dp"
-                android:textColor="@android:color/black"
-                android:textColorHint="@color/colorAccent"
-                android:textSize="15sp" />
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_marginTop="15dp"
+                android:textSize="12sp"
+                android:text="Your Email (me@example.com)."
+                android:layout_height="wrap_content" />
 
             <EditText
+                android:layout_width="match_parent"
                 android:id="@+id/emailEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/white"
-                android:hint="Your Email (me@example.com)."
                 android:inputType="textEmailAddress"
+                android:padding="10dp"
+                android:textSize="15sp"
+                android:cursorVisible="true"
+                android:textColorHint="@color/greyHint"
                 android:nextFocusDown="@+id/stateEditText"
-                android:padding="10dp"
-                android:cursorVisible="true"
-                android:layout_marginBottom="10dp"
-                android:textColor="@android:color/black"
-                android:textColorHint="@color/colorAccent"
-                android:textSize="15sp" />
+                android:layout_height="wrap_content" />
 
-            <EditText
-                android:id="@+id/stateEditText"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/white"
-                android:hint="Your State/County."
-                android:inputType="text"
-                android:nextFocusDown="@+id/passwordEditText"
-                android:padding="10dp"
-                android:cursorVisible="true"
-                android:layout_marginBottom="10dp"
-                android:textColor="@android:color/black"
-                android:textColorHint="@color/colorAccent"
-                android:textSize="15sp" />
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/phoneEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/white"
-                android:hint="Your Phone Number (0722123456)."
-                android:inputType="phone"
-                android:nextFocusDown="@+id/passwordEditText"
-                android:padding="10dp"
-                android:cursorVisible="true"
-                android:layout_marginBottom="10dp"
-                android:textColor="@android:color/black"
-                android:textColorHint="@color/colorAccent"
-                android:textSize="15sp" />
+                <LinearLayout
+                    android:layout_width="150dp"
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="15dp"
+                        android:textSize="12sp"
+                        android:text="Your State/County."
+                        android:layout_height="wrap_content" />
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:id="@+id/stateEditText"
+                        android:inputType="textCapCharacters"
+                        android:padding="10dp"
+                        android:textSize="15sp"
+                        android:cursorVisible="true"
+                        android:textColorHint="@color/greyHint"
+                        android:nextFocusDown="@+id/phoneEditText"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="15dp"
+                        android:text="Your Phone Number."
+                        android:textSize="12sp"
+                        android:layout_height="wrap_content" />
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:id="@+id/phoneEditText"
+                        android:inputType="phone"
+                        android:padding="10dp"
+                        android:textSize="15sp"
+                        android:hint="0722123456"
+                        android:cursorVisible="true"
+                        android:textColorHint="@color/greyHint"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
-                android:layout_marginBottom="10dp"
+                android:layout_marginTop="20dp"
                 android:layout_height="40dp">
 
                 <Button

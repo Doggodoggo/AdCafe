@@ -38,6 +38,9 @@ public class Advert {
     private int amountToPayPerTargetedView;
     private String advertiserUid;
 
+    private String paymentReference;
+    private String paymentMethod;
+
     public Advert(String ImageUrl){
         this.imageUrl = ImageUrl;
     }
@@ -208,5 +211,21 @@ public class Advert {
 
     public void setAdvertiserUid(String advertiserUid) {
         this.advertiserUid = advertiserUid;
+    }
+
+    public String getPaymentReference() {
+        return paymentReference;
+    }
+
+    public void setPaymentReference(String paymentReference) {
+        this.paymentReference = paymentReference;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 }

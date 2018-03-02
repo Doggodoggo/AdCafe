@@ -190,9 +190,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStart();
         setIsUserLoggedOnInSharedPrefs(true);
         lastAdSeen = Variables.lastAdSeen;
-//        if (!getCurrentDateInSharedPreferences().equals("0") && getCurrentDateInSharedPreferences().equals(getDate())) {
-//            loadAdsFromThread();
-//        }
+
     }
 
     @Override protected void onResume() {

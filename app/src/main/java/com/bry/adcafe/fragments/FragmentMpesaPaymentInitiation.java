@@ -77,7 +77,13 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         String SUCCESSFUL_REQUEST = "SUCCESSFUL_REQUEST"+mTransactionId;
         String FAILED_REQUEST = "FAILED_REQUEST"+mTransactionId;
 
-        mPayments.requestMpesaPayment(FAILED_REQUEST,SUCCESSFUL_REQUEST,mContext,Double.toString(mAmount),mPhoneNo,mTransactionId);
+
+        String newPhoneNo = "254"+mPhoneNo.substring(1);
+        Log.d(TAG,"new Phone no is: "+newPhoneNo);
+        int ammount = (int) mAmount;
+        String amount = Integer.toString(ammount);
+
+        mPayments.requestMpesaPayment(FAILED_REQUEST,SUCCESSFUL_REQUEST,mContext,amount,newPhoneNo,mTransactionId);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFinishedSendingRequest,
                 new IntentFilter(SUCCESSFUL_REQUEST));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFailedToSendRequest,

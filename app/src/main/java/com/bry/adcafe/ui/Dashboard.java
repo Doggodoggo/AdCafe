@@ -94,6 +94,7 @@ public class Dashboard extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
+        if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
         setValues();
     }
 
@@ -648,13 +649,13 @@ public class Dashboard extends AppCompatActivity {
     private void setPayoutReceiptInFireBase(int amount) {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
-                .child(uid).child(Constants.REIMBURSEMENT_HISTORY);
+                .child(uid).child(Constants.REIMBURSEMENT_HISTORY).child(TimeManager.getDate());
         DatabaseReference pushRef = adRef.push();
         String pushId= pushRef.getKey();
         pushRef.child("Date").setValue(TimeManager.getDate());
         pushRef.child("TransactionID").setValue(Variables.transactionID);
         pushRef.child("PhoneNo").setValue(Variables.phoneNo);
-        pushRef.child("Ammount").setValue(amount);
+        pushRef.child("Amount").setValue(amount);
         pushRef.child("pushID").setValue(pushId);
     }
 
