@@ -106,7 +106,6 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
 
     @Override
     public void setupDialog(Dialog dialog, int style) {
-//        super.setupDialog(dialog, style);
         View contentView = View.inflate(getContext(), R.layout.fragment_modal_bottomsheet, null);
         dialog.setContentView(contentView);
         mContentView  = contentView;
@@ -201,7 +200,9 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
         mContentView.findViewById(R.id.cancelCHDBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dismiss();
+                CardHolderDetailsPart.setVisibility(View.GONE);
+                CardHolderDetailsPart.setTranslationX(500);
+                mEnterCardDetailsPart.setVisibility(View.VISIBLE);
             }
         });
         phone.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -271,6 +272,14 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
             public void onClick(View view) {
                 dismiss();
                 LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent("START_PAYMENTS_INTENT"));
+            }
+        });
+        mContentView.findViewById(R.id.backConfBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ConfirmDetailsPart.setVisibility(View.GONE);
+                ConfirmDetailsPart.setTranslationX(400);
+                CardHolderDetailsPart.setVisibility(View.VISIBLE);
             }
         });
 
