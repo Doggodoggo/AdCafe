@@ -72,6 +72,7 @@ public class FragmentSelectPaymentOptionBottomSheet extends BottomSheetDialogFra
 
         if( behavior != null && behavior instanceof BottomSheetBehavior) {
             ((BottomSheetBehavior) behavior).setBottomSheetCallback(mBottomSheetBehaviorCallback);
+            ((BottomSheetBehavior) behavior).setHideable(false);
         }
 
         Button cancelBtn = contentView.findViewById(R.id.cancelBtn);

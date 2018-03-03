@@ -122,6 +122,7 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
 
         if( behavior != null && behavior instanceof BottomSheetBehavior) {
             ((BottomSheetBehavior) behavior).setBottomSheetCallback(mBottomSheetBehaviorCallback);
+            ((BottomSheetBehavior) behavior).setHideable(false);
         }
         setUpPaymentsCard(contentView);
     }

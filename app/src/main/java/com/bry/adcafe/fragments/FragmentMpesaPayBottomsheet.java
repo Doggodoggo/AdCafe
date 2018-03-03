@@ -105,6 +105,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
 
         if( behavior != null && behavior instanceof BottomSheetBehavior) {
             ((BottomSheetBehavior) behavior).setBottomSheetCallback(mBottomSheetBehaviorCallback);
+            ((BottomSheetBehavior) behavior).setHideable(false);
         }
         mEnterPaymentDetailsPart = contentView.findViewById(R.id.enterPayoutDetailsPart);
         mConfirmLayout = contentView.findViewById(R.id.confirmLayout);

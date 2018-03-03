@@ -93,6 +93,7 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
 
         if( behavior != null && behavior instanceof BottomSheetBehavior) {
             ((BottomSheetBehavior) behavior).setBottomSheetCallback(mBottomSheetBehaviorCallback);
+            ((BottomSheetBehavior) behavior).setHideable(false);
         }
 
         contentView.findViewById(R.id.cancelBtn).setOnClickListener(new View.OnClickListener() {
