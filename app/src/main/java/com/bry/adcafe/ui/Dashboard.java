@@ -216,7 +216,10 @@ public class Dashboard extends AppCompatActivity {
                 if(Variables.getTotalReimbursementAmount()<1){
                     promptUserForUnableToPayout();
                 }else{
-                    if(isOnline(mContext)) promptUserAboutPayout();
+                    if(isOnline(mContext)){
+                        if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
+                        promptUserAboutPayout();
+                    }
                     else Toast.makeText(mContext,"You need internet connection to do that",Toast.LENGTH_SHORT).show();
                 }
             }
@@ -653,6 +656,7 @@ public class Dashboard extends AppCompatActivity {
         DatabaseReference pushRef = adRef.push();
         String pushId= pushRef.getKey();
         pushRef.child("Date").setValue(TimeManager.getDate());
+        pushRef.child("Time").setValue(TimeManager.getTime());
         pushRef.child("TransactionID").setValue(Variables.transactionID);
         pushRef.child("PhoneNo").setValue(Variables.phoneNo);
         pushRef.child("Amount").setValue(amount);

@@ -691,7 +691,7 @@ public class AdStats extends AppCompatActivity {
         int numberOfUsersWhoDidntSeeAd = ad.getNumberOfUsersToReach()- ad.getNumberOfTimesSeen();
         double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*ad.getAmountToPayPerTargetedView());
 
-        Toast.makeText(mContext,"payout!",Toast.LENGTH_SHORT).show();
+//        Toast.makeText(mContext,"payout!",Toast.LENGTH_SHORT).show();
         String payoutPhoneNumber = Variables.phoneNo;
         String totalsToReimburse = Integer.toString((int)reimbursementTotals);
 
@@ -734,16 +734,13 @@ public class AdStats extends AppCompatActivity {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(uid).child(Constants.ADVERT_REIMBURSEMENT_HISTORY);
-        DatabaseReference pushRef = adRef.push();
-        String pushId= pushRef.getKey();
-        pushRef.child("Date").setValue(TimeManager.getDate());
-        pushRef.child("TransactionID").setValue(Variables.transactionID);
-        pushRef.child("PhoneNo").setValue(Variables.phoneNo);
-        pushRef.child("Amount").setValue(reimbursementTotals);
-        pushRef.child("pushID").setValue(pushId);
+        adRef.child("Date").setValue(TimeManager.getDate());
+        adRef.child("ReimbursementTransactionID").setValue(Variables.transactionID);
+        adRef.child("PhoneNo").setValue(Variables.phoneNo);
+        adRef.child("Amount").setValue(reimbursementTotals);
         ad.setImageUrl(null);
         ad.setImageBitmap(null);
-        pushRef.child("Advert").setValue(ad);
+        adRef.child("Advert").setValue(ad);
 
     }
 

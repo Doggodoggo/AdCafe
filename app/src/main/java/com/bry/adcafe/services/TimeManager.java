@@ -219,4 +219,14 @@ public class TimeManager {
     }
 
 
+    public static String getTime(){
+        Calendar c = cal;
+        int hours = c.get(Calendar.HOUR_OF_DAY);
+        int minutes = c.get(Calendar.MINUTE);
+        int seconds = c.get(Calendar.SECOND);
+
+        return hours+":"+minutes+":"+seconds;
+    }
+
+
 }
