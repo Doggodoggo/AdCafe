@@ -3,6 +3,7 @@ package com.bry.adcafe.ui;
 import android.app.Dialog;
 import android.app.FragmentManager;
 import android.app.NotificationManager;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -68,6 +69,7 @@ public class Dashboard extends AppCompatActivity {
     @Bind(R.id.shareAppBtn) public ImageButton shareAppBtn;
 
     public Context miniContext;
+    private ProgressDialog mProgForPayments;
 
 
     @Override
@@ -89,6 +91,7 @@ public class Dashboard extends AppCompatActivity {
             e.printStackTrace();
         }
         setListeners();
+        createProgressDialog();
     }
 
     @Override
@@ -110,6 +113,7 @@ public class Dashboard extends AppCompatActivity {
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForShowingPrompt);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForStartPayout);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForSuccessfulPayout);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFailedPayout);
     }
 
     private BroadcastReceiver mMessageReceiverForShowingPrompt = new BroadcastReceiver() {
@@ -602,6 +606,9 @@ public class Dashboard extends AppCompatActivity {
         mPayments.makePayouts(PAYOUT_FAILED,PAYOUT_SUCCESSFUL,mContext,payoutPhoneNumber,payoutAmount);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayout,
                 new IntentFilter(PAYOUT_SUCCESSFUL));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFailedPayout,
+                new IntentFilter(PAYOUT_FAILED));
+        mProgForPayments.show();
     }
 
     private BroadcastReceiver mMessageReceiverForSuccessfulPayout = new BroadcastReceiver() {
@@ -613,18 +620,44 @@ public class Dashboard extends AppCompatActivity {
         }
     };
 
+    private BroadcastReceiver mMessageReceiverForFailedPayout = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("Dashboard", "Broadcast has been received that payout has failed.");
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+            showFailedPayoutsView();
+            mProgForPayments.dismiss();
+        }
+    };
+
+    private void showFailedPayoutsView() {
+        final Dialog d = new Dialog(this);
+        d.setTitle("Failed Payout.");
+        d.setContentView(R.layout.dialog94);
+        Button b1 = d.findViewById(R.id.okBtn);
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+        d.show();
+    }
+
     private void promptUserForUnableToPayout(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Payout");
         builder.setMessage("You cant make a payout of 0Ksh.")
                 .setCancelable(true)
-                .setPositiveButton("Yes.", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Ok.", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                     }
                 }).show();
     }
+
+
 
     //call this when the payout process has occurred...
     private void resetUserMoneyTotals(){
@@ -646,7 +679,22 @@ public class Dashboard extends AppCompatActivity {
         editor3.apply();
 
         setValues();
+        mProgForPayments.dismiss();
+        showSuccessfulPayoutPrompt();
+    }
 
+    private void showSuccessfulPayoutPrompt() {
+        final Dialog d = new Dialog(this);
+        d.setTitle("Successful Payout.");
+        d.setContentView(R.layout.dialog95);
+        Button b1 = d.findViewById(R.id.okBtn);
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+        d.show();
     }
 
     private void setPayoutReceiptInFireBase(int amount) {
@@ -701,6 +749,8 @@ public class Dashboard extends AppCompatActivity {
     }
 
 
+
+
     private void showDialogForResetPassword(){
         final Dialog d = new Dialog(Dashboard.this);
         d.setTitle("Password reset.");
@@ -727,6 +777,15 @@ public class Dashboard extends AppCompatActivity {
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         //should check null because in airplane mode it will be null
         return (netInfo != null && netInfo.isConnected());
+    }
+
+    private void createProgressDialog(){
+        mProgForPayments = new ProgressDialog(this,R.style.AppCompatAlertDialogStyle);
+        mProgForPayments.setTitle("AdCafe");
+        mProgForPayments.setMessage("This should take a few seconds... ");
+        mProgForPayments.setCancelable(false);
+        mProgForPayments.setProgress(ProgressDialog.STYLE_SPINNER);
+        mProgForPayments.setIndeterminate(true);
     }
 
 

@@ -1384,6 +1384,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         getNumberOfTimesAndSetNewNumberOfTimes();
         getAndSetAllAdsThatHaveBeenSeenEver();
+        getAndSetTheOtherTotals();
 
         try{
             Variables.setCurrentAdInSubscription(Integer.parseInt(Variables.getCurrentAdvert().getPushId()));
@@ -2108,8 +2109,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 long number;
-                if (dataSnapshot.getValue(long.class) != null)
-                    number = dataSnapshot.getValue(long.class);
+                if (dataSnapshot.exists()) number = dataSnapshot.getValue(long.class);
                 else number = 0;
                 Log.d(TAG, "number gotten for global ad totals is : " + number);
                 long newNumber = number + Variables.constantAmountPerView;
@@ -2163,6 +2163,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             e.printStackTrace();
         }
 
+    }
+
+
+
+    private void getAndSetTheOtherTotals(){
+        Query query = FirebaseDatabase.getInstance().getReference(Constants.ADCAFE_TOTALS);
+        DatabaseReference dbRef = query.getRef();
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                long number;
+                if (dataSnapshot.exists()) number = dataSnapshot.getValue(long.class);
+                else number = 0;
+                Log.d(TAG, "number gotten for takeout ad totals is : " + number);
+                long newNumber = number + Constants.TOTAL_AMOUNT_PER_VIEW_FOR_ADMIN;
+                setNewAdminTotals(newNumber);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "Unable to update totals");
+            }
+        });
+    }
+
+    private void setNewAdminTotals(long number){
+        Query query = FirebaseDatabase.getInstance().getReference(Constants.ADCAFE_TOTALS);
+        DatabaseReference dbRef = query.getRef();
+        dbRef.setValue(number).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "New value has been set");
+            }
+        });
     }
 
 

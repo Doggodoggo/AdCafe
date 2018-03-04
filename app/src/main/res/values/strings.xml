@@ -241,6 +241,11 @@
 
     <string name="mpesaPayment3">If you wish to restart the payment, just click the Restart Payment Button.</string>
 
+    <string name="failedPayouts">Something may have gone wrong while making the payouts. Try again after a few of minutes.</string>
+
+    <string name="payoutComplete">The payout has been completed. You should receive a notification soon from Mpesa about your received
+        amount.</string>
+
     <string name="feedbacktype">Feedback Type</string>
     <string name="feedbacktype1">Praise</string>
     <string name="feedbacktype2">Gripe</string>

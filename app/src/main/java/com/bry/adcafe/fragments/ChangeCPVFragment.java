@@ -137,10 +137,14 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
 
 
     private void makeChanges(int newCpv) {
-        new DatabaseManager().setBooleanForResetSubscriptions(newCpv,mContext);
-        Intent intent = new Intent("SHOW_PROMPT");
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-        dismiss();
+        if(newCpv!=Variables.constantAmountPerView) {
+            new DatabaseManager().setBooleanForResetSubscriptions(newCpv, mContext);
+            Intent intent = new Intent("SHOW_PROMPT");
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+            dismiss();
+        }else{
+            Toast.makeText(mContext,newCpv+"Ksh is already your current cherge.",Toast.LENGTH_SHORT).show();
+        }
     }
 
 

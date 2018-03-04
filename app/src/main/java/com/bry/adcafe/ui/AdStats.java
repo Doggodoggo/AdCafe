@@ -202,6 +202,7 @@ public class AdStats extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForShowBottomSheet);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForCantTakeDown);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForSuccessfulPayout);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForFailedPayout);
 
         Intent intent = new Intent("REMOVE-LISTENERS");
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
@@ -702,6 +703,8 @@ public class AdStats extends AppCompatActivity {
         mPayments.makePayouts(PAYOUT_FAILED,PAYOUT_SUCCESSFUL,mContext,payoutPhoneNumber,totalsToReimburse);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayout,
                 new IntentFilter(PAYOUT_SUCCESSFUL));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFailedPayout,
+                new IntentFilter(PAYOUT_FAILED));
     }
 
 
@@ -711,6 +714,16 @@ public class AdStats extends AppCompatActivity {
             Log.d("Dashboard", "Broadcast has been received that payout is finished.");
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
             SetPaymentValues();
+        }
+    };
+
+    private BroadcastReceiver mMessageReceiverForFailedPayout = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("Dashboard", "Broadcast has been received that payout has failed.");
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+            mProgForPayments.dismiss();
+            showFailedPayoutsView();
         }
     };
 
@@ -725,6 +738,7 @@ public class AdStats extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 mProgForPayments.hide();
+                showSuccessfulPayoutPrompt();
             }
         });
 
@@ -793,5 +807,34 @@ public class AdStats extends AppCompatActivity {
     private boolean isAlmostMidNight() {
         return TimeManager.isAlmostMidNight();
     }
+
+    private void showFailedPayoutsView() {
+        final Dialog d = new Dialog(this);
+        d.setTitle("Failed Payout.");
+        d.setContentView(R.layout.dialog94);
+        Button b1 = d.findViewById(R.id.okBtn);
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+        d.show();
+    }
+
+    private void showSuccessfulPayoutPrompt() {
+        final Dialog d = new Dialog(this);
+        d.setTitle("Successful Payout.");
+        d.setContentView(R.layout.dialog95);
+        Button b1 = d.findViewById(R.id.okBtn);
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+        d.show();
+    }
+
 
 }

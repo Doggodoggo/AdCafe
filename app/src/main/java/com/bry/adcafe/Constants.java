@@ -121,5 +121,7 @@ public class Constants {
     public static String PAY_POOL = "Pay_pool";
     public static String REIMBURSEMENT_HISTORY = "ReimbursementHistory";
     public static String ADVERT_REIMBURSEMENT_HISTORY = "AdvertReimbursementHistory";
+    public static String ADCAFE_TOTALS = "TakeoutTotals";
+    public static int TOTAL_AMOUNT_PER_VIEW_FOR_ADMIN = 2;
 
 }
