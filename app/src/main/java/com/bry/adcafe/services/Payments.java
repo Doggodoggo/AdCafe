@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.bry.adcafe.Variables;
 import com.lipisha.sdk.LipishaClient;
@@ -13,8 +12,6 @@ import com.lipisha.sdk.response.CardTransactionResponse;
 import com.lipisha.sdk.response.Payout;
 import com.lipisha.sdk.response.RequestResponse;
 import com.lipisha.sdk.response.TransactionResponse;
-
-import java.util.Calendar;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -27,10 +24,10 @@ import retrofit2.Response;
 public class Payments {
     private final String TAG = "Payments";
     private LipishaClient lipishaClient;
-    private final String BASE_URL = LipishaClient.SANDBOX_BASE_URL;
-    private final String API_KEY = "5352b553494510c1a37ecf38af75637e";
-    private final String API_SIGNATURE = "ZrP18KxY5WNYuJ4b4OBfP/+Y93hd5fydy4l/YKuYPKeEZWywFubXIVbhopQ" +
-            "HFXB7u9UdVUq8Zs9ItfVS21UDcOsLQ0M7OOgw3jef6QlqkiHy3Hsd+1xtQ2ZFu1qTipVWl82dJVtRDWWzLYazipTMyZVl6S609X5Hxf/OGudvPUA=";
+    private final String BASE_URL = LipishaClient.PROD_BASE_URL;
+    private final String API_KEY = "6dfdfda338495033842c60c3ea9fea75";
+    private final String API_SIGNATURE = "HRxaYAoEUmgttISeHr+M3DAxLN4j0o0YivAmZHn91fGhIww+" +
+            "ZfjvTvp4TNpdixy1ybEJNhnlJzFPsM2uzTuQjxrszTU9DSv9SYiAlT2UG5LNg+3lIo2X4GeV1ACBtRfkadnBxffzyjqYzR6ULgsu85xudTVem30iiJXf5JuyomQ=";
     private final String mAccountNo = "12663";
     private final String mMpesaAccountNo = "12579";
     private final String mMpesaPayOptionString = "Paybill (M-Pesa)";
