@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.bry.adcafe.Constants;
+import com.bry.adcafe.Payment.Lipisha.Payment;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.services.Payments;
@@ -29,7 +30,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
     private Context mContext;
     private double mAmount;
     private String mPhoneNo;
-    private Payments mPayments;
+    private Payment mPayment;
     private String mTransactionId;
 
 
@@ -68,7 +69,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
     }
 
     private void startPaymentProcess() {
-        mPayments = new Payments();
+        mPayment = new Payment();
 
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.PAY_POOL);
         DatabaseReference pushRef = adRef.push();
@@ -83,7 +84,8 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         int ammount = (int) mAmount;
         String amount = Integer.toString(ammount);
 
-        mPayments.requestMpesaPayment(FAILED_REQUEST,SUCCESSFUL_REQUEST,mContext,amount,newPhoneNo,mTransactionId);
+        mPayment.requestMpesaPayment(FAILED_REQUEST,SUCCESSFUL_REQUEST,mContext,amount,newPhoneNo,mTransactionId);
+
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFinishedSendingRequest,
                 new IntentFilter(SUCCESSFUL_REQUEST));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFailedToSendRequest,
@@ -91,13 +93,14 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
     }
 
     private void restartPaymentRequest() {
-        mPayments.stopRecursiveChecker();
+        mPayment.stopRecursiveChecker();
         removeTheseGodDamnReceivers();
         startPaymentProcess();
     }
 
     @Override
     public void dismiss(){
+        mPayment.stopRecursiveChecker();
         removeTheseGodDamnReceivers();
         super.dismiss();
     }
@@ -135,7 +138,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForCompleteTransaction,
                 new IntentFilter(SUCCESSFUL_PAYMENTS));
 
-        mPayments.startRecursiveCheckerForConfirmingPayments(FAILED_PAYMENTS,SUCCESSFUL_PAYMENTS,mContext,mTransactionId);
+        mPayment.startRecursiveCheckerForConfirmingPayments(FAILED_PAYMENTS,SUCCESSFUL_PAYMENTS,mContext,mTransactionId);
     }
 
     private BroadcastReceiver mMessageReceiverForCompleteTransaction = new BroadcastReceiver() {

@@ -31,6 +31,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
+import com.bry.adcafe.Payment.Lipisha.Payment;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.ChangeCPVFragment;
@@ -598,12 +599,15 @@ public class Dashboard extends AppCompatActivity {
         }else reimbursementTotals = Variables.getTotalReimbursementAmount();
 
         String payoutPhoneNumber = Variables.phoneNo;
-        String payoutAmount = Integer.toString(reimbursementTotals);
+        int payoutAmount = reimbursementTotals;
         String PAYOUT_SUCCESSFUL = "PAYOUT_SUCCESSFUL";
         String PAYOUT_FAILED = "PAYOUT_FAILED";
 
-        Payments mPayments = new Payments();
-        mPayments.makePayouts(PAYOUT_FAILED,PAYOUT_SUCCESSFUL,mContext,payoutPhoneNumber,payoutAmount);
+        String newPhoneNo = "254"+payoutPhoneNumber.substring(1);
+        Log.d("Dashboard","new Phone no is: "+newPhoneNo);
+
+        Payment payments = new Payment();
+        payments.makePayouts(PAYOUT_FAILED,PAYOUT_SUCCESSFUL,mContext,newPhoneNo, payoutAmount);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayout,
                 new IntentFilter(PAYOUT_SUCCESSFUL));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFailedPayout,

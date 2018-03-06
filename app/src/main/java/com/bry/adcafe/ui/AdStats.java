@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
+import com.bry.adcafe.Payment.Lipisha.Payment;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.adapters.DateForAdStats;
@@ -699,8 +700,12 @@ public class AdStats extends AppCompatActivity {
         String PAYOUT_SUCCESSFUL = "PAYOUT_SUCCESSFUL";
         String PAYOUT_FAILED = "PAYOUT_FAILED";
 
-        Payments mPayments = new Payments();
-        mPayments.makePayouts(PAYOUT_FAILED,PAYOUT_SUCCESSFUL,mContext,payoutPhoneNumber,totalsToReimburse);
+        String newPhoneNo = "254"+payoutPhoneNumber.substring(1);
+        Log.d("Dashboard","new Phone no is: "+newPhoneNo);
+        int amount = Integer.parseInt(totalsToReimburse);
+
+        Payment mPayments = new Payment();
+        mPayments.makePayouts(PAYOUT_FAILED,PAYOUT_SUCCESSFUL,mContext,newPhoneNo,amount);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayout,
                 new IntentFilter(PAYOUT_SUCCESSFUL));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFailedPayout,
