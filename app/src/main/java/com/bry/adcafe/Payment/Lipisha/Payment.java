@@ -38,8 +38,8 @@ public class Payment {
     public static final String PAYOUT_ACCOUNT_NUMBER = "11818";
 
 
-    private final String mMpesaAccountNo = "12579";
-    private final String mAccountNo = "12663";
+    private final String mMpesaAccountNo = "12664";
+    private final String mAccountNo = "12580";
     private final String mMpesaPayOptionString = "Paybill (M-Pesa)";
     private final String mCurrency = "KES";
     private final String mCountry = "KENYA";
@@ -91,9 +91,8 @@ public class Payment {
         });
 
     }
-
     public void sendMoney() {
-        lipishaClient.sendMoney(TEST_MOBILE_NUMBER, 10, mAccountNo).enqueue(new Callback<Payout>() {
+        lipishaClient.sendMoney(TEST_MOBILE_NUMBER, "10", mAccountNo).enqueue(new Callback<Payout>() {
             public void onResponse(Call<Payout> call, Response<Payout> response) {
                 Payout payout = response.body();
                 Log.d(TAG,payout.getStatusResponse().getStatus());
@@ -221,32 +220,14 @@ public class Payment {
 
 
 
-    public void requestMpesaPayment(final String failedIntentFilter, final String intentFilter, final Context context,
-                                    String amount, String phoneNo, final String reference){
-        Log.d(TAG,"Starting mPesa request for money for payments");
-        lipishaClient.requestMoney(API_KEY,API_SIGNATURE,mMpesaAccountNo,phoneNo,mMpesaPayOptionString,amount,mCurrency,reference)
-                .enqueue(new Callback<RequestResponse>() {
-                    public void onResponse(Call<RequestResponse> call, Response<RequestResponse> response) {
-                        if(response.body().getStatus().getStatusCode().equals("0000") && response.body().getContent().getReference().equals(reference)){
-                            Log.d(TAG,"The call was a success : "+response.body().getStatus().getStatusDescription());
-                            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(intentFilter));
-                        }else{
-                            RequestResponse res= response.body();
-                            Log.d(TAG,"Request failed : "+response.body().getStatus().getStatusDescription());
-                        }
-                    }
-
-                    public void onFailure(Call<RequestResponse> call, Throwable t) {
-                        Log.d(TAG,"There was an error : "+t.getMessage());
-                        t.printStackTrace();
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
-                    }
-                });
-    }
 
     public void makePayouts(final String failedIntentFilter, final String intentFilter, final Context context,
-                            String phoneNo, int amount){
-        lipishaClient.sendMoney(phoneNo,amount,mAccountNo).enqueue(new Callback<Payout>() {
+                            String phoneNo, String amount){
+        Log.d(TAG, phoneNo);
+        Log.d(TAG, amount);
+        Log.d(TAG, mMpesaAccountNo);
+        Log.d(TAG, mCurrency);
+        lipishaClient.sendMoney(phoneNo,amount,mMpesaAccountNo).enqueue(new Callback<Payout>() {
             @Override
             public void onResponse(Call<Payout> call, Response<Payout> response) {
                 Payout res = response.body();
@@ -271,9 +252,9 @@ public class Payment {
     }
 
     public  void makeBankPayment(final String failedIntentFilter,final String intentFilter, final Context context,String cardNo, String expiry,
-                                 String securityCode, String zipCode, float amount,String name,String address,String state){
+                                 String securityCode, String zipCode, String amount,String name,String address,String state){
         lipishaClient.authorizeCardTransaction(mAccountNo, cardNo, address, "", expiry, name,
-                state, mCountry, zipCode, securityCode, amount, mCurrency).enqueue(new Callback<CardTransactionResponse>() {
+                state, mCountry, zipCode, securityCode,"50", mCurrency).enqueue(new Callback<CardTransactionResponse>() {
             @Override
             public void onResponse(Call<CardTransactionResponse> call, Response<CardTransactionResponse> response) {
                 Log.d(TAG,"RESPONSE: "+response.message());
@@ -324,6 +305,31 @@ public class Payment {
     }
 
 
+
+
+
+    public void requestMpesaPayment(final String failedIntentFilter, final String intentFilter, final Context context,
+                                    String amount, String phoneNo, final String reference){
+        Log.d(TAG,"Starting mPesa request for money for payments");
+        lipishaClient.requestMoney(API_KEY,API_SIGNATURE,mMpesaAccountNo,phoneNo,mMpesaPayOptionString,amount,mCurrency,reference)
+                .enqueue(new Callback<RequestResponse>() {
+                    public void onResponse(Call<RequestResponse> call, Response<RequestResponse> response) {
+                        if(response.body().getStatus().getStatusCode().equals("0000") && response.body().getContent().getReference().equals(reference)){
+                            Log.d(TAG,"The call was a success : "+response.body().getStatus().getStatusDescription());
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(intentFilter));
+                        }else{
+                            RequestResponse res= response.body();
+                            Log.d(TAG,"Request failed : "+response.body().getStatus().getStatusDescription());
+                        }
+                    }
+
+                    public void onFailure(Call<RequestResponse> call, Throwable t) {
+                        Log.d(TAG,"There was an error : "+t.getMessage());
+                        t.printStackTrace();
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
+                    }
+                });
+    }
 
 
     public void startRecursiveCheckerForConfirmingPayments(final String failedIntentFilter, final String intentFilter,

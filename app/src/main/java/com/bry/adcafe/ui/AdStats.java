@@ -702,7 +702,8 @@ public class AdStats extends AppCompatActivity {
 
         String newPhoneNo = "254"+payoutPhoneNumber.substring(1);
         Log.d("Dashboard","new Phone no is: "+newPhoneNo);
-        int amount = Integer.parseInt(totalsToReimburse);
+//        int amount = Integer.parseInt(totalsToReimburse);
+        String amount = totalsToReimburse;
 
         Payment mPayments = new Payment();
         mPayments.makePayouts(PAYOUT_FAILED,PAYOUT_SUCCESSFUL,mContext,newPhoneNo,amount);

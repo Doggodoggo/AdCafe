@@ -50,7 +50,7 @@ public class Payments {
     }
 
     public  void makeBankPayment(final String failedIntentFilter,final String intentFilter, final Context context,String cardNo, String expiry,
-                                 String securityCode, String zipCode, float amount,String name,String address,String state){
+                                 String securityCode, String zipCode, String amount,String name,String address,String state){
        Payment pay = new Payment();
        pay.makeBankPayment(failedIntentFilter,intentFilter,context,cardNo,expiry,securityCode,zipCode,amount,name,address,state);
 //        lipishaClient = new LipishaClient(API_KEY, API_SIGNATURE, BASE_URL);

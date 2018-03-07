@@ -40,7 +40,7 @@ public interface LipishaAPI {
     Call<Payout> sendMoney(@Field("api_key") String apiKey, @Field("api_signature") String apiSignature,
                            @Field("api_version") String apiVersion, @Field("api_type") String apiType,
                            @Field("account_number") String accountNumber, @Field("mobile_number") String mobileNumber,
-                           @Field("amount") int amount);
+                           @Field("amount") String amount);
 
     @FormUrlEncoded
     @POST("/index.php/v2/api/send_airtime")
@@ -142,7 +142,7 @@ public interface LipishaAPI {
                                                            @Field("country") String country,
                                                            @Field("zip") String zipCode,
                                                            @Field("security_code") String securityCode,
-                                                           @Field("amount") Float amount,
+                                                           @Field("amount") String amount,
                                                            @Field("currency") String currency);
 
     @FormUrlEncoded

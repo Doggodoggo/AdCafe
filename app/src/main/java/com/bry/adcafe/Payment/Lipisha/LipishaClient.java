@@ -62,7 +62,7 @@ public class LipishaClient {
         return this.lipishaApi.getFloat(this.apiKey, this.apiSignature, this.apiVersion, this.apiType, accountNumber);
     }
 
-    public Call<Payout> sendMoney(String mobileNumber, int amount, String payoutAccount){
+    public Call<Payout> sendMoney(String mobileNumber, String amount, String payoutAccount){
         return this.lipishaApi.sendMoney(apiKey,apiSignature, apiVersion, apiType, payoutAccount,mobileNumber,amount);
     }
 
@@ -184,7 +184,7 @@ public class LipishaClient {
     public Call<CardTransactionResponse> authorizeCardTransaction(String accountNumber, String cardNumber, String address1,
                                                                   String address2, String expiry, String name,
                                                                   String state, String country, String zipCode,
-                                                                  String securityCode, Float amount, String currency) {
+                                                                  String securityCode, String amount, String currency) {
         return this.lipishaApi.authorizeCardTransaction(apiKey, apiSignature, apiVersion, apiType,
                 accountNumber, cardNumber, address1, address2, expiry,
                 name, state, country, zipCode, securityCode, amount, currency);

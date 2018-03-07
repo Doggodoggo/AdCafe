@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
+import com.bry.adcafe.Payment.Lipisha.Payment;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.FragmentModalBottomSheet;
@@ -63,6 +64,8 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+
+import static com.bry.adcafe.Variables.amountToPayForUpload;
 
 public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueChangeListener{
     public static final String TAG = AdUpload.class.getSimpleName();
@@ -573,7 +576,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         String expiration = Variables.expiration;
         String cvv = Variables.cvv;
         String postalCode = Variables.postalCode;
-        float amount = (float)Variables.amountToPayForUpload;
+        String amount = String.valueOf(amountToPayForUpload);
         String cardHolderName = Variables.cardHolderName;
         String cardHolderAdress = Variables.phoneNo;
         String state = Variables.cardHolderState;
@@ -581,7 +584,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         String SUCCESSFUL_BANK_PAYMENTS = "SUCCESSFUL_BANK_PAYMENTS";
         Log.d(TAG,"Expiration date: "+expiration);
 
-        Payments payments = new Payments();
+        Payment payments = new Payment();
 
         payments.makeBankPayment(FAILED_BANK_PAYMENTS,SUCCESSFUL_BANK_PAYMENTS,mContext,cardNumber,expiration,cvv,postalCode,
                 amount,cardHolderName,cardHolderAdress,state);
@@ -593,7 +596,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
 
     private void startMpesaPayments(){
-        double amount = Variables.amountToPayForUpload;
+        double amount = amountToPayForUpload;
         String phoneNo = Variables.phoneNo;
 
         FragmentManager fm = getFragmentManager();

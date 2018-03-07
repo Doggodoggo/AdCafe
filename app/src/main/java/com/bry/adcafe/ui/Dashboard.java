@@ -599,7 +599,8 @@ public class Dashboard extends AppCompatActivity {
         }else reimbursementTotals = Variables.getTotalReimbursementAmount();
 
         String payoutPhoneNumber = Variables.phoneNo;
-        int payoutAmount = reimbursementTotals;
+//        int payoutAmount = reimbursementTotals;
+        String payoutAmount = String.valueOf(reimbursementTotals);
         String PAYOUT_SUCCESSFUL = "PAYOUT_SUCCESSFUL";
         String PAYOUT_FAILED = "PAYOUT_FAILED";
 
