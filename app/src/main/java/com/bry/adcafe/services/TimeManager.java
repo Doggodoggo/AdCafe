@@ -50,7 +50,6 @@ public class TimeManager {
     private static void getCurrentNetworkTime(final String callbackString, final Context context) {
         OkHttpClient client = new OkHttpClient();
         String url1 = "http://api.timezonedb.com/v2/get-time-zone?key=KGGAQAWJNQZS&format=json&by=zone&zone=Africa/Nairobi";
-        String url2 = "http://api.timezonedb.com/v2/list-time-zone?key=KGGAQAWJNQZS&format=json&country=KE";
         HttpUrl.Builder urlBuilder = HttpUrl.parse(url1).newBuilder();
         String url = urlBuilder
                 .build()

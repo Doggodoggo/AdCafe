@@ -31,15 +31,20 @@ public class Payment {
     private static final String BASE_URL = LipishaClient.PROD_BASE_URL;
     public static final String API_KEY = "6dfdfda338495033842c60c3ea9fea75";
     public static final String API_SIGNATURE = "HRxaYAoEUmgttISeHr+M3DAxLN4j0o0YivAmZHn91fGhIww+ZfjvTvp4TNpdixy1ybEJNhnlJzFPsM2uzTuQjxrszTU9DSv9SYiAlT2UG5LNg+3lIo2X4GeV1ACBtRfkadnBxffzyjqYzR6ULgsu85xudTVem30iiJXf5JuyomQ=";
+
     public static final String API_VERSION = "1.3.0";
     public static final String API_TYPE = "Callback";
     public static final String FLOAT_ACCOUNT_NUMBER = "12579";
     public static final String PAYOUT_ACCOUNT_NUMBER = "11818";
+
+
     private final String mMpesaAccountNo = "12579";
-    private final String mAccountNo = "12664";
+    private final String mAccountNo = "12663";
     private final String mMpesaPayOptionString = "Paybill (M-Pesa)";
     private final String mCurrency = "KES";
     private final String mCountry = "KENYA";
+
+
     public static final String AIRTIME_ACCOUNT_NUMBER = "11819";
     public static final String TEST_MOBILE_NUMBER = "0798075721";
     private LipishaClient lipishaClient;
@@ -86,13 +91,23 @@ public class Payment {
         });
 
     }
+
     public void sendMoney() {
-        lipishaClient.sendMoney(TEST_MOBILE_NUMBER, 100, PAYOUT_ACCOUNT_NUMBER).enqueue(new Callback<Payout>() {
+        lipishaClient.sendMoney(TEST_MOBILE_NUMBER, 10, mAccountNo).enqueue(new Callback<Payout>() {
             public void onResponse(Call<Payout> call, Response<Payout> response) {
                 Payout payout = response.body();
-                echo("Payout:Amount", payout.getAmount());
-                echo("Payout:Number", payout.getMobileNumber());
-                echo("Payout:Reference", payout.getReference());
+                Log.d(TAG,payout.getStatusResponse().getStatus());
+                Log.d(TAG,payout.getStatusResponse().getStatusDescription());
+                Log.d(TAG,""+payout.getStatusResponse().getStatusCode());
+                try {
+                    echo("Payout:Amount", payout.getAmount());
+                    echo("Payout:Number", payout.getMobileNumber());
+                    echo("Payout:Reference", payout.getReference());
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+
             }
 
             public void onFailure(Call<Payout> call, Throwable throwable) {

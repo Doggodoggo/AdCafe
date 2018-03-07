@@ -21,7 +21,7 @@
     <string name="SignUpNoConnection">"You may need internet connection to sign up."</string>
     <string name="connectionDropped">"Hmmm, your connection may have a problem."</string>
     <string name="connectionDropped2">"Your connection may have a few problems."</string>
-    <string name="connectToInternet">"You need an internet connection to continue…"</string>
+    <string name="connectToInternet">"You need an internet connection…"</string>
     <string name="noInternetForLoadAds">You need an internet connection to load the ads.</string>
     <string name="shared">"Shared."</string>
 
@@ -30,7 +30,7 @@
     <string name="connectionBack">"Your back online, you may now continue."</string>
     <string name="Logout">"Logout"</string>
     <string name="pinning">"Pinning."</string>
-    <string name="learnSE">"Learn. Share. Earn."</string>
+    <string name="learnSE">"Marketing Made Modest."</string>
     <string name="lastAd">"This may be the last ad."</string>
     <string name="dashInfo">"This is where all the stats concerning ads you've seen and money you can claim is stored."</string>
     <string name="cannotPin">"You cannot pin this without an internet connection"</string>
