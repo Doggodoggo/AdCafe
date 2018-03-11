@@ -87,17 +87,22 @@ public class MyAdStatsItem {
 
         mAmountToReimburse.setText("Reimbursing amount: "+number+" Ksh");
         try{
-            if(mAdvert.isHasBeenReimbursed()) {
-                mHasBeenReimbursed.setText("Status: Reimbursed.");
+            if(ammountToBeRepaid==0){
+                mHasBeenReimbursed.setText("Status: All Users Reached.");
                 mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
-            } else {
-                mHasBeenReimbursed.setText("Status: NOT Reimbursed.");
-                mAmountToReimburse.setText("Reimbursing amount: "+number+" Ksh");
+            }else {
+                if (mAdvert.isHasBeenReimbursed()) {
+                    mHasBeenReimbursed.setText("Status: Reimbursed.");
+                    mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
+                } else {
+                    mHasBeenReimbursed.setText("Status: NOT Reimbursed.");
+                    mAmountToReimburse.setText("Reimbursing amount: " + number + " Ksh");
+                }
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-        if(isCardForYesterdayAds())mReimburseButton.setVisibility(android.view.View.VISIBLE);
+        if(isCardForYesterdayAds() && ammountToBeRepaid ==0 )mReimburseButton.setVisibility(android.view.View.VISIBLE);
         loadListeners();
     }
 

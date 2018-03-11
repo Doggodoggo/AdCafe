@@ -671,7 +671,15 @@ public class AdStats extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("Dashboard", "Broadcast has been received to start payout.");
-            startPayout();
+            if(Variables.getTotalReimbursementAmount()<1){
+                promptUserForUnableToPayout();
+            }else{
+                if(isOnline(mContext)){
+                    if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
+                    startPayout();
+                }
+                else Toast.makeText(mContext,"You need internet connection to do that.",Toast.LENGTH_SHORT).show();
+            }
         }
     };
 
@@ -841,6 +849,29 @@ public class AdStats extends AppCompatActivity {
         });
         d.show();
     }
+
+
+
+    private void promptUserForUnableToPayout(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Payout");
+        builder.setMessage("You cant make a payout of 0Ksh.")
+                .setCancelable(true)
+                .setPositiveButton("Ok.", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }).show();
+    }
+
+    private boolean isOnline(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        //should check null because in airplane mode it will be null
+        return (netInfo != null && netInfo.isConnected());
+    }
+
 
 
 }

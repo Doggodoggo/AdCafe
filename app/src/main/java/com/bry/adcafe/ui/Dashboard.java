@@ -125,8 +125,6 @@ public class Dashboard extends AppCompatActivity {
     };
 
 
-
-
     private void setClickListeners() {
         mInfoImageView.setOnClickListener(new View.OnClickListener() {
             @Override
