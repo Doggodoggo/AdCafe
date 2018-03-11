@@ -38,7 +38,8 @@ public class Payment {
     public static final String PAYOUT_ACCOUNT_NUMBER = "11818";
 
 
-    private final String mMpesaAccountNo = "12664";
+    private final String mMpesaAccountNo = "12579";
+    private final String mMpesaPayoutAccountNo = "12664";
     private final String mAccountNo = "12580";
     private final String mMpesaPayOptionString = "Paybill (M-Pesa)";
     private final String mCurrency = "KES";
@@ -318,7 +319,6 @@ public class Payment {
                             Log.d(TAG,"The call was a success : "+response.body().getStatus().getStatusDescription());
                             LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(intentFilter));
                         }else{
-                            RequestResponse res= response.body();
                             Log.d(TAG,"Request failed : "+response.body().getStatus().getStatusDescription());
                         }
                     }

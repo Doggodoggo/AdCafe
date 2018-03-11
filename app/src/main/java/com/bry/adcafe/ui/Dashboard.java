@@ -65,9 +65,9 @@ public class Dashboard extends AppCompatActivity {
     @Bind(R.id.NotificationBtn) public ImageButton mNotfBtn;
     @Bind(R.id.dotForNotification) public View mDotForNotf;
     @Bind(R.id.ChangeCPVBtn) public ImageButton mCPVBtn;
-    @Bind(R.id.LogoutBtn) public ImageButton mLogout;
+//    @Bind(R.id.LogoutBtn) public ImageButton mLogout;
     @Bind(R.id.payoutBtn) public ImageButton payoutBtn;
-    @Bind(R.id.shareAppBtn) public ImageButton shareAppBtn;
+//    @Bind(R.id.shareAppBtn) public ImageButton shareAppBtn;
 
     public Context miniContext;
     private ProgressDialog mProgForPayments;
@@ -208,12 +208,12 @@ public class Dashboard extends AppCompatActivity {
             }
         });
 
-        mLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                promptUserIfSureToLogout();
-            }
-        });
+//        mLogout.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                promptUserIfSureToLogout();
+//            }
+//        });
 
         payoutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -230,12 +230,12 @@ public class Dashboard extends AppCompatActivity {
             }
         });
 
-        shareAppBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                promptUserToShareApp();
-            }
-        });
+//        shareAppBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                promptUserToShareApp();
+//            }
+//        });
 
     }
 

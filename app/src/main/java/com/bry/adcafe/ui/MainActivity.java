@@ -47,6 +47,7 @@ import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.adapters.AdvertCard;
 import com.bry.adcafe.adapters.AdCounterBar;
+import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.ReportDialogFragment;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
@@ -1223,22 +1224,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         if (v == mLogoutButton) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("AdCafé");
-            builder.setMessage("Are you sure you want to log out?")
-                    .setCancelable(true)
-                    .setPositiveButton("Yes.", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            logoutUser();
-                        }
-                    })
-                    .setNegativeButton("No!!", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    }).show();
+//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//            builder.setTitle("AdCafé");
+//            builder.setMessage("Are you sure you want to log out?")
+//                    .setCancelable(true)
+//                    .setPositiveButton("Yes.", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            logoutUser();
+//                        }
+//                    })
+//                    .setNegativeButton("No!!", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            dialog.cancel();
+//                        }
+//                    }).show();
+            FragmentManager fm = getFragmentManager();
+            Log.d(TAG,"Setting up fragment");
+            FeedbackFragment reportDialogFragment = new FeedbackFragment();
+            reportDialogFragment.setMenuVisibility(false);
+            reportDialogFragment.show(fm, "Feedback.");
+            reportDialogFragment.setfragContext(mContext);
         }
         if (v == mRetryButton) {
             Log.d(TAG, "Retrying to load ads...");
