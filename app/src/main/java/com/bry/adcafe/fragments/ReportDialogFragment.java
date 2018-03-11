@@ -18,6 +18,7 @@ import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.TimeManager;
+import com.bry.adcafe.ui.MainActivity;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -85,7 +86,10 @@ public class ReportDialogFragment extends DialogFragment {
 
     private void setBooleanForResumingTimer(){
         Log.d("ReportDialogFragment","Setting boolean for resuming timer.");
-        if(!Variables.isAllClearToContinueCountDown)Variables.isAllClearToContinueCountDown = true;
+        if(mContext.getClass().equals(MainActivity.class)) {
+            if (!Variables.isAllClearToContinueCountDown)
+                Variables.isAllClearToContinueCountDown = true;
+        }
     }
 
 

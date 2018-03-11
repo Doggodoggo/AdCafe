@@ -7,6 +7,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,4 +90,17 @@ public class FeedbackFragment extends DialogFragment implements View.OnClickList
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return (netInfo != null && netInfo.isConnected());
     }
+
+    @Override
+    public void dismiss(){
+        super.dismiss();
+        setBooleanForResumingTimer();
+    }
+
+    private void setBooleanForResumingTimer(){
+        Log.d("FeedbackFragment","Setting boolean for resuming timer.");
+        if(!Variables.isAllClearToContinueCountDown)Variables.isAllClearToContinueCountDown = true;
+    }
+
+
 }

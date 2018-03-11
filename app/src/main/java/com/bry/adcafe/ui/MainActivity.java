@@ -1246,6 +1246,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             reportDialogFragment.setMenuVisibility(false);
             reportDialogFragment.show(fm, "Feedback.");
             reportDialogFragment.setfragContext(mContext);
+            setBooleanForPausingTimer();
         }
         if (v == mRetryButton) {
             Log.d(TAG, "Retrying to load ads...");
