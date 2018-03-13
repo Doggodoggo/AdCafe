@@ -20,12 +20,14 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
+import android.text.Html;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -45,10 +47,20 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.Calendar;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class Dashboard extends AppCompatActivity {
     private TextView mTotalAdsSeenToday;
@@ -71,6 +83,7 @@ public class Dashboard extends AppCompatActivity {
 
     public Context miniContext;
     private ProgressDialog mProgForPayments;
+    private String joke;
 
 
     @Override
@@ -181,6 +194,14 @@ public class Dashboard extends AppCompatActivity {
                 reportDialogFragment.setMenuVisibility(false);
                 reportDialogFragment.show(fm, "Feedback.");
                 reportDialogFragment.setfragContext(mContext);
+            }
+        });
+
+        findViewById(R.id.FeedbackBtn).setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if(isOnline(mContext))showPromotForJoke();
+                return false;
             }
         });
 
@@ -789,6 +810,70 @@ public class Dashboard extends AppCompatActivity {
         mProgForPayments.setCancelable(false);
         mProgForPayments.setProgress(ProgressDialog.STYLE_SPINNER);
         mProgForPayments.setIndeterminate(true);
+    }
+
+    private void showPromotForJoke(){
+        final Dialog d = new Dialog(Dashboard.this);
+        d.setTitle("EE.");
+        d.setContentView(R.layout.dialog96);
+        final LinearLayout loadingLayout = d.findViewById(R.id.loadingLayout);
+        final LinearLayout mainLayout = d.findViewById(R.id.mainLayout);
+
+        final TextView jokeHeader = d.findViewById(R.id.jokeHeader);
+        final TextView jokePart = d.findViewById(R.id.jokePart);
+        Button lolBtn = d.findViewById(R.id.lolBtn);
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                jokePart.setText(joke);
+                jokeHeader.setText(""+ Html.fromHtml("&#128516;") );
+                loadingLayout.setVisibility(View.GONE);
+                mainLayout.setVisibility(View.VISIBLE);
+                LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+            }
+        },new IntentFilter("JOKE_INTENT"));
+        lolBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+        d.show();
+
+        OkHttpClient client = new OkHttpClient();
+        String url1 = "https://icanhazdadjoke.com/";
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(url1).newBuilder();
+        String url = urlBuilder.build().toString();
+
+        Request request = new Request.Builder()
+                .addHeader("Accept", "application/json")
+                .url(url)
+                .build();
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.d("Dashboard","Response gotten"+ response.toString());
+                try{
+                    String jsonData = response.body().string();
+                    if (response.isSuccessful()) {
+                        JSONObject jokeJSON = new JSONObject(jsonData);
+                        joke = jokeJSON.getString("joke");
+                        Log.d("Dashboard","The joke : "+joke);
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("JOKE_INTENT"));
+                    }
+                }catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+
     }
 
 
