@@ -1,71 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <NumberPicker
-        android:id="@+id/numberPicker1"
-        android:layout_width="100dp"
-        android:background="@color/grey"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="64dp" />
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:gravity="center"
-        android:layout_marginTop="260dp"
         android:orientation="vertical"
-        android:minHeight="100dp"
-        android:paddingBottom="20dp"
         android:layout_height="wrap_content">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:text="*1000 users."
+            android:layout_width="match_parent"
+            android:textSize="19sp"
+            android:paddingLeft="20dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="20dp"
+            android:text="Number Of Users Targeted."
+            android:textColor="@color/colorPrimary"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:id="@+id/explanation"
+            android:layout_marginLeft="20dp"
+            android:text="@string/noteForPickingMessage"
             android:layout_marginBottom="10dp"
             android:layout_height="wrap_content" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:layout_height="wrap_content">
-            <Button
-                android:id="@+id/button1"
-                android:layout_width="wrap_content"
-                android:background="@null"
-                android:textColor="@color/colorPrimary"
-                android:layout_height="wrap_content"
-                android:text="Set" />
+        <NumberPicker
+            android:id="@+id/numberPicker1"
+            android:layout_width="100dp"
+            android:layout_gravity="center"
+            android:background="@color/grey"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" />
 
-            <Button
-                android:id="@+id/button2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@null"
-                android:textColor="@color/colorPrimary"
-                android:layout_marginLeft="70dp"
-                android:text="Cancel" />
-
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_gravity="bottom"
-        android:visibility="visible"
-        android:gravity="center"
-        android:orientation="horizontal">
         <TextView
             android:layout_width="match_parent"
-            android:text="@string/noteForPickingMessage"
-            android:textSize="11sp"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp"
+            android:text="*1000 users."
             android:gravity="center"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
             android:layout_height="wrap_content" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_height="50dp">
+
+            <Button
+                android:id="@+id/cancelChooseNumberButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:background="@null"
+                android:text="Cancel"
+                android:layout_marginLeft="30dp"
+                android:textColor="@color/colorPrimary" />
+
+            <Button
+                android:id="@+id/chooseNumberButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="30dp"
+                android:background="@null"
+                android:text="Set."
+                android:textColor="@color/colorPrimary"
+                android:layout_alignParentEnd="true" />
+
+        </RelativeLayout>
+
     </LinearLayout>
+
+
 
 </RelativeLayout>

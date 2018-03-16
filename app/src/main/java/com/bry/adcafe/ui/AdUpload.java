@@ -39,10 +39,8 @@ import com.bry.adcafe.fragments.FragmentModalBottomSheet;
 import com.bry.adcafe.fragments.FragmentMpesaPayBottomsheet;
 import com.bry.adcafe.fragments.FragmentMpesaPaymentInitiation;
 import com.bry.adcafe.fragments.FragmentSelectPaymentOptionBottomSheet;
-import com.bry.adcafe.fragments.GetAmmountPerUserFragment;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
-import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.TimeManager;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -398,7 +396,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             findViewById(R.id.WebsiteIcon).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    promptUserForLink();
+                    addWebsiteLinkPrompt();
                 }
             });
         }
@@ -514,7 +512,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
     //Remember to comment out the one being called in the onClick listener (Line 420)////////
 
-    private void promptUserForLink() {
+    private void addWebsiteLinkPrompt() {
         final Dialog d = new Dialog(AdUpload.this);
         d.setTitle("Ad any relevant link.");
         d.setContentView(R.layout.dialog5);
@@ -702,8 +700,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         final Dialog d = new Dialog(AdUpload.this);
         d.setTitle("Targeted people no.");
         d.setContentView(R.layout.dialog);
-        Button b1 = (Button) d.findViewById(R.id.button1);
-        Button b2 = (Button) d.findViewById(R.id.button2);
+        Button b1 = (Button) d.findViewById(R.id.chooseNumberButton);
+        Button b2 = (Button) d.findViewById(R.id.cancelChooseNumberButton);
         final NumberPicker np = (NumberPicker) d.findViewById(R.id.numberPicker1);
         np.setMaxValue(mClusterTotal);
         np.setMinValue(1);
@@ -1246,7 +1244,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             });
             d.show();
         }else{
-            super.onBackPressed();
+//            super.onBackPressed();
             finish();
         }
 
