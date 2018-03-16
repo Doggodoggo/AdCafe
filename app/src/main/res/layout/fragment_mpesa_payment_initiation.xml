@@ -13,7 +13,7 @@
 
         <TextView
             android:layout_width="match_parent"
-            android:textSize="25sp"
+            android:textSize="19sp"
             android:text="Pay via Mpesa."
             android:layout_marginBottom="10dp"
             android:textColor="@color/colorPrimary"
@@ -22,14 +22,12 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_marginBottom="5dp"
-            android:textSize="14sp"
             android:text="@string/mpesaPayment"
             android:layout_height="wrap_content" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_marginBottom="30dp"
-            android:textSize="14sp"
             android:text="@string/mpesaPayment3"
             android:layout_height="wrap_content" />
 

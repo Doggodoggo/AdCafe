@@ -835,6 +835,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Point windowSize = Utils.getDisplaySize(getWindowManager());
         Variables.windowSize = windowSize;
         float relativeScale = density();
+        Variables.relativeScale = relativeScale;
 
         mSwipeView.getBuilder()
                 .setDisplayViewCount(4)
@@ -1018,6 +1019,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                Toast.makeText(mContext, R.string.lastAd, Toast.LENGTH_SHORT).show();
                 isLastAd = true;
             }else{
+                stretchCard();
+
                 Advert noAds = new Advert();
                 noAds.setWebsiteLink(igsNein);
                 noAds.setPushRefInAdminConsole("NONE");
@@ -1045,6 +1048,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         networkStateReceiver.addListener(this);
         this.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
 //        if(loadMoreAds) loadMoreAds();
+    }
+
+    private void stretchCard(){
+        int bottomMargin = Utils.dpToPx(80);
+        Point windowSize = Variables.windowSize;
+        float relativeScale = Variables.relativeScale;
+
+        mSwipeView.getBuilder().setSwipeDecor(new SwipeDecor()
+                .setViewWidth(windowSize.x)
+                .setViewHeight(windowSize.y - bottomMargin)
+                .setSwipeRotationAngle(0)
+                .setSwipeAnimTime(150)
+                .setViewGravity(Gravity.TOP)
+                .setPaddingTop(15)
+                .setRelativeScale(relativeScale));
     }
 
 

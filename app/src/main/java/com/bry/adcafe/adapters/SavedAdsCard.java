@@ -256,7 +256,13 @@ public class SavedAdsCard {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("SAVED_ADS--","Received broadcast to Unpin ad");
-            unPin();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    unPin();
+                }
+            }, 400);
+
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
         }
     };

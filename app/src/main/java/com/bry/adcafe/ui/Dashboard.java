@@ -39,7 +39,6 @@ import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.ChangeCPVFragment;
 import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
-import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.SliderPrefManager;
 import com.bry.adcafe.services.TimeManager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -200,7 +199,7 @@ public class Dashboard extends AppCompatActivity {
         findViewById(R.id.FeedbackBtn).setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if(isOnline(mContext))showPromotForJoke();
+                if(isOnline(mContext)) showPromptForJoke();
                 return false;
             }
         });
@@ -812,16 +811,15 @@ public class Dashboard extends AppCompatActivity {
         mProgForPayments.setIndeterminate(true);
     }
 
-    private void showPromotForJoke(){
+    private void showPromptForJoke(){
         final Dialog d = new Dialog(Dashboard.this);
-        d.setTitle("EE.");
+        d.setTitle("Socks are under-appreciated.");
         d.setContentView(R.layout.dialog96);
         final LinearLayout loadingLayout = d.findViewById(R.id.loadingLayout);
         final LinearLayout mainLayout = d.findViewById(R.id.mainLayout);
 
         final TextView jokeHeader = d.findViewById(R.id.jokeHeader);
         final TextView jokePart = d.findViewById(R.id.jokePart);
-        Button lolBtn = d.findViewById(R.id.lolBtn);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -832,12 +830,6 @@ public class Dashboard extends AppCompatActivity {
                 LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
             }
         },new IntentFilter("JOKE_INTENT"));
-        lolBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                d.dismiss();
-            }
-        });
         d.show();
 
         OkHttpClient client = new OkHttpClient();

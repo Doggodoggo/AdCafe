@@ -9,11 +9,11 @@
         android:orientation="vertical"
         android:id="@+id/payoutOptions"
         android:padding="15dp"
-        android:layout_height="180dp">
+        android:layout_height="165dp">
 
         <TextView
             android:layout_width="match_parent"
-            android:textSize="25sp"
+            android:textSize="19sp"
             android:text="Payout Options."
             android:layout_marginBottom="10dp"
             android:textColor="@color/colorPrimary"
@@ -22,7 +22,6 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_marginBottom="10dp"
-            android:textSize="15sp"
             android:text="@string/payoutDetails"
             android:layout_height="wrap_content" />
 
@@ -66,7 +65,7 @@
 
         <TextView
             android:layout_width="match_parent"
-            android:textSize="25sp"
+            android:textSize="19sp"
             android:textColor="@color/colorPrimary"
             android:text="Payout Details."
             android:layout_marginBottom="10dp"
@@ -89,7 +88,7 @@
             android:id="@+id/phoneEditText"
             android:inputType="phone"
             android:padding="10dp"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textColorHint="@color/greyHint"
             android:nextFocusDown="@+id/passwordEditText"
             android:hint="0712345678"
@@ -105,7 +104,7 @@
             android:id="@+id/passwordEditText"
             android:inputType="textPassword"
             android:padding="10dp"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:hint="The one used to log in to the app"
             android:textColorHint="@color/greyHint"
             android:layout_height="wrap_content" />
@@ -152,7 +151,7 @@
 
         <TextView
             android:layout_width="match_parent"
-            android:textSize="25sp"
+            android:textSize="19sp"
             android:textColor="@color/colorPrimary"
             android:layout_marginBottom="10dp"
             android:text="Confirm Everything."

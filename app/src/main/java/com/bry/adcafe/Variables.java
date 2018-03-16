@@ -109,6 +109,7 @@ public class Variables {
     public static String cardHolderName;
     public static String cardHolderEmail;
     public static String cardHolderState;
+    public static float relativeScale = 0f;
 
     public static void resetAllValues(){
          todaysAdTotal = 0;
