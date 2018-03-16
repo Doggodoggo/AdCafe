@@ -86,6 +86,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     @Bind(R.id.numberOfUsersToAdvertiseToLayout) RelativeLayout mNumberOfUsersToAdvertiseTo;
     @Bind(R.id.categoryText)TextView mCategoryText;
     @Bind(R.id.helpIcon) ImageView mHelpIcon;
+    @Bind(R.id.uploadLayout) RelativeLayout mUploadLayout;
 
 
 
@@ -712,6 +713,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             public void onClick(View v) {
                 tv.setText(String.valueOf(np.getValue()*Constants.NUMBER_OF_USERS_PER_CLUSTER));
                 mHasNumberBeenChosen = true;
+                if(mHasUserChosenAnImage)mUploadLayout.setVisibility(View.VISIBLE);
                 mNumberOfClusters = np.getValue();
 //                addToClusterListToUploadTo(mNumberOfClusters);
                 mNumberOfUsersToAdvertiseTo.setVisibility(View.VISIBLE);
@@ -754,7 +756,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mFilepath);
                     bm = bitmap;
                     Glide.with(mContext).load(bitmapToByte(bitmap)).asBitmap().override(400, 300).into(mProfileImageViewPreview);
-
+                    if(mHasNumberBeenChosen)mUploadLayout.setVisibility(View.VISIBLE);
                 } catch (IOException e) {
                     e.printStackTrace();
                     Log.d(TAG, "---Unable to get and set image. " + e.getMessage());

@@ -59,25 +59,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <ImageButton
-                android:id="@+id/uploadIcon"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_marginLeft="35dp"
-                android:background="@drawable/ic_action_fimage_upload"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:id="@+id/uploadText"
-                android:layout_marginTop="40dp"
-                android:layout_marginLeft="44dp"
-                android:textSize="8dp"
-                android:text="Upload."
-                android:layout_height="wrap_content" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <ImageButton
                 android:id="@+id/chooseNumberButton"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
@@ -92,7 +73,6 @@
                 android:text="Number of people."
                 android:layout_height="wrap_content" />
         </RelativeLayout>
-
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -114,6 +94,28 @@
                 android:text="People."
                 android:layout_height="wrap_content" />
         </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/uploadLayout"
+            android:visibility="invisible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageButton
+                android:id="@+id/uploadIcon"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_marginLeft="35dp"
+                android:background="@drawable/ic_action_fimage_upload"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:id="@+id/uploadText"
+                android:layout_marginTop="40dp"
+                android:layout_marginLeft="44dp"
+                android:textSize="8dp"
+                android:text="Upload."
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
+
 
     </LinearLayout>
 
