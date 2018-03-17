@@ -62,6 +62,7 @@
                     android:layout_alignParentLeft="true"
                     android:background="@null"
                     android:text="Cancel"
+                    android:visibility="invisible"
                     android:textColor="@color/colorPrimary" />
 
                 <Button

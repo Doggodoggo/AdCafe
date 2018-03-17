@@ -55,6 +55,7 @@
                 android:layout_alignParentLeft="true"
                 android:background="@null"
                 android:text="Never Mind."
+                android:visibility="invisible"
                 android:textColor="@color/colorPrimary" />
 
             <Button

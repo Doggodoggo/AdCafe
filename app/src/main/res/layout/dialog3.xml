@@ -40,7 +40,7 @@
                 android:paddingLeft="10dp"
                 android:textColor="@color/colorPrimary"
                 android:background="@null"
-                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
                 android:layout_height="wrap_content"
                 android:text="Yes." />
 
@@ -50,8 +50,9 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:layout_marginLeft="20dp"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentLeft="true"
                 android:background="@null"
+                android:visibility="invisible"
                 android:textColor="@color/colorPrimary"
                 android:layout_height="wrap_content"
                 android:text="No!." />
