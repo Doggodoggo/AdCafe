@@ -128,9 +128,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
                 android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingLeft="30dp"
-                android:paddingRight="30dp">
+                android:orientation="horizontal">
 
                 <android.support.v7.widget.CardView
                     android:layout_width="295dp"
@@ -304,37 +302,33 @@
                     app:cardCornerRadius="4dp"
                     app:cardElevation="2dp">
 
-                    <LinearLayout
+                    <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical">
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginTop="5dp"
+                        android:text="Help us improve on the app."
+                        android:textAlignment="center"
+                        android:textSize="13sp" />
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginRight="20dp"
-                            android:layout_marginTop="5dp"
-                            android:text="Help us improve on the app."
-                            android:textAlignment="center"
-                            android:textSize="13sp" />
+                    <ImageButton
+                        android:id="@+id/FeedbackBtn"
+                        android:layout_width="66dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_gravity="center"
+                        android:layout_height="70dp"
+                        android:background="@drawable/ic_action_feedback3" />
 
-                        <ImageButton
-                            android:id="@+id/FeedbackBtn"
-                            android:layout_width="46dp"
-                            android:layout_height="46dp"
-                            android:background="@drawable/ic_action_feedback4" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:text="FEEDBACK"
+                        android:layout_gravity="bottom"
+                        android:textAlignment="center"
+                        android:textSize="10sp" />
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="5dp"
-                            android:text="FEEDBACK"
-                            android:textAlignment="center"
-                            android:textSize="10sp" />
-
-                    </LinearLayout>
 
                 </android.support.v7.widget.CardView>
 
