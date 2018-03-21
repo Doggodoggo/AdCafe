@@ -22,6 +22,7 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.adapters.SelectCategoryItem;
+import com.bry.adcafe.adapters.SubscriptionManagerContainer;
 import com.bry.adcafe.adapters.SubscriptionManagerItem;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -102,10 +103,11 @@ public class SubscriptionManager extends AppCompatActivity implements View.OnCli
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot snap:dataSnapshot.getChildren()){
                     String category = snap.getKey();
-                    String details = snap.getValue(String.class);
-                    boolean isChecked;
-                    isChecked = Variables.Subscriptions.containsKey(category);
-                    placeHolderView.addView(new SubscriptionManagerItem(mContext,placeHolderView,category,details,isChecked));
+                    List<String> subcategories = new ArrayList<>();
+                    for(DataSnapshot subSnap: snap.getChildren()){
+                        subcategories.add(subSnap.getValue(String.class));
+                    }
+                    placeHolderView.addView(new SubscriptionManagerContainer(mContext,placeHolderView,category,subcategories));
                 }
                 loadingLayout.setVisibility(View.GONE);
                 mainView.setVisibility(View.VISIBLE);

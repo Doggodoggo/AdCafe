@@ -280,7 +280,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 startLoadingUserData();
             }else{
                 Log.d(TAG,"No internet connection!!");
-                Toast.makeText(mContext,"You've may not have an internet connection.",Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext,"You don't have an internet connection.",Toast.LENGTH_SHORT).show();
             }
         }
         if(v== mRetryLoadingButton){

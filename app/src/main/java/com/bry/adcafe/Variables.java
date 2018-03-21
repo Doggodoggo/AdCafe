@@ -110,6 +110,7 @@ public class Variables {
     public static String cardHolderEmail;
     public static String cardHolderState;
     public static float relativeScale = 0f;
+    public static String categoryGroupBeingAdded;
 
     public static void resetAllValues(){
          todaysAdTotal = 0;

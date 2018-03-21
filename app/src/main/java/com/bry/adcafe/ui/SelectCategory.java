@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
+import com.bry.adcafe.adapters.SelectCategoryContainer;
 import com.bry.adcafe.adapters.SelectCategoryItem;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.DatabaseManager;
@@ -82,12 +83,18 @@ public class SelectCategory extends AppCompatActivity implements View.OnClickLis
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                int numberOfSubs = 0;
+                Variables.selectedCategoriesToSubscribeTo.clear();
                 for(DataSnapshot snap:dataSnapshot.getChildren()){
                     String category = snap.getKey();
-                    String details = snap.getValue(String.class);
-                    placeHolderView.addView(new SelectCategoryItem(mContext,placeHolderView,category,details,false));
+                    List<String> subcategories = new ArrayList<>();
+                    for(DataSnapshot subSnap: snap.getChildren()){
+                        subcategories.add(subSnap.getValue(String.class));
+                        numberOfSubs++;
+                    }
+                    placeHolderView.addView(new SelectCategoryContainer(mContext,placeHolderView,category,subcategories));
                 }
-                new DatabaseManager().setNumberOfSubscriptionsUserKnowsAbout((int)dataSnapshot.getChildrenCount());
+                new DatabaseManager().setNumberOfSubscriptionsUserKnowsAbout(numberOfSubs);
                 loadingLayout.setVisibility(View.GONE);
                 mainView.setVisibility(View.VISIBLE);
             }
@@ -99,6 +106,7 @@ public class SelectCategory extends AppCompatActivity implements View.OnClickLis
             }
         });
     }
+
 
 
     @Override
@@ -117,6 +125,7 @@ public class SelectCategory extends AppCompatActivity implements View.OnClickLis
     @Override
     protected  void onDestroy() {
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedCreatingUserSubscriptionList);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Constants.STOP_LISTENING));
         super.onDestroy();
     }
 

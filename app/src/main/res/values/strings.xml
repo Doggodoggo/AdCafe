@@ -17,8 +17,8 @@
     <string name="nameText">"Name."</string>
     <string name="title_activity_login">"Login."</string>
     <string name="reloadButton">"Reload"</string>
-    <string name="LogInNoConnection">"You may need internet connection to login."</string>
-    <string name="SignUpNoConnection">"You may need internet connection to sign up."</string>
+    <string name="LogInNoConnection">"You need an internet connection to login."</string>
+    <string name="SignUpNoConnection">"You need an internet connection to sign up."</string>
     <string name="connectionDropped">"Hmmm, your connection may have a problem."</string>
     <string name="connectionDropped2">"Your connection may have a few problems."</string>
     <string name="connectToInternet">"You need an internet connection…"</string>

@@ -105,7 +105,7 @@ public class Constants {
     public static int NUMBER_OF_USERS_PER_CLUSTER = 1000;
     public static double PAYMENT_TRANSFER_PERENTAGE = 0.035;
     public static double PAYOUT_TRANSFER_FEE = 0.015;
-    public static double TOTAL_PAYOUT_PERCENTAGE = 0.05;
+    public static double TOTAL_PAYOUT_PERCENTAGE = 0.04;
     public static double TOTAL_MPESA_PAYOUT_PERCENTAGE = 0.03;
 
     public static String USER_PASSCODE = "Password";
@@ -123,5 +123,8 @@ public class Constants {
     public static String ADVERT_REIMBURSEMENT_HISTORY = "AdvertReimbursementHistory";
     public static String ADCAFE_TOTALS = "TakeoutTotals";
     public static int TOTAL_AMOUNT_PER_VIEW_FOR_ADMIN = 2;
+
+    public static String ADD_CATEGORY_AUTOMATICALLY = "ADD_CATEGORY_AUTOMATICALLY";
+    public static String STOP_LISTENING = "STOP_LISTENING";
 
 }

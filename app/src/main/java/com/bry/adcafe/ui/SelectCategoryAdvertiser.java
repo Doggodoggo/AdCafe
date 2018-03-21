@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
+import com.bry.adcafe.adapters.SelectCategoryAdvertiserContainer;
 import com.bry.adcafe.adapters.SelectCategoryAdvertiserItem;
 import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.GetAmmountPerUserFragment;
@@ -136,8 +137,11 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot snap:dataSnapshot.getChildren()){
                     String category = snap.getKey();
-                    String details = snap.getValue(String.class);
-                    placeHolderView.addView(new SelectCategoryAdvertiserItem(mContext,placeHolderView,category,details));
+                    List<String> subcategories = new ArrayList<>();
+                    for(DataSnapshot subSnap: snap.getChildren()){
+                        subcategories.add(subSnap.getValue(String.class));
+                    }
+                    placeHolderView.addView(new SelectCategoryAdvertiserContainer(mContext,placeHolderView,category,subcategories));
                 }
                 loadingLayout.setVisibility(View.GONE);
                 mainView.setVisibility(View.VISIBLE);

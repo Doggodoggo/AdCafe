@@ -154,7 +154,21 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
                     Variables.expiration = ""+cardForm.getExpirationMonth()+cardForm.getExpirationYear();
                     Variables.amountToPayForUpload = paymentTotals;
                 }
-                else Toast.makeText(mActivity.getApplication(),"Please use valid details.",Toast.LENGTH_SHORT).show();
+                else{
+                    if(cardForm.getCardNumber().isEmpty()){
+                        cardForm.getCardEditText().performClick();
+                        cardForm.getCardEditText().setError("Your card number!");
+                    }else
+                    if(cardForm.getExpirationYear().isEmpty()){
+                        cardForm.getExpirationDateEditText().performClick();
+                        cardForm.getExpirationDateEditText().setError("Your card's expiration date!");
+                    }else
+                    if(cardForm.getCvv().isEmpty()){
+                        cardForm.getCvvEditText().performClick();
+                        cardForm.getCvvEditText().setError("Your card's cvv.");
+                    }
+                    else Toast.makeText(mActivity.getApplication(),"Some of your details might be wrong.",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

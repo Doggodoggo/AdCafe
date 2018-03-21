@@ -376,8 +376,10 @@ public class DatabaseManager {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot snap:dataSnapshot.getChildren()) {
-                    String category = snap.getKey();
-                    categoryList.add(category);
+                    for(DataSnapshot snapMini:snap.getChildren()){
+                        String category = snapMini.getValue(String.class);
+                        categoryList.add(category);
+                    }
                 }
                 loadUserDataNow(mContext);
             }
