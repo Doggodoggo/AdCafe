@@ -67,7 +67,7 @@ public class SubscriptionManagerItem {
         categoryName.setText(category);
         checkBox.setText(category);
         checkBox.setChecked(Variables.Subscriptions.containsKey(category));
-        setCheckImage(Variables.selectedCategoriesToSubscribeTo.contains(category));
+        setCheckImage(Variables.Subscriptions.containsKey(category));
         isChecked = Variables.Subscriptions.containsKey(category);
 
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForUnregisterAllReceivers,
@@ -240,14 +240,14 @@ public class SubscriptionManagerItem {
 
     private void setBAndWhite(){
         ColorMatrix matrix = new ColorMatrix();
-        matrix.setSaturation(0);
+        matrix.setSaturation(1);
         ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
         categoryImage.setColorFilter(filter);
     }
 
     private void removeBAWhite(){
         ColorMatrix matrix = new ColorMatrix();
-        matrix.setSaturation(1);
+        matrix.setSaturation(0);
         ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
         categoryImage.setColorFilter(filter);
     }

@@ -57,7 +57,7 @@ public class SelectCategoryAdvertiserItem {
         }
     }
 
-    @Click(R.id.categoryCard)
+    @Click(R.id.categoryImage)
     private void onClick(){
         Variables.SelectedCategory = category;
         Intent intent = new Intent("SELECTED_CATEGORY");
