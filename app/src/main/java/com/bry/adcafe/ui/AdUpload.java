@@ -27,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -87,6 +88,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     @Bind(R.id.categoryText)TextView mCategoryText;
     @Bind(R.id.helpIcon) ImageView mHelpIcon;
     @Bind(R.id.uploadLayout) RelativeLayout mUploadLayout;
+    @Bind(R.id.progressBarUpload) ProgressBar mProgressBarUpload;
 
 
 
@@ -228,7 +230,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
 
     private void getNumberOfClusters() {
-        mAvi.setVisibility(View.VISIBLE);
+//        mAvi.setVisibility(View.VISIBLE);
+        mProgressBarUpload.setVisibility(View.VISIBLE);
         mLoadingTextView.setVisibility(View.VISIBLE);
         setAllOtherViewsToBeGone();
         Log.d(TAG,"---Getting number of clusters.");
@@ -258,7 +261,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         @Override
         public void onCancelled(DatabaseError databaseError) {
 //            setAllOtherViewsToBeVisible();
-            mAvi.setVisibility(View.GONE);
+//            mAvi.setVisibility(View.GONE);
+            mProgressBarUpload.setVisibility(View.GONE);
             mNoConnection.setVisibility(View.VISIBLE);
             mBottomNavs.setVisibility(View.GONE);
         }
@@ -292,7 +296,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 //            setAllOtherViewsToBeVisible();
             mNoConnection.setVisibility(View.VISIBLE);
             mBottomNavs.setVisibility(View.GONE);
-            mAvi.setVisibility(View.GONE);
+//            mAvi.setVisibility(View.GONE);
+            mProgressBarUpload.setVisibility(View.GONE);
             Log.d(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
             Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
                     Snackbar.LENGTH_LONG).show();
@@ -321,7 +326,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 //            setAllOtherViewsToBeVisible();
             mNoConnection.setVisibility(View.VISIBLE);
             mBottomNavs.setVisibility(View.GONE);
-            mAvi.setVisibility(View.GONE);
+//            mAvi.setVisibility(View.GONE);
+            mProgressBarUpload.setVisibility(View.GONE);
             Log.d(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
             Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
                     Snackbar.LENGTH_LONG).show();
@@ -344,7 +350,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 }
                 Log.d(TAG,"---the number of children gotten is: "+noOfChildrenInLatestCluster);
                 setAllOtherViewsToBeVisible();
-                mAvi.setVisibility(View.GONE);
+//                mAvi.setVisibility(View.GONE);
+                mProgressBarUpload.setVisibility(View.GONE);
                 mLoadingTextView.setVisibility(View.GONE);
                 OnClicks();
 //                loadListenerForRecreate();
@@ -355,7 +362,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 //                setAllOtherViewsToBeVisible();
                 mNoConnection.setVisibility(View.VISIBLE);
                 mBottomNavs.setVisibility(View.GONE);
-                mAvi.setVisibility(View.GONE);
+//                mAvi.setVisibility(View.GONE);
+                mProgressBarUpload.setVisibility(View.GONE);
                 Log.d(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
                 Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
                         Snackbar.LENGTH_LONG).show();
@@ -471,7 +479,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                     failedClustersToUploadTo.clear();
                     if(bm!=null){
                         setAllOtherViewsToBeGone();
-                        mAvi.setVisibility(View.VISIBLE);
+//                        mAvi.setVisibility(View.VISIBLE);
+                        mProgressBarUpload.setVisibility(View.VISIBLE);
                         mLoadingTextView.setVisibility(View.VISIBLE);
                         mLoadingTextView.setText(R.string.uploadMessage);
                         setNewValueToStartFrom();
@@ -1083,7 +1092,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private void checkAndNotifyAnyFailed() {
         if(!clustersToUpLoadTo.isEmpty()){
 //           Toast.makeText(mContext,"Upload process is incomplete.",Toast.LENGTH_LONG).show();
-            mAvi.setVisibility(View.GONE);
+//            mAvi.setVisibility(View.GONE);
+            mProgressBarUpload.setVisibility(View.GONE);
             mLoadingTextView.setVisibility(View.GONE);
             setAllOtherViewsToBeVisible();
             findViewById(R.id.reupload).setVisibility(View.VISIBLE);

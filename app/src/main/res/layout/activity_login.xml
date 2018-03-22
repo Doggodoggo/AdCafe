@@ -104,6 +104,13 @@
             app:indicatorName="LineScaleIndicator"
             app:indicatorColor="@color/accent" />
 
+        <ProgressBar
+            android:id="@+id/progressBarlogin"
+            style="?android:attr/progressBarStyle"
+            android:visibility="gone"
+            android:layout_width="40dp"
+            android:layout_height="40dp"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:id="@+id/settingUpMessageLogin"

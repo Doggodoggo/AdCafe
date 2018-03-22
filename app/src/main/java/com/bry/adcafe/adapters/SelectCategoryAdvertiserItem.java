@@ -68,7 +68,7 @@ public class SelectCategoryAdvertiserItem {
         String filename;
         filename = category.replaceAll(" ","_");
         Log.d("SelectCategoryIntem","filename is: "+filename);
-        Glide.with(mContext).load(getImage(filename)).override(100, 130).into(categoryImage);
+        Glide.with(mContext).load(getImage(filename)).into(categoryImage);
     }
 
     private int getImage(String imageName) {

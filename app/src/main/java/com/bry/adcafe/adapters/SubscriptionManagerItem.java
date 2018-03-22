@@ -81,7 +81,7 @@ public class SubscriptionManagerItem {
         }
     }
 
-    @Click(R.id.categoryImage)
+    @Click(R.id.cat_select)
     private void onClick(){
         if(isChecked){
             if(isOnline(mContext)) {
@@ -234,7 +234,7 @@ public class SubscriptionManagerItem {
         String filename;
         filename = category.replaceAll(" ","_");
         Log.d("SelectCategoryIntem","filename is: "+filename);
-        Glide.with(mContext).load(getImage(filename)).override(100, 130).into(categoryImage);
+        Glide.with(mContext).load(getImage(filename)).into(categoryImage);
         imageId = getImage(filename);
     }
 

@@ -19,6 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,6 +58,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Bind(R.id.LoginButton)  Button mLoginButton;
     @Bind(R.id.registerLink) TextView mRegisterLink;
     @Bind(R.id.LoginAvi) AVLoadingIndicatorView mAvi;
+    @Bind(R.id.progressBarlogin) ProgressBar mProgressBarLogin;
     @Bind(R.id.settingUpMessageLogin) TextView mLoadingMessage;
     @Bind(R.id.LoginRelative) RelativeLayout mRelative;
     @Bind(R.id.noConnectionLayout) LinearLayout mNoConnectionLayout;
@@ -119,7 +121,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         Log.d(TAG,"user is online, setting up everything normally");
                         mRelative.setVisibility(View.GONE);
                         mNoConnectionLayout.setVisibility(View.GONE);
-                        mAvi.setVisibility(View.VISIBLE);
+//                        mAvi.setVisibility(View.VISIBLE);
+                        mProgressBarLogin.setVisibility(View.VISIBLE);
                         mLoadingMessage.setVisibility(View.VISIBLE);
                         mIsLoggingIn = false;
 
@@ -142,7 +145,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void setFailedToLoadView(){
         Log.d(TAG,"Failed to load data,showing failed to load data dialog");
 //        mRelative.setVisibility(View.GONE);
-        mAvi.setVisibility(View.GONE);
+//        mAvi.setVisibility(View.GONE);
+        mProgressBarLogin.setVisibility(View.GONE);
         mLoadingMessage.setVisibility(View.GONE);
 
         mFailedLoadLayout.setVisibility(View.VISIBLE);
@@ -154,7 +158,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             String uid = user.getUid();
             User.setUid(uid);
-            mAvi.setVisibility(View.GONE);
+//            mAvi.setVisibility(View.GONE);
+            mProgressBarLogin.setVisibility(View.GONE);
             mLoadingMessage.setVisibility(View.GONE);
             Variables.isStartFromLogin = true;
             Intent intent = new Intent (LoginActivity.this, MainActivity.class);
@@ -167,7 +172,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void startSelectCategory(){
         if(hasEverythingLoaded && isActivityVisible) {
             Variables.isStartFromLogin = true;
-            mAvi.setVisibility(View.GONE);
+//            mAvi.setVisibility(View.GONE);
+            mProgressBarLogin.setVisibility(View.GONE);
             mLoadingMessage.setVisibility(View.GONE);
             Intent intent = new Intent(LoginActivity.this, SelectCategory.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -275,7 +281,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             if(isOnline(mContext)){
                 mNoConnectionLayout.setVisibility(View.GONE);
                 mRelative.setVisibility(View.GONE);
-                mAvi.setVisibility(View.VISIBLE);
+//                mAvi.setVisibility(View.VISIBLE);
+                mProgressBarLogin.setVisibility(View.VISIBLE);
                 mLoadingMessage.setVisibility(View.VISIBLE);
                 startLoadingUserData();
             }else{
@@ -286,7 +293,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if(v== mRetryLoadingButton){
             mRelative.setVisibility(View.GONE);
             mFailedLoadLayout.setVisibility(View.GONE);
-            mAvi.setVisibility(View.VISIBLE);
+//            mAvi.setVisibility(View.VISIBLE);
+            mProgressBarLogin.setVisibility(View.VISIBLE);
             mLoadingMessage.setVisibility(View.VISIBLE);
             Toast.makeText(mContext,"Retrying...",Toast.LENGTH_SHORT).show();
             startLoadingUserData();
@@ -310,7 +318,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             Snackbar.make(findViewById(R.id.loginCoordinatorLayout), R.string.LogInNoConnection,
                     Snackbar.LENGTH_LONG).show();
         }else{
-            mAvi.setVisibility(View.VISIBLE);
+//            mAvi.setVisibility(View.VISIBLE);
+            mProgressBarLogin.setVisibility(View.VISIBLE);
             mLoadingMessage.setVisibility(View.VISIBLE);
             mRelative.setVisibility(View.GONE);
             mIsLoggingIn = true;
@@ -325,7 +334,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 Log.w(TAG,"SignInWithEmail",task.getException());
 //                                mRelative.setVisibility(View.VISIBLE);
                                 mRelative.setVisibility(View.VISIBLE);
-                                mAvi.setVisibility(View.GONE);
+//                                mAvi.setVisibility(View.GONE);
+                                mProgressBarLogin.setVisibility(View.VISIBLE);
                                 mLoadingMessage.setVisibility(View.GONE);
                                 mIsLoggingIn = false;
                                 Toast.makeText(LoginActivity.this,"You may have mistyped your username or password.",Toast.LENGTH_LONG).show();

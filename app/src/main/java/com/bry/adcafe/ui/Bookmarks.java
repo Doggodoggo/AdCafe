@@ -32,6 +32,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -75,6 +76,7 @@ public class Bookmarks extends AppCompatActivity {
     private Context mContext;
     @Bind(R.id.PlaceHolderView) public PlaceHolderView mPlaceHolderView;
     @Bind(R.id.PlaceHolderView2) public PlaceHolderView mPlaceHolderView2;
+    @Bind(R.id.progressBarBookmarks) public ProgressBar mProgressBarBookmarks;
 
     private ChildEventListener mChildEventListener;
     private DatabaseReference mRef;
@@ -577,7 +579,8 @@ public class Bookmarks extends AppCompatActivity {
             Log.d(TAG,"No ads have been loaded, perhaps user doesn't have any pinned ads");
             Toast.makeText(mContext,"You do not have any pinned ads.",Toast.LENGTH_SHORT).show();
             noAdsText.setVisibility(View.VISIBLE);
-            mAvi.setVisibility(View.GONE);
+//            mAvi.setVisibility(View.GONE);
+            mProgressBarBookmarks.setVisibility(View.GONE);
             loadingText.setVisibility(View.GONE);
             hideProg();
         }else{
@@ -640,7 +643,8 @@ public class Bookmarks extends AppCompatActivity {
             noAdsText.setVisibility(View.VISIBLE);
         }
         mSavedAds.clear();
-        mAvi.setVisibility(View.GONE);
+//        mAvi.setVisibility(View.GONE);
+        mProgressBarBookmarks.setVisibility(View.GONE);
         loadingText.setVisibility(View.GONE);
 
     }

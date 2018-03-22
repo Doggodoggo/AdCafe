@@ -21,6 +21,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,6 +69,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
     @Bind(R.id.loginTextView) TextView mLoginTextView;
     @Bind(R.id.signUpRelative) RelativeLayout mRelative;
     @Bind(R.id.SignUpAvi) AVLoadingIndicatorView mAvi;
+    @Bind(R.id.progressBarSignUp) ProgressBar mProgressBarSignUp;
     @Bind(R.id.creatingAccountLoadingText) TextView mLoadingText;
     @Bind(R.id.ConfirmEmailLayout) LinearLayout mConfirmEmailLayout;
 
@@ -141,7 +143,8 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
             Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.SignUpNoConnection,
                     Snackbar.LENGTH_LONG).show();
         }else{
-            mAvi.setVisibility(View.VISIBLE);
+//            mAvi.setVisibility(View.VISIBLE);
+            mProgressBarSignUp.setVisibility(View.VISIBLE);
             mLoadingText.setVisibility(View.VISIBLE);
             mRelative.setVisibility(View.GONE);
             mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -154,7 +157,8 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                         Variables.setPassword(password);
                     }else {
                         mRelative.setVisibility(View.VISIBLE);
-                        mAvi.setVisibility(View.GONE);
+//                        mAvi.setVisibility(View.GONE);
+                        mProgressBarSignUp.setVisibility(View.GONE);
                         mLoadingText.setVisibility(View.GONE);
                         Toast.makeText(CreateAccountActivity.this, "Sign Up has failed.Another user with your info may exist.", Toast.LENGTH_SHORT).show();
                     }
@@ -236,7 +240,8 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
                     Variables.isVerifyingEmail = true;
-                    mAvi.setVisibility(View.GONE);
+//                    mAvi.setVisibility(View.GONE);
+                    mProgressBarSignUp.setVisibility(View.GONE);
                     mLoadingText.setVisibility(View.GONE);
                     mConfirmEmailLayout.setVisibility(View.VISIBLE);
                     findViewById(R.id.confirmedEmailButton).setOnClickListener(new View.OnClickListener() {
@@ -262,7 +267,8 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
     private void checkIfEmailIsVerified() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user.isEmailVerified()){
-            mAvi.setVisibility(View.VISIBLE);
+//            mAvi.setVisibility(View.VISIBLE);
+            mProgressBarSignUp.setVisibility(View.VISIBLE);
             mLoadingText.setVisibility(View.VISIBLE);
             mConfirmEmailLayout.setVisibility(View.GONE);
         }else {
@@ -278,7 +284,8 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         String uid = user.getUid();
         User.setUid(uid);
         Variables.isStartFromLogin = true;
-        mAvi.setVisibility(View.GONE);
+//        mAvi.setVisibility(View.GONE);
+        mProgressBarSignUp.setVisibility(View.GONE);
         mLoadingText.setVisibility(View.GONE);
         Intent intent = new Intent(CreateAccountActivity.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -288,7 +295,8 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
 
     private void startSelectCategory(){
         Variables.isStartFromLogin = true;
-        mAvi.setVisibility(View.GONE);
+//        mAvi.setVisibility(View.GONE);
+        mProgressBarSignUp.setVisibility(View.GONE);
         mLoadingText.setVisibility(View.GONE);
         Intent intent = new Intent(CreateAccountActivity.this, SelectCategory.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

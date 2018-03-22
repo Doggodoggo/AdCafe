@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Runnable mViewRunnable;
     private LinearLayout mBottomNavButtons;
     private AVLoadingIndicatorView mAvi;
+    private ProgressBar mLoadingProgressBar;
     private AVLoadingIndicatorView mAviLoadingMoreAds;
     private ProgressBar spinner;
     private TextView mLoadingText;
@@ -157,7 +158,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Variables.isLocked = false;
 
         if(!isOnline()){
-            mAvi.smoothToHide();
+            mLoadingProgressBar.setVisibility(View.GONE);
+            mAvi.setVisibility(View.GONE);
             mLoadingText.setVisibility(View.GONE);
             mBottomNavButtons.setVisibility(View.GONE);
             cannotLoadLayout.setVisibility(View.VISIBLE);
@@ -248,7 +250,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void handleOnResumeMethodsIfTimeIsOffline(){
         TimeManager.setUpTimeManager("RESET_UP_TIMER",mContext);
-        mAvi.setVisibility(View.VISIBLE);
+//        mAvi.setVisibility(View.VISIBLE);
+        mLoadingProgressBar.setVisibility(View.VISIBLE);
         mLoadingText.setVisibility(View.VISIBLE);
         mBottomNavButtons.setVisibility(View.GONE);
         mSwipeView.setVisibility(View.INVISIBLE);
@@ -262,7 +265,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
                 Log.d(TAG,"Unhiding views");
                 mAdCounterView.setVisibility(View.VISIBLE);
-                mAvi.setVisibility(View.GONE);
+//                mAvi.setVisibility(View.GONE);
+                mLoadingProgressBar.setVisibility(View.GONE);
                 mLoadingText.setVisibility(View.GONE);
                 mBottomNavButtons.setVisibility(View.VISIBLE);
                 findViewById(R.id.easterText).setVisibility(View.VISIBLE);
@@ -820,6 +824,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBottomNavButtons = (LinearLayout) findViewById(R.id.bottomNavButtons);
 
         mAvi = (AVLoadingIndicatorView) findViewById(R.id.mainActivityAvi);
+        mLoadingProgressBar = (ProgressBar) findViewById(R.id.progressBarMain);
         mAviLoadingMoreAds = (AVLoadingIndicatorView) findViewById(R.id.aviLoadingNextAds);
         spinner = (ProgressBar)findViewById(R.id.progressBar1);
 
@@ -1268,7 +1273,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if (v == mRetryButton) {
             Log.d(TAG, "Retrying to load ads...");
-            mAvi.setVisibility(View.VISIBLE);
+//            mAvi.setVisibility(View.VISIBLE);
+            mLoadingProgressBar.setVisibility(View.VISIBLE);
             mLoadingText.setVisibility(View.VISIBLE);
             mFailedToLoadLayout.setVisibility(View.GONE);
             Toast.makeText(mContext, "Retrying...", Toast.LENGTH_SHORT).show();
@@ -1353,7 +1359,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void hideViews(){
         Log.d(TAG,"Hiding views...");
         areViewsHidden = true;
-        mAvi.setVisibility(View.VISIBLE);
+//        mAvi.setVisibility(View.VISIBLE);
+        mLoadingProgressBar.setVisibility(View.VISIBLE);
         mLoadingText.setVisibility(View.VISIBLE);
         mBottomNavButtons.setVisibility(View.GONE);
         mSwipeView.setVisibility(View.INVISIBLE);
@@ -1368,7 +1375,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             areViewsHidden = false;
             Log.d(TAG,"Unhiding views");
             mAdCounterView.setVisibility(View.VISIBLE);
-            mAvi.setVisibility(View.GONE);
+//            mAvi.setVisibility(View.GONE);
+            mLoadingProgressBar.setVisibility(View.GONE);
             mLoadingText.setVisibility(View.GONE);
             mBottomNavButtons.setVisibility(View.VISIBLE);
             findViewById(R.id.easterText).setVisibility(View.VISIBLE);

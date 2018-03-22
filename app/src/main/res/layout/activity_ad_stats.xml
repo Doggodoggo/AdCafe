@@ -85,9 +85,17 @@
             android:id="@+id/mainActivityAvi"
             style="@style/AVLoadingIndicatorView"
             android:layout_width="40dp"
+            android:visibility="gone"
             android:layout_height="40dp"
             app:indicatorColor="@color/accent"
             app:indicatorName="LineScaleIndicator" />
+
+        <ProgressBar
+            android:id="@+id/progressBarSignUp"
+            style="?android:attr/progressBarStyle"
+            android:visibility="visible"
+            android:layout_width="40dp"
+            android:layout_height="40dp"/>
 
         <TextView
             android:id="@+id/loadingAdsMessage"

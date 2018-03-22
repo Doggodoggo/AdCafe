@@ -91,7 +91,7 @@ public class SelectCategoryItem {
 
 
 
-    @Click(R.id.categoryImage)
+    @Click(R.id.cat_select)
     private void onClick(){
         if(isChecked){
             checkBox.setChecked(false);
