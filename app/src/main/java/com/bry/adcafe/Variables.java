@@ -112,6 +112,9 @@ public class Variables {
     public static float relativeScale = 0f;
     public static String categoryGroupBeingAdded;
 
+    public static List<String> newSubs = new ArrayList<>();
+    public static List<String> NSSubs = new ArrayList<>();
+
     public static void resetAllValues(){
          todaysAdTotal = 0;
          mMonthAdTotals = 0;

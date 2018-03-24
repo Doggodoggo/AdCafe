@@ -894,7 +894,6 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         advert.setAmountToPayPerTargetedView(mAmountPlusOurShare);
         advert.setHasBeenReimbursed(false);
         advert.setDateInDays(getDateInDays());
-//        advert.setClustersToUpLoadTo(clustersToUpLoadTo);
         advert.setCategory(mCategory);
 
         pushrefInAdminConsole = pushId;
@@ -904,6 +903,12 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                uploadImage(bm);
             }
         });
+        advert.setImageUrl("");
+        DatabaseReference dbrefh = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(User.getUid()).child(Constants.UPLOAD_HISTORY).child(Long.toString(-(getDateInDays()+1)))
+                .child(pushId);
+        dbrefh.setValue(advert);
+
     }
 
     private void createProgressDialog(){

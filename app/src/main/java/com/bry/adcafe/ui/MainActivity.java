@@ -970,8 +970,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     findViewById(R.id.smallDot).setVisibility(View.VISIBLE);
                 }
 
-                if(Variables.didAdCafeRemoveCategory)informUserOfSubscriptionChanges();
-                if(Variables.didAdCafeAddNewCategory) tellUserOfNewSubscription();
+//                if(Variables.didAdCafeRemoveCategory)informUserOfSubscriptionChanges();
+//                if(Variables.didAdCafeAddNewCategory) tellUserOfNewSubscription();
 //                Toast.makeText(mContext, "We've got no more stuff for you today.", Toast.LENGTH_SHORT).show();
                 isLastAd = true;
                 Variables.isLockedBecauseOfNoMoreAds = true;
@@ -996,8 +996,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mAdList.clear();
             Log.d(TAG,"cleared the adlist");
         } else {
-            if(Variables.didAdCafeRemoveCategory)informUserOfSubscriptionChanges();
-            if(Variables.didAdCafeAddNewCategory) tellUserOfNewSubscription();
+//            if(Variables.didAdCafeRemoveCategory)informUserOfSubscriptionChanges();
+//            if(Variables.didAdCafeAddNewCategory) tellUserOfNewSubscription();
             numberOfInitiallyLoadedAds = 1;
             if(lastAdSeen!=null){
                 Log.d(TAG, "---Loading only last ad from lastAdSeen that was initialised...");
@@ -1382,6 +1382,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             findViewById(R.id.easterText).setVisibility(View.VISIBLE);
             mSwipeView.setVisibility(View.VISIBLE);
             if(isLastAd)Toast.makeText(mContext, "We've got nothing else for you today.", Toast.LENGTH_SHORT).show();
+
+            if(Variables.mIsLastOrNotLast.equals(Constants.NO_ADS)||isLastAd) {
+                if (Variables.didAdCafeRemoveCategory) informUserOfSubscriptionChanges();
+                if (Variables.didAdCafeAddNewCategory) tellUserOfNewSubscription();
+            }
         }
     }
 
@@ -2274,32 +2279,72 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void informUserOfSubscriptionChanges(){
+        String message;
+        if(Variables.NSSubs.size()<4) {
+            message = "We removed one or more of your interests that we no longer support: ";
+            for (String category : Variables.NSSubs) {
+                if (Variables.NSSubs.indexOf(category) == Variables.NSSubs.size() - 1) {
+                    if(Variables.newSubs.size()==1){
+                        message = String.format("%s%s", message, String.format("%s.", category));
+                    }else{
+                        message = String.format("%s, %s", message, String.format("%s.", category));
+                    }
+                } else if (Variables.NSSubs.indexOf(category) == 0) {
+                    message = message + category;
+                } else {
+                    message = String.format("%s%s", message, String.format(", %s", category));
+                }
+            }
+        }else{
+            message = "We removed one or more of your interests that we no longer support.";
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("We removed one or more of your interests that we no longer support.")
+        builder.setMessage(message)
                 .setCancelable(true)
-                .setPositiveButton("Cool.", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Ok.", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Variables.didAdCafeRemoveCategory = false;
                         dialog.cancel();
                     }
                 }).show();
+        Variables.didAdCafeRemoveCategory = false;
+        Variables.NSSubs.clear();
     }
 
 
 
 
     private void tellUserOfNewSubscription(){
+        String message = "We now support a couple more ad categories you may be interested in.";
+        if(Variables.newSubs.size()<4) {
+            message = "We now support a couple more ad categories you may be interested in: ";
+            for (String category : Variables.newSubs) {
+                if (Variables.newSubs.indexOf(category) == Variables.newSubs.size() - 1) {
+                    if(Variables.newSubs.size()==1){
+                        message = String.format("%s%s", message, String.format("%s.", category));
+                    }else{
+                        message = String.format("%s, %s", message, String.format("%s.", category));
+                    }
+                } else if (Variables.newSubs.indexOf(category) == 0) {
+                    message = message + category;
+                } else {
+                    message = String.format("%s%s", message, String.format(", %s", category));
+                }
+            }
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("We now support a couple more ad categories you may be interested in.")
+        builder.setMessage(message)
                 .setCancelable(true)
                 .setPositiveButton("Cool.", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Variables.didAdCafeAddNewCategory = false;
                         dialog.cancel();
                     }
                 }).show();
+        Variables.didAdCafeAddNewCategory = false;
+        Variables.newSubs.clear();
     }
 
     private String getDateFromDays(long days){

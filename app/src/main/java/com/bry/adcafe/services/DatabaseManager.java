@@ -44,6 +44,8 @@ public class DatabaseManager {
     private List<String> categoryList = new ArrayList<>();
     private boolean isUserAddingANewCategory = false;
     private int iterationsForResettingCPV = 0;
+    private int cyclecount = 0;
+    private int currentCyclenumber = 0;
 
 
     ////Create user methods//////
@@ -171,26 +173,29 @@ public class DatabaseManager {
         dbRefUser.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if(getPositionOf(AdvertCategory)==Variables.getCurrentSubscriptionIndex()){
-                    Log.d(TAG,"The category being removed is currently being viewed");
-                    if(Variables.getCurrentSubscriptionIndex()>0)
-                        Variables.setCurrentSubscriptionIndex((Variables.getCurrentSubscriptionIndex()-1));
-                    else Variables.setCurrentSubscriptionIndex((Variables.getCurrentSubscriptionIndex()+1));
+                if(!Variables.didAdCafeRemoveCategory) {
+                    if (getPositionOf(AdvertCategory) == Variables.getCurrentSubscriptionIndex()) {
+                        Log.d(TAG, "The category being removed is currently being viewed");
+                        if (Variables.getCurrentSubscriptionIndex() > 0)
+                            Variables.setCurrentSubscriptionIndex((Variables.getCurrentSubscriptionIndex() - 1));
+                        else
+                            Variables.setCurrentSubscriptionIndex((Variables.getCurrentSubscriptionIndex() + 1));
+                    }
+                    String categoryBeingViewed = getSubscriptionValue(Variables.getCurrentSubscriptionIndex());
+                    Log.d(TAG, "the current category being removed is " + categoryBeingViewed);
+                    Variables.Subscriptions.remove(AdvertCategory);
+
+                    int newIndex = getPositionOf(categoryBeingViewed);
+                    Log.d(TAG, "Its new index position is : " + newIndex);
+                    Variables.setCurrentSubscriptionIndex(newIndex);
+
+                    updateCurrentSubIndex();
+                    setUserDataInSharedPrefs(DBContext);
+                    Variables.hasChangesBeenMadeToCategories = true;
+
+                    Intent intent = new Intent(Constants.FINISHED_UNSUBSCRIBING);
+                    LocalBroadcastManager.getInstance(DBContext).sendBroadcast(intent);
                 }
-                String categoryBeingViewed = getSubscriptionValue(Variables.getCurrentSubscriptionIndex());
-                Log.d(TAG,"the current category being removed is "+categoryBeingViewed);
-                Variables.Subscriptions.remove(AdvertCategory);
-
-                int newIndex = getPositionOf(categoryBeingViewed);
-                Log.d(TAG,"Its new index position is : "+newIndex);
-                Variables.setCurrentSubscriptionIndex(newIndex);
-
-                updateCurrentSubIndex();
-                setUserDataInSharedPrefs(DBContext);
-                Variables.hasChangesBeenMadeToCategories = true;
-
-                Intent intent = new Intent(Constants.FINISHED_UNSUBSCRIBING);
-                LocalBroadcastManager.getInstance(DBContext).sendBroadcast(intent);
             }
         });
 
@@ -400,6 +405,7 @@ public class DatabaseManager {
         adRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                int numberToMinus = 0;
                 //this loads month totals
                 DataSnapshot monthAdTotalSnap = dataSnapshot.child(Constants.TOTAL_NO_OF_ADS_SEEN_All_MONTH);
                 int monthTotal = monthAdTotalSnap.getValue(int.class);
@@ -445,14 +451,36 @@ public class DatabaseManager {
                 //this loads the users no Of Categories known
                 DataSnapshot subNoKnown = dataSnapshot.child(Constants.NO_OF_CATEGORIES_KNOWN);
                 int subNumberKnown = subNoKnown.getValue(int.class);
+                Log.d(TAG,"Current category list size is: "+categoryList.size());
                 if(subNumberKnown<categoryList.size()){
+                    Log.d(TAG,"Number of subs known is less than current category size.");
                     Variables.didAdCafeAddNewCategory = true;
                     setNumberOfSubscriptionsUserKnowsAbout(categoryList.size());
                 }
 
+                //this loads the users known categories
+                DataSnapshot subsKnown = dataSnapshot.child(Constants.CATEGORIES_KNOWN);
+                if(subsKnown.exists() && Variables.didAdCafeAddNewCategory){
+                    List<String> SublistKnown = new ArrayList<>();
+                    for(DataSnapshot snapp:subsKnown.getChildren()){
+                        String snap = snapp.getValue(String.class);
+                        SublistKnown.add(snap);
+                    }
+                    Variables.newSubs.clear();
+                    for(String sub:categoryList){
+                        if(!SublistKnown.contains(sub)){
+                            Variables.newSubs.add(sub);
+                            Log.d(TAG,"New sub detected: "+ sub);
+                        }
+                    }
+                }
+                setUserKnownCategories(categoryList);
+
                 //this loads the users subscription list
                 DataSnapshot subscriptionListSnap = dataSnapshot.child(Constants.SUBSCRIPTION_lIST);
                 Variables.Subscriptions.clear();
+                Variables.NSSubs.clear();
+                setNumberOfSubscriptionsUserKnowsAbout(categoryList.size());
                 for(DataSnapshot snap: subscriptionListSnap.getChildren()){
                     String category = snap.getKey();
                     Integer cluster = snap.getValue(Integer.class);
@@ -460,9 +488,11 @@ public class DatabaseManager {
                     if(categoryList.contains(category)){
                         Variables.Subscriptions.put(category,cluster);
                     }else{
+                        Variables.NSSubs.add(category);
+                        if(Variables.getCurrentSubscriptionIndex()>=Variables.Subscriptions.size()) numberToMinus++;
+                        Log.d(TAG,"removing category: "+category);
                         unSubscribeUserFormAdvertCategory(category,cluster);
                         Variables.didAdCafeRemoveCategory = true;
-                        setNumberOfSubscriptionsUserKnowsAbout(categoryList.size());
                     }
                 }
 
@@ -486,7 +516,7 @@ public class DatabaseManager {
                     //this loads the current category index
                     DataSnapshot currentSubIndexSnap = dataSnapshot.child(Constants.CURRENT_SUBSCRIPTION_INDEX);
                     int currentSubIndex = currentSubIndexSnap.getValue(int.class);
-                    Variables.setCurrentSubscriptionIndex(currentSubIndex);
+                    Variables.setCurrentSubscriptionIndex(currentSubIndex-numberToMinus);
                     Log.d(TAG,"Setting the current Ad category index to :"+currentSubIndex);
 
                     //this loads the current ad being seen in the category
@@ -514,6 +544,7 @@ public class DatabaseManager {
                     resetUsersSubscriptionsForNewPrice(oldConstantCPV,newConstantCPV);
                 }else{
                     setUserDataInSharedPrefs(mContext);
+                    if(numberToMinus!=0) setUsersCurrentSubIndexInFireBase();
                     Intent intent = new Intent(Constants.LOADED_USER_DATA_SUCCESSFULLY);
                     LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
                 }
@@ -527,6 +558,13 @@ public class DatabaseManager {
             }
         });
 
+    }
+
+    private void setUsersCurrentSubIndexInFireBase(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference adRef3 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.CURRENT_SUBSCRIPTION_INDEX);
+        adRef3.setValue(Variables.getCurrentSubscriptionIndex());
     }
 
     private void resetTotalsInFirebase() {
@@ -657,7 +695,36 @@ public class DatabaseManager {
         return TimeManager.getDate();
     }
 
+    private void setUserKnownCategories(List<String> categories){
+        for(String category:categories){
+            int pos = categories.indexOf(category);
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                    .child(uid).child(Constants.CATEGORIES_KNOWN).child(String.valueOf(pos));
+            adRef.setValue(category);
+        }
+//        for(int i = cyclecount;i<cyclecount+3;i++){
+//            currentCyclenumber++;
+//            setCategory(i,categories.get(i),categories);
+//        }
+    }
 
+    private void setCategory(final int pos, String category, final List<String>categoryList) {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.CATEGORIES_KNOWN).child(String.valueOf(pos));
+        adRef.setValue(category).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                cyclecount++;
+                if(cyclecount!=categoryList.size()) {
+                    if (cyclecount == currentCyclenumber) {
+                        setUserKnownCategories(categoryList);
+                    }
+                }
+            }
+        });
+    }
 
 
     private String getSubscriptionValue(int index) {
@@ -706,9 +773,19 @@ public class DatabaseManager {
                 Variables.setCurrentSubscriptionIndex(newIndex);
                 updateCurrentSubIndex();
 
+                SharedPreferences pref5 = DBContext.getSharedPreferences("CurrentSubIndex", MODE_PRIVATE);
+                SharedPreferences.Editor editor5 = pref5.edit();
+                editor5.clear();
+                editor5.putInt("CurrentSubIndex", Variables.getCurrentSubscriptionIndex());
+                Log.d("DatabaseManager---", "Setting the users current subscription index in shared preferences - " + Variables.getCurrentSubscriptionIndex());
+                editor5.apply();
+
+                setSubsInSharedPrefs(DBContext);
+
                 Intent intent = new Intent(Constants.SET_UP_USERS_SUBSCRIPTION_LIST);
                 LocalBroadcastManager.getInstance(DBContext).sendBroadcast(intent);
-                setUserDataInSharedPrefs(DBContext);
+
+//                setUserDataInSharedPrefs(DBContext);
                 Variables.hasChangesBeenMadeToCategories = true;
             }
 

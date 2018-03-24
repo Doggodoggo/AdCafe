@@ -126,5 +126,8 @@ public class Constants {
 
     public static String ADD_CATEGORY_AUTOMATICALLY = "ADD_CATEGORY_AUTOMATICALLY";
     public static String STOP_LISTENING = "STOP_LISTENING";
+    public static String UPLOAD_HISTORY = "UploadHistory";
+
+    public static String CATEGORIES_KNOWN = "CategoriesKnown";
 
 }

@@ -30,6 +30,7 @@ import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.adapters.DateForAdStats;
 import com.bry.adcafe.adapters.MyAdStatsItem;
+import com.bry.adcafe.adapters.OlderAdsItem;
 import com.bry.adcafe.adapters.TomorrowsAdStatItem;
 import com.bry.adcafe.fragments.FragmentAdvertiserPayoutBottomsheet;
 import com.bry.adcafe.models.Advert;
@@ -468,15 +469,45 @@ public class AdStats extends AppCompatActivity {
         for(int i = 0;i<getNumber(mUploadedAds2.size());i++){
             DataListsView.addView(new DateForAdStats(mContext,"",DataListsView));
         }
-
-        DataListsView.setVisibility(View.VISIBLE);
-        findViewById(R.id.topText).setVisibility(View.VISIBLE);
-        findViewById(R.id.LoadingViews).setVisibility(View.GONE);
-
-
-
+        loadUploadHistory();
     }
 
+    private void loadUploadHistory() {
+        DatabaseReference dbrefh = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(User.getUid()).child(Constants.UPLOAD_HISTORY);
+        dbrefh.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    DataListsView.addView(new DateForAdStats(mContext,"Your Yesterdays Ads.",DataListsView));
+                    DataListsView.addView(new DateForAdStats(mContext,"",DataListsView));
+                   for(DataSnapshot snap:dataSnapshot.getChildren()){
+                       String viewingDate = snap.getKey();
+                       long viewingDateInDays = -Long.valueOf(viewingDate);
+                       long tomorrowsDateInDays = getDateInDays()+1;
+                       long todaysDateInDays = getDateInDays();
+                       long yesterdaysDateInDays = getDateInDays()-1;
+                       if(viewingDateInDays!=tomorrowsDateInDays
+                               || viewingDateInDays!=todaysDateInDays ||viewingDateInDays!=yesterdaysDateInDays){
+                           for(DataSnapshot snapMini:snap.getChildren()){
+                               Advert ad = snapMini.getValue(Advert.class);
+                               DataListsView.addView(new OlderAdsItem(mContext,DataListsView,ad));
+                           }
+                       }
+                   }
+                }
+                DataListsView.setVisibility(View.VISIBLE);
+                findViewById(R.id.topText).setVisibility(View.VISIBLE);
+                findViewById(R.id.LoadingViews).setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG,"Database error in loading ; "+databaseError.getMessage());
+                Toast.makeText(mContext,"We're having a few connectivity issues...",Toast.LENGTH_LONG).show();
+            }
+        });
+    }
 
 
 
@@ -487,8 +518,12 @@ public class AdStats extends AppCompatActivity {
 
     private String getPreviousDay(){
         return TimeManager.getPreviousDay();
-
     }
+
+    private Long getDateInDays(){
+        return TimeManager.getDateInDays();
+    }
+
 
     private String getNextDay(){
         return TimeManager.getNextDay();
