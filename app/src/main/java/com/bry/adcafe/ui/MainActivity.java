@@ -927,6 +927,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void loadAdsIntoAdvertCard2() {
         boolean loadMoreAds = false;
+        Variables.isLocked = false;
         stage = "VIEWING_ADS";
         if (mAdCounterView == null) {
             Log.d(TAG, "---Setting up AdCounter...");
@@ -1039,7 +1040,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 findViewById(R.id.WebsiteIcon).setAlpha(0.4f);
                 findViewById(R.id.websiteText).setAlpha(0.4f);
                 findViewById(R.id.smallDot).setVisibility(View.INVISIBLE);
-//                loadAnyAnnouncements();
             }
             Variables.isLockedBecauseOfNoMoreAds = true;
             loadAnyAnnouncements();
@@ -1381,7 +1381,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mBottomNavButtons.setVisibility(View.VISIBLE);
             findViewById(R.id.easterText).setVisibility(View.VISIBLE);
             mSwipeView.setVisibility(View.VISIBLE);
-            if(isLastAd)Toast.makeText(mContext, "We've got nothing else for you today.", Toast.LENGTH_SHORT).show();
+            if(isLastAd){
+                Toast.makeText(mContext, "We've got nothing else for you today.", Toast.LENGTH_SHORT).show();
+            }
 
             if(Variables.mIsLastOrNotLast.equals(Constants.NO_ADS)||isLastAd) {
                 if (Variables.didAdCafeRemoveCategory) informUserOfSubscriptionChanges();
@@ -2302,14 +2304,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message)
                 .setCancelable(true)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        Variables.didAdCafeRemoveCategory = false;
+                        Variables.NSSubs.clear();
+                    }
+                })
                 .setPositiveButton("Ok.", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                     }
                 }).show();
-        Variables.didAdCafeRemoveCategory = false;
-        Variables.NSSubs.clear();
     }
 
 
@@ -2317,7 +2324,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void tellUserOfNewSubscription(){
         String message = "We now support a couple more ad categories you may be interested in.";
-        if(Variables.newSubs.size()<4) {
+        if(Variables.newSubs.size()<3) {
             message = "We now support a couple more ad categories you may be interested in: ";
             for (String category : Variables.newSubs) {
                 if (Variables.newSubs.indexOf(category) == Variables.newSubs.size() - 1) {
@@ -2337,14 +2344,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message)
                 .setCancelable(true)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        Variables.didAdCafeAddNewCategory = false;
+                        Variables.newSubs.clear();
+                    }
+                })
                 .setPositiveButton("Cool.", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                     }
                 }).show();
-        Variables.didAdCafeAddNewCategory = false;
-        Variables.newSubs.clear();
     }
 
     private String getDateFromDays(long days){
