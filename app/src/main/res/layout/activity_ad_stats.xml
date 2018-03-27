@@ -40,7 +40,7 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:text="You uploaded no ads yesterday.If you uploaded an ad today, you will be able to monitor it starting at midnight."
+                android:text="Upload an ad to see and monitor it here."
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:gravity="center"

@@ -129,5 +129,6 @@ public class Constants {
     public static String UPLOAD_HISTORY = "UploadHistory";
 
     public static String CATEGORIES_KNOWN = "CategoriesKnown";
+    public static String EULA = "https://adcafe.github.io/Eula/index.html";
 
 }

@@ -102,6 +102,18 @@
                 android:id="@+id/loginTextView"
                 android:layout_gravity="center_horizontal" />
 
+            <TextView
+                android:id="@+id/textLink"
+                android:textColor="@color/colorPrimaryDark"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginLeft="2dp"
+                android:textSize="12sp"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""/>
+
         </LinearLayout>
 
         <TextView
@@ -188,4 +200,6 @@
             android:layout_marginTop="15dp"
             android:textColor="@android:color/white" />
     </LinearLayout>
+
+
 </android.support.design.widget.CoordinatorLayout>

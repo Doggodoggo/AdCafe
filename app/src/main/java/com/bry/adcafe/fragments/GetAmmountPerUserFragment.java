@@ -15,7 +15,9 @@ import android.widget.TextView;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 
+import java.text.NumberFormat;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 
 /**
  * Created by bryon on 14/02/2018.
@@ -64,9 +66,11 @@ public class GetAmmountPerUserFragment extends DialogFragment {
             }else numberOfUsersIn6 = 0;
         } else numberOfUsersIn6 = 0;
 
-        t3.setText(String.format("Number of users for 1Ksh is: %s", numberOfUsersIn1));
-        t5.setText(String.format("Number of users for 3Ksh is: %s", numberOfUsersIn3));
-        t8.setText(String.format("Number of users for 6Ksh is: %s", numberOfUsersIn6));
+        NumberFormat format = NumberFormat.getInstance(Locale.US);
+
+        t3.setText(String.format("Number of users for 1Ksh is: %s",format.format(numberOfUsersIn1)));
+        t5.setText(String.format("Number of users for 3Ksh is: %s",format.format(numberOfUsersIn3)));
+        t8.setText(String.format("Number of users for 6Ksh is: %s", format.format(numberOfUsersIn6)));
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

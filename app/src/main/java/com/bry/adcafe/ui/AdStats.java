@@ -479,6 +479,7 @@ public class AdStats extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
+                    findViewById(R.id.noAdsUploadedText).setVisibility(View.GONE);
                     DataListsView.addView(new DateForAdStats(mContext,"Your Yesterdays Ads.",DataListsView));
                     DataListsView.addView(new DateForAdStats(mContext,"",DataListsView));
                    for(DataSnapshot snap:dataSnapshot.getChildren()){

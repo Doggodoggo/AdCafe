@@ -8,11 +8,14 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -72,6 +75,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
     @Bind(R.id.progressBarSignUp) ProgressBar mProgressBarSignUp;
     @Bind(R.id.creatingAccountLoadingText) TextView mLoadingText;
     @Bind(R.id.ConfirmEmailLayout) LinearLayout mConfirmEmailLayout;
+    @Bind(R.id.textLink) TextView mPrivPol;
 
 
     private FirebaseAuth mAuth;
@@ -107,6 +111,23 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
             }
         });
 
+        String sourceString = "By clicking SIGN UP, you agree to our <b>terms of service</b>, <b>privacy policy</b>" +
+                " and <b>advertising policy</b>";
+        mPrivPol.setText(Html.fromHtml(sourceString));
+        mPrivPol.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Vibrator b = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                b.vibrate(30);
+                try {
+                    String url = Constants.EULA;
+                    Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(webIntent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
