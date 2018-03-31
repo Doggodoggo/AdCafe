@@ -86,10 +86,8 @@ public class ReportDialogFragment extends DialogFragment {
 
     private void setBooleanForResumingTimer(){
         Log.d("ReportDialogFragment","Setting boolean for resuming timer.");
-        if(mContext.getClass().equals(MainActivity.class)) {
-            if (!Variables.isAllClearToContinueCountDown)
-                Variables.isAllClearToContinueCountDown = true;
-        }
+        if (!Variables.isAllClearToContinueCountDown)
+            Variables.isAllClearToContinueCountDown = true;
     }
 
 

@@ -2047,6 +2047,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setNewNumberOfTimesSeen(int number, String date, Advert advert) {
         Log.d(TAG, "Setting the new number of times seen in firebase.");
+
+        Query query2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
+                .child(Long.toString(TimeManager.getDateInDays()))
+                .child(Variables.getCurrentAdvert().getPushRefInAdminConsole()).child("numberOfTimesSeen");
+        DatabaseReference dbref2 = query2.getRef();
+        dbref2.setValue(number);
+
         Query query = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
                 .child(date).child(Variables.getCurrentAdvert().getPushRefInAdminConsole()).child("numberOfTimesSeen");
 
@@ -2110,7 +2118,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             Log.v(TAG, "Permission: " + permissions[0] + "was " + grantResults[0]);
             //resume tasks needing this permission
-            shareImage(Variables.adToBeShared.getImageBitmap());
+            startShareImage();
         }
     }
 

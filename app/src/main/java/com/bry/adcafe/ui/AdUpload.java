@@ -555,7 +555,14 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
 
     private void showDialogForPayments() {
+//        startTestUpload();
         showMessageBeforeBottomsheet();
+    }
+
+    private void startTestUpload(){
+        Variables.transactionID = "TRANS000000001";
+        Variables.paymentOption = Constants.MPESA_OPTION;
+        startProcessForUpload();
     }
 
     private BroadcastReceiver mMessageReceiverForShowingSelectedBottomsheet = new BroadcastReceiver() {
@@ -592,15 +599,18 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         String SUCCESSFUL_BANK_PAYMENTS = "SUCCESSFUL_BANK_PAYMENTS";
         Log.d(TAG,"Expiration date: "+expiration);
 
-        Payment payments = new Payment();
-
-        payments.makeBankPayment(FAILED_BANK_PAYMENTS,SUCCESSFUL_BANK_PAYMENTS,mContext,cardNumber,expiration,cvv,postalCode,
-                amount,cardHolderName,cardHolderAdress,state);
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayment
-                ,new IntentFilter(SUCCESSFUL_BANK_PAYMENTS));
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForfailedPayment,
-                new IntentFilter(FAILED_BANK_PAYMENTS));
-        mProgForPayments.show();
+//        Payment payments = new Payment();
+//        payments.makeBankPayment(FAILED_BANK_PAYMENTS,SUCCESSFUL_BANK_PAYMENTS,mContext,cardNumber,expiration,cvv,postalCode,
+//                amount,cardHolderName,cardHolderAdress,state);
+//        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayment
+//                ,new IntentFilter(SUCCESSFUL_BANK_PAYMENTS));
+//        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForfailedPayment,
+//                new IntentFilter(FAILED_BANK_PAYMENTS));
+//        mProgForPayments.show();
+        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.PAY_POOL);
+        DatabaseReference pushRef = adRef.push();
+        Variables.transactionID = "TRANS00000000000000000000"+pushRef.getKey();
+        startProcessForUpload();
     }
 
     private void startMpesaPayments(){
@@ -964,6 +974,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 advert.setWebsiteLink(mLink);
                 advert.setCategory(mCategory);
                 advert.setFlagged(false);
+                advert.setDateInDays(getDateInDays());
                 advert.setAdminFlagged(false);
                 advert.setPushRefInAdminConsole(pushrefInAdminConsole);
                 setClusterInAdminAdvert(clusterNumber,Integer.parseInt(pushId));
@@ -1037,6 +1048,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 advert.setWebsiteLink(mLink);
                 advert.setCategory(mCategory);
                 advert.setFlagged(false);
+                advert.setDateInDays(getDateInDays());
                 advert.setAdminFlagged(false);
                 advert.setPushRefInAdminConsole(pushrefInAdminConsole);
                 setClusterInAdminAdvert(number,Integer.parseInt(pushId));

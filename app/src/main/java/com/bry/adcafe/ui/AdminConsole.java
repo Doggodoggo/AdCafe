@@ -280,6 +280,13 @@ public class AdminConsole extends AppCompatActivity implements View.OnClickListe
         mRef.child("flagged").setValue(bol);
         mRef.child("adminFlagged").setValue(bol);
 
+        DatabaseReference  mRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(ad.getAdvertiserUid()).child(Constants.UPLOAD_HISTORY)
+                .child(Long.toString(-(TimeManager.getDateInDays()+1)))
+                .child(ad.getPushRefInAdminConsole());
+        mRef2.child("flagged").setValue(bol);
+        mRef2.child("adminFlagged").setValue(bol);
+
         Log.d(TAG,"Flagging ad : "+ad.getPushRefInAdminConsole());
          numberOfClusters = ad.clusters.size();
         for(Integer cluster : ad.clusters.keySet()){

@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.TimeManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -158,6 +159,13 @@ public class AdminStatItem {
                 .child(getPreviousDay())
                 .child(mAdvert.getPushRefInAdminConsole())
                 .child("hasBeenReimbursed");
+
+        DatabaseReference mRef2 =  FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(mAdvert.getAdvertiserUid()).child(Constants.UPLOAD_HISTORY)
+                .child(Long.toString(-(TimeManager.getDateInDays()-1)))
+                .child(mAdvert.getPushRefInAdminConsole()).child("hasBeenReimbursed");
+        mRef2.setValue(bol);
+
         mRef.setValue(bol).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

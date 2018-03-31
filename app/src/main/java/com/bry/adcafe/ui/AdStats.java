@@ -407,15 +407,15 @@ public class AdStats extends AppCompatActivity {
                     Log.d(TAG,"Number of children is : "+mAdList2.size());
                     loadAdsUploadedByUser2();
                 }else{
-                    findViewById(R.id.topText).setVisibility(View.VISIBLE);
-                    findViewById(R.id.LoadingViews).setVisibility(View.GONE);
-
-                    DataListsView.setVisibility(View.VISIBLE);
-                    findViewById(R.id.noAdsUploadedText).setVisibility(View.GONE);
-                    if(mUploadedAds3.size()==0 && mUploadedAds.size()==0){
-                        Log.d(TAG,"UUUUser had uploaded no ads.");
-                        findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
-                    }
+                    loadUploadHistory();
+//                    findViewById(R.id.topText).setVisibility(View.VISIBLE);
+//                    findViewById(R.id.LoadingViews).setVisibility(View.GONE);
+//                    DataListsView.setVisibility(View.VISIBLE);
+                    findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
+//                    if(mUploadedAds3.size()==0 && mUploadedAds.size()==0){
+//                        Log.d(TAG,"UUUUser had uploaded no ads.");
+//                        findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
+//                    }
                 }
             }
 
@@ -478,28 +478,36 @@ public class AdStats extends AppCompatActivity {
         dbrefh.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG,"Loading upload history");
                 if(dataSnapshot.exists()){
                     findViewById(R.id.noAdsUploadedText).setVisibility(View.GONE);
                     DataListsView.addView(new DateForAdStats(mContext,"Your Yesterdays Ads.",DataListsView));
                     DataListsView.addView(new DateForAdStats(mContext,"",DataListsView));
-                   for(DataSnapshot snap:dataSnapshot.getChildren()){
+                    for(DataSnapshot snap:dataSnapshot.getChildren()){
                        String viewingDate = snap.getKey();
-                       long viewingDateInDays = -Long.valueOf(viewingDate);
+                       Log.d(TAG,"One date has loaded"+viewingDate);
+                       long viewingDateInDays = Long.valueOf(viewingDate)*-1;
                        long tomorrowsDateInDays = getDateInDays()+1;
                        long todaysDateInDays = getDateInDays();
                        long yesterdaysDateInDays = getDateInDays()-1;
                        if(viewingDateInDays!=tomorrowsDateInDays
                                || viewingDateInDays!=todaysDateInDays ||viewingDateInDays!=yesterdaysDateInDays){
+                           Log.d(TAG,"The viewing date is past the dates for not showing");
                            for(DataSnapshot snapMini:snap.getChildren()){
                                Advert ad = snapMini.getValue(Advert.class);
                                DataListsView.addView(new OlderAdsItem(mContext,DataListsView,ad));
                            }
                        }
-                   }
+                    }
                 }
                 DataListsView.setVisibility(View.VISIBLE);
                 findViewById(R.id.topText).setVisibility(View.VISIBLE);
                 findViewById(R.id.LoadingViews).setVisibility(View.GONE);
+                if(DataListsView.getChildCount()==0){
+                    findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
+                }else{
+                    findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
@@ -632,6 +640,12 @@ public class AdStats extends AppCompatActivity {
                 .child(ad.getPushRefInAdminConsole())
                 .child("flagged");
         mRef.setValue(bol);
+
+        DatabaseReference mRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
+                .child(Long.toString(-(TimeManager.getDateInDays()+1)))
+                .child(ad.getPushRefInAdminConsole()).child("flagged");
+        mRef2.setValue(bol);
 
         Log.d(TAG,"Flagging ad : "+ad.getPushRefInAdminConsole());
         numberOfClusters = ad.clusters.size();
@@ -780,6 +794,13 @@ public class AdStats extends AppCompatActivity {
     private void SetPaymentValues() {
         Advert ad = Variables.adToBeReimbursed;
         boolean bol = !ad.isHasBeenReimbursed();
+
+        DatabaseReference mRef2 =  FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
+                .child(Long.toString(-(TimeManager.getDateInDays()-1)))
+                .child(ad.getPushRefInAdminConsole()).child("hasBeenReimbursed");
+        mRef2.setValue(bol);
+
         DatabaseReference  mRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
                 .child(getPreviousDay())
                 .child(ad.getPushRefInAdminConsole())
