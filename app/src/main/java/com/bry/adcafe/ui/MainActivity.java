@@ -1879,6 +1879,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
+
+
     @Override public void networkAvailable() {
         Log.d(TAG, "User is connected to the internet via wifi or cellular data");
         isOffline = false;
@@ -1946,6 +1948,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }, 2000);
     }
+
+
 
 
 
@@ -2050,7 +2054,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Query query2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
-                .child(Long.toString(TimeManager.getDateInDays()))
+                .child(Long.toString(-TimeManager.getDateInDays()))
                 .child(Variables.getCurrentAdvert().getPushRefInAdminConsole()).child("numberOfTimesSeen");
         DatabaseReference dbref2 = query2.getRef();
         dbref2.setValue(number);
@@ -2067,6 +2071,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+
+
+
 
 
     public boolean isStoragePermissionGranted() {
@@ -2089,19 +2096,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void startShareImage(){
-        if(Variables.currentAdvertImageBitmap!=null) {
-            shareImage(Variables.currentAdvertImageBitmap);
-        } else if(!Variables.getCurrentAdvert().getImageUrl().equals("")){
-            try{
-                Bitmap image = decodeFromFirebaseBase64(Variables.getCurrentAdvert().getImageUrl());
-                shareImage(image);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }else{
+//        shareImage(Variables.currentAdvertImageBitmap);
+////        if(Variables.currentAdvertImageBitmap!=null) {
+////            shareImage(Variables.currentAdvertImageBitmap);
+////        } else
+//            if(!Variables.getCurrentAdvert().getImageUrl().equals("")){
+//            try{
+//                Bitmap image = decodeFromFirebaseBase64(Variables.getCurrentAdvert().getImageUrl());
+//                shareImage(image);
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
+//        }else{
             Intent intent  = new Intent("SET_IMAGE_FOR_SHARING"+Variables.getCurrentAdvert().getPushRefInAdminConsole());
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        }
+//        }
     }
 
     private void startShareImage2(){
@@ -2147,6 +2156,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        return getResizedBitmap(bitm,700);
         return bitm;
     }
+
+
+
 
 
 

@@ -1,7 +1,9 @@
 package com.bry.adcafe.fragments;
 
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -95,6 +97,16 @@ public class FeedbackFragment extends DialogFragment implements View.OnClickList
     public void dismiss(){
         super.dismiss();
         setBooleanForResumingTimer();
+    }
+
+    @Override
+    public void onDismiss(final DialogInterface dialog) {
+        super.onDismiss(dialog);
+        setBooleanForResumingTimer();
+        final Activity activity = getActivity();
+        if (activity instanceof DialogInterface.OnDismissListener) {
+            ((DialogInterface.OnDismissListener) activity).onDismiss(dialog);
+        }
     }
 
     private void setBooleanForResumingTimer(){

@@ -491,7 +491,8 @@ public class AdStats extends AppCompatActivity {
                        long todaysDateInDays = getDateInDays();
                        long yesterdaysDateInDays = getDateInDays()-1;
                        if(viewingDateInDays!=tomorrowsDateInDays
-                               || viewingDateInDays!=todaysDateInDays ||viewingDateInDays!=yesterdaysDateInDays){
+                               && viewingDateInDays!=todaysDateInDays
+                               && viewingDateInDays!=yesterdaysDateInDays){
                            Log.d(TAG,"The viewing date is past the dates for not showing");
                            for(DataSnapshot snapMini:snap.getChildren()){
                                Advert ad = snapMini.getValue(Advert.class);

@@ -1,7 +1,9 @@
 package com.bry.adcafe.fragments;
 
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -76,8 +78,18 @@ public class ReportDialogFragment extends DialogFragment {
 
     @Override
     public void dismiss(){
-        super.dismiss();
         setBooleanForResumingTimer();
+        super.dismiss();
+    }
+
+    @Override
+    public void onDismiss(final DialogInterface dialog) {
+        super.onDismiss(dialog);
+        setBooleanForResumingTimer();
+        final Activity activity = getActivity();
+        if (activity instanceof DialogInterface.OnDismissListener) {
+            ((DialogInterface.OnDismissListener) activity).onDismiss(dialog);
+        }
     }
 
     private String getDate(){
