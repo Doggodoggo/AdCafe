@@ -1,8 +1,10 @@
 package com.bry.adcafe.fragments;
 
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -105,7 +107,16 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         super.dismiss();
     }
 
-
+    @Override
+    public void onDismiss(final DialogInterface dialog) {
+        super.onDismiss(dialog);
+        mPayment.stopRecursiveChecker();
+        removeTheseGodDamnReceivers();
+        final Activity activity = getActivity();
+        if (activity instanceof DialogInterface.OnDismissListener) {
+            ((DialogInterface.OnDismissListener) activity).onDismiss(dialog);
+        }
+    }
 
 
 
