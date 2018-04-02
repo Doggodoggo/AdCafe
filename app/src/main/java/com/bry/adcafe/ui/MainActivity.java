@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean hasShowedToastForNoMoreAds = false;
     private int numberOfInitiallyLoadedAds = 0;
     private boolean isNewDay = false;
+    private boolean isLoaderShowing = false;
 
 
     @Override
@@ -1529,7 +1530,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void loadMoreAds() {
         isLoadingMoreAds = true;
-        if(!areViewsHidden) mAviLoadingMoreAds.smoothToShow();
+        if(!areViewsHidden){
+            if(!isLoaderShowing){
+                isLoaderShowing = true;
+                mAviLoadingMoreAds.smoothToShow();
+            }
+        }
 //        spinner.setVisibility(View.VISIBLE);
         Log.d("MAIN-ACTIVITY---", "Loading more ads since user has seen almost all....");
         String date;
@@ -1582,7 +1588,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }else{
                             Log.d(TAG,"No more ads are available from the rest of the subscriptions");
                             isLoadingMoreAds = false;
-                            mAviLoadingMoreAds.smoothToHide();
+                            if(isLoaderShowing) {
+                                isLoaderShowing = false;
+                                mAviLoadingMoreAds.smoothToHide();
+                            }
                             if(mSwipeView.getChildCount()==1){
                                 if(!hasShowedToastForNoMoreAds){
                                     hasShowedToastForNoMoreAds = true;
@@ -1603,7 +1612,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }else{
                         Log.d(TAG,"No more ads are available from the rest of the subscriptions");
                         isLoadingMoreAds = false;
-                        mAviLoadingMoreAds.smoothToHide();
+                        if(isLoaderShowing) {
+                            isLoaderShowing = false;
+                            mAviLoadingMoreAds.smoothToHide();
+                        }
                         if(mSwipeView.getChildCount()==1){
                             if(!hasShowedToastForNoMoreAds){
                                 hasShowedToastForNoMoreAds = true;
@@ -1660,7 +1672,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             unLockViews();
             Variables.isLockedBecauseOfNoMoreAds = false;
         }
-        mAviLoadingMoreAds.smoothToHide();
+        if(isLoaderShowing){
+            isLoaderShowing = false;
+            mAviLoadingMoreAds.smoothToHide();
+        }
         mAdList.clear();
     }
 
