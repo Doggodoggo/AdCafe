@@ -6,11 +6,13 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,10 +22,13 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.ui.Dashboard;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by bryon on 13/02/2018.
@@ -57,6 +62,17 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
         chooseAmountLayout = (LinearLayout) rootView.findViewById(R.id.chooseAmountLayout);
         TextView currentCpv = rootView.findViewById(R.id.cuurentCPV);
         currentCpv.setText("Current charge : "+ Variables.constantAmountPerView+"Ksh.");
+
+        boolean hasChangedPrev =  mContext.getSharedPreferences(Constants.IS_CHANGING_CPV, MODE_PRIVATE)
+                .getBoolean(Constants.IS_CHANGING_CPV, false);
+        if(hasChangedPrev){
+            int hasChangedPrevValue = mContext.getSharedPreferences(Constants.NEW_CPV, MODE_PRIVATE)
+                    .getInt(Constants.NEW_CPV, Variables.constantAmountPerView);
+            TextView newCPV = rootView.findViewById(R.id.newCPV);
+            newCPV.setVisibility(View.VISIBLE);
+            newCPV.setText("New set charge : "+hasChangedPrevValue+"Ksh.");
+        }
+
         onclicks();
         return rootView;
     }
@@ -137,13 +153,26 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
 
 
     private void makeChanges(int newCpv) {
-        if(newCpv!=Variables.constantAmountPerView) {
+        SharedPreferences prefs2 = mContext.getSharedPreferences(Constants.IS_CHANGING_CPV, MODE_PRIVATE);
+        boolean hasChangedPrev = prefs2.getBoolean(Constants.IS_CHANGING_CPV, false);
+
+        SharedPreferences prefs = mContext.getSharedPreferences(Constants.NEW_CPV, MODE_PRIVATE);
+        int hasChangedPrevValue = prefs.getInt(Constants.NEW_CPV, Variables.constantAmountPerView);
+
+        if(hasChangedPrev){
             new DatabaseManager().setBooleanForResetSubscriptions(newCpv, mContext);
             Intent intent = new Intent("SHOW_PROMPT");
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
             dismiss();
         }else{
-            Toast.makeText(mContext,newCpv+"Ksh is already your current cherge.",Toast.LENGTH_SHORT).show();
+            if (newCpv != Variables.constantAmountPerView) {
+                new DatabaseManager().setBooleanForResetSubscriptions(newCpv, mContext);
+                Intent intent = new Intent("SHOW_PROMPT");
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+                dismiss();
+            } else {
+                Toast.makeText(mContext, newCpv + "Ksh is already your current charge.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

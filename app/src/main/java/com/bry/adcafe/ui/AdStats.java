@@ -481,7 +481,7 @@ public class AdStats extends AppCompatActivity {
                 Log.d(TAG,"Loading upload history");
                 if(dataSnapshot.exists()){
                     findViewById(R.id.noAdsUploadedText).setVisibility(View.GONE);
-                    DataListsView.addView(new DateForAdStats(mContext,"Your Yesterdays Ads.",DataListsView));
+                    DataListsView.addView(new DateForAdStats(mContext,"Your Upload History.",DataListsView));
                     DataListsView.addView(new DateForAdStats(mContext,"",DataListsView));
                     for(DataSnapshot snap:dataSnapshot.getChildren()){
                        String viewingDate = snap.getKey();

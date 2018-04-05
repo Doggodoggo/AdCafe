@@ -371,7 +371,9 @@ public class DatabaseManager {
     ////create User Methods.//////////////////////////////////////////////////////////////////////
 
 
+    private void doAbsolutelyNothing(){
 
+    }
 
     ////Load users data methods.///
 
@@ -544,6 +546,7 @@ public class DatabaseManager {
                     resetUsersSubscriptionsForNewPrice(oldConstantCPV,newConstantCPV);
                 }else{
                     setUserDataInSharedPrefs(mContext);
+                    if(isNewDay) setNeedToResetBooleanInSharedPrefs(mContext);
                     if(numberToMinus!=0) setUsersCurrentSubIndexInFireBase();
                     Intent intent = new Intent(Constants.LOADED_USER_DATA_SUCCESSFULLY);
                     LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
@@ -585,7 +588,7 @@ public class DatabaseManager {
         setLastSeenDateInFirebase();
     }
 
-    public void setLastSeenDateInFirebase() {
+    private void setLastSeenDateInFirebase() {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(uid).child(Constants.DATE_IN_FIREBASE);
@@ -1000,7 +1003,7 @@ public class DatabaseManager {
                 if(iterations == numberOfSubs){
                     setDateInSharedPrefs(getDate(), DBContext);
                     Variables.constantAmountPerView = newConstant;
-                    setNewConstantAsConstantInDatabase();
+                    setNewConstantAsConstantInDatabase(DBContext);
                     reloadUsersSubscriptions(Constants.LOADED_USER_DATA_SUCCESSFULLY);
                 }
             }
@@ -1010,12 +1013,18 @@ public class DatabaseManager {
 
 
 
-    private void setNewConstantAsConstantInDatabase() {
+    private void setNewConstantAsConstantInDatabase(Context context) {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         setUsersPreferredChargePerView();
+
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(uid).child(Constants.RESET_ALL_SUBS_BOOLEAN);
         adRef.setValue(false);
+
+        SharedPreferences prefs = context.getSharedPreferences(Constants.IS_CHANGING_CPV, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(Constants.IS_CHANGING_CPV, false);
+        editor.apply();
 
         DatabaseReference adRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(uid).child(Constants.NEW_CPV);
@@ -1055,10 +1064,29 @@ public class DatabaseManager {
     }
 
     public void setBooleanForResetSubscriptions(int newValue, final Context myContext){
+        SharedPreferences prefs3 = myContext.getSharedPreferences(Constants.IS_CHANGING_CPV, MODE_PRIVATE);
+        boolean hasChangedPrev = prefs3.getBoolean(Constants.IS_CHANGING_CPV, false);
+
+        boolean newBool = true;
+
+        if(hasChangedPrev && newValue==Variables.constantAmountPerView){
+           newBool = false;
+        }
+
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(uid).child(Constants.RESET_ALL_SUBS_BOOLEAN);
-        adRef.setValue(true);
+        adRef.setValue(newBool);
+
+        SharedPreferences prefs = myContext.getSharedPreferences(Constants.IS_CHANGING_CPV, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(Constants.IS_CHANGING_CPV, newBool);
+        editor.apply();
+
+        SharedPreferences prefs2 = myContext.getSharedPreferences(Constants.NEW_CPV, MODE_PRIVATE);
+        SharedPreferences.Editor editor2 = prefs2.edit();
+        editor2.putInt(Constants.NEW_CPV, newValue);
+        editor2.apply();
 
         DatabaseReference adRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(uid).child(Constants.NEW_CPV);
@@ -1069,6 +1097,7 @@ public class DatabaseManager {
                 LocalBroadcastManager.getInstance(myContext).sendBroadcast(intent);
             }
         });
+
     }
 
     private long getDateInDays(){
@@ -1214,5 +1243,13 @@ public class DatabaseManager {
     }
 
     ////Other stuff.////////////////////////////////////////////////////////////////////////////////////////
+
+
+    private void setNeedToResetBooleanInSharedPrefs(Context context){
+        SharedPreferences pref = context.getSharedPreferences(Constants.IS_CHANGING_CPV, MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putBoolean(Constants.IS_CHANGING_CPV, false);
+        editor.apply();
+    }
 
 }

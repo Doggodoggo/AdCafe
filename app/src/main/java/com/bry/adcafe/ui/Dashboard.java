@@ -483,9 +483,14 @@ public class Dashboard extends AppCompatActivity {
 
 
     public void promptUserAboutChanges(){
+        boolean hasChangedPrev =  mContext.getSharedPreferences(Constants.IS_CHANGING_CPV, MODE_PRIVATE)
+                .getBoolean(Constants.IS_CHANGING_CPV, false);
+        String message = "Your changes will take effect starting tomorrow.";
+        if(!hasChangedPrev)message = "Your changes have been set.";
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("AdCafé");
-        builder.setMessage("Your changes will take effect starting tomorrow.")
+        builder.setMessage(message)
                 .setCancelable(true)
                 .setPositiveButton("Cool.", new DialogInterface.OnClickListener() {
                     @Override
