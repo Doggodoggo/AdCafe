@@ -819,15 +819,14 @@ public class AdStats extends AppCompatActivity {
 
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
-                .child(uid).child(Constants.ADVERT_REIMBURSEMENT_HISTORY);
+                .child(uid).child(Constants.UPLOAD_HISTORY)
+                .child(Long.toString(-(TimeManager.getDateInDays()-1)))
+                .child(ad.getPushRefInAdminConsole());
+
         adRef.child("Date").setValue(TimeManager.getDate());
         adRef.child("ReimbursementTransactionID").setValue(Variables.transactionID);
         adRef.child("PhoneNo").setValue(Variables.phoneNo);
         adRef.child("Amount").setValue(reimbursementTotals);
-        ad.setImageUrl(null);
-        ad.setImageBitmap(null);
-        adRef.child("Advert").setValue(ad);
-
     }
 
 

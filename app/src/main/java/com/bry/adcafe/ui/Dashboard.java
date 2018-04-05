@@ -728,10 +728,10 @@ public class Dashboard extends AppCompatActivity {
     private void setPayoutReceiptInFireBase(int amount) {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
-                .child(uid).child(Constants.REIMBURSEMENT_HISTORY).child(TimeManager.getDate());
+                .child(uid).child(Constants.REIMBURSEMENT_HISTORY).child(Long.toString(-TimeManager.getDateInDays()));
         DatabaseReference pushRef = adRef.push();
         String pushId= pushRef.getKey();
-        pushRef.child("Date").setValue(TimeManager.getDate());
+        pushRef.child("Date").setValue(TimeManager.getDateInDays());
         pushRef.child("Time").setValue(TimeManager.getTime());
         pushRef.child("TransactionID").setValue(Variables.transactionID);
         pushRef.child("PhoneNo").setValue(Variables.phoneNo);

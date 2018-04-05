@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
+import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.TimeManager;
@@ -172,6 +173,19 @@ public class AdminStatItem {
                 Toast.makeText(mContext,"Updating complete..",Toast.LENGTH_SHORT).show();
             }
         });
+
+        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(mAdvert.getAdvertiserUid()).child(Constants.UPLOAD_HISTORY)
+                .child(Long.toString(-(TimeManager.getDateInDays()-1)))
+                .child(mAdvert.getPushRefInAdminConsole());
+
+        int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen();
+        double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView());
+
+        adRef.child("Date").setValue(TimeManager.getDate());
+        adRef.child("ReimbursementTransactionID").setValue(Variables.transactionID);
+        adRef.child("PhoneNo").setValue(Variables.phoneNo);
+        adRef.child("Amount").setValue(reimbursementTotals);
 
     }
 
