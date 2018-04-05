@@ -82,6 +82,7 @@ public class AdStats extends AppCompatActivity {
 
     Handler h = new Handler();
     Runnable r;
+    private boolean doChildrenExist = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -246,6 +247,7 @@ public class AdStats extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.hasChildren()){
+                    doChildrenExist = true;
                     for(DataSnapshot snap: dataSnapshot.getChildren()){
                         String pushValue = snap.getValue(String.class);
                         mAdList3.add(pushValue);
@@ -322,6 +324,7 @@ public class AdStats extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.hasChildren()){
+                    doChildrenExist = true;
                     Log.d(TAG,"Children have been gotten from firebase");
                     for(DataSnapshot snap: dataSnapshot.getChildren()){
                         String pushValue = snap.getValue(String.class);
@@ -399,19 +402,21 @@ public class AdStats extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.hasChildren()){
+                    doChildrenExist = true;
                     Log.d(TAG,"Children have been gotten from firebase");
                     for(DataSnapshot snap: dataSnapshot.getChildren()){
                         String pushValue = snap.getValue(String.class);
                         mAdList2.add(pushValue);
                     }
                     Log.d(TAG,"Number of children is : "+mAdList2.size());
+                    findViewById(R.id.noAdsUploadedText).setVisibility(View.GONE);
                     loadAdsUploadedByUser2();
                 }else{
                     loadUploadHistory();
 //                    findViewById(R.id.topText).setVisibility(View.VISIBLE);
 //                    findViewById(R.id.LoadingViews).setVisibility(View.GONE);
 //                    DataListsView.setVisibility(View.VISIBLE);
-                    findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
+//                    findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
 //                    if(mUploadedAds3.size()==0 && mUploadedAds.size()==0){
 //                        Log.d(TAG,"UUUUser had uploaded no ads.");
 //                        findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
@@ -480,6 +485,7 @@ public class AdStats extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG,"Loading upload history");
                 if(dataSnapshot.exists()){
+                    doChildrenExist = true;
                     findViewById(R.id.noAdsUploadedText).setVisibility(View.GONE);
                     DataListsView.addView(new DateForAdStats(mContext,"Your Upload History.",DataListsView));
                     DataListsView.addView(new DateForAdStats(mContext,"",DataListsView));
@@ -504,7 +510,7 @@ public class AdStats extends AppCompatActivity {
                 DataListsView.setVisibility(View.VISIBLE);
                 findViewById(R.id.topText).setVisibility(View.VISIBLE);
                 findViewById(R.id.LoadingViews).setVisibility(View.GONE);
-                if(DataListsView.getChildCount()==0){
+                if(doChildrenExist){
                     findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
                 }else{
                     findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
