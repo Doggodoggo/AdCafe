@@ -19,7 +19,6 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.Payment.Lipisha.Payment;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
-import com.bry.adcafe.services.Payments;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -162,7 +161,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         }
     };
 
-    private void removeTheseGodDamnReceivers(){
+    private void removeTheseGodDamnReceivers(){//lol
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedSendingRequest);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFailedToSendRequest);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForCompleteTransaction);
