@@ -341,8 +341,12 @@ public class SavedAdsCard {
             Log.d("SAVED_ADS--","Received broadcast to remove self.");
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForRemoveSelf);
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
-            mSelectedIcon.setVisibility(android.view.View.INVISIBLE);
-            BAWhite();
+            try {
+                mSelectedIcon.setVisibility(android.view.View.INVISIBLE);
+                BAWhite();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     };
 
