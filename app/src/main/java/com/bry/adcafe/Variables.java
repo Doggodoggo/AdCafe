@@ -114,6 +114,8 @@ public class Variables {
 
     public static List<String> newSubs = new ArrayList<>();
     public static List<String> NSSubs = new ArrayList<>();
+    public static boolean isSelectingMultipleItems = false;
+    public static List<Advert> UnpinAdsList = new ArrayList<>();
 
     public static void resetAllValues(){
          todaysAdTotal = 0;

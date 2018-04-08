@@ -47,6 +47,7 @@ import com.bry.adcafe.fragments.ViewImageFragment;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.Utils;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -121,8 +122,110 @@ public class Bookmarks extends AppCompatActivity {
             Snackbar.make(findViewById(R.id.bookmarksCoordinatorLayout), R.string.connectionDropped,
                     Snackbar.LENGTH_INDEFINITE).show();
         }
-
+        setDeleteIcon();
+        Variables.isSelectingMultipleItems = false;
+        Variables.UnpinAdsList.clear();
     }
+
+    private void setDeleteIcon() {
+        findViewById(R.id.deleteAllicon).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!Variables.UnpinAdsList.isEmpty()){
+                    showPromptForBeforeRemove();
+                }
+            }
+        });
+    }
+
+    private void showPromptForBeforeRemove(){
+        String message = "Do you really want to unpin these "+Variables.UnpinAdsList.size()+" items?";
+        if(Variables.UnpinAdsList.size()==1)message = "Do you really want to unpin the "+Variables.UnpinAdsList.size()+" item?";
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message)
+                .setTitle("Confirm Unpin.")
+                .setCancelable(true)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        Variables.isSelectingMultipleItems = false;
+                        TextView topText = findViewById(R.id.topText);
+                        topText.animate().setDuration(140).translationX(0);
+                        findViewById(R.id.deleteAllicon).setVisibility(View.GONE);
+                        LocalBroadcastManager.getInstance(mContext)
+                               .sendBroadcast(new Intent(Constants.REMOVE_REMOVE_SELF_LISTENER));
+                    }
+                })
+                .setPositiveButton("Yes.", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startUnPinningAll();
+                        mAuthProgressDialog.show();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }).show();
+    }
+
+    private void startUnPinningAll() {
+        String uid = User.getUid();
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Constants.REMOVE_SELF_LISTENER));
+
+        for(final Advert ad:Variables.UnpinAdsList){
+            Variables.VariablesHashOfAds.get(ad.getDateInDays()).remove(Variables.adToBeUnpinned);
+
+            final DatabaseReference adRef2 = FirebaseDatabase.getInstance().getReference(Constants.PINNED_AD_POOL)
+                    .child(Long.toString(ad.getDateInDays())).child(ad.getPushRefInAdminConsole()).child(Constants.NO_OF_TIMES_PINNED);
+
+            final DatabaseReference adRef3 = FirebaseDatabase.getInstance().getReference(Constants.PINNED_AD_POOL)
+                    .child(Long.toString(ad.getDateInDays())).child(ad.getPushRefInAdminConsole()).child("imageUrl");
+
+            adRef2.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()){
+                        int numberOfPins = dataSnapshot.getValue(int.class);
+                        if(numberOfPins==1){
+                            adRef2.removeValue();
+                            adRef3.removeValue();
+                        }else{
+                            adRef2.setValue(numberOfPins-1);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+
+            DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                    .child(uid).child(Constants.PINNED_AD_LIST).child(Long.toString(ad.getDateInDays()))
+                    .child(ad.getPushId());
+
+            adRef.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Variables.UnpinAdsList.remove(ad);
+                    if(Variables.UnpinAdsList.isEmpty()){
+                        mAuthProgressDialog.hide();
+                        Variables.isSelectingMultipleItems = false;
+                        TextView topText = findViewById(R.id.topText);
+                        topText.animate().setDuration(140).translationX(0);
+                        findViewById(R.id.deleteAllicon).setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
+    }
+
+
 
 
     @Override
@@ -148,7 +251,7 @@ public class Bookmarks extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForAddView,new IntentFilter("ADD_VIEW_IN_ACTIVITY"));
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForShowNoAdsText,new IntentFilter("SHOW_NO_ADS_TEXT"));
-
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForShowDeleteIcon,new IntentFilter(Constants.SHOW_DELETE_ICON));
     }
 
     private void unregisterAllReceivers() {
@@ -165,6 +268,7 @@ public class Bookmarks extends AppCompatActivity {
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForAddView);
 
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForShowNoAdsText);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForShowDeleteIcon);
 
         sendBroadCastToUnregisterReceivers();
     }
@@ -295,6 +399,22 @@ public class Bookmarks extends AppCompatActivity {
 
 
 
+    private BroadcastReceiver mMessageReceiverForShowDeleteIcon = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("SAVED_ADS--","Received broadcast to show icon.");
+            if(Variables.isSelectingMultipleItems){
+                TextView topText = findViewById(R.id.topText);
+                topText.animate().setDuration(140).translationX(-30);
+                findViewById(R.id.deleteAllicon).setVisibility(View.VISIBLE);
+            }else{
+                TextView topText = findViewById(R.id.topText);
+                topText.animate().setDuration(140).translationX(0);
+                findViewById(R.id.deleteAllicon).setVisibility(View.INVISIBLE);
+            }
+        }
+    };
+
     private BroadcastReceiver mMessageReceiverForShowNoAdsText = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -405,6 +525,7 @@ public class Bookmarks extends AppCompatActivity {
     private void promptUserIfTheyAreSureIfTheyWantToDeleteAd2() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Do you really want to unpin that?")
+                .setTitle("Confirm Unpin.")
                 .setCancelable(true)
                 .setPositiveButton("Yes.", new DialogInterface.OnClickListener() {
                     @Override
@@ -425,6 +546,7 @@ public class Bookmarks extends AppCompatActivity {
     private void promptUserIfTheyAreSureIfTheyWantToDeleteAd() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Are you sure you want to unpin that?")
+                .setTitle("Confirm Unpin.")
                 .setCancelable(true)
                 .setPositiveButton("Yes.", new DialogInterface.OnClickListener() {
                     @Override
@@ -477,7 +599,16 @@ public class Bookmarks extends AppCompatActivity {
             hideProg();
             finish();
         }else{
-            super.onBackPressed();
+            if(Variables.isSelectingMultipleItems){
+                LocalBroadcastManager.getInstance(mContext)
+                        .sendBroadcast(new Intent(Constants.REMOVE_REMOVE_SELF_LISTENER));
+                Variables.isSelectingMultipleItems = false;
+                TextView topText = findViewById(R.id.topText);
+                topText.animate().setDuration(140).translationX(0);
+                findViewById(R.id.deleteAllicon).setVisibility(View.GONE);
+            }else {
+                super.onBackPressed();
+            }
         }
     }
 

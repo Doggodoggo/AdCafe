@@ -102,7 +102,7 @@ public class MyAdStatsItem {
         }catch (Exception e){
             e.printStackTrace();
         }
-        if(isCardForYesterdayAds() && ammountToBeRepaid ==0 )mReimburseButton.setVisibility(android.view.View.VISIBLE);
+        if(isCardForYesterdayAds() && ammountToBeRepaid !=0 )mReimburseButton.setVisibility(android.view.View.VISIBLE);
         loadListeners();
     }
 

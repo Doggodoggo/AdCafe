@@ -56,6 +56,7 @@ public class SavedAdsCard {
     @View(R.id.savedErrorImageView) private ImageView errorImageView;
     @View(R.id.savedAdCardAvi) private AVLoadingIndicatorView mAvi;
     @View(R.id.sacard) private CardView mCardView;
+    @View(R.id.selectedIcon) private ImageView mSelectedIcon;
 
     private Context mContext;
     private PlaceHolderView mPlaceHolderView;
@@ -290,29 +291,69 @@ public class SavedAdsCard {
 
     @LongClick(R.id.SavedImageView)
     private void onLongClick(){
-        promptUserIfSureToUnpinAd();
+//        promptUserIfSureToUnpinAd();
+        Variables.isSelectingMultipleItems = true;
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Constants.SHOW_DELETE_ICON));
+        selectAdForUnpinning();
     }
 
     @Click(R.id.SavedImageView)
     private void onClick(){
-        if(hasLoaded){
-            if(onDoublePressed){
-//                shareAd();
-            }else{
-                viewAd();
-            }
-            onDoublePressed = true;
-            new Handler().postDelayed(new Runnable() {
+        if(Variables.isSelectingMultipleItems) selectAdForUnpinning();
+        else viewAd();
+    }
 
-                @Override
-                public void run() {
-                    onDoublePressed=false;
-                }
-            }, 300);
+    private void selectAdForUnpinning() {
+        if(!Variables.UnpinAdsList.contains(mAdvert)){
+            Variables.UnpinAdsList.add(mAdvert);
+            mSelectedIcon.setVisibility(android.view.View.VISIBLE);
+            setReceiver();
+        }else{
+            Variables.UnpinAdsList.remove(mAdvert);
+            mSelectedIcon.setVisibility(android.view.View.INVISIBLE);
+            removeListener();
+            if(Variables.UnpinAdsList.isEmpty()){
+                Variables.isSelectingMultipleItems = false;
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Constants.SHOW_DELETE_ICON));
+            }
         }
+
     }
 
 
+    private BroadcastReceiver mMessageReceiverForRemoveSelf = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("SAVED_ADS--","Received broadcast to remove self.");
+            mPlaceHolderView.removeView(sac);
+            unregisterAllReceivers();
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForRemoveRemoveSelfListener);
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+        }
+    };
+
+    private BroadcastReceiver mMessageReceiverForRemoveRemoveSelfListener = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("SAVED_ADS--","Received broadcast to remove self.");
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForRemoveSelf);
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+            mSelectedIcon.setVisibility(android.view.View.INVISIBLE);
+
+        }
+    };
+
+    private void setReceiver() {
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForRemoveSelf,
+                new IntentFilter(Constants.REMOVE_SELF_LISTENER));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForRemoveRemoveSelfListener,
+                new IntentFilter(Constants.REMOVE_REMOVE_SELF_LISTENER));
+    }
+
+    private void removeListener() {
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForRemoveSelf);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForRemoveRemoveSelfListener);
+    }
 
 
     private void promptUserIfSureToUnpinAd(){

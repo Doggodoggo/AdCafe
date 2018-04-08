@@ -131,5 +131,8 @@ public class Constants {
     public static String CATEGORIES_KNOWN = "CategoriesKnown";
     public static String EULA = "https://adcafe.github.io/Eula/index.html";
     public static String IS_CHANGING_CPV = "is_changing_cpv";
+    public static String REMOVE_SELF_LISTENER = "REMOVE_SELF_LISTENER";
+    public static String REMOVE_REMOVE_SELF_LISTENER = "REMOVE_REMOVE_SELF_LISTENER";
+    public static String SHOW_DELETE_ICON = "SHOW_DELETE_ICON";
 
 }
