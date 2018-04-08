@@ -97,6 +97,9 @@ public class SAContainer {
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToCheckIfIsEmpty,
                 new IntentFilter("CHECK_IF_IS_EMPTY"+noOfDays));
 
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToCheckIfHasChildren,
+                new IntentFilter("CHECK_IF_HAS_CHILDREN"+noOfDays));
+
     }
 
 
@@ -117,6 +120,14 @@ public class SAContainer {
         }
     };
 
+    private BroadcastReceiver mMessageReceiverToCheckIfHasChildren = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG,"Received broadcast to check if has children.");
+//            checkIfHasChildren2();
+        }
+    };
+
 
 
 
@@ -125,7 +136,6 @@ public class SAContainer {
             @Override
             public void run() {
                 Log.d(TAG, "Removing self since date has no children");
-//                dateTextView.setVisibility(android.view.View.GONE);
                 mPlaceHolderView.removeView(ths);
                 unregisterAllReceivers();
             }
@@ -163,7 +173,10 @@ public class SAContainer {
     };
 
     private void checkIfHasChildren2() {
+        Log.d(TAG,"Checking if variable hash of ads for "+noOfDays+" date is empty.");
+        Log.d(TAG,"It has got "+Variables.VariablesHashOfAds.get(noOfDays).size()+" items");
         if(Variables.VariablesHashOfAds.get(noOfDays).isEmpty()){
+            Log.d(TAG,"it is.");
             removeThisView();
         }
     }
@@ -218,6 +231,7 @@ public class SAContainer {
     private void unregisterAllReceivers() {
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverToUnregisterAllReceivers);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverToCheckIfIsEmpty);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverToCheckIfHasChildren);
         if(dbRef!=null) dbRef.removeEventListener(chil);
     }
 

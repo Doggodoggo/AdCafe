@@ -152,6 +152,7 @@ public class Bookmarks extends AppCompatActivity {
                         TextView topText = findViewById(R.id.topText);
                         topText.animate().setDuration(140).translationX(0);
                         findViewById(R.id.deleteAllicon).setVisibility(View.GONE);
+                        Variables.UnpinAdsList.clear();
                         LocalBroadcastManager.getInstance(mContext)
                                .sendBroadcast(new Intent(Constants.REMOVE_REMOVE_SELF_LISTENER));
                     }
@@ -176,7 +177,7 @@ public class Bookmarks extends AppCompatActivity {
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Constants.REMOVE_SELF_LISTENER));
 
         for(final Advert ad:Variables.UnpinAdsList){
-            Variables.VariablesHashOfAds.get(ad.getDateInDays()).remove(Variables.adToBeUnpinned);
+            Variables.VariablesHashOfAds.get(ad.getDateInDays()).remove(ad);
 
             final DatabaseReference adRef2 = FirebaseDatabase.getInstance().getReference(Constants.PINNED_AD_POOL)
                     .child(Long.toString(ad.getDateInDays())).child(ad.getPushRefInAdminConsole()).child(Constants.NO_OF_TIMES_PINNED);
@@ -213,6 +214,7 @@ public class Bookmarks extends AppCompatActivity {
                 @Override
                 public void onSuccess(Void aVoid) {
                     Variables.UnpinAdsList.remove(ad);
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("CHECK_IF_HAS_CHILDREN"+ad.getDateInDays()));
                     if(Variables.UnpinAdsList.isEmpty()){
                         mAuthProgressDialog.hide();
                         Variables.isSelectingMultipleItems = false;
@@ -600,6 +602,7 @@ public class Bookmarks extends AppCompatActivity {
             finish();
         }else{
             if(Variables.isSelectingMultipleItems){
+                Variables.UnpinAdsList.clear();
                 LocalBroadcastManager.getInstance(mContext)
                         .sendBroadcast(new Intent(Constants.REMOVE_REMOVE_SELF_LISTENER));
                 Variables.isSelectingMultipleItems = false;

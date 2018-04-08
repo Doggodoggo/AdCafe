@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -93,6 +95,7 @@ public class SavedAdsCard {
 
         if(mImageBytes==null)loadListeners();
         sac = this;
+        BAWhite();
     }
 
     private void loadListeners() {
@@ -317,7 +320,7 @@ public class SavedAdsCard {
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Constants.SHOW_DELETE_ICON));
             }
         }
-
+        BAWhite();
     }
 
 
@@ -339,7 +342,7 @@ public class SavedAdsCard {
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForRemoveSelf);
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
             mSelectedIcon.setVisibility(android.view.View.INVISIBLE);
-
+            BAWhite();
         }
     };
 
@@ -601,6 +604,15 @@ public class SavedAdsCard {
             mAvi.setVisibility(android.view.View.VISIBLE);
             super.onPreExecute();
         }
+    }
+
+    private void BAWhite(){
+        int val = 1;
+        if(Variables.UnpinAdsList.contains(mAdvert)) val = 0;
+        ColorMatrix matrix = new ColorMatrix();
+        matrix.setSaturation(val);
+        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
+        imageView.setColorFilter(filter);
     }
 
 }
