@@ -121,7 +121,8 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
 
     private void loadEnterDetailsPart() {
         final EditText phoneEdit = mContentView.findViewById(R.id.phoneEditText);
-
+        final EditText emailEdit = mContentView.findViewById(R.id.emailEditText);
+        emailEdit.setText(mUploaderEmail);
         setPhoneField();
 
         phoneEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -153,13 +154,17 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
                 }
                 if(phoneEdit.getText().toString().trim().equals("")){
                     phoneEdit.setError("We need your phone number.");
+                }else if(emailEdit.getText().toString().trim().equals("")){
+                    emailEdit.setError("We need your email address.");
                 }else if(phoneEdit.getText().toString().trim().length()<10){
                     phoneEdit.setError("That's not a real phone number.");
                 }else{
                     String phoneNo = phoneEdit.getText().toString().trim();
+                    String email = emailEdit.getText().toString().trim();
                     try{
                         Integer.parseInt(phoneNo);
                         mPhoneNo = phoneNo;
+                        mUploaderEmail = email;
                         updatePhoneNumber(mPhoneNo);
                         mEnterPaymentDetailsPart.setVisibility(View.GONE);
                         loadConfirmDetailsPart();

@@ -212,7 +212,7 @@
     <string name="payoutAdvertiserDetails">Click the proceed button if you wish for us to reimburse you the remaining amount
         to your mobile account. We only support MPesa reimbursements for now.</string>
 
-    <string name="requiredUserDetails">We only need your phone number and your account password to make the payout.</string>
+    <string name="requiredUserDetails">We only need your phone number,email and your account password to make the payout.</string>
 
     <string name="noteAboutCreditCardInfo">Note: We do not store any of your credit/debit card information for security reasons.</string>
 
@@ -232,7 +232,7 @@
 
     <string name="failedPaymentsExplanation2">Please contact your bank and resolve this issue then come back and retry.</string>
 
-    <string name="mpesaPaymentDetails">We only need your phone number to continue. You\'ll then receive a prompt requesting your
+    <string name="mpesaPaymentDetails">We only need your phone number and email to continue. You\'ll then receive a prompt requesting your
         mpesa password and the transaction will be completed.</string>
 
     <string name="mpesaPayment">You should receive a prompt requesting for your Mpesa password then the payment will finish. </string>

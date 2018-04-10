@@ -205,7 +205,8 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
     private void showNextSlide(){
         CardHolderDetailsPart.setVisibility(View.VISIBLE);
         CardHolderDetailsPart.animate().setDuration(140).translationX(0);
-        final EditText name =  mContentView.findViewById(R.id.nameEditText);
+        final EditText firstName =  mContentView.findViewById(R.id.firstNameEditText);
+        final EditText lastName = mContentView.findViewById(R.id.lastnameEditText);
         final EditText email = mContentView.findViewById(R.id.emailEditText);
         final EditText state = mContentView.findViewById(R.id.stateEditText);
         final EditText phone = mContentView.findViewById(R.id.phoneEditText);
@@ -214,7 +215,7 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
 
         email.setText(mUploaderEmail);
         try{
-            name.setText(mName.toUpperCase());
+            firstName.setText(mName.toUpperCase());
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -248,13 +249,16 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
                     InputMethodManager imm = (InputMethodManager)mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
-                String nameString = name.getText().toString().trim();
+                String FirstNameString = firstName.getText().toString().trim();
+                String LastNameString = lastName.getText().toString().trim();
                 String emailString = email.getText().toString().trim();
                 String stateText = state.getText().toString().trim();
                 String phoneText = phone.getText().toString().trim();
 
-                if(nameString.equals("")){
-                    name.setError("Your name is needed.");
+                if(LastNameString.equals("")){
+                    lastName.setError("Your last name is needed.");
+                }if(FirstNameString.equals("")){
+                    firstName.setError("Your first name is needed.");
                 }else if(emailString.equals("")){
                     email.setError("We need your email.");
                 }else if(stateText.equals("")){
@@ -264,7 +268,9 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
                 }else{
                     try{
                         Integer.parseInt(phoneText);
-                        Variables.cardHolderName = nameString;
+                        Variables.cardHolderName = LastNameString;
+                        Variables.cardHolderFirstName = FirstNameString;
+                        Variables.cardHolderLastName = LastNameString;
                         Variables.cardHolderEmail = emailString;
                         Variables.phoneNo = phoneText;
                         Variables.cardHolderState = stateText;

@@ -107,6 +107,8 @@ public class Variables {
     public static String paymentOption;
     public static String transactionID;
     public static String cardHolderName;
+    public static String cardHolderFirstName;
+    public static String cardHolderLastName;
     public static String cardHolderEmail;
     public static String cardHolderState;
     public static float relativeScale = 0f;

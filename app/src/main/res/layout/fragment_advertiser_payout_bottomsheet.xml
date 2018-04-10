@@ -97,6 +97,26 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_marginTop="15dp"
+            android:textSize="12sp"
+            android:visibility="gone"
+            android:text="Your Email (me@example.com)."
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:id="@+id/emailEditText"
+            android:inputType="textEmailAddress"
+            android:padding="10dp"
+            android:visibility="gone"
+            android:textSize="15sp"
+            android:cursorVisible="true"
+            android:textColorHint="@color/greyHint"
+            android:nextFocusDown="@+id/stateEditText"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginTop="15dp"
             android:text="Your Password."
             android:layout_height="wrap_content" />
         <EditText

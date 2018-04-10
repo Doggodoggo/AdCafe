@@ -130,6 +130,7 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
         mEnterPayoutDetailsPart.setVisibility(View.VISIBLE);
         mEnterPayoutDetailsPart.animate().translationX(0).setDuration(150);
         final EditText phoneEdit = mContentView.findViewById(R.id.phoneEditText);
+//        final EditText emailEdit = mContentView.findViewById(R.id.emailEditText);
         final EditText passwordEdit = mContentView.findViewById(R.id.passwordEditText);
 
         setPhoneField();
