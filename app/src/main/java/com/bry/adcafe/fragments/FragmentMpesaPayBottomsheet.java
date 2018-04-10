@@ -1,14 +1,19 @@
 package com.bry.adcafe.fragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -22,6 +27,8 @@ import android.widget.TextView;
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by bryon on 27/02/2018.
@@ -115,6 +122,8 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
     private void loadEnterDetailsPart() {
         final EditText phoneEdit = mContentView.findViewById(R.id.phoneEditText);
 
+        setPhoneField();
+
         phoneEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -151,6 +160,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
                     try{
                         Integer.parseInt(phoneNo);
                         mPhoneNo = phoneNo;
+                        updatePhoneNumber(mPhoneNo);
                         mEnterPaymentDetailsPart.setVisibility(View.GONE);
                         loadConfirmDetailsPart();
                     }catch (Exception e){
@@ -191,6 +201,59 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
                 LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent("START_PAYMENTS_INTENT"));
             }
         });
+    }
+
+
+    private void setPhoneField(){
+        String number = mActivity.getSharedPreferences(Constants.PHONE_NUMBER, MODE_PRIVATE).getString(Constants.PHONE_NUMBER, "b");
+        if(!number.equals("b")){
+            final EditText phoneEdit = mContentView.findViewById(R.id.phoneEditText);
+            phoneEdit.setText(number);
+        }
+    }
+
+    private void updatePhoneNumber(String phone){
+        SharedPreferences pref = mActivity.getSharedPreferences(Constants.PHONE_NUMBER, MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.putString(Constants.PHONE_NUMBER,phone);
+        editor.apply();
+    }
+
+
+    private void setPhoneField2(){
+        final EditText phoneEdit = mContentView.findViewById(R.id.phoneEditText);
+        TelephonyManager tMgr = (TelephonyManager) mActivity.getSystemService(mActivity.TELEPHONY_SERVICE);
+        if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(mActivity,
+                    new String[]{android.Manifest.permission.READ_PHONE_STATE, android.Manifest.permission.READ_SMS}, 1);
+            return;
+        } else {
+            if (tMgr != null) {
+                String mPhoneNumber = tMgr.getLine1Number();
+                phoneEdit.setText(mPhoneNumber);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            Log.v("AdvertiserPayout", "Permission: " + permissions[0] + "was " + grantResults[0]);
+            //resume tasks needing this permission
+            final EditText phoneEdit = mContentView.findViewById(R.id.phoneEditText);
+            TelephonyManager tMgr = (TelephonyManager) mActivity.getSystemService(mActivity.TELEPHONY_SERVICE);
+            if (tMgr != null) {
+                if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                String mPhoneNumber = tMgr.getLine1Number();
+                phoneEdit.setText(mPhoneNumber);
+            }
+        }
     }
 
 }

@@ -1,10 +1,12 @@
 package com.bry.adcafe.ui;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -12,9 +14,11 @@ import android.net.Uri;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -58,24 +62,36 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class CreateAccountActivity extends AppCompatActivity implements View.OnClickListener{
+public class CreateAccountActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String TAG = CreateAccountActivity.class.getSimpleName();
     private ProgressDialog mAuthProgressDialog;
     private Context mContext;
     private String mKey = "";
 
-    @Bind(R.id.createUserButton) Button mCreateUserButton;
-    @Bind(R.id.nameEditText) EditText mNameEditText;
-    @Bind(R.id.emailEditText) EditText mEmailEditText;
-    @Bind(R.id.passwordEditText) EditText mPasswordEditText;
-    @Bind(R.id.confirmPasswordEditText) EditText mConfirmPasswordEditText;
-    @Bind(R.id.loginTextView) TextView mLoginTextView;
-    @Bind(R.id.signUpRelative) RelativeLayout mRelative;
-    @Bind(R.id.SignUpAvi) AVLoadingIndicatorView mAvi;
-    @Bind(R.id.progressBarSignUp) ProgressBar mProgressBarSignUp;
-    @Bind(R.id.creatingAccountLoadingText) TextView mLoadingText;
-    @Bind(R.id.ConfirmEmailLayout) LinearLayout mConfirmEmailLayout;
-    @Bind(R.id.textLink) TextView mPrivPol;
+    @Bind(R.id.createUserButton)
+    Button mCreateUserButton;
+    @Bind(R.id.nameEditText)
+    EditText mNameEditText;
+    @Bind(R.id.emailEditText)
+    EditText mEmailEditText;
+    @Bind(R.id.passwordEditText)
+    EditText mPasswordEditText;
+    @Bind(R.id.confirmPasswordEditText)
+    EditText mConfirmPasswordEditText;
+    @Bind(R.id.loginTextView)
+    TextView mLoginTextView;
+    @Bind(R.id.signUpRelative)
+    RelativeLayout mRelative;
+    @Bind(R.id.SignUpAvi)
+    AVLoadingIndicatorView mAvi;
+    @Bind(R.id.progressBarSignUp)
+    ProgressBar mProgressBarSignUp;
+    @Bind(R.id.creatingAccountLoadingText)
+    TextView mLoadingText;
+    @Bind(R.id.ConfirmEmailLayout)
+    LinearLayout mConfirmEmailLayout;
+    @Bind(R.id.textLink)
+    TextView mPrivPol;
 
 
     private FirebaseAuth mAuth;
@@ -105,7 +121,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                         (actionId == EditorInfo.IME_ACTION_NEXT) ||
                         (actionId == EditorInfo.IME_ACTION_GO)) {
                     mCreateUserButton.performClick();
-                    Log.i(TAG,"Enter pressed");
+                    Log.i(TAG, "Enter pressed");
                 }
                 return false;
             }
@@ -128,6 +144,11 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                 }
             }
         });
+//        TelephonyManager tMgr = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+//            tMgr.getDeviceId();
+//        }
+
     }
 
     @Override

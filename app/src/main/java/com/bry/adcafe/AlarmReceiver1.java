@@ -226,6 +226,9 @@ public class AlarmReceiver1 extends BroadcastReceiver {
 
 
     private void handleEverything(int number) {
+        if(constantAmountPerView>3 && number>Constants.MAX_NUMBER_FOR7){
+            number = Constants.MAX_NUMBER_FOR7;
+        }
         String message;
         if (number > 1)message = "Hey "+userName+", "+ "we've got " + number + " ads for you today."+Html.fromHtml("&#128076;") ;
         else message = "Hey "+userName+", "+ "we've got " + number + " ad for you today."+Html.fromHtml("&#128516;") ;

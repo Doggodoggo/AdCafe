@@ -574,6 +574,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             Log.d(TAG,"Number of children from firebase is : "+dataSnapshot.getChildrenCount());
+            boolean canLoad = true;
+            if(Variables.constantAmountPerView>3
+                    && Variables.getAdTotal(mKey)+Constants.NO_OF_ADS_TO_LOAD2>Constants.MAX_NUMBER_FOR7){
+                canLoad = false;
+            }
             if (dataSnapshot.hasChildren()) {
                 if(dataSnapshot.getChildrenCount()==1){
                     //if only one ad has loaded.
@@ -637,7 +642,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             String pushID = snpsht.getValue(String.class);
                             ad.setPushId(pushID);
                             ad.setPushIdNumber(Integer.parseInt(pushID));
-                            if(!ad.isFlagged()) mAdList.add(ad);
+                            if(!ad.isFlagged() && canLoad) mAdList.add(ad);
                     }
                     if(mAdList.size()==0){
                         //all the ads loaded may have been flagged so loading the next ads after those ones.
@@ -1559,6 +1564,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .limitToFirst(Constants.NO_OF_ADS_TO_LOAD2).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean canLoad = true;
+                if(Variables.constantAmountPerView>3
+                        && Variables.getAdTotal(mKey)+Constants.NO_OF_ADS_TO_LOAD2>Constants.MAX_NUMBER_FOR7){
+                    canLoad = false;
+                }
                 if (dataSnapshot.hasChildren()) {
                     Log.d(TAG, "---More children in dataSnapshot from firebase exist");
                     for (DataSnapshot snap : dataSnapshot.getChildren()) {
@@ -1568,7 +1578,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         ad.setPushId(pushID);
                         ad.setPushIdNumber(Integer.parseInt(pushID));
                         Log.d(TAG,"setting push id to : "+ ad.getPushId());
-                        if(!ad.isFlagged()) {
+                        if(!ad.isFlagged() && canLoad) {
                             mAdList.add(ad);
                             Log.d(TAG,"Loaded ad : "+ad.getPushRefInAdminConsole());
                         }

@@ -135,4 +135,8 @@ public class Constants {
     public static String REMOVE_REMOVE_SELF_LISTENER = "REMOVE_REMOVE_SELF_LISTENER";
     public static String SHOW_DELETE_ICON = "SHOW_DELETE_ICON";
 
+    public static String PHONE_NUMBER = "PHONE_NUMBER";
+    public static String PHONE_NUMBER2 ="PHONE_NUMBER2";
+    public static int MAX_NUMBER_FOR7 = 14;
+
 }
