@@ -587,12 +587,20 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
 
     private void startBankPayments(){
+        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.PAY_POOL);
+        DatabaseReference pushRef = adRef.push();
+        Variables.transactionID = "TRANS00000"+pushRef.getKey();
+
         String cardNumber = Variables.cardNumber;
         String expiration = Variables.expiration;
         String cvv = Variables.cvv;
         String postalCode = Variables.postalCode;
         String amount = String.valueOf(amountToPayForUpload);
         String cardHolderName = Variables.cardHolderName;
+        String cardHolderFirstName = Variables.cardHolderFirstName;
+        String cardHolderLastName = Variables.cardHolderLastName;
+        String expirationMonth = Variables.expirationMonth;
+        String expirationYear = Variables.expirationYear;
         String cardHolderAdress = Variables.phoneNo;
         String state = Variables.cardHolderState;
         String FAILED_BANK_PAYMENTS = "FAILED_BANK_PAYMENTS";
@@ -607,9 +615,6 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 //        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForfailedPayment,
 //                new IntentFilter(FAILED_BANK_PAYMENTS));
 //        mProgForPayments.show();
-        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.PAY_POOL);
-        DatabaseReference pushRef = adRef.push();
-        Variables.transactionID = "TRANS00000000000000000000"+pushRef.getKey();
         startProcessForUpload();
     }
 

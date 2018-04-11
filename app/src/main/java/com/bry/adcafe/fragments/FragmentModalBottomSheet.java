@@ -159,6 +159,8 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
                     Variables.cardNumber = cardForm.getCardNumber();
                     Variables.postalCode = cardForm.getPostalCode();
                     Variables.expiration = ""+cardForm.getExpirationMonth()+cardForm.getExpirationYear();
+                    Variables.expirationMonth = cardForm.getExpirationMonth();
+                    Variables.expirationYear = cardForm.getExpirationYear();
                     Variables.amountToPayForUpload = paymentTotals;
                 }
                 else{

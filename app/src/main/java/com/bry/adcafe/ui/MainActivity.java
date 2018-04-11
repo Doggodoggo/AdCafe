@@ -1401,7 +1401,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BroadcastReceiver mMessageReceiverForDoneCheckingIfNeedToReCreateClusters = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "Broadcast has been received that database manager is done checking if need to readd categories");
+            Log(TAG, "Broadcast has been received that database manager is done checking if need to readd categories");
             try {
                 Log.d(TAG, "---Starting the getAds method...");
                 startGetAds();
@@ -2497,6 +2497,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void resumeTimerByStartingIt(){
         setBooleanForResumingTimer();
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Constants.RESUME_TIMER));
+    }
+
+    private void Log(String tag,String message){
+        Log.d(tag,message);
     }
 
 //    Font: AR ESSENCE.

@@ -94,6 +94,8 @@ public class Variables {
 
     public static String cardNumber;
     public static String expiration;
+    public static String expirationMonth;
+    public static String expirationYear;
     public static String cvv;
     public static String postalCode;
 
