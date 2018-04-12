@@ -121,6 +121,8 @@ public class Variables {
     public static boolean isSelectingMultipleItems = false;
     public static List<Advert> UnpinAdsList = new ArrayList<>();
 
+    public static boolean isOlderAd = false;
+
     public static void resetAllValues(){
          todaysAdTotal = 0;
          mMonthAdTotals = 0;

@@ -728,15 +728,11 @@ public class AdStats extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("Dashboard", "Broadcast has been received to start payout.");
-            if(Variables.getTotalReimbursementAmount()<1){
-                promptUserForUnableToPayout();
-            }else{
-                if(isOnline(mContext)){
-                    if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
-                    startPayout();
-                }
-                else Toast.makeText(mContext,"You need internet connection to do that.",Toast.LENGTH_SHORT).show();
+            if(isOnline(mContext)){
+                if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
+                startPayout();
             }
+            else Toast.makeText(mContext,"You need internet connection to do that.",Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -784,9 +780,11 @@ public class AdStats extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             Log.d("Dashboard", "Broadcast has been received that payout is finished.");
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
-            SetPaymentValues();
+            if(Variables.isOlderAd)setOlderAdsPaymentValue();
+            else SetPaymentValues();
         }
     };
+
 
     private BroadcastReceiver mMessageReceiverForFailedPayout = new BroadcastReceiver() {
         @Override
@@ -827,7 +825,7 @@ public class AdStats extends AppCompatActivity {
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(uid).child(Constants.UPLOAD_HISTORY)
                 .child(Long.toString(-(TimeManager.getDateInDays()-1)))
-                .child(ad.getPushRefInAdminConsole());
+                .child(ad.getPushRefInAdminConsole()).child(Constants.REIMBURSEMENT_HISTORY);
 
         adRef.child("Date").setValue(TimeManager.getDate());
         adRef.child("ReimbursementTransactionID").setValue(Variables.transactionID);
@@ -835,6 +833,37 @@ public class AdStats extends AppCompatActivity {
         adRef.child("Amount").setValue(reimbursementTotals);
     }
 
+    private void setOlderAdsPaymentValue() {
+        Advert ad = Variables.adToBeReimbursed;
+        boolean bol = !ad.isHasBeenReimbursed();
+
+        DatabaseReference mRef2 =  FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
+                .child(Long.toString(-(ad.getDateInDays()+1)))
+                .child(ad.getPushRefInAdminConsole()).child("hasBeenReimbursed");
+        mRef2.setValue(bol).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Variables.isOlderAd = false;
+                mProgForPayments.hide();
+                showSuccessfulPayoutPrompt();
+            }
+        });
+
+        int numberOfUsersWhoDidntSeeAd = ad.getNumberOfUsersToReach()- ad.getNumberOfTimesSeen();
+        double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*ad.getAmountToPayPerTargetedView());
+
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.UPLOAD_HISTORY)
+                .child(Long.toString(-(ad.getDateInDays()+1)))
+                .child(ad.getPushRefInAdminConsole()).child(Constants.REIMBURSEMENT_HISTORY);
+
+        adRef.child("Date").setValue(TimeManager.getDate());
+        adRef.child("ReimbursementTransactionID").setValue(Variables.transactionID);
+        adRef.child("PhoneNo").setValue(Variables.phoneNo);
+        adRef.child("Amount").setValue(reimbursementTotals);
+    }
 
 
 

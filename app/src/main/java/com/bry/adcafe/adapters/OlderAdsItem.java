@@ -1,13 +1,28 @@
 package com.bry.adcafe.adapters;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 
+import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
+import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.TimeManager;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.mindorks.placeholderview.PlaceHolderView;
+import com.mindorks.placeholderview.annotations.Click;
 import com.mindorks.placeholderview.annotations.Layout;
 import com.mindorks.placeholderview.annotations.NonReusable;
 import com.mindorks.placeholderview.annotations.Resolve;
@@ -29,10 +44,13 @@ public class OlderAdsItem {
     @View(R.id.AmountToReimburse) private TextView mAmountToReimburseView;
     @View(R.id.hasBeenReimbursed) private TextView mHasBeenReimbursedView;
     @View(R.id.dateUploaded) private TextView mDateUploadedView;
+    @View(R.id.reimburseOldBtn) private Button mReimburseButton;
 
     private Context mContext;
     private PlaceHolderView mPlaceHolderView;
     private Advert mAdvert;
+    private DatabaseReference dbRef;
+
 
     public OlderAdsItem(Context Context, PlaceHolderView PlaceHolderView, Advert Advert){
         this.mContext = Context;
@@ -73,6 +91,8 @@ public class OlderAdsItem {
         }catch (Exception e){
             e.printStackTrace();
         }
+        if(isCardForYesterdayAds() && amountToBeRepaid !=0 )mReimburseButton.setVisibility(android.view.View.VISIBLE);
+        loadListeners();
     }
 
 
@@ -84,6 +104,13 @@ public class OlderAdsItem {
         return TimeManager.getDateInDays();
     }
 
+
+    @Click(R.id.reimburseOldBtn)
+    private void onClick(){
+        Variables.isOlderAd = true;
+        Variables.adToBeReimbursed = mAdvert;
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("START_ADVERTISER_PAYOUT"));
+    }
 
 
     private String getDateFromDays(long days){
@@ -128,5 +155,88 @@ public class OlderAdsItem {
         String month_name = month_date.format(cal.getTime());
         return month_name;
     }
+
+
+
+    private void loadListeners() {
+        Query query = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
+                .child(Long.toString(-(mAdvert.getDateInDays()+1))).child(mAdvert.getPushRefInAdminConsole());
+        dbRef = query.getRef();
+        dbRef.addChildEventListener(chil);
+
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForRemovingEventListeners
+                ,new IntentFilter("REMOVE-LISTENERS"));
+    }
+
+    private BroadcastReceiver mMessageReceiverForRemovingEventListeners = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            dbRef.removeEventListener(chil);
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+        }
+    };
+
+    ChildEventListener chil = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            Log.d("MY_AD_STAT_ITEM","Listener from firebase has responded.Updating users reached so far");
+            try{
+                int newValue = dataSnapshot.getValue(int.class);
+                Log.d("MY_AD_STAT_ITEM","New value gotten from firebase --"+newValue);
+                mAdvert.setNumberOfTimesSeen(newValue);
+                mUsersReachedSoFarView.setText("Users reached so far : "+newValue);
+                int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- newValue;
+                int ammountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView());
+                String number = Integer.toString(ammountToBeRepaid);
+                mAmountToReimburseView.setText("Reimbursing amount : "+number+" Ksh");
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            try{
+                boolean newValue = dataSnapshot.getValue(boolean.class);
+                Log.d("ADMIN_STAT_ITEM","New value gotten from firebase --"+newValue);
+                mAdvert.setHasBeenReimbursed(newValue);
+                try{
+                    if(mAdvert.isHasBeenReimbursed()) {
+                        mHasBeenReimbursedView.setText("Status: Reimbursed.");
+                        mAmountToReimburseView.setText("Reimbursing amount:  0 Ksh");
+                        if(isCardForYesterdayAds())mReimburseButton.setVisibility(android.view.View.GONE);
+                    }else{
+                        mHasBeenReimbursedView.setText("Status: NOT Reimbursed.");
+                        int numberOfUsersWhoDidntSeeAd = (mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen());
+                        int ammountToBeRepaid = (numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView());
+                        String number = Integer.toString(ammountToBeRepaid);
+                        mAmountToReimburseView.setText("Reimbursing amount : "+number+" Ksh");
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
 
 }

@@ -158,8 +158,6 @@ public class MyAdStatsItem {
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
             Log.d("MY_AD_STAT_ITEM","Listener from firebase has responded.Updating users reached so far");
-//                Advert refreshedAd = dataSnapshot.getValue(Advert.class);
-//                int newValue = refreshedAd.getNumberOfTimesSeen();
             try{
                 int newValue = dataSnapshot.getValue(int.class);
                 Log.d("MY_AD_STAT_ITEM","New value gotten from firebase --"+newValue);
@@ -168,7 +166,7 @@ public class MyAdStatsItem {
                 int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- newValue;
                 int ammountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView());
                 String number = Integer.toString(ammountToBeRepaid);
-                mAmountToReimburse.setText("Amount to be reimbursed : "+number+" Ksh");
+                mAmountToReimburse.setText("Reimbursing amount : "+number+" Ksh");
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -186,7 +184,7 @@ public class MyAdStatsItem {
                         int numberOfUsersWhoDidntSeeAd = (mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen());
                         int ammountToBeRepaid = (numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView());
                         String number = Integer.toString(ammountToBeRepaid);
-                        mAmountToReimburse.setText("Amount to be reimbursed : "+number+" Ksh");
+                        mAmountToReimburse.setText("Reimbursing amount : "+number+" Ksh");
                     }
                 }catch (Exception e){
                     e.printStackTrace();

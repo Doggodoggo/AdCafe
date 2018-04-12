@@ -259,7 +259,7 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
 
                 if(LastNameString.equals("")){
                     lastName.setError("Your last name is needed.");
-                }if(FirstNameString.equals("")){
+                }else if(FirstNameString.equals("")){
                     firstName.setError("Your first name is needed.");
                 }else if(emailString.equals("")){
                     email.setError("We need your email.");
