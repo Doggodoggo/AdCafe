@@ -466,7 +466,7 @@ public class AdvertCard{
     private static Bitmap decodeFromFirebaseBase64(String image) throws IOException {
         byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
         Bitmap bitm = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
-        return getResizedBitmap(bitm,700);
+        return getResizedBitmap(bitm,1200);
 //        return bitm;
     }
 

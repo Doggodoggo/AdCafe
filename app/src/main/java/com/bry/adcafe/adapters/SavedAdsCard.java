@@ -143,7 +143,7 @@ public class SavedAdsCard {
         try {
             Bitmap bm = decodeFromFirebaseBase64(mAdvert.getImageUrl());
             Log.d("SavedAdsCard---", "Image has been converted to bitmap.");
-            bs = getResizedBitmap(bm, 350);
+            bs = getResizedBitmap(bm, 200);
             mImageBytes = bitmapToByte(bs);
             mAdvert.setImageBitmap(bm);
             isLoadingImageFromFirebase = false;
@@ -529,8 +529,8 @@ public class SavedAdsCard {
     private static Bitmap decodeFromFirebaseBase64(String image) throws IOException {
         byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
         Bitmap bitm = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
-        Bitmap newBm = getResizedBitmap(bitm,500);
-        return newBm;
+//        Bitmap newBm = getResizedBitmap(bitm,00);
+        return bitm;
     }
 
     private static Bitmap getResizedBitmap(Bitmap image, int maxSize) {
