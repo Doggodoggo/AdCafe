@@ -202,6 +202,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
             public void onClick(View view) {
                 dismiss();
                 Variables.phoneNo = mPhoneNo;
+                Variables.mpesaEmail = mUploaderEmail;
                 Variables.amountToPayForUpload = paymentTotals;
                 LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent("START_PAYMENTS_INTENT"));
             }

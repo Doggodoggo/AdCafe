@@ -122,6 +122,7 @@ public class Variables {
     public static List<Advert> UnpinAdsList = new ArrayList<>();
 
     public static boolean isOlderAd = false;
+    public static String mpesaEmail;
 
     public static void resetAllValues(){
          todaysAdTotal = 0;

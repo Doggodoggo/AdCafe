@@ -235,9 +235,10 @@
     <string name="mpesaPaymentDetails">We only need your phone number and email to continue. You\'ll then receive a prompt requesting your
         mpesa password and the transaction will be completed.</string>
 
-    <string name="mpesaPayment">You should receive a prompt requesting for your Mpesa password then the payment will finish. </string>
+    <string name="mpesaPayment">You should be redirected to your Sim Tool Kit app requesting for
+        your Mpesa password then the payment will be completed. </string>
 
-    <string name="mpesaPayment2">When you receive a transaction SMS from Mpesa the upload should automatically begin.</string>
+    <string name="mpesaPayment2">When the payment is done, the upload should automatically begin.</string>
 
     <string name="mpesaPayment3">If you wish to restart the payment, just click the Restart Payment Button.</string>
 

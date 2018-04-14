@@ -44,8 +44,24 @@
                 android:layout_alignParentLeft="true"
                 android:background="@null"
                 android:text="Cancel."
-                android:visibility="invisible"
+                android:visibility="gone"
                 android:textColor="@color/colorPrimary" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:orientation="horizontal"
+                android:layout_height="match_parent">
+
+                <ProgressBar
+                    android:id="@+id/progBr"
+                    android:visibility="invisible"
+                    android:layout_marginTop="5dp"
+                    android:layout_alignParentLeft="true"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"/>
+
+            </LinearLayout>
 
             <Button
                 android:id="@+id/restartButton"

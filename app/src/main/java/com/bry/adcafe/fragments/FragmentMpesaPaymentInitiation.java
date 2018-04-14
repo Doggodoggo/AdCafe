@@ -8,17 +8,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.Payment.Lipisha.Payment;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
+import com.bry.adcafe.services.Payments;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -31,8 +34,9 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
     private Context mContext;
     private double mAmount;
     private String mPhoneNo;
-    private Payment mPayment;
+    private Payments mPayment;
     private String mTransactionId;
+    private ProgressBar prog;
 
 
     public void setContext(Context context){
@@ -50,6 +54,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         final View rootView =  inflater.inflate(R.layout.fragment_mpesa_payment_initiation, container, false);
 
         Button cancelBtn = rootView.findViewById(R.id.cancelBtn);
+        prog = rootView.findViewById(R.id.progBr);
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -61,34 +66,42 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         restartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                restartPaymentRequest();
+                prog.setVisibility(View.VISIBLE);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        restartPaymentRequest();
+                    }
+                }, 5000);
             }
         });
-
+        prog.setVisibility(View.VISIBLE);
         startPaymentProcess();
         return rootView;
     }
 
     private void startPaymentProcess() {
-        mPayment = new Payment();
-
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.PAY_POOL);
         DatabaseReference pushRef = adRef.push();
-        mTransactionId= pushRef.getKey();
+        mTransactionId= "TRANS"+pushRef.getKey();
         Log.d(TAG,"Transaction Id is : "+mTransactionId);
         String SUCCESSFUL_REQUEST = "SUCCESSFUL_REQUEST"+mTransactionId;
         String FAILED_REQUEST = "FAILED_REQUEST"+mTransactionId;
 
 
-        String newPhoneNo = "254"+mPhoneNo.substring(1);
-        Log.d(TAG,"new Phone no is: "+newPhoneNo);
+//        String newPhoneNo = "254"+mPhoneNo.substring(1);
+//        Log.d(TAG,"new Phone no is: "+newPhoneNo);
+        String email = Variables.mpesaEmail;
         int ammount = (int) mAmount;
-        String amount = Integer.toString(ammount);
+//        String amount = Integer.toString(ammount);
 
-        mPayment.requestMpesaPayment(FAILED_REQUEST,SUCCESSFUL_REQUEST,mContext,amount,newPhoneNo,mTransactionId);
+        mPayment = new Payments(mContext,SUCCESSFUL_REQUEST,FAILED_REQUEST);
+        mPayment.startMpesaPayment(mTransactionId,mTransactionId,ammount,mPhoneNo,email);
 
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFinishedSendingRequest,
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForCompleteTransaction,
                 new IntentFilter(SUCCESSFUL_REQUEST));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFinishedSendingRequest,
+                new IntentFilter("STK-PUSHED"+SUCCESSFUL_REQUEST));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFailedToSendRequest,
                 new IntentFilter(FAILED_REQUEST));
     }
@@ -124,7 +137,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Broadcast has been received that request has failed.");
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedSendingRequest);
-            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFailedToSendRequest);
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
 
         }
     };
@@ -133,9 +146,10 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Broadcast has been received that request for pay is successful.");
-            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedSendingRequest);
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFailedToSendRequest);
-            listenForCompletePayments();
+            prog.setVisibility(View.INVISIBLE);
+//            listenForCompletePayments();
         }
     };
 
@@ -148,7 +162,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForCompleteTransaction,
                 new IntentFilter(SUCCESSFUL_PAYMENTS));
 
-        mPayment.startRecursiveCheckerForConfirmingPayments(FAILED_PAYMENTS,SUCCESSFUL_PAYMENTS,mContext,mTransactionId);
+//        mPayment.startRecursiveCheckerForConfirmingPayments(FAILED_PAYMENTS,SUCCESSFUL_PAYMENTS,mContext,mTransactionId);
     }
 
     private BroadcastReceiver mMessageReceiverForCompleteTransaction = new BroadcastReceiver() {

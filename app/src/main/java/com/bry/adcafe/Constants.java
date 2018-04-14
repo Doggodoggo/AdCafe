@@ -139,4 +139,19 @@ public class Constants {
     public static String PHONE_NUMBER2 ="PHONE_NUMBER2";
     public static int MAX_NUMBER_FOR7 = 14;
 
+    //////payment variables
+    public static int live = 1;
+    public static String vid = "ctl";
+    public static String curr = "KES";
+    public static String p1 = "";
+    public static String p2 = "";
+    public static String p3 = "";
+    public static String p4 = "";
+    public static String cbk = "";
+    public static int cst = 1;
+    public static int crl = 2;
+    public static String key = "Tech2548gtRV365";
+    public static String country = "Kenya";
+    ////////////////////////
+
 }

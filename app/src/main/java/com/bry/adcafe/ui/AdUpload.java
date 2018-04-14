@@ -42,6 +42,7 @@ import com.bry.adcafe.fragments.FragmentMpesaPaymentInitiation;
 import com.bry.adcafe.fragments.FragmentSelectPaymentOptionBottomSheet;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
+import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.TimeManager;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -589,33 +590,34 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private void startBankPayments(){
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.PAY_POOL);
         DatabaseReference pushRef = adRef.push();
-        Variables.transactionID = "TRANS00000"+pushRef.getKey();
+        Variables.transactionID = "TRANS"+pushRef.getKey();
 
         String cardNumber = Variables.cardNumber;
         String expiration = Variables.expiration;
         String cvv = Variables.cvv;
         String postalCode = Variables.postalCode;
-        String amount = String.valueOf(amountToPayForUpload);
+        int amount = (int)(amountToPayForUpload);
         String cardHolderName = Variables.cardHolderName;
         String cardHolderFirstName = Variables.cardHolderFirstName;
         String cardHolderLastName = Variables.cardHolderLastName;
         String expirationMonth = Variables.expirationMonth;
         String expirationYear = Variables.expirationYear;
         String cardHolderAdress = Variables.phoneNo;
+        String email = Variables.cardHolderEmail;
         String state = Variables.cardHolderState;
         String FAILED_BANK_PAYMENTS = "FAILED_BANK_PAYMENTS";
         String SUCCESSFUL_BANK_PAYMENTS = "SUCCESSFUL_BANK_PAYMENTS";
         Log.d(TAG,"Expiration date: "+expiration);
 
-//        Payment payments = new Payment();
-//        payments.makeBankPayment(FAILED_BANK_PAYMENTS,SUCCESSFUL_BANK_PAYMENTS,mContext,cardNumber,expiration,cvv,postalCode,
-//                amount,cardHolderName,cardHolderAdress,state);
-//        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayment
-//                ,new IntentFilter(SUCCESSFUL_BANK_PAYMENTS));
-//        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForfailedPayment,
-//                new IntentFilter(FAILED_BANK_PAYMENTS));
-//        mProgForPayments.show();
-        startProcessForUpload();
+        Payments payments = new Payments(mContext,SUCCESSFUL_BANK_PAYMENTS,FAILED_BANK_PAYMENTS);
+        payments.startCardPayment(Variables.transactionID,Variables.transactionID,amount,Variables.phoneNo,email,cvv,cardNumber,expirationMonth,
+                expirationYear,cardHolderAdress,state,Constants.country,postalCode,state,cardHolderFirstName,cardHolderLastName);
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayment
+                ,new IntentFilter(SUCCESSFUL_BANK_PAYMENTS));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForfailedPayment,
+                new IntentFilter(FAILED_BANK_PAYMENTS));
+        mProgForPayments.show();
+//        startProcessForUpload();
     }
 
     private void startMpesaPayments(){

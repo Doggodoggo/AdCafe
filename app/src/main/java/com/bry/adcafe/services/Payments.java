@@ -6,247 +6,452 @@ import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.bry.adcafe.Payment.Lipisha.Payment;
-import com.bry.adcafe.Variables;
-import com.lipisha.sdk.LipishaClient;
-import com.lipisha.sdk.api.LipishaAPI;
-import com.lipisha.sdk.response.*;
+import com.bry.adcafe.Constants;
 
+import org.apache.commons.codec.binary.Hex;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 
 /**
  * Created by bryon on 27/09/2017.
  */
-
 public class Payments {
     private final String TAG = "Payments";
-    private final String BASE_URL = LipishaClient.PROD_BASE_URL;
-    private final String API_KEY = "6dfdfda338495033842c60c3ea9fea75";
-    private final String API_SIGNATURE = "HRxaYAoEUmgttISeHr+M3DAxLN4j0o0YivAmZHn91fGhIww+ZfjvTvp4TNpdixy1ybEJNhnlJzFPsM2uzTuQjxrszTU9DSv9SYiAlT2UG5LNg+3lIo2X4GeV1ACBtRfkadnBxffzyjqYzR6ULgsu85xudTVem30iiJXf5JuyomQ=";
-    private final String mAccountNo = "12663";
-    private final String mMpesaAccountNo = "12579";
-    private final String mMpesaPayOptionString = "Paybill (M-Pesa)";
-    private final String mCurrency = "KES";
-    private final String mCountry = "KENYA";
-    private LipishaClient lipishaClient;
+    private boolean canConfirmPayments = true;
+    private Context mContext;
+    private String mSuccessfulFilter;
+    private String mFailedFilter;
 
-    private boolean isConfirmingPayments = false;
-    private Handler h = new Handler();
-    private Runnable r;
-    private boolean isStoppingChecker = false;
-    private final int delayMills = 3000;
-
-
-    public Payments(){
-//        lipishaClient = new LipishaClient(API_KEY, API_SIGNATURE, BASE_URL);
+    public Payments(Context context,String successfulTransactionFilter,String failedTransactionFilter){
+        this.mContext= context;
+        this.mSuccessfulFilter = successfulTransactionFilter;
+        this.mFailedFilter = failedTransactionFilter;
     }
 
-    public  void makeBankPayment(final String failedIntentFilter,final String intentFilter, final Context context,String cardNo, String expiry,
-                                 String securityCode, String zipCode, String amount,String name,String address,String state){
-       Payment pay = new Payment();
-       pay.makeBankPayment(failedIntentFilter,intentFilter,context,cardNo,expiry,securityCode,zipCode,amount,name,address,state);
-//        lipishaClient = new LipishaClient(API_KEY, API_SIGNATURE, BASE_URL);
-//        lipishaClient.authorizeCardTransaction(mAccountNo, cardNo, address, "", expiry, name,
-//                state, mCountry, zipCode, securityCode, amount, mCurrency).enqueue(new Callback<CardTransactionResponse>() {
-//            @Override
-//            public void onResponse(Call<CardTransactionResponse> call, Response<CardTransactionResponse> response) {
-//                Log.d(TAG,"RESPONSE: "+response.message());
-//
-//                CardTransactionResponse requestResponse = response.body();
-//                Log.d(TAG,"Status is: "+requestResponse.getStatus());
-//                Log.d(TAG,"Transaction transaction index is: "+requestResponse.getTransactionIndex());
-//                Log.d(TAG,"Transaction transaction reference is: "+requestResponse.getTransactionReference());
-//
-//                if(requestResponse.getTransactionReference()!=null && requestResponse.getTransactionIndex()!=null){
-//                    completeBankPayments(intentFilter,context,failedIntentFilter,requestResponse.getTransactionReference(),requestResponse.getTransactionIndex());
-//                }else{
-//                    Log.d(TAG,"There was an error : "+requestResponse.getStatusDescription());
-//                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<CardTransactionResponse> call, Throwable t) {
-//                Log.d(TAG,"There was an error : "+t.getMessage());
-//                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
-//            }
-//        });
-    }
 
-    private void completeBankPayments(final String intentFilter, final Context context,final String failedIntentFilter,
-                                             String transactionReference, String transactionIndex) {
-        lipishaClient.completeCardTransaction(transactionIndex,transactionReference).enqueue(new Callback<CardTransactionResponse>() {
+
+    public void startMpesaPayment(String orderId,String invoiceId,int amount,final String phoneNo,String email){
+        Log.d(TAG,"ipayservice has started....");
+        String dataString = Constants.live+orderId+invoiceId+amount+phoneNo+email+Constants.vid+Constants.curr+Constants.p1+
+                Constants.p2+Constants.p3+Constants.p4+Constants.cbk+Constants.cst;
+        String myGeneratedHash = generateHmac(dataString, Constants.key);
+        Log.d(TAG,dataString);
+        Log.d(TAG,myGeneratedHash);
+
+
+        OkHttpClient client = new OkHttpClient();
+        String myUrl = "https://apis.ipayafrica.com/payments/v2/transact";
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(myUrl).newBuilder();
+        String url = urlBuilder.build()
+                .toString();
+        //Request request = null;
+        RequestBody formBody = new FormBody.Builder()
+                .add("live",Integer.toString(Constants.live))
+                .add("oid",orderId)
+                .add("inv",invoiceId)
+                .add("amount",Integer.toString(amount))
+                .add("tel",phoneNo)
+                .add("eml",email)
+                .add("vid",Constants.vid)
+                .add("curr",Constants.curr)
+                .add("p1",Constants.p1)
+                .add("p2",Constants.p2)
+                .add("p3",Constants.p3)
+                .add("p4",Constants.p4)
+                .add("cbk",Constants.cbk)
+                .add("cst",Integer.toString(Constants.cst))
+                .add("crl",Integer.toString(Constants.crl))
+                .add("hash",myGeneratedHash)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(formBody)
+                .build();
+
+        Callback cb = new Callback() {
             @Override
-            public void onResponse(Call<CardTransactionResponse> call, Response<CardTransactionResponse> response) {
-                CardTransactionResponse requestResponse = response.body();
-                if(requestResponse.getTransactionIndex()!=null && requestResponse.getTransactionReference()!=null){
-                    Log.d(TAG,"Transaction has been successfully finished");
-                    Variables.transactionID = requestResponse.getTransactionReference();
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(intentFilter));
-                }else{
-                    Log.d(TAG,"There was an error : "+response.message());
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
-                }
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
             }
 
             @Override
-            public void onFailure(Call<CardTransactionResponse> call, Throwable t) {
-                Log.d(TAG,"There was an error"+t.getMessage());
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
-            }
-        });
-    }
-
-
-
-
-
-    public void requestMpesaPayment(final String failedIntentFilter, final String intentFilter, final Context context,
-                                           String amount, String phoneNo, final String reference){
-//        lipishaClient = new LipishaClient(API_KEY, API_SIGNATURE, BASE_URL);
-        Log.d(TAG,"Starting mPesa request for money for payments");
-        lipishaClient.requestMoney(API_KEY,API_SIGNATURE,mMpesaAccountNo,phoneNo,mMpesaPayOptionString,amount,mCurrency,reference)
-                .enqueue(new Callback<RequestResponse>() {
-            public void onResponse(Call<RequestResponse> call, Response<RequestResponse> response) {
-                if(response.body().getStatus().getStatusCode().equals("0000")){
-                    Log.d(TAG,"The call was a success : "+response.body().getStatus().getStatusDescription());
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(intentFilter));
-                }else{
-                    RequestResponse res= response.body();
-                    Log.d(TAG,"Request failed : "+response.body().getStatus().getStatusDescription());
-                }
-            }
-
-            public void onFailure(Call<RequestResponse> call, Throwable t) {
-               Log.d(TAG,"There was an error : "+t.getMessage());
-                t.printStackTrace();
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
-            }
-        });
-    }
-
-    public void confirmPayments(final String failedIntentFilter, final String intentFilter, final Context context,
-                                       String transactionID){
-        if(!isConfirmingPayments){
-            isConfirmingPayments = true;
-            lipishaClient.confirmTransaction(transactionID).enqueue(new Callback<TransactionResponse>() {
-                @Override
-                public void onResponse(Call<TransactionResponse> call, Response<TransactionResponse> response) {
-                    TransactionResponse res = response.body();
-                    if(res.getTransaction().getTransactionStatus().equals("Completed") &&!isStoppingChecker){
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(intentFilter));
-                    }else{
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.d(TAG,"response gotten");
+                Log.d(TAG,""+response.message());
+                Log.d(TAG,""+response.code());
+                try {
+                    String jsonData = response.body().string();
+                    Log.d(TAG,jsonData);
+                    if (response.isSuccessful()){
+                        Log.d(TAG,""+response.body().toString());
+                        JSONObject statusJSON = new JSONObject(jsonData);
+                        JSONObject dataJSON = statusJSON.getJSONObject("data");
+                        String sid = dataJSON.getString("sid");
+                        String hash = dataJSON.getString("hash");
+                        Log.d(TAG,"The sid from response "+sid);
+                        Log.d(TAG,"The hash from reponse "+hash);
+                        triggerStkCall(phoneNo,sid);
                     }
-                    isConfirmingPayments = false;
+                } catch (JSONException e1) {
+                    e1.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
                 }
-
-                @Override
-                public void onFailure(Call<TransactionResponse> call, Throwable t) {
-                    Log.d(TAG,"There was an error : "+t.getMessage());
-                    if(!isStoppingChecker) {
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
-                        isConfirmingPayments = false;
-                    }
-                }
-            });
-        }
-
-    }
-
-
-
-
-    public void startRecursiveCheckerForConfirmingPayments(final String failedIntentFilter, final String intentFilter,
-                                                                   final Context context, final String transactionID){
-
-        r = new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG,"Starting checker for confirming payments");
-                confirmTransactionBackground(failedIntentFilter,intentFilter,context,transactionID);
-                h.postDelayed(r, delayMills);
             }
         };
-        h.postDelayed(r, delayMills);
+        Call call = client.newCall(request);
+        call.enqueue(cb);
     }
 
-    private void confirmTransactionBackground(final String failedIntentFilter, final String intentFilter, final Context context,
-                                                     String transactionID){
-        if(!isConfirmingPayments){
-            isConfirmingPayments = true;
-            lipishaClient.confirmTransaction(transactionID).enqueue(new Callback<TransactionResponse>() {
-                @Override
-                public void onResponse(Call<TransactionResponse> call, Response<TransactionResponse> response) {
-                    TransactionResponse res = response.body();
-                    if(res.getTransaction().getTransactionStatus().equals("Completed") && !isStoppingChecker){
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(intentFilter));
-                        stopRecursiveChecker();
-                    }
-                    isConfirmingPayments = false;
-                }
+    private void triggerStkCall(String telephoneNo,final String sid) {
+        String dataString = telephoneNo+"ctl"+sid;
 
-                @Override
-                public void onFailure(Call<TransactionResponse> call, Throwable t) {
-                    Log.d(TAG,"There was an error : "+t.getMessage());
-                    if(!isStoppingChecker) {
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
-                        isConfirmingPayments = false;
-                    }
+        String myGeneratedHash4 = generateHmac(dataString,"Tech2548gtRV365");
+        OkHttpClient client  = new OkHttpClient();
+        String myUrl = "https://apis.ipayafrica.com/payments/v2/transact/push/mpesa";
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(myUrl).newBuilder();
+        String url = urlBuilder.build()
+                .toString();
+        RequestBody formBody = new FormBody.Builder()
+                .add("phone",telephoneNo)
+                .add("vid",Constants.vid)
+                .add("sid",sid)
+                .add("hash",myGeneratedHash4)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(formBody)
+                .build();
+
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    String jsonData = response.body().string();
+                    Log.d(TAG,jsonData);
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("STK-PUSHED"+mSuccessfulFilter));
+                    startCheckerForCompletedPayments(sid);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            });
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+    }
+
+    private void startCheckerForCompletedPayments(final String sid){
+        if(canConfirmPayments){
+//            new Handler().postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+                    checkIfMpesaPaymentsHaveCompleted(sid);
+//                }
+//            }, 3000);
         }
+    }
 
+    private void checkIfMpesaPaymentsHaveCompleted(final String sid) {
+        String dataString = sid+"ctl";
+
+        String myGeneratedHash1 = generateHmac(dataString,"Tech2548gtRV365");
+        OkHttpClient client = new OkHttpClient();
+        String myUrl = "https://apis.ipayafrica.com/payments/v2/transact/mobilemoney";
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(myUrl).newBuilder();
+        String url = urlBuilder.build()
+                .toString();
+        RequestBody formBody = new FormBody.Builder()
+                .add("sid",sid)
+                .add("vid",Constants.vid)
+                .add("hash",myGeneratedHash1)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(formBody)
+                .build();
+
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    String jsonData = response.body().string();
+                    Log.d(TAG,jsonData);
+                    if (response.isSuccessful()){
+                        JSONObject statusJSON = new JSONObject(jsonData);
+                        if (statusJSON.getString("status").equals("aei7p7yrx4ae34")){
+                            sendIntentForCompletedPayments();
+                        }else{
+                            startCheckerForCompletedPayments(sid);
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
     }
 
 
 
+    public void startCardPayment(String orderId, String invoiceId, int amount, final String phoneNo, final String email, final String cvv,
+                                 final String cardNo, final String month, final String year, final String address, final String city, final String country, final String postcode,
+                                 final String stateProv, final String firstName, final String lastName){
 
-    public void stopRecursiveChecker(){
-        isStoppingChecker = true;
+        String dataString = Constants.live+orderId+invoiceId+amount+phoneNo+email+Constants.vid+Constants.curr+Constants.p1+
+                Constants.p2+Constants.p3+Constants.p4+Constants.cbk+Constants.cst;
+        String myGeneratedHash3 = generateHmac(dataString,Constants.key);
+
+        Log.d(TAG,dataString);
+        Log.d(TAG,myGeneratedHash3);
+
+        OkHttpClient client = new OkHttpClient();
+        String myUrl = "https://apis.ipayafrica.com/payments/v2/transact";
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(myUrl).newBuilder();
+        String url = urlBuilder.build()
+                .toString();
+        RequestBody formBody = new FormBody.Builder()
+                .add("live",Integer.toString(Constants.live))
+                .add("oid",orderId)
+                .add("inv",invoiceId)
+                .add("amount",Integer.toString(amount))
+                .add("tel",phoneNo)
+                .add("eml",email)
+                .add("vid",Constants.vid)
+                .add("curr",Constants.curr)
+                .add("p1",Constants.p1)
+                .add("p2",Constants.p2)
+                .add("p3",Constants.p3)
+                .add("p4",Constants.p4)
+                .add("cbk",Constants.cbk)
+                .add("cst",Integer.toString(Constants.cst))
+                .add("crl",Integer.toString(Constants.crl))
+                .add("hash",myGeneratedHash3)
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .post(formBody)
+                .build();
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.d(TAG,"response gotten");
+                Log.d(TAG,""+response.message());
+                Log.d(TAG,""+response.code());
+                try {
+                    String jsonData = response.body().string();
+                    Log.d(TAG,jsonData);
+                    if (response.isSuccessful()){
+                        Log.d(TAG,""+response.body().toString());
+                        JSONObject statusJSON = new JSONObject(jsonData);
+                        JSONObject dataJSON = statusJSON.getJSONObject("data");
+                        String sid = dataJSON.getString("sid");
+                        String hash = dataJSON.getString("hash");
+                        Log.d(TAG,"The sid from response "+sid);
+                        Log.d(TAG,"The hash from reponse "+hash);
+                        cardTransact(sid,phoneNo,email,cvv,cardNo,month,year,address,city,
+                                country,postcode,stateProv,firstName,lastName,hash);
+                    }
+                } catch (JSONException e1) {
+                    e1.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+    }
+
+    private void cardTransact(String sid,String phoneNo,String email,String cvv,String cardNo,String month,String year,String address,
+                             String city,String country,String postcode,String stateProv,String firstName,String lastName,String hash){
+
+        String carddataString = Constants.vid+phoneNo+email+cvv+cardNo+month+year+address+city
+                +country+postcode+stateProv+firstName+lastName;
+
+        String dataString = sid+carddataString;
+        Log.d(TAG,dataString);
+        Log.d(TAG,Constants.vid);
+        Log.d(TAG,phoneNo);
+        Log.d(TAG,email);
+        Log.d(TAG,Constants.curr);
+        Log.d(TAG,cvv);
+        Log.d(TAG,cardNo);
+        Log.d(TAG,month);
+        Log.d(TAG,year);
+        Log.d(TAG,address);
+        Log.d(TAG,postcode);
+        Log.d(TAG,city);
+        Log.d(TAG,stateProv);
+        Log.d(TAG,country);
+        Log.d(TAG,firstName);
+        Log.d(TAG,lastName);
+        Log.d(TAG,dataString);
+
+        String myGeneratedHash1 = generateHmac(dataString,Constants.key);
+        Log.d(TAG,myGeneratedHash1);
+        OkHttpClient client = new OkHttpClient();
+        String myUrl = "https://apis.ipayafrica.com/payments/v2/transact/cc";
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(myUrl).newBuilder();
+        String url = urlBuilder.build()
+                .toString();
+        RequestBody formBody = new FormBody.Builder()
+                .add("vid",Constants.vid)
+                .add("tel",phoneNo)
+                .add("eml",email)
+                .add("curr",Constants.curr)
+                .add("cvv",cvv)
+                .add("cardno",cardNo)
+                .add("month",month)
+                .add("year",year)
+                .add("cust_address",address)
+                .add("cust_postcode",postcode)
+                .add("cust_city",city)
+                .add("cust_stateprov",stateProv)
+                .add("cust_country",country)
+                .add("sid",sid)
+                .add("fname",firstName)
+                .add("lname",lastName)
+                .add("hash",myGeneratedHash1)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(formBody)
+                .build();
+
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    String jsonData = response.body().string();
+                    Log.d(TAG,jsonData);
+                    if (response.isSuccessful()){
+                        JSONObject statusJSON = new JSONObject(jsonData);
+                        if (statusJSON.getString("status").equals("aei7p7yrx4ae34")){
+                           sendIntentForCompletedPayments();
+                        }else{
+                            sendIntentForFailedPayments();
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+    }
+
+
+    public void makePayouts(String payoutReference,String payoutPhone,int payoutAmount){
+        String myPayoutDataString = Constants.vid+payoutReference+payoutPhone+payoutAmount;
+        String myPayoutGeneratedHash = generateHmac(myPayoutDataString, Constants.key);
+
+        OkHttpClient client  = new OkHttpClient();
+        String myUrl = "";
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(myUrl).newBuilder();
+        String url = urlBuilder.build()
+                .toString();
+        RequestBody formBody = new FormBody.Builder()
+                .add("vid",Constants.vid)
+                .add("reference",payoutReference)
+                .add("phone",payoutPhone)
+                .add("hash",myPayoutGeneratedHash)
+                .add("amount",Integer.toString(payoutAmount))
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .post(formBody)
+                .build();
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try{
+                    String jsonData = response.body().string();
+                    Log.d(TAG,jsonData);
+                }catch(IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+    }
+
+
+
+    private void sendIntentForCompletedPayments(){
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(mSuccessfulFilter));
+    }
+
+    private void sendIntentForFailedPayments(){
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(mFailedFilter));
+    }
+
+    private String generateHmac(String data,String key){
+        String myGeneratedHash = null;
         try{
-            h.removeCallbacks(r);
+            Mac sha256 = Mac.getInstance("HmacSHA256");
+            SecretKeySpec mySectretKey = new SecretKeySpec(key.getBytes("UTF-8"),"HmacSHA256");
+            sha256.init(mySectretKey);
+            myGeneratedHash =  String.valueOf(Hex.encodeHex(sha256.doFinal(data.getBytes("UTF-8"))));
         }catch (Exception e){
             e.printStackTrace();
         }
+        return myGeneratedHash;
     }
 
-    public void makePayouts(final String failedIntentFilter, final String intentFilter, final Context context,
-                                   String phoneNo, String amount){
-       Payment payment = new Payment();
-//       payment.makePayouts(failedIntentFilter,intentFilter,context,phoneNo,amount);
-//        lipishaClient = new LipishaClient(API_KEY, API_SIGNATURE, BASE_URL);
-//        lipishaClient.sendMoney(phoneNo,Integer.parseInt(amount),mMpesaAccountNo).enqueue(new Callback<Payout>() {
-//            @Override
-//            public void onResponse(Call<Payout> call, Response<Payout> response) {
-//                Payout res = response.body();
-//                if(res.getStatusDescription().equals("Balance Found")){
-//                    Variables.transactionID = res.getReference();
-//                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(intentFilter));
-//                }else{
-//                    Log.d(TAG,"Payout failed: "+res.getStatusDescription());
-//                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Payout> call, Throwable t) {
-//                Log.d(TAG,"Call: "+call.toString());
-//                Log.d(TAG,"Api call failed : "+t.getMessage());
-//                t.printStackTrace();
-//                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(failedIntentFilter));
-//            }
-//        });
+    public void stopRecursiveChecker(){
+        canConfirmPayments = false;
     }
-
 
 
 }
