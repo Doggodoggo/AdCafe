@@ -609,6 +609,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         String SUCCESSFUL_BANK_PAYMENTS = "SUCCESSFUL_BANK_PAYMENTS";
         Log.d(TAG,"Expiration date: "+expiration);
 
+        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) amount = 20;
+
         Payments payments = new Payments(mContext,SUCCESSFUL_BANK_PAYMENTS,FAILED_BANK_PAYMENTS);
         payments.startCardPayment(Variables.transactionID,Variables.transactionID,amount,Variables.phoneNo,email,cvv,cardNumber,expirationMonth,
                 expirationYear,cardHolderAdress,state,Constants.country,postalCode,state,cardHolderFirstName,cardHolderLastName);

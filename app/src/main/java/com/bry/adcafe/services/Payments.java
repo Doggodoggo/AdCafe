@@ -224,6 +224,8 @@ public class Payments {
 
 
 
+
+
     public void startCardPayment(String orderId, String invoiceId, int amount, final String phoneNo, final String email, final String cvv,
                                  final String cardNo, final String month, final String year, final String address, final String city, final String country, final String postcode,
                                  final String stateProv, final String firstName, final String lastName){
@@ -301,30 +303,14 @@ public class Payments {
     private void cardTransact(String sid,String phoneNo,String email,String cvv,String cardNo,String month,String year,String address,
                              String city,String country,String postcode,String stateProv,String firstName,String lastName,String hash){
 
-        String carddataString = Constants.vid+phoneNo+email+cvv+cardNo+month+year+address+city
-                +country+postcode+stateProv+firstName+lastName;
+        String carddataString = sid+Constants.vid+cardNo+cvv+month+year+address+city+country+postcode
+                +stateProv+firstName+lastName;
 
-        String dataString = sid+carddataString;
-        Log.d(TAG,dataString);
-        Log.d(TAG,Constants.vid);
-        Log.d(TAG,phoneNo);
-        Log.d(TAG,email);
-        Log.d(TAG,Constants.curr);
-        Log.d(TAG,cvv);
-        Log.d(TAG,cardNo);
-        Log.d(TAG,month);
-        Log.d(TAG,year);
-        Log.d(TAG,address);
-        Log.d(TAG,postcode);
-        Log.d(TAG,city);
-        Log.d(TAG,stateProv);
-        Log.d(TAG,country);
-        Log.d(TAG,firstName);
-        Log.d(TAG,lastName);
-        Log.d(TAG,dataString);
+        // String dataString = sid+carddataString;
 
-        String myGeneratedHash1 = generateHmac(dataString,Constants.key);
+        String myGeneratedHash1 = generateHmac(carddataString,Constants.key);
         Log.d(TAG,myGeneratedHash1);
+        Log.d(TAG,carddataString);
         OkHttpClient client = new OkHttpClient();
         String myUrl = "https://apis.ipayafrica.com/payments/v2/transact/cc";
         HttpUrl.Builder urlBuilder = HttpUrl.parse(myUrl).newBuilder();
@@ -386,6 +372,9 @@ public class Payments {
     }
 
 
+
+
+
     public void makePayouts(String payoutReference,String payoutPhone,int payoutAmount){
         String myPayoutDataString = Constants.vid+payoutReference+payoutPhone+payoutAmount;
         String myPayoutGeneratedHash = generateHmac(myPayoutDataString, Constants.key);
@@ -425,6 +414,9 @@ public class Payments {
         Call call = client.newCall(request);
         call.enqueue(cb);
     }
+
+
+
 
 
 

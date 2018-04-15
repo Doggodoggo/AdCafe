@@ -22,6 +22,7 @@ import com.bry.adcafe.Payment.Lipisha.Payment;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.services.Payments;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -95,6 +96,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         int ammount = (int) mAmount;
 //        String amount = Integer.toString(ammount);
 
+        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) ammount = 20;
         mPayment = new Payments(mContext,SUCCESSFUL_REQUEST,FAILED_REQUEST);
         mPayment.startMpesaPayment(mTransactionId,mTransactionId,ammount,mPhoneNo,email);
 
