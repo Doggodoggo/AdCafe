@@ -642,7 +642,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             String pushID = snpsht.getValue(String.class);
                             ad.setPushId(pushID);
                             ad.setPushIdNumber(Integer.parseInt(pushID));
-                            if(!ad.isFlagged() && canLoad) mAdList.add(ad);
+                            if(!ad.isFlagged()){
+                                if(Variables.constantAmountPerView>3 && Variables.getAdTotal(mKey)+1>Constants.MAX_NUMBER_FOR7) {
+                                    Log.d(TAG,"User cannot see more than "+Constants.MAX_NUMBER_FOR7+" ads.");
+                                }else mAdList.add(ad);
+                            }
                     }
                     if(mAdList.size()==0){
                         //all the ads loaded may have been flagged so loading the next ads after those ones.
@@ -1578,9 +1582,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         ad.setPushId(pushID);
                         ad.setPushIdNumber(Integer.parseInt(pushID));
                         Log.d(TAG,"setting push id to : "+ ad.getPushId());
-                        if(!ad.isFlagged() && canLoad) {
-                            mAdList.add(ad);
-                            Log.d(TAG,"Loaded ad : "+ad.getPushRefInAdminConsole());
+                        if(!ad.isFlagged()){
+                            if(Variables.constantAmountPerView>3 && Variables.getAdTotal(mKey)+1>Constants.MAX_NUMBER_FOR7) {
+                                Log.d(TAG,"User cannot see more than "+Constants.MAX_NUMBER_FOR7+" ads.");
+                            }else{
+                                mAdList.add(ad);
+                                Log.d(TAG,"Loaded ad : "+ad.getPushRefInAdminConsole());
+                            }
                         }
                     }
                     Log.d(TAG, "---All the new ads have been handled.Total is " + mAdList.size());
