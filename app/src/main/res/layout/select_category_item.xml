@@ -7,12 +7,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <android.support.v7.widget.CardView
-        android:layout_width="115dp"
-        android:layout_height="145dp"
+        android:id="@+id/categoryCard"
+        android:layout_width="96dp"
+        android:layout_height="122dp"
         android:layout_margin="2dp"
         android:padding="5dp"
-        android:id="@+id/categoryCard"
-        app:cardCornerRadius="4dp"
+        app:cardCornerRadius="2dp"
         app:cardElevation="2dp">
 
         <RelativeLayout
@@ -20,76 +20,78 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:layout_width="match_parent"
-                android:layout_marginBottom="34dp"
                 android:id="@+id/categoryImage"
-                android:scaleType="fitXY"
-                android:layout_height="match_parent" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:visibility="gone"
-            android:layout_alignParentBottom="true"
-            android:layout_height="30dp">
-
-            <TextView
                 android:layout_width="match_parent"
-                android:text="womens clothing websites"
-                android:id="@+id/cat_name"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginBottom="5dp"
-                android:layout_marginLeft="10dp"
-                android:textSize="10sp"
-                android:gravity="center"
-                android:layout_height="30dp" />
+                android:layout_height="match_parent"
+                android:layout_marginBottom="34dp"
+                android:scaleType="fitXY" />
 
             <RelativeLayout
-                android:layout_width="wrap_content"
-                android:paddingBottom="10dp"
-                android:paddingTop="5dp"
-                android:layout_height="30dp">
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_alignParentBottom="true"
+                android:visibility="gone">
 
-                <ImageView
-                    android:layout_width="10dp"
-                    android:id="@+id/checkImage"
-                    android:paddingTop="10dp"
+                <TextView
+                    android:id="@+id/cat_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
                     android:layout_alignParentBottom="true"
-                    android:background="@drawable/ic_action_checkbox"
-                    android:layout_alignParentLeft="true"
-                    android:layout_height="10dp" />
+                    android:layout_alignParentRight="true"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="center"
+                    android:text="womens clothing websites"
+                    android:textSize="10sp" />
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:paddingBottom="10dp"
+                    android:paddingTop="5dp">
+
+                    <ImageView
+                        android:id="@+id/checkImage"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentLeft="true"
+                        android:background="@drawable/ic_action_checkbox"
+                        android:paddingTop="10dp" />
+
+                </RelativeLayout>
 
             </RelativeLayout>
 
-        </RelativeLayout>
-
             <CheckBox
                 android:id="@+id/cat_select"
-                android:visibility="visible"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
-                android:textSize="10sp"
+                android:scaleX="0.90"
+                android:scaleY="0.90"
                 android:text="money storage services"
                 android:textColor="@color/secondary_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:textSize="10sp"
+                android:visibility="visible" />
 
         </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:visibility="gone"
             android:padding="5dp"
-            android:layout_height="match_parent">
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="match_parent"
-                android:text="money storage services"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:textSize="12sp"
                 android:gravity="center"
-                android:layout_height="wrap_content" />
+                android:text="money storage services"
+                android:textSize="12sp" />
 
         </LinearLayout>
 
