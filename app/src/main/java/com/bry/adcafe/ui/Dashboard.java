@@ -39,6 +39,7 @@ import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.ChangeCPVFragment;
 import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
+import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.SliderPrefManager;
 import com.bry.adcafe.services.TimeManager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -622,16 +623,21 @@ public class Dashboard extends AppCompatActivity {
         }else reimbursementTotals = Variables.getTotalReimbursementAmount();
 
         String payoutPhoneNumber = Variables.phoneNo;
-//        int payoutAmount = reimbursementTotals;
-        String payoutAmount = String.valueOf(reimbursementTotals);
+        int payoutAmount = (int)(reimbursementTotals);
         String PAYOUT_SUCCESSFUL = "PAYOUT_SUCCESSFUL";
         String PAYOUT_FAILED = "PAYOUT_FAILED";
+
+        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.PAY_POOL);
+        DatabaseReference pushRef = adRef.push();
+        Variables.transactionID = "TRANS"+pushRef.getKey();
 
         String newPhoneNo = "254"+payoutPhoneNumber.substring(1);
         Log.d("Dashboard","new Phone no is: "+newPhoneNo);
 
-        Payment payments = new Payment();
-        payments.makePayouts(PAYOUT_FAILED,PAYOUT_SUCCESSFUL,mContext,newPhoneNo, payoutAmount);
+        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) payoutAmount = 20;
+
+        Payments payments = new Payments(mContext,PAYOUT_SUCCESSFUL,PAYOUT_FAILED);
+        payments.makePayouts(Variables.transactionID,payoutPhoneNumber,payoutAmount);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayout,
                 new IntentFilter(PAYOUT_SUCCESSFUL));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFailedPayout,

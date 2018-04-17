@@ -69,8 +69,6 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
-                android:scaleX="0.90"
-                android:scaleY="0.90"
                 android:text="money storage services"
                 android:textColor="@color/secondary_text"
                 android:textSize="10sp"

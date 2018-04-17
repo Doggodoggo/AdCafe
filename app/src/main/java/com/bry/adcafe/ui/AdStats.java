@@ -409,18 +409,10 @@ public class AdStats extends AppCompatActivity {
                         mAdList2.add(pushValue);
                     }
                     Log.d(TAG,"Number of children is : "+mAdList2.size());
-                    findViewById(R.id.noAdsUploadedText).setVisibility(View.GONE);
+                    findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
                     loadAdsUploadedByUser2();
                 }else{
                     loadUploadHistory();
-//                    findViewById(R.id.topText).setVisibility(View.VISIBLE);
-//                    findViewById(R.id.LoadingViews).setVisibility(View.GONE);
-//                    DataListsView.setVisibility(View.VISIBLE);
-//                    findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
-//                    if(mUploadedAds3.size()==0 && mUploadedAds.size()==0){
-//                        Log.d(TAG,"UUUUser had uploaded no ads.");
-//                        findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
-//                    }
                 }
             }
 
@@ -486,7 +478,7 @@ public class AdStats extends AppCompatActivity {
                 Log.d(TAG,"Loading upload history");
                 if(dataSnapshot.exists()){
                     doChildrenExist = true;
-                    findViewById(R.id.noAdsUploadedText).setVisibility(View.GONE);
+                    findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
                     DataListsView.addView(new DateForAdStats(mContext,"Your Upload History.",DataListsView));
                     DataListsView.addView(new DateForAdStats(mContext,"",DataListsView));
                     for(DataSnapshot snap:dataSnapshot.getChildren()){
@@ -763,11 +755,16 @@ public class AdStats extends AppCompatActivity {
 
         String newPhoneNo = "254"+payoutPhoneNumber.substring(1);
         Log.d("Dashboard","new Phone no is: "+newPhoneNo);
-//        int amount = Integer.parseInt(totalsToReimburse);
-        String amount = totalsToReimburse;
+        int amount = Integer.parseInt(totalsToReimburse);
 
-        Payment mPayments = new Payment();
-        mPayments.makePayouts(PAYOUT_FAILED,PAYOUT_SUCCESSFUL,mContext,newPhoneNo,amount);
+        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) amount = 20;
+        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.PAY_POOL);
+        DatabaseReference pushRef = adRef.push();
+        Variables.transactionID = "TRANS"+pushRef.getKey();
+
+
+        Payments mPayments = new Payments(mContext,PAYOUT_SUCCESSFUL,PAYOUT_FAILED);
+        mPayments.makePayouts(Variables.transactionID,payoutPhoneNumber,amount);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayout,
                 new IntentFilter(PAYOUT_SUCCESSFUL));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFailedPayout,
