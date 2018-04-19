@@ -13,12 +13,12 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.text.format.DateFormat;
@@ -33,7 +33,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
-import com.bry.adcafe.Payment.Lipisha.Payment;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.ChangeCPVFragment;
@@ -634,10 +633,10 @@ public class Dashboard extends AppCompatActivity {
         String newPhoneNo = "254"+payoutPhoneNumber.substring(1);
         Log.d("Dashboard","new Phone no is: "+newPhoneNo);
 
-        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) payoutAmount = 20;
+//        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("biglebowski@gmail.com")) payoutAmount = 20;
 
         Payments payments = new Payments(mContext,PAYOUT_SUCCESSFUL,PAYOUT_FAILED);
-        payments.makePayouts(Variables.transactionID,payoutPhoneNumber,payoutAmount);
+        payments.makePayouts(Variables.transactionID,newPhoneNo,payoutAmount);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayout,
                 new IntentFilter(PAYOUT_SUCCESSFUL));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFailedPayout,

@@ -41,6 +41,7 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
     private LinearLayout mConfirmLayout;
     private int mTotals;
     private String mPassword;
+    private String mTransactionId;
 
 
     public void setActivity(Activity activity){
@@ -198,6 +199,7 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
                 Variables.phoneNo = mPhoneNo;
                 dismiss();
                 LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent("START_PAYOUT"));
+
             }
         });
 

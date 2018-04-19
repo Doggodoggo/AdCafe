@@ -11,12 +11,12 @@ import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.util.Base64;
 import android.util.Log;
@@ -33,7 +33,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
-import com.bry.adcafe.Payment.Lipisha.Payment;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.FragmentModalBottomSheet;
@@ -609,7 +608,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         String SUCCESSFUL_BANK_PAYMENTS = "SUCCESSFUL_BANK_PAYMENTS";
         Log.d(TAG,"Expiration date: "+expiration);
 
-        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) amount = 20;
+//        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("biglebowski@gmail.com")) amount = 80;
 
         Payments payments = new Payments(mContext,SUCCESSFUL_BANK_PAYMENTS,FAILED_BANK_PAYMENTS);
         payments.startCardPayment(Variables.transactionID,Variables.transactionID,amount,Variables.phoneNo,email,cvv,cardNumber,expirationMonth,
@@ -624,6 +623,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
     private void startMpesaPayments(){
         double amount = amountToPayForUpload;
+//        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("biglebowski@gmail.com")) amount = 300;
         String phoneNo = Variables.phoneNo;
 
         FragmentManager fm = getFragmentManager();

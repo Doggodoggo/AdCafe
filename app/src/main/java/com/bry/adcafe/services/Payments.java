@@ -2,7 +2,6 @@ package com.bry.adcafe.services;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -13,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -376,11 +376,13 @@ public class Payments {
 
 
     public void makePayouts(String payoutReference,String payoutPhone,int payoutAmount){
-        String myPayoutDataString = Constants.vid+payoutReference+payoutPhone+payoutAmount;
+        String myPayoutDataString = "amount="+payoutAmount+"&phone="+payoutPhone+"&reference="+payoutReference+"&vid="+Constants.vid;
         String myPayoutGeneratedHash = generateHmac(myPayoutDataString, Constants.key);
+        Log.d(TAG,myPayoutDataString);
+        Log.d(TAG,myPayoutGeneratedHash);
 
         OkHttpClient client  = new OkHttpClient();
-        String myUrl = "";
+        String myUrl = "https://apis.ipayafrica.com/b2c/v3/mobile/mpesa";
         HttpUrl.Builder urlBuilder = HttpUrl.parse(myUrl).newBuilder();
         String url = urlBuilder.build()
                 .toString();
@@ -405,7 +407,7 @@ public class Payments {
             public void onResponse(Call call, Response response) throws IOException {
                 try{
                     String jsonData = response.body().string();
-                    Log.d(TAG,jsonData);
+                    Log.d(TAG,"Payouts:"+jsonData);
                 }catch(IOException e) {
                     e.printStackTrace();
                 }
