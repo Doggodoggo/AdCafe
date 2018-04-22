@@ -519,6 +519,7 @@ public class DatabaseManager {
                     DataSnapshot currentSubIndexSnap = dataSnapshot.child(Constants.CURRENT_SUBSCRIPTION_INDEX);
                     int currentSubIndex = currentSubIndexSnap.getValue(int.class);
                     Variables.setCurrentSubscriptionIndex(currentSubIndex-numberToMinus);
+                    if(Variables.getCurrentSubscriptionIndex()<0)Variables.setCurrentSubscriptionIndex(0);
                     Log(TAG,"Setting the current Ad category index to :"+currentSubIndex);
 
                     //this loads the current ad being seen in the category
