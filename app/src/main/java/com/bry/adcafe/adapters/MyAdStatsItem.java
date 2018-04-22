@@ -20,6 +20,7 @@ import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.services.TimeManager;
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -109,7 +110,7 @@ public class MyAdStatsItem {
     private void setImage() {
         try {
             Bitmap bm = getResizedBitmap(decodeFromFirebaseBase64(mAdvert.getImageUrl()),250);
-            Log.d("SavedAdsCard---","Image has been converted to bitmap.");
+            Log("SavedAdsCard---","Image has been converted to bitmap.");
             mImageBytes = bitmapToByte(bm);
             mAdvert.setImageBitmap(bm);
         } catch (IOException e) {
@@ -125,7 +126,7 @@ public class MyAdStatsItem {
         try {
             Bitmap bm = decodeFromFirebaseBase64(mAdvert.getImageUrl());
             mAdvert.setImageBitmap(bm);
-            Log.d("MY_AD_STAT_ITEM---","Image has been converted to bitmap and set in model instance.");
+            Log("MY_AD_STAT_ITEM---","Image has been converted to bitmap and set in model instance.");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -157,10 +158,10 @@ public class MyAdStatsItem {
 
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            Log.d("MY_AD_STAT_ITEM","Listener from firebase has responded.Updating users reached so far");
+            Log("MY_AD_STAT_ITEM","Listener from firebase has responded.Updating users reached so far");
             try{
                 int newValue = dataSnapshot.getValue(int.class);
-                Log.d("MY_AD_STAT_ITEM","New value gotten from firebase --"+newValue);
+                Log("MY_AD_STAT_ITEM","New value gotten from firebase --"+newValue);
                 mAdvert.setNumberOfTimesSeen(newValue);
                 mUsersReachedSoFar.setText("Users reached so far : "+newValue);
                 int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- newValue;
@@ -172,7 +173,7 @@ public class MyAdStatsItem {
             }
             try{
                 boolean newValue = dataSnapshot.getValue(boolean.class);
-                Log.d("ADMIN_STAT_ITEM","New value gotten from firebase --"+newValue);
+                Log("ADMIN_STAT_ITEM","New value gotten from firebase --"+newValue);
                 mAdvert.setHasBeenReimbursed(newValue);
                 try{
                     if(mAdvert.isHasBeenReimbursed()) {
@@ -266,17 +267,17 @@ public class MyAdStatsItem {
 //        String monthName = new DateFormatSymbols().getMonths()[monthOfYear];
         String monthName = getMonthName_Abbr(monthOfYear);
 
-        Log.d("Splash","Date gotten is : "+dayOfMonth+" "+monthName+" "+year);
+        Log("Splash","Date gotten is : "+dayOfMonth+" "+monthName+" "+year);
 
         Calendar cal2 = Calendar.getInstance();
         int year2 = cal2.get(Calendar.YEAR);
         String yearName;
 
         if(year == year2){
-            Log.d("My_ad_stat_item","Ad was pined this year...");
+            Log("My_ad_stat_item","Ad was pined this year...");
             yearName = "";
         }else if(year2 == year+1){
-            Log.d("My_ad_stat_item","Ad was pined last year...");
+            Log("My_ad_stat_item","Ad was pined last year...");
             yearName =", "+Integer.toString(year);
         }else{
             yearName =", "+ Integer.toString(year);
@@ -326,6 +327,16 @@ public class MyAdStatsItem {
 
     private long getDateInDays(){
         return TimeManager.getDateInDays();
+    }
+
+    private void Log(String tag,String message){
+        try{
+            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 }

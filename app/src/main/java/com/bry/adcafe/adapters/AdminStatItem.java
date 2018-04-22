@@ -19,6 +19,7 @@ import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.TimeManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -103,10 +104,10 @@ public class AdminStatItem {
 
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            Log.d("ADMIN_STAT_ITEM","Listener from firebase has responded.Updating has been reimbursed.");
+            Log("ADMIN_STAT_ITEM","Listener from firebase has responded.Updating has been reimbursed.");
             try{
                 boolean newValue = dataSnapshot.getValue(boolean.class);
-                Log.d("ADMIN_STAT_ITEM","New value gotten from firebase --"+newValue);
+                Log("ADMIN_STAT_ITEM","New value gotten from firebase --"+newValue);
                 mAdvert.setHasBeenReimbursed(newValue);
                 try{
                     if(mAdvert.isHasBeenReimbursed()) {
@@ -191,6 +192,16 @@ public class AdminStatItem {
 
     private String getPreviousDay(){
         return TimeManager.getPreviousDay();
+
+    }
+
+    private void Log(String tag,String message){
+        try{
+            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
     }
 

@@ -26,6 +26,7 @@ import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.firebase.auth.FirebaseAuth;
 import com.mindorks.placeholderview.SwipeDecor;
 import com.mindorks.placeholderview.SwipePlaceHolderView;
 import com.mindorks.placeholderview.annotations.Click;
@@ -141,7 +142,7 @@ public class AdvertCard{
     private void setImage() {
         try {
             bs = decodeFromFirebaseBase64(mAdvert.getImageUrl());
-            Log.d("SavedAdsCard---","Image has been converted to bitmap.");
+            Log("SavedAdsCard---","Image has been converted to bitmap.");
             mImageBytes = bitmapToByte(bs);
             mAdvert.setImageBitmap(bs);
         } catch (IOException e) {
@@ -166,12 +167,12 @@ public class AdvertCard{
     }
 
     private void loadAllAds(){
-        Log.d("ADVERT_CARD--","LOADING AD NORMALLY.");
+        Log("ADVERT_CARD--","LOADING AD NORMALLY.");
         MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, 30));
         Glide.with(mContext).load(mImageBytes).bitmapTransform(multi).listener(new RequestListener<byte[], GlideDrawable>() {
             @Override
             public boolean onException(Exception e, byte[] model, Target<GlideDrawable> target, boolean isFirstResource) {
-                Log.d("ADVERT_CARD--","The image has failed to load due to error."+e.getMessage());
+                Log("ADVERT_CARD--","The image has failed to load due to error."+e.getMessage());
                 errorImageView.setVisibility(android.view.View.VISIBLE);
                 mAvi.setVisibility(android.view.View.GONE);
                 if(isFirstResource) {unLockViews();}
@@ -180,13 +181,13 @@ public class AdvertCard{
 
             @Override
             public boolean onResourceReady(GlideDrawable resource, byte[] model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                Log.d("ADVERT_CARD--","The image has loaded successfully");
+                Log("ADVERT_CARD--","The image has loaded successfully");
                 mAvi.setVisibility(android.view.View.GONE);
                 errorImageView.setVisibility(android.view.View.GONE);
                 setUpListOfBlurrs();
                 if(Variables.getAdFromVariablesAdList(Variables.getCurrentAdNumberForAllAdsList()).getPushRefInAdminConsole().equals(mAdvert.getPushRefInAdminConsole())) profileImageView.setImageBitmap(bs);
                 if(isFirstResource && mLastOrNotLast.equals(Constants.NOT_LAST) && !mLastOrNotLast.equals(Constants.ANNOUNCEMENTS)) {
-                    Log.d("ADVERT_CARD---","sending broadcast to start timer...");
+                    Log("ADVERT_CARD---","sending broadcast to start timer...");
                     isSupposedToStartTimer = true;
                     isFirstCard = true;
                     if(!mAdvert.getWebsiteLink().equals(igsNein)){
@@ -195,10 +196,10 @@ public class AdvertCard{
                     }
                     setLastAdSeen();
                 }else{
-                    Log.d("ADVERT_CARD","not starting timer because:");
-                    Log.d("ADVERT_CARD","is first resource is supposed to be true and is: "+isFirstResource);
-                    Log.d("ADVERT_CARD","mLastOrNotLast is :" +mLastOrNotLast+" and is supposed to be "+Constants.NOT_LAST);
-                    Log.d("ADVERT_CARD","mLastOrNotLast is :" +mLastOrNotLast+" and is not supposed to be: "+Constants.ANNOUNCEMENTS);
+                    Log("ADVERT_CARD","not starting timer because:");
+                    Log("ADVERT_CARD","is first resource is supposed to be true and is: "+isFirstResource);
+                    Log("ADVERT_CARD","mLastOrNotLast is :" +mLastOrNotLast+" and is supposed to be "+Constants.NOT_LAST);
+                    Log("ADVERT_CARD","mLastOrNotLast is :" +mLastOrNotLast+" and is not supposed to be: "+Constants.ANNOUNCEMENTS);
                 }
                 clickable=false;
                 return false;
@@ -207,7 +208,7 @@ public class AdvertCard{
     }
 
     private void loadOnlyLastAd(){
-        Log.d("ADVERT_CARD--","LOADING ONLY LAST AD.");
+        Log("ADVERT_CARD--","LOADING ONLY LAST AD.");
         lockViews();
 //        MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, 30));
         Glide.with(mContext).load(mImageBytes).listener(new RequestListener<byte[], GlideDrawable>() {
@@ -242,7 +243,7 @@ public class AdvertCard{
 
     @Click(R.id.profileImageView)
     private void onClick(){
-        Log.d("EVENT", "profileImageView click");
+        Log("EVENT", "profileImageView click");
         if (clickable) {
             mSwipeView.enableTouchSwipe();
             hasBeenSwiped = true;
@@ -255,7 +256,7 @@ public class AdvertCard{
 
     @SwipeOut
     private void onSwipedOut(){
-        Log.d("EVENT----", "onSwipedOut");
+        Log("EVENT----", "onSwipedOut");
         if(!mLastOrNotLast.equals(Constants.ANNOUNCEMENTS)){
 //            Variables.removeAd();
             hasBeenSwiped = true;
@@ -271,7 +272,7 @@ public class AdvertCard{
 
     @SwipeIn
     private void onSwipeIn(){
-        Log.d("EVENT----", "onSwipedIn");
+        Log("EVENT----", "onSwipedIn");
         if(!mLastOrNotLast.equals(Constants.ANNOUNCEMENTS)){
 //            Variables.removeAd();
             hasBeenSwiped = true;
@@ -290,15 +291,15 @@ public class AdvertCard{
 
     @SwipeHead
     private void onSwipeHeadCard() {
-        Log.d("EVENT----------", "onSwipeHeadCard");
+        Log("EVENT----------", "onSwipeHeadCard");
         profileImageView.setImageBitmap(bs);
         Variables.currentAdvertImageBitmap = bs;
-        Log.d("AdvertCard","Set the normal image to the image view");
+        Log("AdvertCard","Set the normal image to the image view");
 
         if(!firstAd()){
-            Log.d("AdvertCard","Card is not first one so continuing process of starting timer...");
+            Log("AdvertCard","Card is not first one so continuing process of starting timer...");
             if(mLastOrNotLast.equals(Constants.NOT_LAST)||mLastOrNotLast.equals(Constants.LOAD_MORE_ADS)){
-                Log.d("AdvertCard","mLastOrNotLast is : "+mLastOrNotLast+" So starting process of sending timer");
+                Log("AdvertCard","mLastOrNotLast is : "+mLastOrNotLast+" So starting process of sending timer");
                 Variables.removeAd();
                 sendBroadcast(START_TIMER);
             }
@@ -333,7 +334,7 @@ public class AdvertCard{
 
     private void sendBroadcast(String message ) {
         if(message.equals(START_TIMER)){
-            Log.d("AdvertCard - ", "Sending message to start timer");
+            Log("AdvertCard - ", "Sending message to start timer");
             lockViews();
             clickable = false;
             setBooleanForResumingTimer();
@@ -355,8 +356,8 @@ public class AdvertCard{
     private void setLastAdSeen(){
         Variables.setLastSeenAd(Variables.getAdFromVariablesAdList(Variables.getCurrentAdNumberForAllAdsList()).getPushId());
         Variables.setCurrentAdvert(Variables.getAdFromVariablesAdList(Variables.getCurrentAdNumberForAllAdsList()));
-        Log.d("ADVERT-CARD","Setting the current advert to ad - "+Variables.getCurrentAdvert().getPushRefInAdminConsole());
-        Log.d("ADVERT_CARD---","Setting the last ad seen in Variables class... "+
+        Log("ADVERT-CARD","Setting the current advert to ad - "+Variables.getCurrentAdvert().getPushRefInAdminConsole());
+        Log("ADVERT_CARD---","Setting the last ad seen in Variables class... "+
                 Variables.getCurrentAdvert().getPushRefInAdminConsole());
     }
 
@@ -372,7 +373,7 @@ public class AdvertCard{
 
     private void pauseBackgroundTasks(){
         if(isBackgroundTaskRunning){
-            Log.d("AdvertCard","Pausing background task since timer is starting.");
+            Log("AdvertCard","Pausing background task since timer is starting.");
             BackgroundBlurrProcess.cancel(true);
             needToContinueBackground = true;
         }
@@ -380,7 +381,7 @@ public class AdvertCard{
 
     private void resumeBackgroundTasksIfRunning(){
         if(needToContinueBackground){
-            Log.d("AdvertCard","Resuming background task since process wasn't finished");
+            Log("AdvertCard","Resuming background task since process wasn't finished");
             BackgroundBlurrProcess = null;
             BackgroundBlurrProcess =  new LongOperationBL();
             BackgroundBlurrProcess.execute();
@@ -391,7 +392,7 @@ public class AdvertCard{
         @Override
         public void onReceive(Context context, Intent intent) {
             if(isSupposedToStartTimer && Variables.firstAd.getPushRefInAdminConsole().equals(mAdvert.getPushRefInAdminConsole())){
-                Log.d("AdvertCard","Received Message from main activity that background stuff is finished and to start timer.");
+                Log("AdvertCard","Received Message from main activity that background stuff is finished and to start timer.");
                 Variables.hasFinishedLoadingBlurredImages = true;
                 profileImageView.setImageBitmap(bs);
                 sendBroadcast(START_TIMER);
@@ -408,13 +409,13 @@ public class AdvertCard{
     };
 
     private void doTheStuffWhenTimerHasEnded(){
-        Log.d("ADVERT_CARD--","message from adCounterBar that timer has ended has been received.");
+        Log("ADVERT_CARD--","message from adCounterBar that timer has ended has been received.");
         if(mSwipeView.getChildCount() > 1){
             unLockViews();
             clickable = true;
             hasBeenSwiped = false;
         }else if(mSwipeView.getChildCount()==1 && !mLastOrNotLast.equals(Constants.ANNOUNCEMENTS)){
-            Log.d("ADVERT_CARD","Sending broadcast for last ad. Also setting isLockedBecauseOfNoMoreAds");
+            Log("ADVERT_CARD","Sending broadcast for last ad. Also setting isLockedBecauseOfNoMoreAds");
             sendBroadcast(Constants.LAST);
             Variables.isLockedBecauseOfNoMoreAds = true;
         }
@@ -424,7 +425,7 @@ public class AdvertCard{
     private BroadcastReceiver mMessageReceiverToUnregisterAllReceivers = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("ADVERT_CARD--","Received broadcast to Unregister all receivers");
+            Log("ADVERT_CARD--","Received broadcast to Unregister all receivers");
             unregisterAllReceivers();
         }
     };
@@ -793,7 +794,7 @@ public class AdvertCard{
 
         @Override
         protected String doInBackground(String... strings) {
-            Log.d("Card","Doing in background");
+            Log("Card","Doing in background");
             float scale = 0.6f;
             Bitmap bm = bs;
             for(int i = 0;i<3;i++){
@@ -805,7 +806,7 @@ public class AdvertCard{
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            Log.d("AdvertCard","Finished blurring images in the background.");
+            Log("AdvertCard","Finished blurring images in the background.");
             Intent intent = new Intent("BLUREDIMAGESDONE");
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
 
@@ -814,7 +815,7 @@ public class AdvertCard{
 
         @Override
         protected void onPreExecute() {
-            Log.d("AdvertCard","Preparing To Start working on the blurred images from the background.");
+            Log("AdvertCard","Preparing To Start working on the blurred images from the background.");
             super.onPreExecute();
             isBackgroundTaskRunning = true;
         }
@@ -825,7 +826,7 @@ public class AdvertCard{
         double distance = Math.sqrt(Math.pow(xCurrent - xStart, 2) + (Math.pow(yCurrent - yStart, 2)));
         mDistance = distance;
         int roundedDistance =(((int)distance + 99) / 200 ) * 200;
-//        Log.d("DEBUG", "onSwipeTouch " + " distance : " + distance);
+//        Log("DEBUG", "onSwipeTouch " + " distance : " + distance);
 
         if(distance>200){
             setBooleanForPausingTimer();
@@ -843,7 +844,7 @@ public class AdvertCard{
 
     @SwipeCancelState
     private void onSwipeCancelState(){
-        Log.d("EVENT", "onSwipeCancelState");
+        Log("EVENT", "onSwipeCancelState");
         setBooleanForResumingTimer();
         profileImageView.setImageBitmap(bs);
     }
@@ -860,7 +861,7 @@ public class AdvertCard{
 
     private void setBooleanForPausingTimer(){
         if(Variables.isAllClearToContinueCountDown){
-            Log.d("AdvertCard","Setting boolean for pausing timer.");
+            Log("AdvertCard","Setting boolean for pausing timer.");
             Variables.isAllClearToContinueCountDown = false;
         }
 
@@ -868,7 +869,7 @@ public class AdvertCard{
 
     private void setBooleanForResumingTimer(){
         if(!Variables.isAllClearToContinueCountDown){
-            Log.d("AdvertCard","Setting boolean for resuming timer.");
+            Log("AdvertCard","Setting boolean for resuming timer.");
             Variables.isAllClearToContinueCountDown = true;
         }
     }
@@ -876,5 +877,17 @@ public class AdvertCard{
     private boolean isCurrentlyBeingViewed(){
         return mAdvert.getPushRefInAdminConsole().equals(Variables.getCurrentAdvert().getPushRefInAdminConsole());
     }
+
+    private void Log(String tag,String message){
+        try{
+            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+
 
 }

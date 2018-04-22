@@ -21,6 +21,7 @@ import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.services.DatabaseManager;
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
 import com.mindorks.placeholderview.PlaceHolderView;
 import com.mindorks.placeholderview.annotations.Click;
 import com.mindorks.placeholderview.annotations.Layout;
@@ -87,8 +88,8 @@ public class SubscriptionManagerItem {
             if(isOnline(mContext)) {
                 if(Variables.Subscriptions.size()>1){
                     if(!category.equals(Variables.getCurrentAdvert().getCategory())) {
-                        Log.d("SubscriptionManagerItem","The category being viewed is not being removed");
-                        Log.d("SubscriptionManagerItem","The category being viewed is "+
+                        Log("SubscriptionManagerItem","The category being viewed is not being removed");
+                        Log("SubscriptionManagerItem","The category being viewed is "+
                                 getSubscriptionValue(Variables.getCurrentSubscriptionIndex())
                                 +" while the categories being removed is "+category);
                         removeSubscription();
@@ -133,13 +134,13 @@ public class SubscriptionManagerItem {
                 DatabaseManager dbm = new DatabaseManager();
                 dbm.setContext(mContext);
                 dbm.subscribeUserToSpecificCategory(category);
-                Log.d("SelectCategoryItem - ", "Adding category - " + category);
+                Log("SelectCategoryItem - ", "Adding category - " + category);
             }else{
                 int SubscriptionClusterID = Variables.Subscriptions.get(category);
                 DatabaseManager dbm = new DatabaseManager();
                 dbm.setContext(mContext);
                 dbm.unSubscribeUserFormAdvertCategory(category,SubscriptionClusterID);
-                Log.d("SelectCategoryItem - ", "Removing category - " + category);
+                Log("SelectCategoryItem - ", "Removing category - " + category);
             }
 
         }
@@ -219,7 +220,7 @@ public class SubscriptionManagerItem {
     private String getSubscriptionValue(int index) {
         LinkedHashMap map = Variables.Subscriptions;
         String Sub = (new ArrayList<String>(map.keySet())).get(index);
-        Log.d("SubscriptionManagerItem", "Subscription gotten from getCurrent Subscription method is :" + Sub);
+        Log("SubscriptionManagerItem", "Subscription gotten from getCurrent Subscription method is :" + Sub);
         return Sub;
     }
 
@@ -233,7 +234,7 @@ public class SubscriptionManagerItem {
     private void setImage(){
         String filename;
         filename = category.replaceAll(" ","_");
-        Log.d("SelectCategoryIntem","filename is: "+filename);
+        Log("SelectCategoryIntem","filename is: "+filename);
         Glide.with(mContext).load(getImage(filename)).into(categoryImage);
         imageId = getImage(filename);
     }
@@ -262,6 +263,16 @@ public class SubscriptionManagerItem {
     private void setCheckImage(boolean value){
         if(value) mCheckImage.setVisibility(android.view.View.VISIBLE);
         else mCheckImage.setVisibility(android.view.View.INVISIBLE);
+    }
+
+    private void Log(String tag,String message){
+        try{
+            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 }

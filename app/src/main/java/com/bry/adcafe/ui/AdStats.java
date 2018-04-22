@@ -122,7 +122,7 @@ public class AdStats extends AppCompatActivity {
 
     private void handleOnResumeMethodsAndLogic(){
         if (!getCurrentDateInSharedPreferences().equals("0") && !getCurrentDateInSharedPreferences().equals(getDate())) {
-            Log.d(TAG, "---Date in shared preferences does not match current date,therefore resetting everything.");
+            Log(TAG, "---Date in shared preferences does not match current date,therefore resetting everything.");
             if(isNetworkConnected(mContext)){
                 DataListsView.setVisibility(View.GONE);
                 findViewById(R.id.topText).setVisibility(View.GONE);
@@ -147,7 +147,7 @@ public class AdStats extends AppCompatActivity {
         r = new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "---started the time checker for when it is almost midnight.");
+                Log(TAG, "---started the time checker for when it is almost midnight.");
                 if (isAlmostMidNight()) {
                     DataListsView.setVisibility(View.GONE);
                     findViewById(R.id.topText).setVisibility(View.GONE);
@@ -171,7 +171,7 @@ public class AdStats extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 handleOnResumeMethodsAndLogic();
                 LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
-                Log.d(TAG,"Unhiding views");
+                Log(TAG,"Unhiding views");
                 DataListsView.setVisibility(View.VISIBLE);
                 findViewById(R.id.topText).setVisibility(View.VISIBLE);
                 findViewById(R.id.LoadingViews).setVisibility(View.GONE);
@@ -230,7 +230,7 @@ public class AdStats extends AppCompatActivity {
     private BroadcastReceiver mMessageReceiverForSetUpTime = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG,"Finished setting up time.");
+            Log(TAG,"Finished setting up time.");
             loadTomorrowsUploadedAds();
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
         }
@@ -239,7 +239,7 @@ public class AdStats extends AppCompatActivity {
 
     private void loadTomorrowsUploadedAds() {
         if(DataListsView.getChildCount()!=0)DataListsView.removeAllViews();
-        Log.d(TAG,"Loading ads uploaded by user for tomorrow.");
+        Log(TAG,"Loading ads uploaded by user for tomorrow.");
         Query query = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(User.getUid()).child(Constants.UPLOADED_AD_LIST).child(getNextDay());
         DatabaseReference dbref = query.getRef();
@@ -260,7 +260,7 @@ public class AdStats extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG,"Database error in loading ; "+databaseError.getMessage());
+                Log(TAG,"Database error in loading ; "+databaseError.getMessage());
                 Toast.makeText(mContext,"We're having a hard time with your connection...",Toast.LENGTH_LONG).show();
             }
         });
@@ -284,18 +284,18 @@ public class AdStats extends AppCompatActivity {
                             int pushId = clusterSnap.getValue(int.class);
                             adUploadedByUser.clusters.put(cluster, pushId);
                         }
-                        Log.d(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
+                        Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds3.add(adUploadedByUser);
                     }
                     if (cycleCount3 == mAdList3.size()) {
-                        Log.d(TAG, "All the ads have been handled.");
+                        Log(TAG, "All the ads have been handled.");
                         loadStats3();
                     }
                 }
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-                    Log.d(TAG,"Database error in loading ; "+databaseError.getMessage());
+                    Log(TAG,"Database error in loading ; "+databaseError.getMessage());
                     Toast.makeText(mContext,"We're having a few connectivity issues...",Toast.LENGTH_LONG).show();
                 }
             });
@@ -316,7 +316,7 @@ public class AdStats extends AppCompatActivity {
 
 
     private void loadAdsThatHaveBeenUploaded() {
-        Log.d(TAG,"Loading ads uploaded by user.");
+        Log(TAG,"Loading ads uploaded by user.");
         Query query = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(User.getUid()).child(Constants.UPLOADED_AD_LIST).child(getDate());
         DatabaseReference dbref = query.getRef();
@@ -325,13 +325,13 @@ public class AdStats extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.hasChildren()){
                     doChildrenExist = true;
-                    Log.d(TAG,"Children have been gotten from firebase");
+                    Log(TAG,"Children have been gotten from firebase");
                     for(DataSnapshot snap: dataSnapshot.getChildren()){
                         String pushValue = snap.getValue(String.class);
                         mAdList.add(pushValue);
                     }
                     loadAdsUploadedByUser();
-                    Log.d(TAG,"Number of children is : "+mAdList.size());
+                    Log(TAG,"Number of children is : "+mAdList.size());
                 }else{
                     loadPreviousDaysAds();
                 }
@@ -339,7 +339,7 @@ public class AdStats extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG,"Database error in loading ; "+databaseError.getMessage());
+                Log(TAG,"Database error in loading ; "+databaseError.getMessage());
                 Toast.makeText(mContext,"We're having a hard time with your connection...",Toast.LENGTH_LONG).show();
             }
         });
@@ -358,18 +358,18 @@ public class AdStats extends AppCompatActivity {
                     cycleCount++;
                     if(dataSnapshot.hasChildren()) {
                         Advert adUploadedByUser = dataSnapshot.getValue(Advert.class);
-                        Log.d(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
+                        Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds.add(adUploadedByUser);
                     }
                     if (cycleCount == mAdList.size()) {
-                        Log.d(TAG, "All the ads have been handled.");
+                        Log(TAG, "All the ads have been handled.");
                         loadStats();
                     }
                 }
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-                    Log.d(TAG,"Database error in loading ; "+databaseError.getMessage());
+                    Log(TAG,"Database error in loading ; "+databaseError.getMessage());
                     Toast.makeText(mContext,"We're having a few connectivity issues...",Toast.LENGTH_LONG).show();
                 }
             });
@@ -394,7 +394,7 @@ public class AdStats extends AppCompatActivity {
 
 
     private void loadPreviousDaysAds() {
-        Log.d(TAG,"Loading ads uploaded by user.");
+        Log(TAG,"Loading ads uploaded by user.");
         Query query = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(User.getUid()).child(Constants.UPLOADED_AD_LIST).child(getPreviousDay());
         DatabaseReference dbref = query.getRef();
@@ -403,12 +403,12 @@ public class AdStats extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.hasChildren()){
                     doChildrenExist = true;
-                    Log.d(TAG,"Children have been gotten from firebase");
+                    Log(TAG,"Children have been gotten from firebase");
                     for(DataSnapshot snap: dataSnapshot.getChildren()){
                         String pushValue = snap.getValue(String.class);
                         mAdList2.add(pushValue);
                     }
-                    Log.d(TAG,"Number of children is : "+mAdList2.size());
+                    Log(TAG,"Number of children is : "+mAdList2.size());
                     findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
                     loadAdsUploadedByUser2();
                 }else{
@@ -418,7 +418,7 @@ public class AdStats extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG,"Database error in loading ; "+databaseError.getMessage());
+                Log(TAG,"Database error in loading ; "+databaseError.getMessage());
                 Toast.makeText(mContext,"We're having a hard time with your connection...",Toast.LENGTH_LONG).show();
             }
         });
@@ -437,18 +437,18 @@ public class AdStats extends AppCompatActivity {
                     cycleCount2++;
                     if(dataSnapshot.hasChildren()) {
                         Advert adUploadedByUser = dataSnapshot.getValue(Advert.class);
-                        Log.d(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
+                        Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds2.add(adUploadedByUser);
                     }
                     if (cycleCount2 == mAdList2.size()) {
-                        Log.d(TAG, "All the ads have been handled.");
+                        Log(TAG, "All the ads have been handled.");
                         loadStats2();
                     }
                 }
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-                    Log.d(TAG,"Database error in loading ; "+databaseError.getMessage());
+                    Log(TAG,"Database error in loading ; "+databaseError.getMessage());
                     Toast.makeText(mContext,"We're having a few connectivity issues...",Toast.LENGTH_LONG).show();
                 }
             });
@@ -475,7 +475,7 @@ public class AdStats extends AppCompatActivity {
         dbrefh.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(TAG,"Loading upload history");
+                Log(TAG,"Loading upload history");
                 if(dataSnapshot.exists()){
                     doChildrenExist = true;
                     findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
@@ -483,7 +483,7 @@ public class AdStats extends AppCompatActivity {
                     DataListsView.addView(new DateForAdStats(mContext,"",DataListsView));
                     for(DataSnapshot snap:dataSnapshot.getChildren()){
                        String viewingDate = snap.getKey();
-                       Log.d(TAG,"One date has loaded"+viewingDate);
+                       Log(TAG,"One date has loaded"+viewingDate);
                        long viewingDateInDays = Long.valueOf(viewingDate)*-1;
                        long tomorrowsDateInDays = getDateInDays()+1;
                        long todaysDateInDays = getDateInDays();
@@ -491,7 +491,7 @@ public class AdStats extends AppCompatActivity {
                        if(viewingDateInDays!=tomorrowsDateInDays
                                && viewingDateInDays!=todaysDateInDays
                                && viewingDateInDays!=yesterdaysDateInDays){
-                           Log.d(TAG,"The viewing date is past the dates for not showing");
+                           Log(TAG,"The viewing date is past the dates for not showing");
                            for(DataSnapshot snapMini:snap.getChildren()){
                                Advert ad = snapMini.getValue(Advert.class);
                                DataListsView.addView(new OlderAdsItem(mContext,DataListsView,ad));
@@ -511,7 +511,7 @@ public class AdStats extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG,"Database error in loading ; "+databaseError.getMessage());
+                Log(TAG,"Database error in loading ; "+databaseError.getMessage());
                 Toast.makeText(mContext,"We're having a few connectivity issues...",Toast.LENGTH_LONG).show();
             }
         });
@@ -547,7 +547,7 @@ public class AdStats extends AppCompatActivity {
     private BroadcastReceiver mMessageReceiverForTakeDownAd = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "Message received for taking down ad.");
+            Log(TAG, "Message received for taking down ad.");
             showConfirmSubscribeMessage();
         }
     };
@@ -603,7 +603,7 @@ public class AdStats extends AppCompatActivity {
                 .child("flagged");
         mRef.setValue(bol);
 
-        Log.d(TAG,"Flagging ad : "+ad.getPushRefInAdminConsole());
+        Log(TAG,"Flagging ad : "+ad.getPushRefInAdminConsole());
         numberOfClusters = ad.clusters.size();
         for(Integer cluster : ad.clusters.keySet()){
             int pushId = ad.clusters.get(cluster);
@@ -646,7 +646,7 @@ public class AdStats extends AppCompatActivity {
                 .child(ad.getPushRefInAdminConsole()).child("flagged");
         mRef2.setValue(bol);
 
-        Log.d(TAG,"Flagging ad : "+ad.getPushRefInAdminConsole());
+        Log(TAG,"Flagging ad : "+ad.getPushRefInAdminConsole());
         numberOfClusters = ad.clusters.size();
         int nextCluster = getClusterValue(runCount,ad);
         int nextPushId = getPushIdValue(runCount,ad);
@@ -683,14 +683,14 @@ public class AdStats extends AppCompatActivity {
     private int getClusterValue(int index,Advert ad) {
         LinkedHashMap map = ad.clusters;
         int cluster = (new ArrayList<Integer>(map.keySet())).get(index);
-        Log.d(TAG, "Cluster gotten from ad is : " + cluster);
+        Log(TAG, "Cluster gotten from ad is : " + cluster);
         return cluster;
     }
 
     private int getPushIdValue(int index,Advert ad) {
         LinkedHashMap map = ad.clusters;
         int cluster = (new ArrayList<Integer>(map.values())).get(index);
-        Log.d(TAG, "Cluster gotten from ad is : " + cluster);
+        Log(TAG, "Cluster gotten from ad is : " + cluster);
         return cluster;
     }
 
@@ -711,7 +711,7 @@ public class AdStats extends AppCompatActivity {
     private BroadcastReceiver mMessageReceiverForShowBottomSheet = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "Broadcast has been received to show bottom sheet.");
+            Log(TAG, "Broadcast has been received to show bottom sheet.");
             showBottomSheetForReimbursement();
         }
     };
@@ -719,7 +719,7 @@ public class AdStats extends AppCompatActivity {
     private BroadcastReceiver mMessageReceiverForStartPayout = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Dashboard", "Broadcast has been received to start payout.");
+            Log("Dashboard", "Broadcast has been received to start payout.");
             if(isOnline(mContext)){
                 if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
                 startPayout();
@@ -731,7 +731,7 @@ public class AdStats extends AppCompatActivity {
     private BroadcastReceiver mMessageReceiverForCantTakeDown = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Dashboard", "Broadcast has been received to show cant take down dialog.");
+            Log("Dashboard", "Broadcast has been received to show cant take down dialog.");
             showPromptForTakenDown();
         }
     };
@@ -754,10 +754,10 @@ public class AdStats extends AppCompatActivity {
         String PAYOUT_FAILED = "PAYOUT_FAILED";
 
         String newPhoneNo = "254"+payoutPhoneNumber.substring(1);
-        Log.d("Dashboard","new Phone no is: "+newPhoneNo);
+        Log("Dashboard","new Phone no is: "+newPhoneNo);
         int amount = Integer.parseInt(totalsToReimburse);
 
-        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) amount = 20;
+        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) amount = 10;
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.PAY_POOL);
         DatabaseReference pushRef = adRef.push();
         Variables.transactionID = "TRANS"+pushRef.getKey();
@@ -775,7 +775,7 @@ public class AdStats extends AppCompatActivity {
     private BroadcastReceiver mMessageReceiverForSuccessfulPayout = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Dashboard", "Broadcast has been received that payout is finished.");
+            Log("Dashboard", "Broadcast has been received that payout is finished.");
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
             if(Variables.isOlderAd)setOlderAdsPaymentValue();
             else SetPaymentValues();
@@ -786,7 +786,7 @@ public class AdStats extends AppCompatActivity {
     private BroadcastReceiver mMessageReceiverForFailedPayout = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Dashboard", "Broadcast has been received that payout has failed.");
+            Log("Dashboard", "Broadcast has been received that payout has failed.");
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
             mProgForPayments.dismiss();
             showFailedPayoutsView();
@@ -890,7 +890,7 @@ public class AdStats extends AppCompatActivity {
     }
 
     private void setCurrentDateToSharedPrefs() {
-        Log.d(TAG, "---Setting current date in shared preferences.");
+        Log(TAG, "---Setting current date in shared preferences.");
         SharedPreferences prefs = getSharedPreferences("AdStatsDate", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         if(isAlmostMidNight()) editor.putString("date",getNextDay());
@@ -902,7 +902,7 @@ public class AdStats extends AppCompatActivity {
 
 
     private String getCurrentDateInSharedPreferences() {
-        Log.d(TAG, "---Getting current date in shared preferences.");
+        Log(TAG, "---Getting current date in shared preferences.");
         SharedPreferences prefs = getSharedPreferences("AdStatsDate", MODE_PRIVATE);
         return prefs.getString("date", "0");
     }
@@ -962,5 +962,14 @@ public class AdStats extends AppCompatActivity {
     }
 
 
+    private void Log(String tag,String message){
+        try{
+            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
 
 }

@@ -154,4 +154,7 @@ public class Constants {
     public static String country = "Kenya";
     ////////////////////////
 
+
+    public static String ADMIN_MONEY = "AdminTotal";
+
 }
