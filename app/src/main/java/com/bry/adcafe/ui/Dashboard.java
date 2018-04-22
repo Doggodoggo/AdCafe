@@ -55,7 +55,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -279,6 +281,8 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void setValues() {
+        NumberFormat format = NumberFormat.getInstance(Locale.US);
+
         int todaysTotals;
         int monthsTotals;
         int reimbursementTotals;
@@ -297,7 +301,12 @@ public class Dashboard extends AppCompatActivity {
             reimbursementTotals = Variables.getTotalReimbursementAmount();
         }
         mTotalAdsSeenToday.setText(Integer.toString(todaysTotals));
+        if(monthsTotals>9999){
+            mTotalAdsSeenAllTime.setTextSize(35);
+            mTotalAdsSeenToday.setTextSize(35);
+        }
         mTotalAdsSeenAllTime.setText(Integer.toString(monthsTotals));
+        mTotalAdsSeenAllTime.setText(format.format(monthsTotals));
         int totalAmounts = (int)(monthsTotals*Constants.CONSTANT_AMMOUNT_FOR_USER);
         mAmmountNumber.setText(Integer.toString(reimbursementTotals));
 
