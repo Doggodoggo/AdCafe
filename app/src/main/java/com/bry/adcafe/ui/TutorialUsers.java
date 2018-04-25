@@ -45,7 +45,7 @@ public class TutorialUsers extends AppCompatActivity {
         myDotsLayout = (LinearLayout) findViewById(R.id.layoutDots);
         myBtnSkip = (Button) findViewById(R.id.btn_skip);
         myBtnNext = (Button) findViewById(R.id.btn_next);
-
+        myBtnSkip.setVisibility(View.GONE);
         // layouts of all welcome sliders
         myLayouts = new int[]{
                 R.layout.welcome_slider_6,
@@ -139,7 +139,8 @@ public class TutorialUsers extends AppCompatActivity {
                 myBtnSkip.setVisibility(View.GONE);
             }else {
                 myBtnNext.setText(getString(R.string.next));
-                myBtnSkip.setVisibility(View.VISIBLE);
+//                myBtnSkip.setVisibility(View.VISIBLE);
+                myBtnSkip.setVisibility(View.GONE);
             }
 
         }

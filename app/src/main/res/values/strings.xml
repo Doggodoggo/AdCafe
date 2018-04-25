@@ -109,7 +109,7 @@
 
 
     <string name="slide10text">Below the AdCards are buttons which can help you do more cool stuff.</string>
-    <string name="logoutbuttonexplanation">Logout Button : You can logout of your account using this button.</string>
+    <string name="feedbacktbuttonexplanation">Feedback Button : This button helps you pass suggestions or opinions about the app.</string>
     <string name="pinlisticon">Ad Archive Button : This will open a window where you can view all your pinned ads.</string>
     <string name="dashboardexplanation">Dashboard Button : This window is where all the stats concerning the number of ads you\'ve
         see are stored.</string>

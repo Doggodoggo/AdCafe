@@ -1428,6 +1428,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Variables.adAdToTotal(mKey);
         Variables.adToMonthTotals(mKey);
         Variables.addOneToTotalReimbursementAmount(mKey);
+
         Variables.adOneToCurrentAdNumberForAllAdsList();
         addToSharedPreferences();
         adDayAndMonthTotalsToFirebase();
@@ -1455,6 +1456,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if(mSwipeView.getChildCount() == 1 && !isLoadingMoreAds)
             Toast.makeText(mContext, R.string.lastAd, Toast.LENGTH_SHORT).show();
+
+        setPreviousAdsImage();
+    }
+
+    private void setPreviousAdsImage() {
+        int currentAdsPos = Variables.getCurrentAdNumberForAllAdsList();
+        try{
+            if(currentAdsPos>0){
+                int pos = currentAdsPos-1;
+                Log(TAG,"Removing image in ad: "+Variables.getAdFromVariablesAdList(pos).getPushRefInAdminConsole());
+                Variables.getAdFromVariablesAdList(pos).setImageUrl("cleared");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 
