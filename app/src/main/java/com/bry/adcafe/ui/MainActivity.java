@@ -2536,6 +2536,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-//    Font: AR ESSENCE.]]
+//    Font: AR ESSENCE.
 
 }

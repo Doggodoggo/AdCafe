@@ -22,6 +22,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -118,6 +119,7 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
         mContentView  = contentView;
 
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) ((View) contentView.getParent()).getLayoutParams();
+        params.setMargins(15,-15,15,15);
         CoordinatorLayout.Behavior behavior = params.getBehavior();
 
         mEnterCardDetailsPart = contentView.findViewById(R.id.enterCardDetailsPart);
@@ -131,6 +133,8 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
             ((BottomSheetBehavior) behavior).setHideable(false);
         }
         setUpPaymentsCard(contentView);
+        FrameLayout bottomSheet = dialog.getWindow().findViewById(android.support.design.R.id.design_bottom_sheet);
+        bottomSheet.setBackgroundResource(R.drawable.dialog_bg);
     }
 
     private void setUpPaymentsCard(View contentView) {

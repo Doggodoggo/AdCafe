@@ -12,6 +12,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.RadioButton;
 
 import com.bry.adcafe.Constants;
@@ -69,6 +70,7 @@ public class FragmentSelectPaymentOptionBottomSheet extends BottomSheetDialogFra
         mContentView  = contentView;
 
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) ((View) contentView.getParent()).getLayoutParams();
+        params.setMargins(15,-15,15,15);
         CoordinatorLayout.Behavior behavior = params.getBehavior();
 
         if( behavior != null && behavior instanceof BottomSheetBehavior) {
@@ -99,6 +101,9 @@ public class FragmentSelectPaymentOptionBottomSheet extends BottomSheetDialogFra
                 LocalBroadcastManager.getInstance(mActivity).sendBroadcast(intent);
             }
         });
+
+        FrameLayout bottomSheet = dialog.getWindow().findViewById(android.support.design.R.id.design_bottom_sheet);
+        bottomSheet.setBackgroundResource(R.drawable.dialog_bg);
 
     }
 
