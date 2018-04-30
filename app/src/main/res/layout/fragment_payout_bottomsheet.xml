@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
+    android:background="@drawable/dialog_bg"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -106,7 +107,7 @@
             android:inputType="textPassword"
             android:padding="10dp"
             android:textSize="14sp"
-            android:hint="The one used to log in to the app"
+            android:hint="Your Login Password."
             android:textColorHint="@color/greyHint"
             android:layout_height="wrap_content" />
 

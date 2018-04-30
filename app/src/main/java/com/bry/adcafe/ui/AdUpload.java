@@ -142,13 +142,13 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         ButterKnife.bind(this);
 
         mCategory = Variables.SelectedCategory;
-        Log.d(TAG,"Category gotten from Variables class is : "+mCategory);
-        mCategoryText.setText("Category: "+mCategory);
+        Log(TAG,"Category gotten from Variables class is : "+mCategory);
+        mCategoryText.setText(mCategory);
 
         mAmountToPayPerTargetedView = Variables.amountToPayPerTargetedView;
         mAmountPlusOurShare = Variables.amountToPayPerTargetedView+2;
-        Log.d(TAG,"Amount to pay per targeted user is : "+ mAmountToPayPerTargetedView);
-        Log.d(TAG,"Amount to pay per targeted user is : "+ mAmountPlusOurShare);
+        Log(TAG,"Amount to pay per targeted user is : "+ mAmountToPayPerTargetedView);
+        Log(TAG,"Amount to pay per targeted user is : "+ mAmountPlusOurShare);
 
         setUpViews();
         createProgressDialog();
@@ -234,7 +234,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         mProgressBarUpload.setVisibility(View.VISIBLE);
         mLoadingTextView.setVisibility(View.VISIBLE);
         setAllOtherViewsToBeGone();
-        Log.d(TAG,"---Getting number of clusters.");
+        Log(TAG,"---Getting number of clusters.");
         //When restructuring to advertising to specific type of users,add .child("%AdvertCategory%");
         mRef = FirebaseDatabase.getInstance().getReference(Constants.CLUSTERS).child(Constants.CLUSTERS_LIST)
                 .child(Integer.toString(mAmountToPayPerTargetedView)).child(mCategory);
@@ -254,7 +254,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 numberOfClusters = dataSnapshot.getChildrenCount();
             }
             mClusterTotal = (int)numberOfClusters;
-            Log.d(TAG,"---Number of clusters gotten from firebase is-- "+mClusterTotal);
+            Log(TAG,"---Number of clusters gotten from firebase is-- "+mClusterTotal);
             getClusterToStartForm();
         }
 
@@ -269,7 +269,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }; //triggers getClusterToStartFrom method.
 
     private void getClusterToStartForm() {
-        Log.d(TAG,"---getting cluster to start from");
+        Log(TAG,"---getting cluster to start from");
         //When changing to specific clusters, this will need to change from this to .getReference("%AdvertCategory%_cluster_to_start_from");
         mRef2 = FirebaseDatabase.getInstance().getReference(Constants.CLUSTER_TO_START_FROM)
                 .child(Integer.toString(mAmountToPayPerTargetedView)).child(mCategory+"_cluster_to_start_from");
@@ -286,7 +286,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 clusterGotten = 1;
             }
             mClusterToStartFrom = clusterGotten;
-            Log.d(TAG,"---Cluster to start from is -- "+mClusterToStartFrom);
+            Log(TAG,"---Cluster to start from is -- "+mClusterToStartFrom);
             loadClusterToStartFromChildrenNo();
 
         }
@@ -298,14 +298,14 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             mBottomNavs.setVisibility(View.GONE);
 //            mAvi.setVisibility(View.GONE);
             mProgressBarUpload.setVisibility(View.GONE);
-            Log.d(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
+            Log(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
             Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
                     Snackbar.LENGTH_LONG).show();
         }
     };
 
     private void loadClusterToStartFromChildrenNo() {
-        Log.d(TAG,"---Starting query for no of ads in cluster to start from.");
+        Log(TAG,"---Starting query for no of ads in cluster to start from.");
         //When changing to targeted advertising,this will need to have .child("%AdvertCategory%") between getNextDay and clusterToStartFrom child;
         DatabaseReference boolRef = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS)
                 .child(getNextDay()).child(Integer.toString(mAmountToPayPerTargetedView))
@@ -317,7 +317,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             noOfChildrenInClusterToStartFrom = (int)dataSnapshot.getChildrenCount();
-            Log.d(TAG,"--Number of children in cluster to start from gotten from firebase is  -"+noOfChildrenInClusterToStartFrom);
+            Log(TAG,"--Number of children in cluster to start from gotten from firebase is  -"+noOfChildrenInClusterToStartFrom);
             getNumberOfUploadedAdsInLatestCluster();
         }
 
@@ -328,14 +328,14 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             mBottomNavs.setVisibility(View.GONE);
 //            mAvi.setVisibility(View.GONE);
             mProgressBarUpload.setVisibility(View.GONE);
-            Log.d(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
+            Log(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
             Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
                     Snackbar.LENGTH_LONG).show();
         }
     };
 
     private void getNumberOfUploadedAdsInLatestCluster(){
-        Log.d(TAG,"---Starting query for no of ads in Latest cluster now.");
+        Log(TAG,"---Starting query for no of ads in Latest cluster now.");
         //When changing to targeted advertising,this will need to have .child("%AdvertCategory%") between getNextDay and clusterTotal child;
         DatabaseReference boolRef = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS)
                 .child(getNextDay()).child(Integer.toString(mAmountToPayPerTargetedView))
@@ -348,7 +348,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 }else{
                     noOfChildrenInLatestCluster = 0;
                 }
-                Log.d(TAG,"---the number of children gotten is: "+noOfChildrenInLatestCluster);
+                Log(TAG,"---the number of children gotten is: "+noOfChildrenInLatestCluster);
                 setAllOtherViewsToBeVisible();
 //                mAvi.setVisibility(View.GONE);
                 mProgressBarUpload.setVisibility(View.GONE);
@@ -364,7 +364,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 mBottomNavs.setVisibility(View.GONE);
 //                mAvi.setVisibility(View.GONE);
                 mProgressBarUpload.setVisibility(View.GONE);
-                Log.d(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
+                Log(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
                 Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
                         Snackbar.LENGTH_LONG).show();
             }
@@ -546,7 +546,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 }else{
                     mLink = e.getText().toString();
                     findViewById(R.id.smallDot).setVisibility(View.VISIBLE);
-                    Log.d(TAG,"Link gotten is :---"+mLink);
+                    Log(TAG,"Link gotten is :---"+mLink);
                 }
                 d.dismiss();
             }
@@ -568,7 +568,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private BroadcastReceiver mMessageReceiverForShowingSelectedBottomsheet = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "Broadcast has been received show bottomsheet.");
+            Log(TAG, "Broadcast has been received show bottomsheet.");
             if(Variables.paymentOption.equals(Constants.MPESA_OPTION))showMpesaBottomSheetFragment();
             else if(Variables.paymentOption.equals(Constants.BANK_OPTION))showBottomSheetFragment();
         }
@@ -577,7 +577,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private BroadcastReceiver mMessageReceiverForStartPayments = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "Broadcast has been received show bottomsheet.");
+            Log(TAG, "Broadcast has been received show bottomsheet.");
             if(Variables.paymentOption.equals(Constants.MPESA_OPTION))startMpesaPayments();
             else if(Variables.paymentOption.equals(Constants.BANK_OPTION)) startBankPayments();
         }
@@ -606,7 +606,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         String state = Variables.cardHolderState;
         String FAILED_BANK_PAYMENTS = "FAILED_BANK_PAYMENTS";
         String SUCCESSFUL_BANK_PAYMENTS = "SUCCESSFUL_BANK_PAYMENTS";
-        Log.d(TAG,"Expiration date: "+expiration);
+        Log(TAG,"Expiration date: "+expiration);
 
 //        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("biglebowski@gmail.com")) amount = 80;
 
@@ -640,7 +640,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private BroadcastReceiver mMessageReceiverForSuccessfulMpesaPayments = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "Broadcast has been received that Mpesa payment is successful.");
+            Log(TAG, "Broadcast has been received that Mpesa payment is successful.");
             mProgForPayments.hide();
             startProcessForUpload();
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
@@ -650,7 +650,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private BroadcastReceiver mMessageReceiverForSuccessfulPayment = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "Broadcast has been received that payment is successful.");
+            Log(TAG, "Broadcast has been received that payment is successful.");
             mProgForPayments.hide();
             startProcessForUpload();
             removePaymentListeners();
@@ -660,7 +660,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private BroadcastReceiver mMessageReceiverForfailedPayment = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "Broadcast has been received that payments has failed.");
+            Log(TAG, "Broadcast has been received that payments has failed.");
             mProgForPayments.hide();
             showFailedCardPayments();
             removePaymentListeners();
@@ -760,7 +760,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
 
     private void chooseImage() {
-        Log.d(TAG,"Starting intent for picking an image.");
+        Log(TAG,"Starting intent for picking an image.");
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -773,7 +773,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     protected void onActivityResult(int requestCode, int resultCode,Intent data){
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            Log.d(TAG, "---Data gotten from activity is ok.");
+            Log(TAG, "---Data gotten from activity is ok.");
             if (data.getData() != null) {
                 mFilepath = data.getData();
                 try {
@@ -787,10 +787,10 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                     if(mHasNumberBeenChosen)mUploadLayout.setVisibility(View.VISIBLE);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Log.d(TAG, "---Unable to get and set image. " + e.getMessage());
+                    Log(TAG, "---Unable to get and set image. " + e.getMessage());
                 }
             } else {
-                Log.d(TAG, "---Unable to work on the result code for some reason.");
+                Log(TAG, "---Unable to work on the result code for some reason.");
                 Toast.makeText(mContext,"the data.getData method returns null for some reason...",Toast.LENGTH_SHORT).show();
             }
         }
@@ -891,7 +891,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private void uploadImageToManagerConsole() {
         String encodedImageToUpload = encodeBitmapForFirebaseStorage(bm);
         addToClusterListToUploadTo(mNumberOfClusters);
-        Log.d(TAG, "Uploading Ad to AdminConsole.");
+        Log(TAG, "Uploading Ad to AdminConsole.");
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE).child(getNextDay());
         DatabaseReference pushRef = adRef.push();
         String pushId = pushRef.getKey();
@@ -969,8 +969,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                         pushId = Integer.toString(noOfChildrenInClusterToStartFrom+1);
                     }
                 }
-                Log.d(TAG,"---Uploading encoded image to cluster -"+clusterNumber+" now...");
-                Log.d(TAG,"---The custom push id is ---"+pushId);
+                Log(TAG,"---Uploading encoded image to cluster -"+clusterNumber+" now...");
+                Log(TAG,"---The custom push id is ---"+pushId);
                 //When configuring for targeted advertising based on user prefs, this will change by add ing .child("%AdvertCategory%") between
                 //date and cluster number.
                 mRef3 = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS).child(date)
@@ -1004,7 +1004,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 //                                mLoadingTextView.setVisibility(View.GONE);
 //                                setAllOtherViewsToBeVisible();
                                 mAuthProgressDialog.dismiss();
-                                Log.d(TAG,"---Ad has been successfully uploaded to one of the clusters in firebase");
+                                Log(TAG,"---Ad has been successfully uploaded to one of the clusters in firebase");
 //                                setHasPayedInFirebaseToFalse();
                                 cycleCount = 1;
                                 uploading = false;
@@ -1031,7 +1031,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             }
         }else{
             for(final Integer number : clustersToUpLoadTo){
-                Log.d(TAG,"---Uploading encoded image to cluster -"+number+" now...");
+                Log(TAG,"---Uploading encoded image to cluster -"+number+" now...");
                 String pushId;
                 if(number<mClusterToStartFrom){
                     //push id is set to +2 to avoid setting the same push ID twice.
@@ -1044,7 +1044,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                         pushId = Integer.toString(noOfChildrenInClusterToStartFrom+1);
                     }
                 }
-                Log.d(TAG,"---The custom push id is ---"+pushId);
+                Log(TAG,"---The custom push id is ---"+pushId);
                 //When configuring for targeted advertising based on user prefs, this will change by add ing .child("%AdvertCategory%") between
                 //date and cluster number.
                 mRef3 = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS).child(date)
@@ -1078,7 +1078,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 //                                mLoadingTextView.setVisibility(View.GONE);
 //                                setAllOtherViewsToBeVisible();
                                 mAuthProgressDialog.dismiss();
-                                Log.d(TAG,"---Ad has been successfully uploaded to one of the clusters in firebase");
+                                Log(TAG,"---Ad has been successfully uploaded to one of the clusters in firebase");
 //                                setHasPayedInFirebaseToFalse();
                                 cycleCount = 1;
                                 uploading = false;
@@ -1170,26 +1170,26 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
 
     private void addToClusterListToUploadTo(int number){
-        Log.d(TAG,"The number of total clusters is : "+mClusterTotal);
-        Log.d(TAG,"The cluster to start from is : "+mClusterToStartFrom);
-        Log.d(TAG,"Number of clusters to upload to is : "+mNumberOfClusters);
+        Log(TAG,"The number of total clusters is : "+mClusterTotal);
+        Log(TAG,"The cluster to start from is : "+mClusterToStartFrom);
+        Log(TAG,"Number of clusters to upload to is : "+mNumberOfClusters);
 
         for(int i = 0; i < number; i++){
             if(mClusterToStartFrom+i>mClusterTotal){
                 clustersToUpLoadTo.add(mClusterToStartFrom+i-(mClusterTotal));
-                Log.d(TAG,"Limit has been exceeded.setting cluster to upload to : "+(mClusterToStartFrom+i-(mClusterTotal)));
+                Log(TAG,"Limit has been exceeded.setting cluster to upload to : "+(mClusterToStartFrom+i-(mClusterTotal)));
             }else{
                 clustersToUpLoadTo.add(mClusterToStartFrom+i);
-                Log.d(TAG,"Adding cluster to list normally : "+(mClusterToStartFrom+i));
+                Log(TAG,"Adding cluster to list normally : "+(mClusterToStartFrom+i));
             }
         }
 
     }
 
     private void addToClusterListToUploadToTest(int number){
-        Log.d(TAG,"The number of total clusters is : "+5000);
-        Log.d(TAG,"The cluster to start from is : "+1);
-        Log.d(TAG,"Number of clusters to upload to is : "+mNumberOfClusters);
+        Log(TAG,"The number of total clusters is : "+5000);
+        Log(TAG,"The cluster to start from is : "+1);
+        Log(TAG,"Number of clusters to upload to is : "+mNumberOfClusters);
 
         int numberOfClustersToStartFrom = 1;
         int clusterTotal = 5000;
@@ -1197,10 +1197,10 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         for(int i = 0; i < 5000; i++){
             if(numberOfClustersToStartFrom+i>clusterTotal){
                 clustersToUpLoadTo.add(numberOfClustersToStartFrom+i-(clusterTotal));
-                Log.d(TAG,"Limit has been exceeded.setting cluster to upload to : "+(numberOfClustersToStartFrom+i-(clusterTotal)));
+                Log(TAG,"Limit has been exceeded.setting cluster to upload to : "+(numberOfClustersToStartFrom+i-(clusterTotal)));
             }else{
                 clustersToUpLoadTo.add(numberOfClustersToStartFrom+i);
-                Log.d(TAG,"Adding cluster to list normally : "+(numberOfClustersToStartFrom+i));
+                Log(TAG,"Adding cluster to list normally : "+(numberOfClustersToStartFrom+i));
             }
         }
 
@@ -1306,6 +1306,17 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         }
 
         return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
+
+    private void Log(String tag,String message){
+        try{
+            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 }

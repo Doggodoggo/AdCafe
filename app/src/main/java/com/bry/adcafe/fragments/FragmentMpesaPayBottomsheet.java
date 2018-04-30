@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -108,6 +109,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         mContentView  = contentView;
 
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) ((View) contentView.getParent()).getLayoutParams();
+        params.setMargins(15,-15,15,15);
         CoordinatorLayout.Behavior behavior = params.getBehavior();
 
         if( behavior != null && behavior instanceof BottomSheetBehavior) {
@@ -117,6 +119,8 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         mEnterPaymentDetailsPart = contentView.findViewById(R.id.enterPayoutDetailsPart);
         mConfirmLayout = contentView.findViewById(R.id.confirmLayout);
         loadEnterDetailsPart();
+        FrameLayout bottomSheet = dialog.getWindow().findViewById(android.support.design.R.id.design_bottom_sheet);
+        bottomSheet.setBackgroundResource(R.drawable.dialog_bg);
     }
 
     private void loadEnterDetailsPart() {

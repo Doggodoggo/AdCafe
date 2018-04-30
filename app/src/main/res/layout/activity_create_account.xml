@@ -47,7 +47,7 @@
                 android:inputType="textEmailAddress"
                 android:nextFocusDown="@+id/passwordEditText"
                 android:padding="10dp"
-                android:layout_marginBottom="25dp"
+                android:layout_marginBottom="35dp"
                 android:textColor="@android:color/black"
                 android:textColorHint="@color/colorAccent"
                 android:textSize="15sp" />
@@ -200,6 +200,7 @@
             android:layout_marginTop="15dp"
             android:textColor="@android:color/white" />
     </LinearLayout>
+
 
 
 </android.support.design.widget.CoordinatorLayout>

@@ -1,12 +1,16 @@
 package com.bry.adcafe.services;
 
+import android.app.IntentService;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.bry.adcafe.Constants;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,9 +41,11 @@ public class TimeManager {
     private static Runnable r;
     public static boolean isTimeManagerInitialized = false;
 
+    private static boolean isBackgroundUpdaterOnline = false;
+
 
     public static boolean isTimerOnline(){
-        return cal != null;
+        return cal != null ;
     }
 
 
@@ -79,10 +85,10 @@ public class TimeManager {
                 if(timeJSON.getString("status").equals("OK")){
                     Long timestamp = timeJSON.getLong("timestamp");
                     String date = timeJSON.getString("formatted");
-                    Log.d("Response","Time and date gotten is : "+date);
-                    Log.d("Response","Timestamp time gotten is : "+timestamp);
+                    Log("Response","Time and date gotten is : "+date);
+                    Log("Response","Timestamp time gotten is : "+timestamp);
 
-                    setCalendar2(date,((timestamp-(3*60*60))*1000));
+                    setCalendar2(context,date,((timestamp-(3*60*60))*1000));
                     LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(callbackString));
                 }
             }
@@ -95,25 +101,27 @@ public class TimeManager {
 
 
 
-    private static void setCalendar2(String timeNDay,long timeInMills){
+    private static void setCalendar2(Context context,String timeNDay,long timeInMills){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
         try {
             Date dt = sdf.parse(timeNDay);
             cal = Calendar.getInstance();
             cal.setTime(dt);
-            updateTimer();
+//            updateTimer();
+            updateTimer2(context);
             isTimeManagerInitialized = true;
         } catch (ParseException e) {
             e.printStackTrace();
-            setCalendar(timeInMills);
+            setCalendar(context,timeInMills);
         }
 
     }
 
-    private static void setCalendar(long timeInMills){
+    private static void setCalendar(Context context,long timeInMills){
         cal = Calendar.getInstance();
         cal.setTimeInMillis(timeInMills);
-        updateTimer();
+//        updateTimer();
+        updateTimer2(context);
         isTimeManagerInitialized = true;
     }
 
@@ -128,6 +136,20 @@ public class TimeManager {
         h.postDelayed(r, 4000);
     }
 
+    private static void updateTimer2(Context context){
+        final Intent i = new Intent(context, MyTestService.class);
+        context.startService(i);
+        LocalBroadcastManager.getInstance(context).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                h.removeCallbacks(r);
+                Log("Time-Service","Received broadcast to stop timer service");
+                context.stopService(i);
+                LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
+            }
+        },new IntentFilter("TimerService"));
+    }
+
 
 
 
@@ -140,17 +162,16 @@ public class TimeManager {
     }
 
     public static boolean isAlmostMidNight() {
-        Calendar c = cal;
-        int hours = c.get(Calendar.HOUR_OF_DAY);
-        int minutes = c.get(Calendar.MINUTE);
-        int seconds = c.get(Calendar.SECOND);
+        int hours = cal.get(Calendar.HOUR_OF_DAY);
+        int minutes = cal.get(Calendar.MINUTE);
+        int seconds = cal.get(Calendar.SECOND);
 
-        Log.d(TAG, "Current time is " + hours + ":" + minutes + ":" + seconds);
+        Log(TAG, "Current time is " + hours + ":" + minutes + ":" + seconds);
         if (hours == 23 && (minutes == 59) && (seconds >= 0)) {
-            Log.d(TAG, "---Day is approaching midnight,returning true to reset the activity and values. Time is:" + hours + " : " + minutes + " : " + seconds);
+            Log(TAG, "---Day is approaching midnight,returning true to reset the activity and values. Time is:" + hours + " : " + minutes + " : " + seconds);
             return true;
         } else {
-            Log.d(TAG, "---Day is not approaching midnight,so activity will continue normally.");
+            Log(TAG, "---Day is not approaching midnight,so activity will continue normally.");
             return false;
         }
     }
@@ -163,7 +184,7 @@ public class TimeManager {
 
         String tomorrowsDate = (dd + ":" + mm + ":" + yy);
 
-        Log.d(TAG, "Tomorrows date is : " + tomorrowsDate);
+        Log(TAG, "Tomorrows date is : " + tomorrowsDate);
         return tomorrowsDate;
 
     }
@@ -171,7 +192,7 @@ public class TimeManager {
     public static Long getDateInDays(){
         long currentTimeMillis = cal.getTimeInMillis();
         long currentDay = (currentTimeMillis)/(Constants.HRS_24_IN_MILLS);
-        Log.d(TAG,"The current day is : "+currentDay);
+        Log(TAG,"The current day is : "+currentDay);
         return currentDay;
     }
 
@@ -186,7 +207,7 @@ public class TimeManager {
 
         String tomorrowsDate = (dd+":"+mm+":"+yy);
 
-        Log.d(TAG,"Tomorrows date is : "+tomorrowsDate);
+        Log(TAG,"Tomorrows date is : "+tomorrowsDate);
         return tomorrowsDate;
 
     }
@@ -213,7 +234,7 @@ public class TimeManager {
 
         String tomorrowsDate = (dd + ":" + mm + ":" + yy);
 
-        Log.d(TAG, "Tomorrows date is : " + tomorrowsDate);
+        Log(TAG, "Tomorrows date is : " + tomorrowsDate);
         return tomorrowsDate;
     }
 
@@ -225,6 +246,65 @@ public class TimeManager {
         int seconds = c.get(Calendar.SECOND);
 
         return hours+":"+minutes+":"+seconds;
+    }
+
+
+
+
+    public static class MyTestService extends IntentService {
+        private Context mContext;
+        boolean canUpdate = true;
+
+
+        public MyTestService() {
+            // Used to name the worker thread, important only for debugging.
+            super("test-service");
+
+        }
+
+        @Override
+        public void onCreate() {
+            super.onCreate(); // if you override onCreate(), make sure to call super().
+            // If a Context object is needed, call getApplicationContext() here.
+            mContext = getApplicationContext();
+            canUpdate = true;
+            isBackgroundUpdaterOnline = true;
+
+        }
+
+        @Override
+        protected void onHandleIntent(Intent intent) {
+            // This describes what will happen when service is triggered
+            r = new Runnable() {
+                @Override
+                public void run() {
+                    cal.add(Calendar.SECOND,4);
+                    if(canUpdate) {
+                        h.postDelayed(r, 4000);
+                        Log("Time-Service", "Updating timer."+getTime());
+                    }else{
+                        h.removeCallbacks(r);
+                    }
+                }
+            };
+            h.postDelayed(r, 4000);
+        }
+
+        @Override
+        public void onDestroy(){
+            super.onDestroy();
+            isBackgroundUpdaterOnline = false;
+        }
+    }
+
+    private static void Log(String tag,String message){
+        try{
+            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 

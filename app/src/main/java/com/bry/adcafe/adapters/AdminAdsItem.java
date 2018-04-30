@@ -18,6 +18,7 @@ import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.services.TimeManager;
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -76,7 +77,7 @@ public class AdminAdsItem {
         try {
             Glide.with(mContext).load(bitmapToByte(getResizedBitmap(decodeFromFirebaseBase64(mAdvert.getImageUrl()),400)))
                     .into(mImage);
-            Log.d("AdminAdsItem---","Image has been converted to bitmap and set in model instance.");
+            Log("AdminAdsItem---","Image has been converted to bitmap and set in model instance.");
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(mContext,"something went wrong"+e.getMessage(),Toast.LENGTH_LONG).show();
@@ -96,9 +97,9 @@ public class AdminAdsItem {
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Log.d("MY_AD_STAT_ITEM","Listener from firebase has responded. Updating data.");
+                Log("MY_AD_STAT_ITEM","Listener from firebase has responded. Updating data.");
                 boolean newValue = dataSnapshot.getValue(boolean.class);
-                Log.d("MY_AD_STAT_ITEM","New value gotten from firebase --"+newValue);
+                Log("MY_AD_STAT_ITEM","New value gotten from firebase --"+newValue);
                 try{
                     mFlagged.setText("Is Flagged : "+newValue);
                     mAdvert.setFlagged(newValue);
@@ -165,5 +166,15 @@ public class AdminAdsItem {
         }
 
         return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
+    private void Log(String tag,String message){
+        try{
+            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }

@@ -13,12 +13,12 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.text.format.DateFormat;
@@ -33,6 +33,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
+import com.bry.adcafe.Payment.Lipisha.Payment;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.ChangeCPVFragment;
@@ -43,14 +44,20 @@ import com.bry.adcafe.services.SliderPrefManager;
 import com.bry.adcafe.services.TimeManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -178,7 +185,7 @@ public class Dashboard extends AppCompatActivity {
                     Intent intent = new Intent(Dashboard.this, AdminConsole.class);
                     startActivity(intent);
                 }else{
-//                    Log.d("Dashboard","NOT administrator.");
+//                    Log("Dashboard","NOT administrator.");
                 }
                 return false;
             }
@@ -188,7 +195,7 @@ public class Dashboard extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 FragmentManager fm = getFragmentManager();
-                Log.d("DASHBOARD","Setting up fragment");
+                Log("DASHBOARD","Setting up fragment");
                 FeedbackFragment reportDialogFragment = new FeedbackFragment();
                 reportDialogFragment.setMenuVisibility(false);
                 reportDialogFragment.show(fm, "Feedback.");
@@ -274,6 +281,8 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void setValues() {
+        NumberFormat format = NumberFormat.getInstance(Locale.US);
+
         int todaysTotals;
         int monthsTotals;
         int reimbursementTotals;
@@ -292,7 +301,12 @@ public class Dashboard extends AppCompatActivity {
             reimbursementTotals = Variables.getTotalReimbursementAmount();
         }
         mTotalAdsSeenToday.setText(Integer.toString(todaysTotals));
+        if(monthsTotals>9999){
+            mTotalAdsSeenAllTime.setTextSize(35);
+            mTotalAdsSeenToday.setTextSize(35);
+        }
         mTotalAdsSeenAllTime.setText(Integer.toString(monthsTotals));
+        mTotalAdsSeenAllTime.setText(format.format(monthsTotals));
         int totalAmounts = (int)(monthsTotals*Constants.CONSTANT_AMMOUNT_FOR_USER);
         mAmmountNumber.setText(Integer.toString(reimbursementTotals));
 
@@ -520,7 +534,7 @@ public class Dashboard extends AppCompatActivity {
         SharedPreferences.Editor editor7 = pref7.edit();
         editor7.clear();
         editor7.putBoolean(Constants.PREFERRED_NOTIF,Variables.doesUserWantNotifications);
-        Log.d("DashBoard","Set the users preference for seing notifications to : "+Variables.doesUserWantNotifications);
+        Log("DashBoard","Set the users preference for seing notifications to : "+Variables.doesUserWantNotifications);
         editor7.apply();
 
         DatabaseReference adRef11 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
@@ -540,14 +554,14 @@ public class Dashboard extends AppCompatActivity {
         SharedPreferences.Editor editor = pref.edit();
         editor.clear();
         editor.putInt(Constants.PREFERRED_NOTF_HOUR,Variables.preferredHourOfNotf);
-        Log.d("DashBoard","Set the users preferred noification hour to : "+Variables.preferredHourOfNotf);
+        Log("DashBoard","Set the users preferred noification hour to : "+Variables.preferredHourOfNotf);
         editor.apply();
 
         SharedPreferences pref7 = mContext.getSharedPreferences(Constants.PREFERRED_NOTF_MIN,MODE_PRIVATE);
         SharedPreferences.Editor editor7 = pref7.edit();
         editor7.clear();
         editor7.putInt(Constants.PREFERRED_NOTF_MIN,Variables.preferredMinuteOfNotf);
-        Log.d("DashBoard","Set the users preferred noification minute to : "+Variables.preferredMinuteOfNotf);
+        Log("DashBoard","Set the users preferred noification minute to : "+Variables.preferredMinuteOfNotf);
         editor7.apply();
 
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -597,7 +611,7 @@ public class Dashboard extends AppCompatActivity {
     private BroadcastReceiver mMessageReceiverForStartPayout = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Dashboard", "Broadcast has been received to start payout.");
+            Log("Dashboard", "Broadcast has been received to start payout.");
             startPayout();
         }
     };
@@ -605,7 +619,7 @@ public class Dashboard extends AppCompatActivity {
     private BroadcastReceiver mMessageReceiverForResetPasswod = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Dashboard", "Broadcast has been received reset password.");
+            Log("Dashboard", "Broadcast has been received reset password.");
 //            showDialogForResetPassword();
         }
     };
@@ -631,12 +645,12 @@ public class Dashboard extends AppCompatActivity {
         Variables.transactionID = "TRANS"+pushRef.getKey();
 
         String newPhoneNo = "254"+payoutPhoneNumber.substring(1);
-        Log.d("Dashboard","new Phone no is: "+newPhoneNo);
+        Log("Dashboard","new Phone no is: "+newPhoneNo);
 
-//        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("biglebowski@gmail.com")) payoutAmount = 20;
+        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) payoutAmount = 10;
 
         Payments payments = new Payments(mContext,PAYOUT_SUCCESSFUL,PAYOUT_FAILED);
-        payments.makePayouts(Variables.transactionID,newPhoneNo,payoutAmount);
+        payments.makePayouts(Variables.transactionID,payoutPhoneNumber,payoutAmount);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayout,
                 new IntentFilter(PAYOUT_SUCCESSFUL));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFailedPayout,
@@ -647,7 +661,7 @@ public class Dashboard extends AppCompatActivity {
     private BroadcastReceiver mMessageReceiverForSuccessfulPayout = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Dashboard", "Broadcast has been received that payout is finished.");
+            Log("Dashboard", "Broadcast has been received that payout is finished.");
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
             resetUserMoneyTotals();
         }
@@ -656,7 +670,7 @@ public class Dashboard extends AppCompatActivity {
     private BroadcastReceiver mMessageReceiverForFailedPayout = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Dashboard", "Broadcast has been received that payout has failed.");
+            Log("Dashboard", "Broadcast has been received that payout has failed.");
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
             showFailedPayoutsView();
             mProgForPayments.dismiss();
@@ -696,6 +710,7 @@ public class Dashboard extends AppCompatActivity {
     private void resetUserMoneyTotals(){
         int amount = Variables.getTotalReimbursementAmount();
         setPayoutReceiptInFireBase(amount);
+//        addAmountForAdmin(amount);
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         DatabaseReference adRef9 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
@@ -708,12 +723,32 @@ public class Dashboard extends AppCompatActivity {
         SharedPreferences.Editor editor3 = pref3.edit();
         editor3.clear();
         editor3.putInt(Constants.REIMBURSEMENT_TOTALS,Variables.getTotalReimbursementAmount());
-        Log.d("Dashboard","Setting the Reimbursement totals in shared preferences - "+Integer.toString(Variables.getTotalReimbursementAmount()));
+        Log("Dashboard","Setting the Reimbursement totals in shared preferences - "+Integer.toString(Variables.getTotalReimbursementAmount()));
         editor3.apply();
 
         setValues();
         mProgForPayments.dismiss();
         showSuccessfulPayoutPrompt();
+    }
+
+    private void addAmountForAdmin(final int amount) {
+        Query query = FirebaseDatabase.getInstance().getReference(Constants.ADMIN_MONEY);
+        DatabaseReference dbRef = query.getRef();
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                long number;
+                if (dataSnapshot.exists()) number = dataSnapshot.getValue(long.class);
+                else number = 0;
+                Log("Dashboard", "number gotten for takeout ad totals is : " + number);
+                long newNumber = number + Constants.TOTAL_AMOUNT_PER_VIEW_FOR_ADMIN;
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void showSuccessfulPayoutPrompt() {
@@ -859,13 +894,13 @@ public class Dashboard extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.d("Dashboard","Response gotten"+ response.toString());
+                Log("Dashboard","Response gotten"+ response.toString());
                 try{
                     String jsonData = response.body().string();
                     if (response.isSuccessful()) {
                         JSONObject jokeJSON = new JSONObject(jsonData);
                         joke = jokeJSON.getString("joke");
-                        Log.d("Dashboard","The joke : "+joke);
+                        Log("Dashboard","The joke : "+joke);
                         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("JOKE_INTENT"));
                     }
                 }catch (IOException | JSONException e) {
@@ -877,6 +912,17 @@ public class Dashboard extends AppCompatActivity {
         call.enqueue(cb);
 
     }
+    
+    
 
+    private void Log(String tag,String message){
+        try{
+            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
 
 }

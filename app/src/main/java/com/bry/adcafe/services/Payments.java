@@ -2,17 +2,18 @@ package com.bry.adcafe.services;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.bry.adcafe.Constants;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.apache.commons.codec.binary.Hex;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -45,12 +46,12 @@ public class Payments {
 
 
     public void startMpesaPayment(String orderId,String invoiceId,int amount,final String phoneNo,String email){
-        Log.d(TAG,"ipayservice has started....");
+        Log(TAG,"ipayservice has started....");
         String dataString = Constants.live+orderId+invoiceId+amount+phoneNo+email+Constants.vid+Constants.curr+Constants.p1+
                 Constants.p2+Constants.p3+Constants.p4+Constants.cbk+Constants.cst;
         String myGeneratedHash = generateHmac(dataString, Constants.key);
-        Log.d(TAG,dataString);
-        Log.d(TAG,myGeneratedHash);
+        Log(TAG,dataString);
+        Log(TAG,myGeneratedHash);
 
 
         OkHttpClient client = new OkHttpClient();
@@ -91,20 +92,20 @@ public class Payments {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.d(TAG,"response gotten");
-                Log.d(TAG,""+response.message());
-                Log.d(TAG,""+response.code());
+                Log(TAG,"response gotten");
+                Log(TAG,""+response.message());
+                Log(TAG,""+response.code());
                 try {
                     String jsonData = response.body().string();
-                    Log.d(TAG,jsonData);
+                    Log(TAG,jsonData);
                     if (response.isSuccessful()){
-                        Log.d(TAG,""+response.body().toString());
+                        Log(TAG,""+response.body().toString());
                         JSONObject statusJSON = new JSONObject(jsonData);
                         JSONObject dataJSON = statusJSON.getJSONObject("data");
                         String sid = dataJSON.getString("sid");
                         String hash = dataJSON.getString("hash");
-                        Log.d(TAG,"The sid from response "+sid);
-                        Log.d(TAG,"The hash from reponse "+hash);
+                        Log(TAG,"The sid from response "+sid);
+                        Log(TAG,"The hash from reponse "+hash);
                         triggerStkCall(phoneNo,sid);
                     }
                 } catch (JSONException e1) {
@@ -149,7 +150,7 @@ public class Payments {
             public void onResponse(Call call, Response response) throws IOException {
                 try {
                     String jsonData = response.body().string();
-                    Log.d(TAG,jsonData);
+                    Log(TAG,jsonData);
                     LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("STK-PUSHED"+mSuccessfulFilter));
                     startCheckerForCompletedPayments(sid);
                 } catch (IOException e) {
@@ -202,7 +203,7 @@ public class Payments {
             public void onResponse(Call call, Response response) throws IOException {
                 try {
                     String jsonData = response.body().string();
-                    Log.d(TAG,jsonData);
+                    Log(TAG,jsonData);
                     if (response.isSuccessful()){
                         JSONObject statusJSON = new JSONObject(jsonData);
                         if (statusJSON.getString("status").equals("aei7p7yrx4ae34")){
@@ -234,8 +235,8 @@ public class Payments {
                 Constants.p2+Constants.p3+Constants.p4+Constants.cbk+Constants.cst;
         String myGeneratedHash3 = generateHmac(dataString,Constants.key);
 
-        Log.d(TAG,dataString);
-        Log.d(TAG,myGeneratedHash3);
+        Log(TAG,dataString);
+        Log(TAG,myGeneratedHash3);
 
         OkHttpClient client = new OkHttpClient();
         String myUrl = "https://apis.ipayafrica.com/payments/v2/transact";
@@ -272,20 +273,20 @@ public class Payments {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.d(TAG,"response gotten");
-                Log.d(TAG,""+response.message());
-                Log.d(TAG,""+response.code());
+                Log(TAG,"response gotten");
+                Log(TAG,""+response.message());
+                Log(TAG,""+response.code());
                 try {
                     String jsonData = response.body().string();
-                    Log.d(TAG,jsonData);
+                    Log(TAG,jsonData);
                     if (response.isSuccessful()){
-                        Log.d(TAG,""+response.body().toString());
+                        Log(TAG,""+response.body().toString());
                         JSONObject statusJSON = new JSONObject(jsonData);
                         JSONObject dataJSON = statusJSON.getJSONObject("data");
                         String sid = dataJSON.getString("sid");
                         String hash = dataJSON.getString("hash");
-                        Log.d(TAG,"The sid from response "+sid);
-                        Log.d(TAG,"The hash from reponse "+hash);
+                        Log(TAG,"The sid from response "+sid);
+                        Log(TAG,"The hash from reponse "+hash);
                         cardTransact(sid,phoneNo,email,cvv,cardNo,month,year,address,city,
                                 country,postcode,stateProv,firstName,lastName,hash);
                     }
@@ -309,8 +310,8 @@ public class Payments {
         // String dataString = sid+carddataString;
 
         String myGeneratedHash1 = generateHmac(carddataString,Constants.key);
-        Log.d(TAG,myGeneratedHash1);
-        Log.d(TAG,carddataString);
+        Log(TAG,myGeneratedHash1);
+        Log(TAG,carddataString);
         OkHttpClient client = new OkHttpClient();
         String myUrl = "https://apis.ipayafrica.com/payments/v2/transact/cc";
         HttpUrl.Builder urlBuilder = HttpUrl.parse(myUrl).newBuilder();
@@ -351,7 +352,7 @@ public class Payments {
             public void onResponse(Call call, Response response) throws IOException {
                 try {
                     String jsonData = response.body().string();
-                    Log.d(TAG,jsonData);
+                    Log(TAG,jsonData);
                     if (response.isSuccessful()){
                         JSONObject statusJSON = new JSONObject(jsonData);
                         if (statusJSON.getString("status").equals("aei7p7yrx4ae34")){
@@ -376,13 +377,11 @@ public class Payments {
 
 
     public void makePayouts(String payoutReference,String payoutPhone,int payoutAmount){
-        String myPayoutDataString = "amount="+payoutAmount+"&phone="+payoutPhone+"&reference="+payoutReference+"&vid="+Constants.vid;
+        String myPayoutDataString = Constants.vid+payoutReference+payoutPhone+payoutAmount;
         String myPayoutGeneratedHash = generateHmac(myPayoutDataString, Constants.key);
-        Log.d(TAG,myPayoutDataString);
-        Log.d(TAG,myPayoutGeneratedHash);
 
         OkHttpClient client  = new OkHttpClient();
-        String myUrl = "https://apis.ipayafrica.com/b2c/v3/mobile/mpesa";
+        String myUrl = "";
         HttpUrl.Builder urlBuilder = HttpUrl.parse(myUrl).newBuilder();
         String url = urlBuilder.build()
                 .toString();
@@ -407,7 +406,7 @@ public class Payments {
             public void onResponse(Call call, Response response) throws IOException {
                 try{
                     String jsonData = response.body().string();
-                    Log.d(TAG,"Payouts:"+jsonData);
+                    Log(TAG,jsonData);
                 }catch(IOException e) {
                     e.printStackTrace();
                 }
@@ -445,6 +444,19 @@ public class Payments {
 
     public void stopRecursiveChecker(){
         canConfirmPayments = false;
+    }
+
+
+
+
+    private void Log(String tag,String message){
+        try{
+            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 

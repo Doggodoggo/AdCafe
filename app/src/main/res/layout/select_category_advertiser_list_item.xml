@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="wrap_content"
-    android:paddingBottom="2dp"
+    android:layout_marginBottom="2dp"
     android:layout_height="wrap_content">
 
     <android.support.v7.widget.CardView
@@ -22,6 +22,9 @@
             <ImageView
                 android:id="@+id/categoryImage"
                 android:layout_width="match_parent"
+                android:layout_marginRight="0.4dp"
+                android:layout_marginLeft="0.4dp"
+                android:layout_marginTop="0.4dp"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="30dp"
                 android:scaleType="fitXY" />
@@ -33,9 +36,9 @@
                 android:layout_alignParentBottom="true"
                 android:gravity="center"
                 android:paddingLeft="2dp"
-                android:paddingRight="5dp"
-                android:text="money storage services"
-                android:textSize="10sp" />
+                android:paddingRight="2dp"
+                android:text="womens clothing websites"
+                android:textSize="9sp" />
 
         </RelativeLayout>
 

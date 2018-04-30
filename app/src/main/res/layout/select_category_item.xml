@@ -21,6 +21,9 @@
 
             <ImageView
                 android:id="@+id/categoryImage"
+                android:layout_marginRight="0.4dp"
+                android:layout_marginLeft="0.4dp"
+                android:layout_marginTop="0.4dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="34dp"

@@ -206,11 +206,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void handleOnResumeMethodsAndLogic(){
         Variables.isMainActivityOnline = true;
         if(isTimerPausedBecauseOfOfflineActivity) {
-            Log.d(TAG,"resuming timer by starting it");
+            Log(TAG,"resuming timer by starting it");
             resumeTimerByStartingIt();
         }
         if (!getCurrentDateInSharedPreferences().equals("0") && !getCurrentDateInSharedPreferences().equals(getDate())) {
-            Log.d(TAG, "---Date in shared preferences does not match current date,therefore resetting everything.");
+            Log(TAG, "---Date in shared preferences does not match current date,therefore resetting everything.");
             sendBroadcastToUnregisterAllReceivers();
             removeAllViews();
             resetEverything();
@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         r = new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "---started the time checker for when it is almost midnight.");
+                Log(TAG, "---started the time checker for when it is almost midnight.");
                 if (isAlmostMidNight() && Variables.isMainActivityOnline) {
                     mIsBeingReset = true;
                     resetEverything();
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onReceive(Context context, Intent intent) {
                 handleOnResumeMethodsAndLogic();
                 LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
-                Log.d(TAG,"Unhiding views");
+                Log(TAG,"Unhiding views");
                 mAdCounterView.setVisibility(View.VISIBLE);
 //                mAvi.setVisibility(View.GONE);
                 mLoadingProgressBar.setVisibility(View.GONE);
@@ -299,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        setUserDataInSharedPrefs();
         setAlarmForNotifications();
         Variables.lastAdSeen = lastAdSeen;
-        Log.d(TAG, "---removing callback for checking time of day.");
+        Log(TAG, "---removing callback for checking time of day.");
     }
 
     @Override protected void onDestroy() {
@@ -307,6 +307,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         unregisterAllReceivers();
         removeAllViews();
         Variables.clearAllAdsFromAdList();
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("TimerService"));
         if (!Variables.isDashboardActivityOnline) Variables.clearAdTotal();
         if (networkStateReceiver != null) {
             networkStateReceiver.removeListener(this);
@@ -322,49 +323,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         SharedPreferences.Editor editor = pref.edit();
         editor.clear();
         editor.putInt("TodaysTotals", Variables.getAdTotal(mKey));
-        Log.d("MAIN_ACTIVITY--", "Setting todays ad totals in shared preferences - " + Integer.toString(Variables.getAdTotal(mKey)));
+        Log("MAIN_ACTIVITY--", "Setting todays ad totals in shared preferences - " + Integer.toString(Variables.getAdTotal(mKey)));
         editor.apply();
 
         SharedPreferences pref2 = getApplicationContext().getSharedPreferences("MonthTotals", MODE_PRIVATE);
         SharedPreferences.Editor editor2 = pref2.edit();
         editor2.clear();
         editor2.putInt("MonthsTotals", Variables.getMonthAdTotals(mKey));
-        Log.d("MAIN_ACTIVITY--", "Setting the month totals in shared preferences - " + Integer.toString(Variables.getMonthAdTotals(mKey)));
+        Log("MAIN_ACTIVITY--", "Setting the month totals in shared preferences - " + Integer.toString(Variables.getMonthAdTotals(mKey)));
         editor2.apply();
 
         SharedPreferences pref7 = getApplicationContext().getSharedPreferences("ReimbursementTotals", MODE_PRIVATE);
         SharedPreferences.Editor editor7 = pref7.edit();
         editor7.clear();
         editor7.putInt(Constants.REIMBURSEMENT_TOTALS, Variables.getTotalReimbursementAmount());
-        Log.d("MAIN_ACTIVITY--", "Setting the Reimbursement totals in shared preferences - " + Integer.toString(Variables.getTotalReimbursementAmount()));
+        Log("MAIN_ACTIVITY--", "Setting the Reimbursement totals in shared preferences - " + Integer.toString(Variables.getTotalReimbursementAmount()));
         editor7.apply();
 
         SharedPreferences pref8 = getApplicationContext().getSharedPreferences(Constants.CONSTANT_AMMOUNT_PER_VIEW,MODE_PRIVATE);
         SharedPreferences.Editor editor8 = pref8.edit();
         editor8.clear();
         editor8.putInt(Constants.CONSTANT_AMMOUNT_PER_VIEW,Variables.constantAmountPerView);
-        Log.d(TAG,"Setting the constant amount per view in shared preferences - "+Integer.toString(Variables.constantAmountPerView));
+        Log(TAG,"Setting the constant amount per view in shared preferences - "+Integer.toString(Variables.constantAmountPerView));
         editor8.apply();
 
         SharedPreferences pref4 = mContext.getSharedPreferences("UID", MODE_PRIVATE);
         SharedPreferences.Editor editor4 = pref4.edit();
         editor4.clear();
         editor4.putString("Uid", User.getUid());
-        Log.d("MAIN_ACTIVITY---", "Setting the user uid in shared preferences - " + User.getUid());
+        Log("MAIN_ACTIVITY---", "Setting the user uid in shared preferences - " + User.getUid());
         editor4.apply();
 
         SharedPreferences pref5 = mContext.getSharedPreferences("CurrentSubIndex", MODE_PRIVATE);
         SharedPreferences.Editor editor5 = pref5.edit();
         editor5.clear();
         editor5.putInt("CurrentSubIndex", Variables.getCurrentSubscriptionIndex());
-        Log.d("MAIN_ACTIVITY---", "Setting the users current subscription index in shared preferences - " + Variables.getCurrentSubscriptionIndex());
+        Log("MAIN_ACTIVITY---", "Setting the users current subscription index in shared preferences - " + Variables.getCurrentSubscriptionIndex());
         editor5.apply();
 
         SharedPreferences pref6 = mContext.getSharedPreferences("CurrentAdInSubscription", MODE_PRIVATE);
         SharedPreferences.Editor editor6 = pref6.edit();
         editor6.clear();
         editor6.putInt("CurrentAdInSubscription", Variables.getCurrentAdInSubscription());
-        Log.d("MAIN_ACTIVITY---", "Setting the current ad in subscription in shared preferences - " + Variables.getCurrentAdInSubscription());
+        Log("MAIN_ACTIVITY---", "Setting the current ad in subscription in shared preferences - " + Variables.getCurrentAdInSubscription());
         editor6.apply();
 
         setSubsInSharedPrefs();
@@ -423,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if (Variables.isStartFromLogin) {
             try {
-                Log.d(TAG, "---Starting the getAds method...");
+                Log(TAG, "---Starting the getAds method...");
                 startGetAds();
                 Variables.isStartFromLogin = false;
             } catch (Exception e) {
@@ -437,31 +438,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void loadUserDataFromSharedPrefs() {
         loadSubsFromSharedPrefs();
-        Log.d(TAG, "Loading user data from shared preferences first...");
+        Log(TAG, "Loading user data from shared preferences first...");
         SharedPreferences prefs = getSharedPreferences("TodayTotals", MODE_PRIVATE);
         int number = prefs.getInt("TodaysTotals", 0);
-        Log.d(TAG, "AD TOTAL NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + number);
+        Log(TAG, "AD TOTAL NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + number);
         if (mIsBeingReset || !getCurrentDateInSharedPreferences().equals(getDate())) {
             Variables.setAdTotal(0, mKey);
             isNewDay = true;
-            Log.d(TAG, "Setting ad totals in firebase to 0 since is being reset...");
+            Log(TAG, "Setting ad totals in firebase to 0 since is being reset...");
         } else {
             Variables.setAdTotal(number, mKey);
         }
 
         SharedPreferences prefs2 = getSharedPreferences("MonthTotals", MODE_PRIVATE);
         int number2 = prefs2.getInt("MonthsTotals", 0);
-        Log.d(TAG, "MONTH AD TOTAL NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + number2);
+        Log(TAG, "MONTH AD TOTAL NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + number2);
         Variables.setMonthAdTotals(mKey, number2);
 
         SharedPreferences prefs7 = getSharedPreferences("ReimbursementTotals", MODE_PRIVATE);
         int number7 = prefs7.getInt(Constants.REIMBURSEMENT_TOTALS, 0);
-        Log.d(TAG, "REIMBURSEMENT TOTAL NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + number7);
+        Log(TAG, "REIMBURSEMENT TOTAL NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + number7);
         Variables.setTotalReimbursementAmount(number7);
 
         SharedPreferences prefs8 = getSharedPreferences(Constants.CONSTANT_AMMOUNT_PER_VIEW,MODE_PRIVATE);
         int number8 = prefs8.getInt(Constants.CONSTANT_AMMOUNT_PER_VIEW,3);
-        Log.d(TAG,"CONSTANT AMOUNT GOTTEN PER AD FROM SHARED PREFERENCES IS -   "+number8);
+        Log(TAG,"CONSTANT AMOUNT GOTTEN PER AD FROM SHARED PREFERENCES IS -   "+number8);
         Variables.constantAmountPerView = number8;
 
         SharedPreferences pref9 = getSharedPreferences(Constants.PREFERRED_NOTF_HOUR,MODE_PRIVATE);
@@ -472,22 +473,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         SharedPreferences prefs4 = getSharedPreferences("UID", MODE_PRIVATE);
         String uid = prefs4.getString("Uid", "");
-        Log.d(TAG, "UID NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + uid);
+        Log(TAG, "UID NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + uid);
         User.setUid(uid);
 
         SharedPreferences prefs5 = getSharedPreferences("CurrentSubIndex", MODE_PRIVATE);
         int currentSubIndex = prefs5.getInt("CurrentSubIndex",0);
-        Log.d(TAG, "CURRENT SUBSCRIPTION INDEX NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + currentSubIndex);
+        Log(TAG, "CURRENT SUBSCRIPTION INDEX NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + currentSubIndex);
         if (mIsBeingReset || !getCurrentDateInSharedPreferences().equals(getDate())) {
             Variables.setCurrentSubscriptionIndex(0);
-            Log.d(TAG,"Setting current sub index to 0 since date in shared prefs doesnt match current date or is being reset");
+            Log(TAG,"Setting current sub index to 0 since date in shared prefs doesnt match current date or is being reset");
         }else{
             Variables.setCurrentSubscriptionIndex(currentSubIndex);
         }
 
         SharedPreferences prefs6 = getSharedPreferences("CurrentAdInSubscription", MODE_PRIVATE);
         int currentAdInSubscription = prefs6.getInt("CurrentAdInSubscription",0);
-        Log.d(TAG,"CURRENT AD IN SUBSCRIPTION GOTTEN FROM SHARED PREFERENCES IS : "+currentAdInSubscription);
+        Log(TAG,"CURRENT AD IN SUBSCRIPTION GOTTEN FROM SHARED PREFERENCES IS : "+currentAdInSubscription);
         if (mIsBeingReset || !getCurrentDateInSharedPreferences().equals(getDate())) {
             Variables.setCurrentAdInSubscription(0);
         }else{
@@ -505,7 +506,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             isNewDay = false;
         }else{
             try {
-                Log.d(TAG, "---Starting the getAds method...");
+                Log(TAG, "---Starting the getAds method...");
                 startGetAds();
             } catch (Exception e) {
                 Log.e("BACKGROUND_PROC---", e.getMessage());
@@ -535,7 +536,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void getAds() {
         try {
-            Log.d(TAG, "---The getAdsFromFirebase method has been called...");
+            Log(TAG, "---The getAdsFromFirebase method has been called...");
             getGetAdsFromFirebase();
             Thread.sleep(300);
         } catch (Exception e) {
@@ -556,15 +557,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .child(Integer.toString(Variables.constantAmountPerView))
                 .child(getSubscriptionValue(Variables.getCurrentSubscriptionIndex()))
                 .child(Integer.toString(getClusterValue(Variables.getCurrentSubscriptionIndex())));
-        Log.d(TAG, "---Query set up is : " + Constants.ADVERTS + " : " + date + " : "+Variables.constantAmountPerView+ " : "
+        Log(TAG, "---Query set up is : " + Constants.ADVERTS + " : " + date + " : "+Variables.constantAmountPerView+ " : "
                 + getSubscriptionValue(Variables.getCurrentSubscriptionIndex())+ " : " + getClusterValue(Variables.getCurrentSubscriptionIndex()));
         dbRef = query.getRef();
 
         if (Variables.getCurrentAdInSubscription() == 0) {
-            Log.d(TAG, "User current ad in subscription is 0, so is starting at 1");
+            Log(TAG, "User current ad in subscription is 0, so is starting at 1");
             dbRef.orderByKey().startAt(Integer.toString(1)).limitToFirst(Constants.NO_OF_ADS_TO_LOAD).addValueEventListener(val);
         } else {
-            Log.d(TAG, "User current ad in subscription is not 0, so starting at its value : " + Variables.getCurrentAdInSubscription());
+            Log(TAG, "User current ad in subscription is not 0, so starting at its value : " + Variables.getCurrentAdInSubscription());
             dbRef.orderByKey().startAt(Integer.toString(Variables.getCurrentAdInSubscription()))
                     .limitToFirst(Constants.NO_OF_ADS_TO_LOAD).addListenerForSingleValueEvent(val);
         }
@@ -573,7 +574,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ValueEventListener val = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
-            Log.d(TAG,"Number of children from firebase is : "+dataSnapshot.getChildrenCount());
+            Log(TAG,"Number of children from firebase is : "+dataSnapshot.getChildrenCount());
             boolean canLoad = true;
             if(Variables.constantAmountPerView>3
                     && Variables.getAdTotal(mKey)+Constants.NO_OF_ADS_TO_LOAD2>Constants.MAX_NUMBER_FOR7){
@@ -582,7 +583,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (dataSnapshot.hasChildren()) {
                 if(dataSnapshot.getChildrenCount()==1){
                     //if only one ad has loaded.
-                    Log.d(TAG,"Only one ad has loaded.");
+                    Log(TAG,"Only one ad has loaded.");
                     for (DataSnapshot snap : dataSnapshot.getChildren()) {
                         Advert ad = snap.getValue(Advert.class);
                         DataSnapshot snpsht = snap.child("pushId");
@@ -592,50 +593,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if(!ad.isFlagged()) mAdList.add(ad);
                     }
                     if(mAdList.size()!=0){
-                        Log.d(TAG,"The one ad was not flagged so its in the adlist");
+                        Log(TAG,"The one ad was not flagged so its in the adlist");
                         if(Variables.getCurrentAdInSubscription()!=Integer.parseInt(mAdList.get(0).getPushId())){
                             //user hasn't seen the one ad that has been loaded
-                            Log.d(TAG,"The user hasn't seen the one ad in the adlist.");
-                            Log.d(TAG,"Since the currentAdInSubscription is : "+Variables.getCurrentAdInSubscription()+" and " +
+                            Log(TAG,"The user hasn't seen the one ad in the adlist.");
+                            Log(TAG,"Since the currentAdInSubscription is : "+Variables.getCurrentAdInSubscription()+" and " +
                                     "the ad's pushID is : "+(mAdList.get(0).getPushId()));
                             mChildToStartFrom = Variables.getCurrentAdInSubscription()+ mAdList.size();
-                            Log.d(TAG,"The child set to start from is : "+mChildToStartFrom);
+                            Log(TAG,"The child set to start from is : "+mChildToStartFrom);
                             Variables.setCurrentAdNumberForAllAdsList(0);
                             loadAdsIntoAdvertCard();
                         }else{
                             //user has seen the one ad that has been loaded.
-                            Log.d(TAG,"User has seen the one ad that has been loaded so going to the next subscription");
-                            Log.d(TAG,"Since the currentAdInSubscription is : "+Variables.getCurrentAdInSubscription()+" and " +
+                            Log(TAG,"User has seen the one ad that has been loaded so going to the next subscription");
+                            Log(TAG,"Since the currentAdInSubscription is : "+Variables.getCurrentAdInSubscription()+" and " +
                                     "the ad's pushID is : "+(mAdList.get(0).getPushId()));
                             lastAdSeen = mAdList.get(0);
                             mChildToStartFrom = Integer.parseInt(lastAdSeen.getPushId());
                             if (Variables.getCurrentSubscriptionIndex()+1 < Variables.Subscriptions.size()) {
-                                Log.d(TAG,"Trying the next subscription.");
+                                Log(TAG,"Trying the next subscription.");
                                 Variables.setNextSubscriptionIndex();
                                 Variables.setCurrentAdInSubscription(0);
                                 getGetAdsFromFirebase();
                             } else {
-                                Log.d(TAG, "---There are no ads in any of the subscriptions");
+                                Log(TAG, "---There are no ads in any of the subscriptions");
                                 loadAdsIntoAdvertCard();
                             }
                         }
                     }else{
                         //the one ad may have been flagged so moving on to the next subscription
-                        Log.d(TAG,"the one ad may have been flagged so moving on to the next subscription");
+                        Log(TAG,"the one ad may have been flagged so moving on to the next subscription");
                         if (Variables.getCurrentSubscriptionIndex()+1 < Variables.Subscriptions.size()) {
-                            Log.d(TAG,"Trying the next subscription.");
+                            Log(TAG,"Trying the next subscription.");
                             Variables.setNextSubscriptionIndex();
                             Variables.setCurrentAdInSubscription(0);
                             getGetAdsFromFirebase();
                         } else {
-                            Log.d(TAG, "---There are no ads in any of the subscriptions");
+                            Log(TAG, "---There are no ads in any of the subscriptions");
                             loadAdsIntoAdvertCard();
                         }
                     }
 
                 }else{
                     //if multiple ads have loaded.
-                    Log.d(TAG,"More than one ad has been loaded from firebase");
+                    Log(TAG,"More than one ad has been loaded from firebase");
                     for (DataSnapshot snap : dataSnapshot.getChildren()) {
                             Advert ad = snap.getValue(Advert.class);
                             DataSnapshot snpsht = snap.child("pushId");
@@ -644,55 +645,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             ad.setPushIdNumber(Integer.parseInt(pushID));
                             if(!ad.isFlagged()){
                                 if(Variables.constantAmountPerView>3 && Variables.getAdTotal(mKey)+1>Constants.MAX_NUMBER_FOR7) {
-                                    Log.d(TAG,"User cannot see more than "+Constants.MAX_NUMBER_FOR7+" ads.");
+                                    Log(TAG,"User cannot see more than "+Constants.MAX_NUMBER_FOR7+" ads.");
                                 }else mAdList.add(ad);
                             }
                     }
                     if(mAdList.size()==0){
                         //all the ads loaded may have been flagged so loading the next ads after those ones.
-                        Log.d(TAG,"All the ads loaded have been flagged so loading the next batch");
+                        Log(TAG,"All the ads loaded have been flagged so loading the next batch");
                         Variables.setCurrentAdInSubscription(Variables.getCurrentAdInSubscription()+
                                 (int)dataSnapshot.getChildrenCount());
                         getGetAdsFromFirebase();
                     }else if(mAdList.size()==1 && Variables.getCurrentAdInSubscription()==Integer.parseInt(mAdList.get(0).getPushId())){
-                        Log.d(TAG,"There is only one ad that has been loaded.Perhaps the others were skipped because they were flagged");
-                        Log.d(TAG,"User has seen the one ad that has been loaded so going to the next subscription");
-                        Log.d(TAG,"Since the currentAdInSubscription is : "+Variables.getCurrentAdInSubscription()+" and " +
+                        Log(TAG,"There is only one ad that has been loaded.Perhaps the others were skipped because they were flagged");
+                        Log(TAG,"User has seen the one ad that has been loaded so going to the next subscription");
+                        Log(TAG,"Since the currentAdInSubscription is : "+Variables.getCurrentAdInSubscription()+" and " +
                                 "the ad's pushID is : "+(mAdList.get(0).getPushId()));
                         lastAdSeen = mAdList.get(0);
                         mChildToStartFrom = Integer.parseInt(lastAdSeen.getPushId());
                         if (Variables.getCurrentSubscriptionIndex()+1 < Variables.Subscriptions.size()) {
-                            Log.d(TAG,"Trying the next subscription.");
+                            Log(TAG,"Trying the next subscription.");
                             Variables.setNextSubscriptionIndex();
                             Variables.setCurrentAdInSubscription(0);
                             getGetAdsFromFirebase();
                         } else {
-                            Log.d(TAG, "---There are no ads in any of the subscriptions");
+                            Log(TAG, "---There are no ads in any of the subscriptions");
                             loadAdsIntoAdvertCard();
                         }
                     } else{
                         Variables.setCurrentAdNumberForAllAdsList(0);
                         //removing the first ad if the user has seen it.
-                        Log.d(TAG,"removing the first ad if the user has seen it.");
+                        Log(TAG,"removing the first ad if the user has seen it.");
                         if(Variables.getCurrentAdInSubscription()==Integer.parseInt(mAdList.get(0).getPushId())) {
                             mAdList.remove(0);
-                            Log.d(TAG,"First ad has been removed because it has been seen");
+                            Log(TAG,"First ad has been removed because it has been seen");
                         }
                         mChildToStartFrom = Variables.getCurrentAdInSubscription()+mAdList.size();
-                        Log.d(TAG, "Child set to start from is -- " + mChildToStartFrom);
-                        Log.d(TAG, "---All the ads have been handled.Total is " + mAdList.size());
+                        Log(TAG, "Child set to start from is -- " + mChildToStartFrom);
+                        Log(TAG, "---All the ads have been handled.Total is " + mAdList.size());
                         loadAdsIntoAdvertCard();
                     }
                 }
 
             }else{
                 if (Variables.getCurrentSubscriptionIndex()+1 < Variables.Subscriptions.size()) {
-                    Log.d(TAG, "---There are no ads in subscription : " + getSubscriptionValue(Variables.getCurrentSubscriptionIndex()) + ". Retrying in the next category");
+                    Log(TAG, "---There are no ads in subscription : " + getSubscriptionValue(Variables.getCurrentSubscriptionIndex()) + ". Retrying in the next category");
                     Variables.setNextSubscriptionIndex();
                     Variables.setCurrentAdInSubscription(0);
                     getGetAdsFromFirebase();
                 } else {
-                    Log.d(TAG, "---There are no ads in any of the subscriptions");
+                    Log(TAG, "---There are no ads in any of the subscriptions");
                     loadAdsIntoAdvertCard();
                 }
             }
@@ -711,19 +712,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onDataChange(DataSnapshot dataSnapshot) {
             if (!dataSnapshot.hasChildren()) {
                 if (Variables.getCurrentSubscriptionIndex()+1 < Variables.Subscriptions.size()) {
-                    Log.d(TAG, "---There are no ads in subscription : " + getSubscriptionValue(Variables.getCurrentSubscriptionIndex()) + ". Retrying in the next category");
+                    Log(TAG, "---There are no ads in subscription : " + getSubscriptionValue(Variables.getCurrentSubscriptionIndex()) + ". Retrying in the next category");
                     Variables.setNextSubscriptionIndex();
                     Variables.setCurrentAdInSubscription(0);
                     getGetAdsFromFirebase();
                 } else {
-                    Log.d(TAG, "---There are no ads in any of the subscriptions");
+                    Log(TAG, "---There are no ads in any of the subscriptions");
                     mAvi.setVisibility(View.GONE);
                     mLoadingText.setVisibility(View.GONE);
                     mBottomNavButtons.setVisibility(View.VISIBLE);
                     loadAdsIntoAdvertCard();
                 }
             } else {
-                Log.d(TAG, "---Children in dataSnapshot from firebase exist");
+                Log(TAG, "---Children in dataSnapshot from firebase exist");
                 for (DataSnapshot snap : dataSnapshot.getChildren()) {
                     Advert ad = snap.getValue(Advert.class);
                     DataSnapshot snpsht = snap.child("pushId");
@@ -740,30 +741,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         //setting the child to start from to the number of children gotten to current ad in sub + children count minus one.
                         //this is because snapshot contains child that has been seen by user.
                         mChildToStartFrom = Variables.getCurrentAdInSubscription() + (int) dataSnapshot.getChildrenCount() - 1;
-                        Log.d(TAG,"user has seen some of the ads from current subscription index.");
+                        Log(TAG,"user has seen some of the ads from current subscription index.");
 
                     } else {
                         //this means that user has not seen any ad in current subscription index.
                         mChildToStartFrom = (int) dataSnapshot.getChildrenCount();
-                        Log.d(TAG,"User has seen none of the ads gotten from current subscription index.");
+                        Log(TAG,"User has seen none of the ads gotten from current subscription index.");
                         //setting the child to start from to number of children gotten.
                     }
                     Variables.setCurrentAdNumberForAllAdsList(0);
-                    Log.d(TAG, "Child set to start from is -- " + mChildToStartFrom);
-                    Log.d(TAG, "---All the ads have been handled.Total is " + mAdList.size());
+                    Log(TAG, "Child set to start from is -- " + mChildToStartFrom);
+                    Log(TAG, "---All the ads have been handled.Total is " + mAdList.size());
                     mAvi.setVisibility(View.GONE);
                     mLoadingText.setVisibility(View.GONE);
                     mBottomNavButtons.setVisibility(View.VISIBLE);
                     loadAdsIntoAdvertCard();
                 }else{
                     if (Variables.getCurrentSubscriptionIndex()+1 < Variables.Subscriptions.size()) {
-                        Log.d(TAG, "---There was 1 flagged ad subscription : " +
+                        Log(TAG, "---There was 1 flagged ad subscription : " +
                                 getSubscriptionValue(Variables.getCurrentSubscriptionIndex()) + ". Retrying in the next category");
                         Variables.setNextSubscriptionIndex();
                         Variables.setCurrentAdInSubscription(0);
                         getGetAdsFromFirebase();
                     } else {
-                        Log.d(TAG, "---There are no ads in any other subscriptions");
+                        Log(TAG, "---There are no ads in any other subscriptions");
                         mAvi.setVisibility(View.GONE);
                         mLoadingText.setVisibility(View.GONE);
                         mBottomNavButtons.setVisibility(View.VISIBLE);
@@ -798,7 +799,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     private void unregisterAllReceivers() {
-        Log.d("MAIN_ACTIVITY--", "Unregistering all receivers");
+        Log("MAIN_ACTIVITY--", "Unregistering all receivers");
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForAddingToSharedPreferences);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForConnectionOffline);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForConnectionOnline);
@@ -906,7 +907,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                    @Override
                    public void onCancelled(DatabaseError databaseError) {
-                        Log.d(TAG,"An error occured, "+databaseError.getDetails());
+                        Log(TAG,"An error occured, "+databaseError.getDetails());
                    }
                });
            }
@@ -926,7 +927,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                @Override
                public void onCancelled(DatabaseError databaseError) {
-                    Log.d(TAG,"An error occurred while loading data, "+databaseError.getDetails());
+                    Log(TAG,"An error occurred while loading data, "+databaseError.getDetails());
                }
            });
 
@@ -940,25 +941,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Variables.isLocked = false;
         stage = "VIEWING_ADS";
         if (mAdCounterView == null) {
-            Log.d(TAG, "---Setting up AdCounter...");
+            Log(TAG, "---Setting up AdCounter...");
             loadAdCounter();
         }
         if (mSwipeView == null) {
-            Log.d(TAG, "---Setting up Swipe views..");
+            Log(TAG, "---Setting up Swipe views..");
             setUpAllTheViews();
         }
         if (mSwipeView.getChildCount() != 0) {
-            Log.d(TAG, "Removing existing children from swipeView...");
+            Log(TAG, "Removing existing children from swipeView...");
             mSwipeView.removeAllViews();
         }
         if (mAdCounterView.getChildCount() == 0) {
-            Log.d(TAG, "Loading the top timer now...");
+            Log(TAG, "Loading the top timer now...");
             loadAdCounter();
         }
         if (mAdList != null && mAdList.size() > 0) {
             if (mAdList.size() == 1 && mChildToStartFrom == Variables.getCurrentAdInSubscription()) {
-                Log.d(TAG, "---User has seen all the ads, thus will load only last ad...");
-                Log.d(TAG,"The child to start from is : "+mChildToStartFrom+" and currentAdInSubscriptionIs : "+
+                Log(TAG, "---User has seen all the ads, thus will load only last ad...");
+                Log(TAG,"The child to start from is : "+mChildToStartFrom+" and currentAdInSubscriptionIs : "+
                         Variables.getCurrentAdInSubscription());
                 lockViews();
                 mAdList.get(0).setNatureOfBanner(Constants.IS_AD);
@@ -999,19 +1000,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     ad.setNatureOfBanner(Constants.IS_AD);
                     Variables.adToVariablesAdList(ad);
                     mSwipeView.addView(new AdvertCard(mContext, ad, mSwipeView, Constants.NOT_LAST));
-                    Log.d(TAG, "Loading ad " + ad.getPushRefInAdminConsole());
+                    Log(TAG, "Loading ad " + ad.getPushRefInAdminConsole());
                     Variables.setIsLastOrNotLast(Constants.NOT_LAST);
                 }
             }
             numberOfInitiallyLoadedAds = mAdList.size();
             mAdList.clear();
-            Log.d(TAG,"cleared the adlist");
+            Log(TAG,"cleared the adlist");
         } else {
 //            if(Variables.didAdCafeRemoveCategory)informUserOfSubscriptionChanges();
 //            if(Variables.didAdCafeAddNewCategory) tellUserOfNewSubscription();
             numberOfInitiallyLoadedAds = 1;
             if(lastAdSeen!=null){
-                Log.d(TAG, "---Loading only last ad from lastAdSeen that was initialised...");
+                Log(TAG, "---Loading only last ad from lastAdSeen that was initialised...");
                 lockViews();
                 lastAdSeen.setNatureOfBanner(Constants.IS_AD);
                 Variables.adToVariablesAdList(lastAdSeen);
@@ -1055,10 +1056,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             loadAnyAnnouncements();
         }
 
-        Log.d(TAG, "---Setting up On click listeners...");
+        Log(TAG, "---Setting up On click listeners...");
         onclicks();
-        Log.d(TAG,"Todays ad total is : "+Variables.getAdTotal(mKey));
-        Log.d(TAG,"The month Ad Total is : "+Variables.getMonthAdTotals(mKey));
+        Log(TAG,"Todays ad total is : "+Variables.getAdTotal(mKey));
+        Log(TAG,"The month Ad Total is : "+Variables.getMonthAdTotals(mKey));
         networkStateReceiver = new NetworkStateReceiver();
         networkStateReceiver.addListener(this);
         this.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
@@ -1274,7 +1275,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                        }
 //                    }).show();
             FragmentManager fm = getFragmentManager();
-            Log.d(TAG,"Setting up fragment");
+            Log(TAG,"Setting up fragment");
             FeedbackFragment reportDialogFragment = new FeedbackFragment();
             reportDialogFragment.setMenuVisibility(false);
             reportDialogFragment.show(fm, "Feedback.");
@@ -1282,7 +1283,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             setBooleanForPausingTimer();
         }
         if (v == mRetryButton) {
-            Log.d(TAG, "Retrying to load ads...");
+            Log(TAG, "Retrying to load ads...");
 //            mAvi.setVisibility(View.VISIBLE);
             mLoadingProgressBar.setVisibility(View.VISIBLE);
             mLoadingText.setVisibility(View.VISIBLE);
@@ -1342,7 +1343,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BroadcastReceiver mMessageReceiverForSetUpTime = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG,"Finished setting up time.");
+            Log(TAG,"Finished setting up time.");
             loadAdsFromThread();
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
         }
@@ -1351,10 +1352,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BroadcastReceiver mMessageReceiverForUnhideVeiws = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("COUNTER_BAR_TO_MAIN- ", "Broadcast has been received that blurred images have loaded, unhiding views.");
+            Log("COUNTER_BAR_TO_MAIN- ", "Broadcast has been received that blurred images have loaded, unhiding views.");
             int visibleChildren =  numberOfInitiallyLoadedAds <= 4 ? numberOfInitiallyLoadedAds : 4;
             numberOfResponsesForLoadingBlurredImages ++;
-            Log.d(TAG,"Number of visible cards : "+visibleChildren+" Number of responses for loading blurred images :"+ numberOfResponsesForLoadingBlurredImages);
+            Log(TAG,"Number of visible cards : "+visibleChildren+" Number of responses for loading blurred images :"+ numberOfResponsesForLoadingBlurredImages);
             if(numberOfResponsesForLoadingBlurredImages == visibleChildren && !hasSentMessageThatBlurrsHaveFinished){
                 hasSentMessageThatBlurrsHaveFinished = true;
                 unhideViews();
@@ -1367,7 +1368,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     private void hideViews(){
-        Log.d(TAG,"Hiding views...");
+        Log(TAG,"Hiding views...");
         areViewsHidden = true;
 //        mAvi.setVisibility(View.VISIBLE);
         mLoadingProgressBar.setVisibility(View.VISIBLE);
@@ -1383,7 +1384,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void unhideViews(){
         if(areViewsHidden){
             areViewsHidden = false;
-            Log.d(TAG,"Unhiding views");
+            Log(TAG,"Unhiding views");
             mAdCounterView.setVisibility(View.VISIBLE);
 //            mAvi.setVisibility(View.GONE);
             mLoadingProgressBar.setVisibility(View.GONE);
@@ -1407,7 +1408,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onReceive(Context context, Intent intent) {
             Log(TAG, "Broadcast has been received that database manager is done checking if need to readd categories");
             try {
-                Log.d(TAG, "---Starting the getAds method...");
+                Log(TAG, "---Starting the getAds method...");
                 startGetAds();
             } catch (Exception e) {
                 Log.e("BACKGROUND_PROC---", e.getMessage());
@@ -1419,7 +1420,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BroadcastReceiver mMessageReceiverForAddingToSharedPreferences = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("COUNTER_BAR_TO_MAIN- ", "Broadcast has been received to add to shared preferences.");
+            Log("COUNTER_BAR_TO_MAIN- ", "Broadcast has been received to add to shared preferences.");
             updateData();
         }
     };
@@ -1428,6 +1429,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Variables.adAdToTotal(mKey);
         Variables.adToMonthTotals(mKey);
         Variables.addOneToTotalReimbursementAmount(mKey);
+
         Variables.adOneToCurrentAdNumberForAllAdsList();
         addToSharedPreferences();
         adDayAndMonthTotalsToFirebase();
@@ -1441,13 +1443,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Variables.setCurrentAdInSubscription(Integer.parseInt(Variables.getCurrentAdvert().getPushId()));
         }catch (Exception e){
             e.printStackTrace();
-            Log.d(TAG,"Something went wrong setting the current ad in subscription");
-            Log.d(TAG,"Setting using the getPushIdNumber instead. Number is : "+Variables.getCurrentAdvert().getPushIdNumber());
+            Log(TAG,"Something went wrong setting the current ad in subscription");
+            Log(TAG,"Setting using the getPushIdNumber instead. Number is : "+Variables.getCurrentAdvert().getPushIdNumber());
             Variables.setCurrentAdInSubscription(Variables.getCurrentAdvert().getPushIdNumber());
         }
         Variables.setCurrentSubscriptionIndex(getPositionOf(Variables.getCurrentAdvert().getCategory()));
-        Log.d(TAG, "Setting current subscription to : " + getPositionOf(Variables.getCurrentAdvert().getCategory()));
-        Log.d(TAG, "Setting Current ad in subscription to : " + Variables.getCurrentAdvert().getPushId());
+        Log(TAG, "Setting current subscription to : " + getPositionOf(Variables.getCurrentAdvert().getCategory()));
+        Log(TAG, "Setting Current ad in subscription to : " + Variables.getCurrentAdvert().getPushId());
         setCurrentAdInSubscriptionAndCurrentSubscriptionIndexInFireBase();
 
         if(Variables.didAdCafeRemoveCategory)informUserOfSubscriptionChanges();
@@ -1455,13 +1457,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if(mSwipeView.getChildCount() == 1 && !isLoadingMoreAds)
             Toast.makeText(mContext, R.string.lastAd, Toast.LENGTH_SHORT).show();
+
+        setPreviousAdsImage();
+    }
+
+    private void setPreviousAdsImage() {
+        int currentAdsPos = Variables.getCurrentAdNumberForAllAdsList();
+        try{
+            if(currentAdsPos>0){
+                int pos = currentAdsPos-1;
+                Log(TAG,"Removing image in ad: "+Variables.getAdFromVariablesAdList(pos).getPushRefInAdminConsole());
+                Variables.getAdFromVariablesAdList(pos).setImageUrl("cleared");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 
     private BroadcastReceiver mMessageReceiverForConnectionOffline = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("CONNECTION_C-MAIN_A", "Connection has been dropped");
+            Log("CONNECTION_C-MAIN_A", "Connection has been dropped");
             Snackbar.make(findViewById(R.id.mainCoordinatorLayout), R.string.connectionDropped2,
                     Snackbar.LENGTH_INDEFINITE).show();
         }
@@ -1470,7 +1488,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BroadcastReceiver mMessageReceiverForConnectionOnline = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("CONNECTION_C-MAIN_A", "Connection has come online");
+            Log("CONNECTION_C-MAIN_A", "Connection has come online");
         }
     };
 
@@ -1546,7 +1564,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 //        spinner.setVisibility(View.VISIBLE);
-        Log.d("MAIN-ACTIVITY---", "Loading more ads since user has seen almost all....");
+        Log("MAIN-ACTIVITY---", "Loading more ads since user has seen almost all....");
         String date;
         date = isAlmostMidNight() ? getNextDay() : getDate();
 
@@ -1556,14 +1574,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .child(Integer.toString(getClusterValue(Variables.nextSubscriptionIndex)));
 
 
-        Log.d(TAG, "---Query set up is : " + Constants.ADVERTS + " : " + date + " : "+Variables.constantAmountPerView+ " : "
+        Log(TAG, "---Query set up is : " + Constants.ADVERTS + " : " + date + " : "+Variables.constantAmountPerView+ " : "
                 + getSubscriptionValue(Variables.nextSubscriptionIndex)
                 + " : "
                 + Integer.toString(getClusterValue(Variables.nextSubscriptionIndex)));
 
 
         dbRef = query.getRef();
-        Log.d(TAG,"Dbref starts at "+(mChildToStartFrom + 1));
+        Log(TAG,"Dbref starts at "+(mChildToStartFrom + 1));
         dbRef.orderByKey().startAt(Integer.toString(mChildToStartFrom + 1))
                 .limitToFirst(Constants.NO_OF_ADS_TO_LOAD2).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -1574,37 +1592,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     canLoad = false;
                 }
                 if (dataSnapshot.hasChildren()) {
-                    Log.d(TAG, "---More children in dataSnapshot from firebase exist");
+                    Log(TAG, "---More children in dataSnapshot from firebase exist");
                     for (DataSnapshot snap : dataSnapshot.getChildren()) {
                         Advert ad = snap.getValue(Advert.class);
                         DataSnapshot snpsht = snap.child("pushId");
                         String pushID = snpsht.getValue(String.class);
                         ad.setPushId(pushID);
                         ad.setPushIdNumber(Integer.parseInt(pushID));
-                        Log.d(TAG,"setting push id to : "+ ad.getPushId());
+                        Log(TAG,"setting push id to : "+ ad.getPushId());
                         if(!ad.isFlagged()){
                             if(Variables.constantAmountPerView>3 && Variables.getAdTotal(mKey)+1>Constants.MAX_NUMBER_FOR7) {
-                                Log.d(TAG,"User cannot see more than "+Constants.MAX_NUMBER_FOR7+" ads.");
+                                Log(TAG,"User cannot see more than "+Constants.MAX_NUMBER_FOR7+" ads.");
                             }else{
                                 mAdList.add(ad);
-                                Log.d(TAG,"Loaded ad : "+ad.getPushRefInAdminConsole());
+                                Log(TAG,"Loaded ad : "+ad.getPushRefInAdminConsole());
                             }
                         }
                     }
-                    Log.d(TAG, "---All the new ads have been handled.Total is " + mAdList.size());
+                    Log(TAG, "---All the new ads have been handled.Total is " + mAdList.size());
                     if(mAdList.size()!=0){
                         loadMoreAdsIntoAdvertCard();
                         mChildToStartFrom += (int) dataSnapshot.getChildrenCount();
                         isLoadingMoreAds = false;
 
                     }else{
-                        Log.d(TAG,"Loaded no ad, loading more ads...");
+                        Log(TAG,"Loaded no ad, loading more ads...");
                         if(Variables.nextSubscriptionIndex+1<Variables.Subscriptions.size()){
                             mChildToStartFrom=0;
                             Variables.nextSubscriptionIndex+=1;
                             loadMoreAds();
                         }else{
-                            Log.d(TAG,"No more ads are available from the rest of the subscriptions");
+                            Log(TAG,"No more ads are available from the rest of the subscriptions");
                             isLoadingMoreAds = false;
                             if(isLoaderShowing) {
                                 isLoaderShowing = false;
@@ -1622,13 +1640,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 } else {
                     //no ads were found in the subscription
-                    Log.d(TAG, "----No ads are available in subscription: "+getSubscriptionValue(Variables.nextSubscriptionIndex));
+                    Log(TAG, "----No ads are available in subscription: "+getSubscriptionValue(Variables.nextSubscriptionIndex));
                     if(Variables.nextSubscriptionIndex+1<Variables.Subscriptions.size()){
                         mChildToStartFrom=0;
                         Variables.nextSubscriptionIndex+=1;
                         loadMoreAds();
                     }else{
-                        Log.d(TAG,"No more ads are available from the rest of the subscriptions");
+                        Log(TAG,"No more ads are available from the rest of the subscriptions");
                         isLoadingMoreAds = false;
                         if(isLoaderShowing) {
                             isLoaderShowing = false;
@@ -1647,7 +1665,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "Unable to load more ads for some issue." + databaseError.getMessage());
+                Log(TAG, "Unable to load more ads for some issue." + databaseError.getMessage());
             }
         });
     }
@@ -1672,7 +1690,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-                    Log.d(TAG,"An error occured, "+databaseError.getDetails());
+                    Log(TAG,"An error occured, "+databaseError.getDetails());
                 }
             });
         }
@@ -1701,11 +1719,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(!hasLoadedAnnouncements){
             hasLoadedAnnouncements = true;
             if(!areViewsHidden)mAviLoadingMoreAds.smoothToShow();
-            Log.d("MAIN-ACTIVITY---", "Now loading announcements since there are no more ads....");
+            Log("MAIN-ACTIVITY---", "Now loading announcements since there are no more ads....");
             String date = isAlmostMidNight() ? getNextDay() : getDate();
             Query query = FirebaseDatabase.getInstance().getReference(Constants.ANNOUNCEMENTS).child(date);
 
-            Log.d(TAG, "---Query set up is : " + Constants.ANNOUNCEMENTS + " : " + date);
+            Log(TAG, "---Query set up is : " + Constants.ANNOUNCEMENTS + " : " + date);
             dbRef = query.getRef();
             dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -1727,20 +1745,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if(Variables.isLockedBecauseOfNoMoreAds){
 //                            mSwipeView.unlockViews();
                             unLockViews();
-                            Log.d(TAG,"Unlocking views since isLockedBecauseOfNoMoreAds is : "+Variables.isLockedBecauseOfNoMoreAds);
+                            Log(TAG,"Unlocking views since isLockedBecauseOfNoMoreAds is : "+Variables.isLockedBecauseOfNoMoreAds);
                             Variables.isLockedBecauseOfNoMoreAds = false;
                         }
                         mAviLoadingMoreAds.smoothToHide();
                         mAdList.clear();
                     } else {
                         mAviLoadingMoreAds.smoothToHide();
-                        Log.d(TAG, "There are no announcements today...");
+                        Log(TAG, "There are no announcements today...");
                     }
                 }
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-                    Log.d(TAG, "Unable to load announcements...");
+                    Log(TAG, "Unable to load announcements...");
                     hasLoadedAnnouncements = false;
                 }
             });
@@ -1763,16 +1781,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         float relativeScale;
 
         if (density >= 560) {
-            Log.d("DENSITY---", "HIGH... Density is " + String.valueOf(density));
+            Log("DENSITY---", "HIGH... Density is " + String.valueOf(density));
             relativeScale = 0.005f;
         } else if (density >= 460) {
-            Log.d("DENSITY---", "MEDIUM-HIGH... Density is " + String.valueOf(density));
+            Log("DENSITY---", "MEDIUM-HIGH... Density is " + String.valueOf(density));
             relativeScale = 0.009f;
         } else if (density >= 360) {
-            Log.d("DENSITY---", "MEDIUM-LOW... Density is " + String.valueOf(density));
+            Log("DENSITY---", "MEDIUM-LOW... Density is " + String.valueOf(density));
             relativeScale = 0.013f;
         } else if (density >= 260) {
-            Log.d("DENSITY---", "LOW... Density is " + String.valueOf(density));
+            Log("DENSITY---", "LOW... Density is " + String.valueOf(density));
             relativeScale = 0.015f;
         } else {
             relativeScale = 0.02f;
@@ -1785,14 +1803,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         SharedPreferences.Editor editor = pref.edit();
         editor.clear();
         editor.putInt("adTotals", Variables.getAdTotal(mKey));
-        Log.d("MAIN_ACTIVITY--", "Adding 1 to shared preferences adTotal is - " + Integer.toString(Variables.getAdTotal(mKey)));
+        Log("MAIN_ACTIVITY--", "Adding 1 to shared preferences adTotal is - " + Integer.toString(Variables.getAdTotal(mKey)));
         editor.commit();
 
         SharedPreferences pref2 = getApplicationContext().getSharedPreferences(Constants.TOTAL_NO_OF_ADS_SEEN_All_MONTH, MODE_PRIVATE);
         SharedPreferences.Editor editor2 = pref2.edit();
         editor2.clear();
         editor.putInt(Constants.TOTAL_NO_OF_ADS_SEEN_All_MONTH, Variables.getMonthAdTotals(mKey));
-        Log.d("MAIN_ACTIVITY--", "Adding 1 to shared preferences Month ad totals is - " + Integer.toString(Variables.getMonthAdTotals(mKey)));
+        Log("MAIN_ACTIVITY--", "Adding 1 to shared preferences Month ad totals is - " + Integer.toString(Variables.getMonthAdTotals(mKey)));
         editor2.commit();
     }
 
@@ -1821,12 +1839,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String uid = User.getUid();
         DatabaseReference adRef3 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(uid).child(Constants.CURRENT_SUBSCRIPTION_INDEX);
-        Log.d(TAG,"Setting current subscription index in firebase to :"+Variables.getCurrentSubscriptionIndex());
+        Log(TAG,"Setting current subscription index in firebase to :"+Variables.getCurrentSubscriptionIndex());
         adRef3.setValue(Variables.getCurrentSubscriptionIndex());
 
         DatabaseReference adRef4 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(uid).child(Constants.CURRENT_AD_IN_SUBSCRIPTION);
-        Log.d(TAG,"Setting current ad in subscription index in firebase to : "+Variables.getCurrentAdInSubscription());
+        Log(TAG,"Setting current ad in subscription index in firebase to : "+Variables.getCurrentAdInSubscription());
         adRef4.setValue(Variables.getCurrentAdInSubscription());
     }
 
@@ -1895,7 +1913,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setCurrentDateToSharedPrefs() {
-        Log.d(TAG, "---Setting current date in shared preferences.");
+        Log(TAG, "---Setting current date in shared preferences.");
         SharedPreferences prefs = getSharedPreferences(Constants.DATE, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         if(isAlmostMidNight()) editor.putString("date",getNextDay());
@@ -1904,7 +1922,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private String getCurrentDateInSharedPreferences() {
-        Log.d(TAG, "---Getting current date in shared preferences.");
+        Log(TAG, "---Getting current date in shared preferences.");
         SharedPreferences prefs = getSharedPreferences(Constants.DATE, MODE_PRIVATE);
         String date = prefs.getString("date", "0");
         return date;
@@ -1915,7 +1933,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override public void networkAvailable() {
-        Log.d(TAG, "User is connected to the internet via wifi or cellular data");
+        Log(TAG, "User is connected to the internet via wifi or cellular data");
         isOffline = false;
         if(stage.equals("VIEWING_ADS") && isHiddenBecauseNetworkDropped){
             //Sets these views if activity has already loaded the ads.
@@ -1950,7 +1968,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override public void networkUnavailable() {
-        Log.d(TAG, "User has gone offline...");
+        Log(TAG, "User has gone offline...");
         isOffline = true;
 
         if(stage.equals("VIEWING_ADS")){
@@ -1987,7 +2005,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void pinAd() {
-        Log.d(TAG, "Pinning ad from main activity");
+        Log(TAG, "Pinning ad from main activity");
         Advert ad = Variables.getCurrentAdvert();
         String uid = User.getUid();
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
@@ -1996,7 +2014,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         DatabaseReference pushRef = adRef.push();
         String pushId = pushRef.getKey();
 
-        Log.d(TAG, "pinning the selected ad.");
+        Log(TAG, "pinning the selected ad.");
         ad.setImageBitmap(null);
         ad.setPushId(pushId);
 
@@ -2015,7 +2033,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pushRef.setValue(ad).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                Log.d(TAG, "Pinning is complete.");
+                Log(TAG, "Pinning is complete.");
                 Variables.hasBeenPinned = true;
             }
         });
@@ -2050,18 +2068,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void getNumberOfTimesAndSetNewNumberOfTimes() {
-        Log.d(TAG, "Getting the current ad's numberOfTimesSeen from firebase");
+        Log(TAG, "Getting the current ad's numberOfTimesSeen from firebase");
         final String datte;
         //ad gotten will be current advert
         final Advert ad = Variables.getCurrentAdvert();
         datte = isAlmostMidNight() ? getNextDay() : getDate();
 
-        Log.d(TAG, "Push ref for current Advert is : " + ad.getPushRefInAdminConsole());
+        Log(TAG, "Push ref for current Advert is : " + ad.getPushRefInAdminConsole());
         Query query = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
                 .child(datte)
                 .child(ad.getPushRefInAdminConsole())
                 .child("numberOfTimesSeen");
-        Log.d(TAG, "Query set up is :" + Constants.ADS_FOR_CONSOLE + " : " + datte + " : " + ad.getPushRefInAdminConsole() + " : numberOfTimesSeen");
+        Log(TAG, "Query set up is :" + Constants.ADS_FOR_CONSOLE + " : " + datte + " : " + ad.getPushRefInAdminConsole() + " : numberOfTimesSeen");
         DatabaseReference dbRef = query.getRef();
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -2077,30 +2095,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "Unable to get number of times seen");
+                Log(TAG, "Unable to get number of times seen");
             }
         });
     }
 
     private void setNewNumberOfTimesSeen(int number, String date, Advert advert) {
-        Log.d(TAG, "Setting the new number of times seen in firebase.");
+        Log(TAG, "Setting the new number of times seen in firebase.");
+
+        final Advert ad = Variables.getCurrentAdvert();
 
         Query query2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
-                .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
+                .child(ad.getAdvertiserUid()).child(Constants.UPLOAD_HISTORY)
                 .child(Long.toString(-TimeManager.getDateInDays()))
-                .child(Variables.getCurrentAdvert().getPushRefInAdminConsole()).child("numberOfTimesSeen");
+                .child(ad.getPushRefInAdminConsole()).child("numberOfTimesSeen");
         DatabaseReference dbref2 = query2.getRef();
         dbref2.setValue(number);
 
         Query query = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
                 .child(date).child(Variables.getCurrentAdvert().getPushRefInAdminConsole()).child("numberOfTimesSeen");
 
-        Log.d(TAG, "Query set up is :" + Constants.ADS_FOR_CONSOLE + " : " + date + " : " + advert.getPushRefInAdminConsole() + " : numberOfTimesSeen");
+        Log(TAG, "Query set up is :" + Constants.ADS_FOR_CONSOLE + " : " + date + " : " + advert.getPushRefInAdminConsole() + " : numberOfTimesSeen");
         DatabaseReference dbRef = query.getRef();
         dbRef.setValue(number).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Log.d(TAG, "The new number has been set.");
+                Log(TAG, "The new number has been set.");
             }
         });
     }
@@ -2205,14 +2225,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 long number;
                 if (dataSnapshot.exists()) number = dataSnapshot.getValue(long.class);
                 else number = 0;
-                Log.d(TAG, "number gotten for global ad totals is : " + number);
+                Log(TAG, "number gotten for global ad totals is : " + number);
                 long newNumber = number + Variables.constantAmountPerView;
                 setNewAllAdsThatHaveBeenSeenEver(newNumber);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "Unable to update totals");
+                Log(TAG, "Unable to update totals");
             }
         });
     }
@@ -2223,7 +2243,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dbRef.setValue(number).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Log.d(TAG, "New value has been set");
+                Log(TAG, "New value has been set");
             }
         });
     }
@@ -2246,7 +2266,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         alarmStartTime.set(Calendar.MINUTE, Variables.preferredMinuteOfNotf);
         alarmStartTime.set(Calendar.SECOND, 0);
         if (now.after(alarmStartTime)) {
-            Log.d(TAG, "Setting alarm to tomorrow morning.");
+            Log(TAG, "Setting alarm to tomorrow morning.");
             alarmStartTime.add(Calendar.DATE, 1);
         }
         try {
@@ -2270,14 +2290,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 long number;
                 if (dataSnapshot.exists()) number = dataSnapshot.getValue(long.class);
                 else number = 0;
-                Log.d(TAG, "number gotten for takeout ad totals is : " + number);
+                Log(TAG, "number gotten for takeout ad totals is : " + number);
                 long newNumber = number + Constants.TOTAL_AMOUNT_PER_VIEW_FOR_ADMIN;
                 setNewAdminTotals(newNumber);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "Unable to update totals");
+                Log(TAG, "Unable to update totals");
             }
         });
     }
@@ -2288,7 +2308,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dbRef.setValue(number).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Log.d(TAG, "New value has been set");
+                Log(TAG, "New value has been set");
             }
         });
     }
@@ -2309,14 +2329,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int getClusterValue(int index) {
         LinkedHashMap map = Variables.Subscriptions;
         int cluster = (new ArrayList<Integer>(map.values())).get(index);
-        Log.d(TAG, "Cluster gotten from current subscription is : " + cluster);
+        Log(TAG, "Cluster gotten from current subscription is : " + cluster);
         return cluster;
     }
 
     private String getSubscriptionValue(int index) {
         LinkedHashMap map = Variables.Subscriptions;
         String Sub = (new ArrayList<String>(map.keySet())).get(index);
-        Log.d(TAG, "Subscription gotten from getCurrent Subscription method is :" + Sub);
+        Log(TAG, "Subscription gotten from getCurrent Subscription method is :" + Sub);
         return Sub;
     }
 
@@ -2424,17 +2444,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        String monthName = new DateFormatSymbols().getMonths()[monthOfYear];
         String monthName = getMonthName_Abbr(monthOfYear);
 
-        Log.d(TAG,"Date gotten is : "+dayOfMonth+" "+monthName+" "+year);
+        Log(TAG,"Date gotten is : "+dayOfMonth+" "+monthName+" "+year);
 
         Calendar cal2 = Calendar.getInstance();
         int year2 = cal2.get(Calendar.YEAR);
         String yearName;
 
         if(year == year2){
-            Log.d(TAG,"Ad was pined this year...");
+            Log(TAG,"Ad was pined this year...");
             yearName = "";
         }else if(year2 == year+1){
-            Log.d(TAG,"Ad was pined last year...");
+            Log(TAG,"Ad was pined last year...");
             yearName =", "+Integer.toString(year);
         }else{
             yearName =", "+ Integer.toString(year);
@@ -2488,13 +2508,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setBooleanForPausingTimer(){
-        Log.d(TAG,"Setting boolean for pausing timer.");
+        Log(TAG,"Setting boolean for pausing timer.");
         if(Variables.isAllClearToContinueCountDown) Variables.isAllClearToContinueCountDown = false;
 
     }
 
     private void setBooleanForResumingTimer(){
-        Log.d(TAG,"Setting boolean for resuming timer.");
+        Log(TAG,"Setting boolean for resuming timer.");
         if(!Variables.isAllClearToContinueCountDown)Variables.isAllClearToContinueCountDown = true;
     }
 
@@ -2508,7 +2528,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void Log(String tag,String message){
-        Log.d(tag,message);
+        try{
+            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 //    Font: AR ESSENCE.

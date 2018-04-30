@@ -99,8 +99,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="1084"
-                        android:textSize="50dp" />
+                        android:text="9,990"
+                        android:textSize="50sp" />
 
                     <TextView
                         android:layout_width="match_parent"

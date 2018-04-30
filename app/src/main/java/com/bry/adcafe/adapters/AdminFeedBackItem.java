@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -11,6 +12,7 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.mindorks.placeholderview.PlaceHolderView;
@@ -94,6 +96,16 @@ public class AdminFeedBackItem {
 
     private void removeView() {
         mPlaceHolderView.removeView(this);
+    }
+
+    private void Log(String tag,String message){
+        try{
+            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 }

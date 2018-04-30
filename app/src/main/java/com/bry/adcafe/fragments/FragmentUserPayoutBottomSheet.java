@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -97,6 +98,7 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
         mConfirmLayout = contentView.findViewById(R.id.confirmLayout);
 
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) ((View) contentView.getParent()).getLayoutParams();
+        params.setMargins(15,-15,15,15);
         CoordinatorLayout.Behavior behavior = params.getBehavior();
 
         if( behavior != null && behavior instanceof BottomSheetBehavior) {
@@ -125,6 +127,9 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
                 dismiss();
             }
         });
+
+        FrameLayout bottomSheet = dialog.getWindow().findViewById(android.support.design.R.id.design_bottom_sheet);
+        bottomSheet.setBackgroundResource(R.drawable.dialog_bg);
 
     }
 

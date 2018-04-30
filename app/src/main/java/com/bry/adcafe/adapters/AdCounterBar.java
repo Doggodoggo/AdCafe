@@ -17,6 +17,7 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.FeedbackFragment;
+import com.google.firebase.auth.FirebaseAuth;
 import com.mindorks.placeholderview.PlaceHolderView;
 import com.mindorks.placeholderview.annotations.Click;
 import com.mindorks.placeholderview.annotations.Layout;
@@ -88,7 +89,7 @@ public class AdCounterBar {
     private BroadcastReceiver mMessageReceiverToStartTimer = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("AD_COUNTER_BAR - ", "Broadcast has been received to start timer.");
+            Log("AD_COUNTER_BAR - ", "Broadcast has been received to start timer.");
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -102,7 +103,7 @@ public class AdCounterBar {
     private BroadcastReceiver mMessageReceiverToUnregisterAllReceivers = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("AD_COUNTER_BAR--", "Received broadcast to Unregister all receivers");
+            Log("AD_COUNTER_BAR--", "Received broadcast to Unregister all receivers");
             unregisterReceivers();
             if(hasTimerStarted){
                 cancelTimerEntirely = true;
@@ -115,7 +116,7 @@ public class AdCounterBar {
     private BroadcastReceiver mMessageReceiverToPauseTimer = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("AD_COUNTER_BAR - ", "Broadcast has been received to pause timer.");
+            Log("AD_COUNTER_BAR - ", "Broadcast has been received to pause timer.");
             if(hasTimerStarted) {
                 hasPausedTimer = true;
             }
@@ -125,7 +126,7 @@ public class AdCounterBar {
     private BroadcastReceiver mMessageReceiverToResumeTimer = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("AD_COUNTER_BAR - ", "Broadcast has been received to resume timer.");
+            Log("AD_COUNTER_BAR - ", "Broadcast has been received to resume timer.");
             if(hasPausedTimer) {
                 hasPausedTimer = false;
                 isTimerBeingResumed = true;
@@ -141,7 +142,7 @@ public class AdCounterBar {
 
     @Click(R.id.textViewTime)
     private void onClick() {
-        Log.d("AdCounterBar", "Clicked text view time.");
+        Log("AdCounterBar", "Clicked text view time.");
 //        startTimer2();
     }
 
@@ -162,7 +163,7 @@ public class AdCounterBar {
                 @Override
                 public void onFinish() {
                     progressBarTimer.setProgress(7 * 1000);
-                    Log.d("Timer --- ", "Timer has finnished");
+                    Log("Timer --- ", "Timer has finnished");
                     sendBroadcast(Constants.TIMER_HAS_ENDED);
                     addToSharedPreferencesViaBroadcast();
                     hasTimerStarted = false;
@@ -179,14 +180,14 @@ public class AdCounterBar {
         if (!hasTimerStarted) {
             Variables.hasBeenPinned = false;
             hasTimerStarted = true;
-            Log.d("AdCounterBar", "Starting timer from asynch task");
+            Log("AdCounterBar", "Starting timer from asynch task");
             hasTimerMessageBeenSent = false;
             if(IT!=null) IT = null;
             IT = new InitTask();
             IT.execute();
         }
         if(isTimerBeingResumed){
-            Log.d("AdCounterBar", "Resuming timer from asynch task");
+            Log("AdCounterBar", "Resuming timer from asynch task");
             isTimerBeingResumed = false;
             if(IT!=null) IT = null;
             IT = new InitTask();
@@ -196,7 +197,7 @@ public class AdCounterBar {
 
     private void startTimer3(){
         if (!hasTimerStarted) {
-            Log.d("AdCounterBar", "Starting timer from ui thread version of asynch task");
+            Log("AdCounterBar", "Starting timer from ui thread version of asynch task");
             hasTimerMessageBeenSent = false;
             tryStartTimerFromUiThread();
         }
@@ -206,7 +207,7 @@ public class AdCounterBar {
     private void sendBroadcast(String message) {
         if (message.equals(Constants.TIMER_HAS_ENDED) && !hasTimerMessageBeenSent) {
             hasTimerMessageBeenSent = true;
-            Log.d("AD_COUNTER_BAR---", "sending message that timer has ended.");
+            Log("AD_COUNTER_BAR---", "sending message that timer has ended.");
             Intent intent = new Intent(Constants.TIMER_HAS_ENDED);
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
             Variables.hasTimerStarted = false;
@@ -214,7 +215,7 @@ public class AdCounterBar {
     }
 
     private void addToSharedPreferencesViaBroadcast() {
-        Log.d("ADVERT_CARD_SP", "add To Shared Preferences Via Broadcast in Advert Card");
+        Log("ADVERT_CARD_SP", "add To Shared Preferences Via Broadcast in Advert Card");
         Intent intent = new Intent(Constants.ADD_TO_SHARED_PREFERENCES);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
@@ -243,7 +244,7 @@ public class AdCounterBar {
             }
         }
         resetTimer();
-        Log.d("Timer --- ", "Timer has finnished");
+        Log("Timer --- ", "Timer has finnished");
 //        sendBroadcast(Constants.TIMER_HAS_ENDED);
 //        addToSharedPreferencesViaBroadcast();
 //        hasTimerStarted = false;
@@ -262,7 +263,7 @@ public class AdCounterBar {
         // -- gets called just before thread begins
         @Override
         protected void onPreExecute() {
-            Log.d("AdCounterBar","Preparing to start timer");
+            Log("AdCounterBar","Preparing to start timer");
             Variables.hasTimerStarted = true;
             hasTimerStarted = true;
             super.onPreExecute();
@@ -299,7 +300,7 @@ public class AdCounterBar {
             super.onPostExecute(result);
             if(!hasPausedTimer && !cancelTimerEntirely){
                 resetTimer();
-                Log.d("Timer --- ", "Timer has finnished");
+                Log("Timer --- ", "Timer has finnished");
             }
         }
     }
@@ -347,6 +348,16 @@ public class AdCounterBar {
             hasTimerStarted = false;
             adCounter.setText(Integer.toString(Variables.getAdTotal(mKey)+1));
             textViewTime.setText(Integer.toString(7));
+        }
+
+    }
+
+    private void Log(String tag,String message){
+        try{
+            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
     }
