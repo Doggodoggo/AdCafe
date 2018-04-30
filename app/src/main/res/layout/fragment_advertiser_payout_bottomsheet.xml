@@ -126,7 +126,7 @@
             android:inputType="textPassword"
             android:padding="10dp"
             android:textSize="15sp"
-            android:hint="The one used to log in to the app"
+            android:hint="Your Log In Password."
             android:textColorHint="@color/greyHint"
             android:layout_height="wrap_content" />
 

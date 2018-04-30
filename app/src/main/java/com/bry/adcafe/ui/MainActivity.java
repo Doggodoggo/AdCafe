@@ -307,6 +307,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         unregisterAllReceivers();
         removeAllViews();
         Variables.clearAllAdsFromAdList();
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("TimerService"));
         if (!Variables.isDashboardActivityOnline) Variables.clearAdTotal();
         if (networkStateReceiver != null) {
             networkStateReceiver.removeListener(this);
