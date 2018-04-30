@@ -335,7 +335,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 //                                mRelative.setVisibility(View.VISIBLE);
                                 mRelative.setVisibility(View.VISIBLE);
 //                                mAvi.setVisibility(View.GONE);
-                                mProgressBarLogin.setVisibility(View.VISIBLE);
+                                mProgressBarLogin.setVisibility(View.GONE);
                                 mLoadingMessage.setVisibility(View.GONE);
                                 mIsLoggingIn = false;
                                 Toast.makeText(LoginActivity.this,"You may have mistyped your username or password.",Toast.LENGTH_LONG).show();
