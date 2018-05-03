@@ -168,7 +168,9 @@ public class AdvertCard{
 
     private void loadAllAds(){
         Log("ADVERT_CARD--","LOADING AD NORMALLY.");
-        MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, 30));
+        int rad = 30;
+        if(mLastOrNotLast.equals(Constants.ANNOUNCEMENTS))rad = 0;
+        MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, rad));
         Glide.with(mContext).load(mImageBytes).bitmapTransform(multi).listener(new RequestListener<byte[], GlideDrawable>() {
             @Override
             public boolean onException(Exception e, byte[] model, Target<GlideDrawable> target, boolean isFirstResource) {
@@ -560,10 +562,10 @@ public class AdvertCard{
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             if(mImageBytes!=null){
-                if(mLastOrNotLast.equals(Constants.LAST)){
+                if (mLastOrNotLast.equals(Constants.LAST)) {
                     mIsNoAds = false;
                     loadOnlyLastAd();
-                }else{
+                } else {
                     mIsNoAds = false;
                     loadAllAds();
                 }
@@ -797,8 +799,12 @@ public class AdvertCard{
             Log("Card","Doing in background");
             float scale = 0.6f;
             Bitmap bm = bs;
-            for(int i = 0;i<3;i++){
-                if(i>=positionBL) blurredImageList.set(i,fastblur(bm,scale,(i+2)));
+            if(mLastOrNotLast.equals(Constants.ANNOUNCEMENTS)){
+                positionBL+=3;
+            }else{
+                for (int i = 0; i < 3; i++) {
+                    if (i >= positionBL) blurredImageList.set(i, fastblur(bm, scale, (i + 2)));
+                }
             }
             return "executed";
         }

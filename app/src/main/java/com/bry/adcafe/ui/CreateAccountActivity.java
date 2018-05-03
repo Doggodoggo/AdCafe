@@ -1,6 +1,7 @@
 package com.bry.adcafe.ui;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -202,13 +203,28 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
 //                        mAvi.setVisibility(View.GONE);
                         mProgressBarSignUp.setVisibility(View.GONE);
                         mLoadingText.setVisibility(View.GONE);
-                        Toast.makeText(CreateAccountActivity.this, "Sign Up has failed.Another user with your info may exist.", Toast.LENGTH_SHORT).show();
+                        showFailedSignUp();
+//                        Toast.makeText(CreateAccountActivity.this, "Sign Up has failed.Another user with your info may exist.", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
         }
 
 
+    }
+
+    private void showFailedSignUp(){
+        final Dialog d = new Dialog(this);
+        d.setTitle("Failed Sign Up.");
+        d.setContentView(R.layout.dialog98);
+        Button b1 = d.findViewById(R.id.okBtn);
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+        d.show();
     }
 
     private void createFirebaseUserProfile(final FirebaseUser user) {
