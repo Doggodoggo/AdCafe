@@ -1,5 +1,6 @@
 package com.bry.adcafe.ui;
 
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -338,7 +339,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 mProgressBarLogin.setVisibility(View.GONE);
                                 mLoadingMessage.setVisibility(View.GONE);
                                 mIsLoggingIn = false;
-                                Toast.makeText(LoginActivity.this,"You may have mistyped your username or password.",Toast.LENGTH_LONG).show();
+                                showFailedLogin();
+//                                Toast.makeText(LoginActivity.this,"You may have mistyped your username or password.",Toast.LENGTH_LONG).show();
                             }else{
                                 setUserPasswordInFireBase(password);
                                 Variables.setPassword(password);
@@ -347,7 +349,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         }
                     });
             }
-        }
+    }
+
+    private void showFailedLogin(){
+        final Dialog d = new Dialog(this);
+        d.setTitle("Failed Login.");
+        d.setContentView(R.layout.dialog97);
+        Button b1 = d.findViewById(R.id.okBtn);
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+        d.show();
+    }
 
 
 

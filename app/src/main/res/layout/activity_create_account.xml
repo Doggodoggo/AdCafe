@@ -59,7 +59,7 @@
                 android:background="@android:color/white"
                 android:hint="@string/passwordHintText"
                 android:inputType="textPassword"
-                android:nextFocusDown="@+id/passwordEditText"
+                android:nextFocusDown="@+id/confirmPasswordEditText"
                 android:padding="10dp"
                 android:layout_marginBottom="10dp"
                 android:textColor="@android:color/black"
@@ -73,7 +73,6 @@
                 android:background="@android:color/white"
                 android:hint="@string/confirmPasswordText"
                 android:inputType="textPassword"
-                android:nextFocusDown="@+id/passwordEditText"
                 android:padding="10dp"
                 android:layout_marginBottom="10dp"
                 android:textColor="@android:color/black"
@@ -111,6 +110,7 @@
                 android:textSize="12sp"
                 android:layout_gravity="center_horizontal"
                 android:layout_width="wrap_content"
+                android:layout_alignParentBottom="true"
                 android:layout_height="wrap_content"
                 android:text=""/>
 
@@ -200,7 +200,5 @@
             android:layout_marginTop="15dp"
             android:textColor="@android:color/white" />
     </LinearLayout>
-
-
 
 </android.support.design.widget.CoordinatorLayout>

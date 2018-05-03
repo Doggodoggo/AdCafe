@@ -9,6 +9,7 @@
     <RelativeLayout
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
+        android:visibility="visible"
         android:layout_height="match_parent"
         android:id="@+id/LoginRelative"
         tools:context="com.bry.adcafe.ui.LoginActivity">
@@ -104,12 +105,20 @@
             app:indicatorName="LineScaleIndicator"
             app:indicatorColor="@color/accent" />
 
-        <ProgressBar
-            android:id="@+id/progressBarlogin"
-            style="?android:attr/progressBarStyle"
-            android:visibility="gone"
-            android:layout_width="40dp"
-            android:layout_height="40dp"/>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ProgressBar
+                android:id="@+id/progressBarlogin"
+                style="?android:attr/progressBarStyle"
+                android:visibility="invisible"
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+
+        </RelativeLayout>
+
+
 
         <TextView
             android:layout_width="wrap_content"
@@ -119,6 +128,7 @@
             android:textSize="10sp"
             android:layout_height="wrap_content" />
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:gravity="center"
