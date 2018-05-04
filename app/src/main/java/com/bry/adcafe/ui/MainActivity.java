@@ -1,6 +1,7 @@
 package com.bry.adcafe.ui;
 
 import android.app.AlarmManager;
+import android.app.Dialog;
 import android.app.FragmentManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -1401,6 +1402,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (Variables.didAdCafeAddNewCategory) tellUserOfNewSubscription();
             }
         }
+
+        showAnyTextAnnouncements();
     }
 
     private BroadcastReceiver mMessageReceiverForDoneCheckingIfNeedToReCreateClusters = new BroadcastReceiver() {
@@ -1752,6 +1755,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         mAdList.clear();
                     } else {
                         mAviLoadingMoreAds.smoothToHide();
+                        showAnyTextAnnouncements();
                         Log(TAG, "There are no announcements today...");
                     }
                 }
@@ -1762,6 +1766,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     hasLoadedAnnouncements = false;
                 }
             });
+        }else{
+            showAnyTextAnnouncements();
+        }
+    }
+
+    private void showAnyTextAnnouncements() {
+        Log(TAG,"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA Loading text announcements...");
+        boolean hasSeenTodaysAnnouncements  = getSharedPreferences(Constants.TEXT_ANOUNCEMENTS, MODE_PRIVATE)
+                .getBoolean(Constants.TEXT_ANOUNCEMENTS, false);
+
+        if(!Variables.announcements.equals("") && !hasSeenTodaysAnnouncements){
+            final Dialog d = new Dialog(this);
+            d.setTitle("Announcement.");
+            d.setContentView(R.layout.dialog99);
+            Button b1 = d.findViewById(R.id.okBtn);
+            TextView t = d.findViewById(R.id.annText);
+            t.setText(Variables.announcements);
+            b1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    d.dismiss();
+                }
+            });
+            d.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface) {
+                    SharedPreferences pref7 = getSharedPreferences(Constants.TEXT_ANOUNCEMENTS, MODE_PRIVATE);
+                    SharedPreferences.Editor editor7 = pref7.edit();
+                    editor7.clear();
+                    editor7.putBoolean(Constants.TEXT_ANOUNCEMENTS, true);
+                    Log("DatabaseManager---", "Setting the current announcement boolean to " + true);
+                    editor7.apply();
+                    resumeTimerByStartingIt();
+                }
+            });
+            d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    SharedPreferences pref7 = getSharedPreferences(Constants.TEXT_ANOUNCEMENTS, MODE_PRIVATE);
+                    SharedPreferences.Editor editor7 = pref7.edit();
+                    editor7.clear();
+                    editor7.putBoolean(Constants.TEXT_ANOUNCEMENTS, true);
+                    Log("DatabaseManager---", "Setting the current announcement boolean to " + true);
+                    editor7.apply();
+                    resumeTimerByStartingIt();
+                }
+            });
+            pauseTimerByStoppingItEntirely();
+            d.show();
         }
     }
 

@@ -388,13 +388,35 @@ public class DatabaseManager {
                         categoryList.add(category);
                     }
                 }
-                loadUserDataNow(mContext);
+                loadAnyAnnouncements(mContext);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Toast.makeText(mContext,"Please check your internet connection.",Toast.LENGTH_LONG).show();
                 Log(TAG,"There was a database error "+databaseError.getMessage());
+            }
+        });
+    }
+
+    private void loadAnyAnnouncements(final Context context){
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(Constants.TEXT_ANOUNCEMENTS).child(getDate());
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    try{
+                        Variables.announcements = dataSnapshot.getValue(String.class);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                loadUserDataNow(context);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }
@@ -537,6 +559,7 @@ public class DatabaseManager {
                     Variables.setCurrentSubscriptionIndex(0);
                     Variables.setCurrentAdInSubscription(0);
                     resetTotalsInFirebase();
+                    setAnnouncementBoolean(mContext);
                     isNewDay = true;
                 }
                 DataSnapshot isNeedToResetSubsSnap = dataSnapshot.child(Constants.RESET_ALL_SUBS_BOOLEAN);
@@ -684,6 +707,15 @@ public class DatabaseManager {
         editor9.apply();
 
         setSubsInSharedPrefs(context);
+    }
+
+    private void setAnnouncementBoolean(Context context){
+        SharedPreferences pref7 = context.getSharedPreferences(Constants.TEXT_ANOUNCEMENTS, MODE_PRIVATE);
+        SharedPreferences.Editor editor7 = pref7.edit();
+        editor7.clear();
+        editor7.putBoolean(Constants.TEXT_ANOUNCEMENTS, false);
+        Log("DatabaseManager---", "Setting the current announcement boolean to " + false);
+        editor7.apply();
     }
 
     private void setSubsInSharedPrefs(Context context) {
