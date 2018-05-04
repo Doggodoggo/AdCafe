@@ -1289,7 +1289,7 @@ public class DatabaseManager {
     private void Log(String tag,String message){
         try{
             String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+            if(user.equals(Constants.ADMIN_ACC)) Log.d(tag,message);
         }catch (Exception e){
             e.printStackTrace();
         }

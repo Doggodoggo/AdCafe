@@ -87,6 +87,8 @@ import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
 
+import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,NetworkStateReceiver.NetworkStateReceiverListener {
     private static final String TAG = "MainActivity";
     public String NOTIFICATION_ID = "notification_id";
@@ -1772,7 +1774,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void showAnyTextAnnouncements() {
-        Log(TAG,"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA Loading text announcements...");
+        Log(TAG,"Loading text announcements...");
         boolean hasSeenTodaysAnnouncements  = getSharedPreferences(Constants.TEXT_ANOUNCEMENTS, MODE_PRIVATE)
                 .getBoolean(Constants.TEXT_ANOUNCEMENTS, false);
 
@@ -2583,12 +2585,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void Log(String tag,String message){
         try{
             String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+            if(user.equals(Constants.ADMIN_ACC)) Log.d(tag,message);
         }catch (Exception e){
             e.printStackTrace();
         }
 
     }
+
 
 //    Font: AR ESSENCE.
 

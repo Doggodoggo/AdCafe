@@ -157,5 +157,6 @@ public class Constants {
 
     public static String ADMIN_MONEY = "AdminTotal";
     public static String TEXT_ANOUNCEMENTS = "Text_Announcements";
+    public static String ADMIN_ACC = "bryonyoni@gmail.com";
 
 }
