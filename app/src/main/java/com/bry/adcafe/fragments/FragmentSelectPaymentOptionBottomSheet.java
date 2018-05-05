@@ -93,10 +93,11 @@ public class FragmentSelectPaymentOptionBottomSheet extends BottomSheetDialogFra
             @Override
             public void onClick(View view) {
                 dismiss();
-                if(rbCard.isChecked()) Variables.paymentOption = Constants.BANK_OPTION;
-                else if(rbMpesa.isChecked())Variables.paymentOption = Constants.MPESA_OPTION;
-                else Variables.paymentOption = Constants.BANK_OPTION;
+//                if(rbCard.isChecked()) Variables.paymentOption = Constants.BANK_OPTION;
+//                else if(rbMpesa.isChecked())Variables.paymentOption = Constants.MPESA_OPTION;
+//                else Variables.paymentOption = Constants.BANK_OPTION;
 
+                Variables.paymentOption = Constants.MPESA_OPTION;
                 Intent intent = new Intent("PROCEED_CARD_DETAILS_PART");
                 LocalBroadcastManager.getInstance(mActivity).sendBroadcast(intent);
             }

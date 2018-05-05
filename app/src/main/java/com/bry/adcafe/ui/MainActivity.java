@@ -1343,6 +1343,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         finish();
     }
 
+
+
+
+
     private BroadcastReceiver mMessageReceiverForSetUpTime = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1369,6 +1373,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     };
+
 
     private void hideViews(){
         Log(TAG,"Hiding views...");
@@ -1407,6 +1412,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         showAnyTextAnnouncements();
     }
+
+
+
+
 
     private BroadcastReceiver mMessageReceiverForDoneCheckingIfNeedToReCreateClusters = new BroadcastReceiver() {
         @Override
@@ -1481,6 +1490,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+
+
+
+
     private BroadcastReceiver mMessageReceiverForConnectionOffline = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1505,6 +1518,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     };
+
+
+
+
 
     private BroadcastReceiver mMessageReceiverForTimerHasStarted = new BroadcastReceiver() {
         @Override
@@ -1558,6 +1575,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startShareImage2();
         }
     };
+
+
+
 
 
     private void loadMoreAds() {
@@ -1719,6 +1739,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         mAdList.clear();
     }
+
+
+
+
 
     private void loadAnyAnnouncements() {
         if(!hasLoadedAnnouncements){
@@ -2576,6 +2600,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void pauseTimerByStoppingItEntirely(){
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Constants.PAUSE_TIMER));
     }
+
+
+
 
     private void resumeTimerByStartingIt(){
         setBooleanForResumingTimer();
