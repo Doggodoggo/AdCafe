@@ -201,8 +201,7 @@
         your Mpesa password then the payment will be completed. </string>
     <string name="mpesaPayment2">When the payment is done, the upload should automatically begin.</string>
     <string name="mpesaPayment3">If you wish to restart the payment, just click the Restart Payment Button.</string>
-    <string name="failedPayouts">Something may have gone wrong while making the payouts. Perhaps dial a better internet
-        connection and try again after a few of minutes.</string>
+    <string name="failedPayouts">Something may have gone wrong while making the payouts. Just try again after a few of minutes.</string>
     <string name="payoutComplete">The payout has been completed. You should receive a notification soon from Mpesa about your received
         amount.</string>
 
