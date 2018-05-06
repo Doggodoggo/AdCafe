@@ -123,6 +123,7 @@ public class Variables {
 
     public static boolean isOlderAd = false;
     public static String mpesaEmail;
+    public static String announcements = "";
 
     public static void resetAllValues(){
          todaysAdTotal = 0;

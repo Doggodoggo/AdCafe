@@ -162,6 +162,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:id="@+id/transationCost"
+                android:visibility="gone"
                 android:text="Transaction cost: 250Ksh"
                 android:layout_height="wrap_content" />
 
@@ -175,6 +176,7 @@
                     android:orientation="horizontal"
                     android:paddingRight="20dp"
                     android:paddingLeft="20dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginBottom="2dp"
                     android:layout_height="40dp">
 
@@ -192,7 +194,7 @@
                         android:layout_alignParentBottom="true"
                         android:layout_alignParentRight="true"
                         android:background="@null"
-                        android:text="Start transaction."
+                        android:text="Continue."
                         android:textColor="@color/colorPrimary" />
 
                 </RelativeLayout>

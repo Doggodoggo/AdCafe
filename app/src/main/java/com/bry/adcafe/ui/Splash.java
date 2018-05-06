@@ -27,8 +27,10 @@ import java.util.Calendar;
 
 import io.fabric.sdk.android.Fabric;
 
+import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+
 public class Splash extends AppCompatActivity {
-    private final int SPLASH_DISPLAY_LENGTH = 3021;
+    private int SPLASH_DISPLAY_LENGTH = 3021;
     private SliderPrefManager myPrefManager;
     private boolean isUserSeeingAcivity;
     private boolean isClearToMoveToNextActivity;
@@ -42,12 +44,13 @@ public class Splash extends AppCompatActivity {
         Fabric.with(this, new Crashlytics());
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash);
+        hideNavBars();
+        if(new SliderPrefManager(getApplicationContext()).isFirstTimeLaunch()) SPLASH_DISPLAY_LENGTH = 6021;
 
         isUserSeeingAcivity=true;
         isClearToMoveToNextActivity = false;
         LSEText = (TextView) findViewById(R.id.LSEText);
         LogoText = (TextView) findViewById(R.id.logoText);
-//        getDateInDays();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -178,7 +181,7 @@ public class Splash extends AppCompatActivity {
 
     private void hideNavBars() {
         View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | SYSTEM_UI_FLAG_LAYOUT_STABLE;
         decorView.setSystemUiVisibility(uiOptions);
     }
 

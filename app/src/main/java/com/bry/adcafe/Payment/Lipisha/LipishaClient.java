@@ -200,6 +200,8 @@ public class LipishaClient {
                 transactionIndex, transactionReference);
     }
 
+
+
     public Call<RequestResponse> requestMoney(
             String apiKey, String apiSignature, String accountNumber,
             String mobile_number, String method, String amount, String currency, String reference) {

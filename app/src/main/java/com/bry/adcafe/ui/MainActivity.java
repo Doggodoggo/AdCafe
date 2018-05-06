@@ -1,6 +1,7 @@
 package com.bry.adcafe.ui;
 
 import android.app.AlarmManager;
+import android.app.Dialog;
 import android.app.FragmentManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -85,6 +86,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
+
+import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,NetworkStateReceiver.NetworkStateReceiverListener {
     private static final String TAG = "MainActivity";
@@ -1340,6 +1343,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         finish();
     }
 
+
+
+
+
     private BroadcastReceiver mMessageReceiverForSetUpTime = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1366,6 +1373,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     };
+
 
     private void hideViews(){
         Log(TAG,"Hiding views...");
@@ -1401,7 +1409,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (Variables.didAdCafeAddNewCategory) tellUserOfNewSubscription();
             }
         }
+
+        showAnyTextAnnouncements();
     }
+
+
+
+
 
     private BroadcastReceiver mMessageReceiverForDoneCheckingIfNeedToReCreateClusters = new BroadcastReceiver() {
         @Override
@@ -1476,6 +1490,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+
+
+
+
     private BroadcastReceiver mMessageReceiverForConnectionOffline = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1500,6 +1518,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     };
+
+
+
+
 
     private BroadcastReceiver mMessageReceiverForTimerHasStarted = new BroadcastReceiver() {
         @Override
@@ -1553,6 +1575,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startShareImage2();
         }
     };
+
+
+
 
 
     private void loadMoreAds() {
@@ -1715,6 +1740,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAdList.clear();
     }
 
+
+
+
+
     private void loadAnyAnnouncements() {
         if(!hasLoadedAnnouncements){
             hasLoadedAnnouncements = true;
@@ -1752,6 +1781,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         mAdList.clear();
                     } else {
                         mAviLoadingMoreAds.smoothToHide();
+                        showAnyTextAnnouncements();
                         Log(TAG, "There are no announcements today...");
                     }
                 }
@@ -1762,6 +1792,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     hasLoadedAnnouncements = false;
                 }
             });
+        }else{
+            showAnyTextAnnouncements();
+        }
+    }
+
+    private void showAnyTextAnnouncements() {
+        Log(TAG,"Loading text announcements...");
+        boolean hasSeenTodaysAnnouncements  = getSharedPreferences(Constants.TEXT_ANOUNCEMENTS, MODE_PRIVATE)
+                .getBoolean(Constants.TEXT_ANOUNCEMENTS, false);
+
+        if(!Variables.announcements.equals("") && !hasSeenTodaysAnnouncements){
+            final Dialog d = new Dialog(this);
+            d.setTitle("Announcement.");
+            d.setContentView(R.layout.dialog99);
+            Button b1 = d.findViewById(R.id.okBtn);
+            TextView t = d.findViewById(R.id.annText);
+            t.setText(Variables.announcements);
+            b1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    d.dismiss();
+                }
+            });
+            d.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface) {
+                    SharedPreferences pref7 = getSharedPreferences(Constants.TEXT_ANOUNCEMENTS, MODE_PRIVATE);
+                    SharedPreferences.Editor editor7 = pref7.edit();
+                    editor7.clear();
+                    editor7.putBoolean(Constants.TEXT_ANOUNCEMENTS, true);
+                    Log("DatabaseManager---", "Setting the current announcement boolean to " + true);
+                    editor7.apply();
+                    resumeTimerByStartingIt();
+                }
+            });
+            d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    SharedPreferences pref7 = getSharedPreferences(Constants.TEXT_ANOUNCEMENTS, MODE_PRIVATE);
+                    SharedPreferences.Editor editor7 = pref7.edit();
+                    editor7.clear();
+                    editor7.putBoolean(Constants.TEXT_ANOUNCEMENTS, true);
+                    Log("DatabaseManager---", "Setting the current announcement boolean to " + true);
+                    editor7.apply();
+                    resumeTimerByStartingIt();
+                }
+            });
+            pauseTimerByStoppingItEntirely();
+            d.show();
         }
     }
 
@@ -2522,6 +2601,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Constants.PAUSE_TIMER));
     }
 
+
+
+
     private void resumeTimerByStartingIt(){
         setBooleanForResumingTimer();
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Constants.RESUME_TIMER));
@@ -2530,13 +2612,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void Log(String tag,String message){
         try{
             String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+            if(user.equals(Constants.ADMIN_ACC)) Log.d(tag,message);
         }catch (Exception e){
             e.printStackTrace();
         }
 
     }
 
+
 //    Font: AR ESSENCE.
+    private void nothn(){}
+//    No of lns : 30,070.
 
 }

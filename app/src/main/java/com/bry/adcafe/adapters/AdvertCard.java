@@ -169,7 +169,7 @@ public class AdvertCard{
     private void loadAllAds(){
         Log("ADVERT_CARD--","LOADING AD NORMALLY.");
         int rad = 30;
-        if(mLastOrNotLast.equals(Constants.ANNOUNCEMENTS))rad = 0;
+        if(mLastOrNotLast.equals(Constants.ANNOUNCEMENTS))rad = 1;
         MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, rad));
         Glide.with(mContext).load(mImageBytes).bitmapTransform(multi).listener(new RequestListener<byte[], GlideDrawable>() {
             @Override
