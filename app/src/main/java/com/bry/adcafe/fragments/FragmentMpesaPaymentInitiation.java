@@ -18,13 +18,16 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 
 import com.bry.adcafe.Constants;
-import com.bry.adcafe.Payment.Lipisha.Payment;
+import com.bry.adcafe.Payment.mpesaApi.Mpesaservice;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.services.Payments;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import org.json.JSONException;
+
+import java.io.IOException;
 
 /**
  * Created by bryon on 28/02/2018.
@@ -36,6 +39,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
     private double mAmount;
     private String mPhoneNo;
     private Payments mPayment;
+    private Mpesaservice mpesaService;
     private String mTransactionId;
     private ProgressBar prog;
 
@@ -96,9 +100,25 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         int ammount = (int) mAmount;
 //        String amount = Integer.toString(ammount);
 
-        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) ammount = 20;
-        mPayment = new Payments(mContext,SUCCESSFUL_REQUEST,FAILED_REQUEST);
-        mPayment.startMpesaPayment(mTransactionId,mTransactionId,ammount,mPhoneNo,email);
+//        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) ammount = 20;
+//        mPayment = new Payments(mContext,SUCCESSFUL_REQUEST,FAILED_REQUEST);
+//        mPayment.startMpesaPayment(mTransactionId,mTransactionId,ammount,mPhoneNo,email);
+
+        mpesaService = new Mpesaservice("IkcJaREeuzdn4Coxg9DvGQLz3CY29KQS","W0UyjgWR7LjJuRog");
+        try {
+            mpesaService.authenticate();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            mpesaService.C2BSimulation("601465","CustomerPayBillOnline","20","254708374149","Testingess");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForCompleteTransaction,
                 new IntentFilter(SUCCESSFUL_REQUEST));
