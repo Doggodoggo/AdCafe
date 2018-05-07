@@ -112,7 +112,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        mpesaService.authenticateThenPayments("20","600323");
+        mpesaService.authenticateThenPayments("20","174379");
 //        try {
 //            mpesaService.C2BSimulation("601465","CustomerPayBillOnline","20","254708374149","Testingess");
 //        } catch (IOException e) {
@@ -130,14 +130,14 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
     }
 
     private void restartPaymentRequest() {
-        mPayment.stopRecursiveChecker();
+//        mPayment.stopRecursiveChecker();
         removeTheseGodDamnReceivers();
         startPaymentProcess();
     }
 
     @Override
     public void dismiss(){
-        mPayment.stopRecursiveChecker();
+//        mPayment.stopRecursiveChecker();
         removeTheseGodDamnReceivers();
         super.dismiss();
     }
@@ -145,7 +145,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
     @Override
     public void onDismiss(final DialogInterface dialog) {
         super.onDismiss(dialog);
-        mPayment.stopRecursiveChecker();
+//        mPayment.stopRecursiveChecker();
         removeTheseGodDamnReceivers();
         final Activity activity = getActivity();
         if (activity instanceof DialogInterface.OnDismissListener) {

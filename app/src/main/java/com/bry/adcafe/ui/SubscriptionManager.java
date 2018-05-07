@@ -205,7 +205,7 @@ public class SubscriptionManager extends AppCompatActivity implements View.OnCli
 
     private void createProgressDialog(){
         mAuthProgressDialog = new ProgressDialog(this,R.style.AppCompatAlertDialogStyle);
-        mAuthProgressDialog.setTitle("AdCafe.");
+        mAuthProgressDialog.setTitle(R.string.app_name);
         mAuthProgressDialog.setMessage("Updating your preferences...");
         mAuthProgressDialog.setCancelable(false);
     }

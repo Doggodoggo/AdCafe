@@ -249,7 +249,14 @@ public class TimeManager {
     }
 
     public static String getTimeStamp(){
-        return Long.toString(cal.getTimeInMillis()/1000);
+//        Log(TAG,("Timestamp is :"+cal.getTimeInMillis()/1000));
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss",Locale.US);
+        String currentDateandTime = sdf.format(cal.getTime());
+
+        Log(TAG,"Timestamp is:"+currentDateandTime);
+
+        return currentDateandTime;
     }
 
 

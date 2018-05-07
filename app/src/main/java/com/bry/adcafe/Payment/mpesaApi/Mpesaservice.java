@@ -4,6 +4,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.bry.adcafe.Constants;
+import com.bry.adcafe.services.TimeManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,6 +22,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class Mpesaservice {
+
     private String TAG = Mpesaservice.class.getSimpleName();
 
 
@@ -200,9 +202,9 @@ public class Mpesaservice {
 //                    JSONObject accessT = aT.getJSONObject("data");
                     String accessToken = aT.getString("access_token");
 
-                    STKPushSimulation("550105","adcafe","1525684651",
+                    STKPushSimulation("174379","adcafe", TimeManager.getTimeStamp(),
                             "CustomerPayBillOnline","20","254708374149",
-                            "254708374149","600323","https://ilovepancake.github.io/PigDice",
+                            "254708374149","174379","https://ilovepancake.github.io/PigDice",
                             "https://adcafe.github.io/CBK/","yyyer","jsjsj",accessToken);
                     Log.d(TAG,jsonData);
                 } catch (IOException e) {
@@ -507,4 +509,8 @@ public class Mpesaservice {
             e.printStackTrace();
         }
     }
+
+
+
+
 }

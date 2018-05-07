@@ -579,13 +579,13 @@ public class Bookmarks extends AppCompatActivity {
 
     private void createProgressDialog(){
         mAuthProgressDialog = new ProgressDialog(this);
-        mAuthProgressDialog.setTitle("AdCafe.");
+        mAuthProgressDialog.setTitle(R.string.app_name);
         mAuthProgressDialog.setMessage("Updating your preferences...");
         mAuthProgressDialog.setCancelable(false);
 
         mProg = new ProgressDialog(this,R.style.AppCompatAlertDialogStyle);
         mProg.setMessage("Loading your Pins...");
-        mProg.setTitle("AdCafe.");
+        mProg.setTitle(R.string.app_name);
         mProg.setCancelable(true);
         mProg.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override

@@ -554,12 +554,12 @@ public class AdStats extends AppCompatActivity {
 
     private void createProgressDialog(){
         mAuthProgressDialog = new ProgressDialog(this);
-        mAuthProgressDialog.setTitle("AdCafe.");
+        mAuthProgressDialog.setTitle(R.string.app_name);
         mAuthProgressDialog.setMessage("Taking down the ad...");
         mAuthProgressDialog.setCancelable(false);
 
         mProgForPayments = new ProgressDialog(this,R.style.AppCompatAlertDialogStyle);
-        mProgForPayments.setTitle("AdCafe");
+        mProgForPayments.setTitle(R.string.app_name);
         mProgForPayments.setMessage("This should take a few seconds... ");
         mProgForPayments.setCancelable(false);
         mProgForPayments.setProgress(ProgressDialog.STYLE_SPINNER);

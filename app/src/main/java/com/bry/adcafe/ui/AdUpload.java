@@ -939,7 +939,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         mAuthProgressDialog.setIndeterminate(true);
 
         mProgForPayments = new ProgressDialog(this,R.style.AppCompatAlertDialogStyle);
-        mProgForPayments.setTitle("AdCafe");
+        mProgForPayments.setTitle(R.string.app_name);
         mProgForPayments.setMessage("This should take a few seconds... ");
         mProgForPayments.setCancelable(false);
         mProgForPayments.setProgress(ProgressDialog.STYLE_SPINNER);
