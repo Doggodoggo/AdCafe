@@ -1,13 +1,19 @@
 package com.bry.adcafe.Payment.mpesaApi;
 
+import android.util.Base64;
 import android.util.Log;
+
+import com.bry.adcafe.Constants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -28,12 +34,13 @@ public class Mpesaservice {
 
 
     public String authenticate() throws IOException, JSONException {
-        String app_key = appKey/*"GvzjNnYgNJtwgwfLBkZh65VPwfuKvs0V"*/;
+        String app_key = appKey;
         String app_secret = appSecret;
         String appKeySecret = app_key + ":" + app_secret;
         byte[] bytes = appKeySecret.getBytes("ISO-8859-1");
-        String encoded = android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT);
+        String encoded = Base64.encodeToString(bytes, Base64.NO_WRAP);
 
+        String accesstoken = "";
 
         OkHttpClient client = new OkHttpClient();
 
@@ -42,17 +49,33 @@ public class Mpesaservice {
                 .get()
                 .addHeader("authorization", "Basic " + encoded)
                 .addHeader("cache-control", "no-cache")
-
                 .build();
 
-        Response response = client.newCall(request).execute();
-        JSONObject jsonObject = new JSONObject(response.body().string());
-        Log.d("res1:",jsonObject.getString("access_token"));
-        return jsonObject.getString("access_token");
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    String jsonData = response.body().string();
+
+                    Log.d(TAG,jsonData);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+
+        return accesstoken;
     }
 
 
-    public  String C2BSimulation(String shortCode, String commandID, String amount, String MSISDN, String billRefNumber) throws IOException, JSONException {
+    public String C2BSimulation(String shortCode, String commandID, String amount, String MSISDN, String billRefNumber) throws IOException, JSONException {
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("ShortCode", shortCode);
@@ -77,26 +100,139 @@ public class Mpesaservice {
                 .addHeader("cache-control", "no-cache")
                 .build();
 
-        Response response = client.newCall(request).execute();
-        Log.d(TAG,response.body().string());
-        return response.body().toString();
+//        Response response = client.newCall(request).execute();
+//        Log.d(TAG,response.body().string());
+//        return response.body().toString();
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                processResponse(response);
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+        return "";
     }
 
-    public String B2CRequest(String initiatorName, String securityCredential, String commandID, String amount, String partyA, String partyB, String remarks, String queueTimeOutURL, String resultURL, String occassion) throws IOException, JSONException {
+
+    public void authenticateThenPayouts(final String amount, final String partyB ){
+        String app_key = appKey;
+        String app_secret = appSecret;
+        String appKeySecret = app_key + ":" + app_secret;
+        byte[] bytes = new byte[0];
+        try {
+            bytes = appKeySecret.getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        String encoded = Base64.encodeToString(bytes, Base64.NO_WRAP);
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials")
+                .get()
+                .addHeader("authorization", "Basic " + encoded)
+                .addHeader("cache-control", "no-cache")
+                .build();
+
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    String jsonData = response.body().string();
+                    JSONObject aT = new JSONObject(jsonData);
+//                    JSONObject accessT = aT.getJSONObject("data");
+                    String accessToken = aT.getString("access_token");
+
+                    B2CRequest(amount,partyB,accessToken);
+                    Log.d(TAG,jsonData);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+    }
+    public void authenticateThenPayments(final String amount, final String partyB ){
+        String app_key = appKey;
+        String app_secret = appSecret;
+        String appKeySecret = app_key + ":" + app_secret;
+        byte[] bytes = new byte[0];
+        try {
+            bytes = appKeySecret.getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        String encoded = Base64.encodeToString(bytes, Base64.NO_WRAP);
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials")
+                .get()
+                .addHeader("authorization", "Basic " + encoded)
+                .addHeader("cache-control", "no-cache")
+                .build();
+
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    String jsonData = response.body().string();
+                    JSONObject aT = new JSONObject(jsonData);
+//                    JSONObject accessT = aT.getJSONObject("data");
+                    String accessToken = aT.getString("access_token");
+
+                    STKPushSimulation("550105","adcafe","1525684651",
+                            "CustomerPayBillOnline","20","254708374149",
+                            "254708374149","600323","https://ilovepancake.github.io/PigDice",
+                            "https://adcafe.github.io/CBK/","yyyer","jsjsj",accessToken);
+                    Log.d(TAG,jsonData);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+    }
+
+    public String B2CRequest(String amount, String partyB ,String bearer){
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("InitiatorName", initiatorName);
-        jsonObject.put("SecurityCredential", securityCredential);
-        jsonObject.put("CommandID", commandID);
-        jsonObject.put("Amount", amount);
-        jsonObject.put("PartyA", partyA);
-        jsonObject.put("PartyB", partyB);
-        jsonObject.put("Remarks", remarks);
-        jsonObject.put("QueueTimeOutURL", queueTimeOutURL);
-        jsonObject.put("ResultURL", resultURL);
-        jsonObject.put("Occassion", occassion);
-
-
+        try {
+            jsonObject.put("InitiatorName", "testapi0323");
+            jsonObject.put("SecurityCredential", Constants.key);
+            jsonObject.put("CommandID", "PromotionPayment");
+            jsonObject.put("Amount", amount);
+            jsonObject.put("PartyA", "600323");
+            jsonObject.put("PartyB", partyB);
+            jsonObject.put("Remarks", "testing123");
+            jsonObject.put("QueueTimeOutURL", "https://adcafe.github.io/CBK/");
+            jsonObject.put("ResultURL", "https://ilovepancake.github.io/PigDice");
+            jsonObject.put("Occassion", "ter");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         jsonArray.put(jsonObject);
 
         String requestJson = jsonArray.toString().replaceAll("[\\[\\]]", "");
@@ -109,13 +245,24 @@ public class Mpesaservice {
                 .url("https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest")
                 .post(body)
                 .addHeader("content-type", "application/json")
-                .addHeader("authorization", "Bearer " + authenticate())
+                .addHeader("authorization", "Bearer " + bearer)
                 .addHeader("cache-control", "no-cache")
                 .build();
 
-        Response response = client.newCall(request).execute();
-        Log.d(TAG,response.body().string());
-        return response.body().toString();
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                processResponse(response);
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+        return "";
     }
 
     public String B2BRequest(String initiatorName, String accountReference, String securityCredential, String commandID, String senderIdentifierType, String receiverIdentifierType, float amount, String partyA, String partyB, String remarks, String queueTimeOutURL, String resultURL, String occassion) throws IOException, JSONException {
@@ -158,7 +305,9 @@ public class Mpesaservice {
 
     }
 
-    public String STKPushSimulation(String businessShortCode, String password, String timestamp, String transactionType, String amount, String phoneNumber, String partyA, String partyB, String callBackURL, String queueTimeOutURL, String accountReference, String transactionDesc) throws IOException, JSONException {
+    public String STKPushSimulation(String businessShortCode, String password, String timestamp, String transactionType, String amount,
+                                    String phoneNumber, String partyA, String partyB, String callBackURL, String queueTimeOutURL,
+                                    String accountReference, String transactionDesc,String bearer) throws IOException, JSONException {
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("BusinessShortCode", businessShortCode);
@@ -187,14 +336,28 @@ public class Mpesaservice {
                 .url(url)
                 .post(body)
                 .addHeader("content-type", "application/json")
-                .addHeader("authorization", "Bearer " + authenticate())
+                .addHeader("authorization", "Bearer " + bearer)
                 .addHeader("cache-control", "no-cache")
                 .build();
 
 
-        Response response = client.newCall(request).execute();
-        Log.d(TAG,response.body().string());
-        return response.body().toString();
+//        Response response = client.newCall(request).execute();
+//        Log.d(TAG,response.body().string());
+//        return response.body().toString();
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                processResponse(response);
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+        return "";
     }
 
     public String STKPushTransactionStatus(String businessShortCode, String password, String timestamp, String checkoutRequestID) throws IOException, JSONException {
@@ -333,5 +496,15 @@ public class Mpesaservice {
         return response.body().string();
 
 
+    }
+
+
+    public void processResponse(Response response){
+        try {
+            String jsonData = response.body().string();
+            Log.d(TAG,jsonData);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

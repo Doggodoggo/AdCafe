@@ -112,13 +112,14 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        try {
-            mpesaService.C2BSimulation("601465","CustomerPayBillOnline","20","254708374149","Testingess");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mpesaService.authenticateThenPayments("20","600323");
+//        try {
+//            mpesaService.C2BSimulation("601465","CustomerPayBillOnline","20","254708374149","Testingess");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
 
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForCompleteTransaction,
                 new IntentFilter(SUCCESSFUL_REQUEST));

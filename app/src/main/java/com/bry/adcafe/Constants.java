@@ -150,8 +150,12 @@ public class Constants {
     public static String cbk = "";
     public static int cst = 1;
     public static int crl = 2;
-    public static String key = "Tech2548gtRV365";
     public static String country = "Kenya";
+
+
+    /////////Mpesa payment variables
+    public static String key = "pfbnfocYvRaLKfeKQP1jJu9Q4EASyRcZP0TMbz02i5YPhGMB0Cw7kskZkT+pE/gAXwIxyw0ofFGkZ5E1GVSUKwDuVYb2PxiMiTpCMOKB2Vm6ZtahO+WXv4GuiU8u/PeewPJ7X7HMcG5vZLjjVlez2NXQ+PkowrZAW3yUe/6mapnppfZoAsyOpLAfm88F/0vnXtPh6Tk6yASccoYZdlAGjGchkB7vu55WOaGBilq307SBQJjNufGKV2JlbhUxunwhl0HIymTphWedaNVTwYnsFRIeGdIMIGXEy33Q2icDDLm10QqH0cteO8iyTz9Qv3gAbFeplAkldpyT9tGoVKAIDA==";
+
     ////////////////////////
 
 

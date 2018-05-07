@@ -248,6 +248,10 @@ public class TimeManager {
         return hours+":"+minutes+":"+seconds;
     }
 
+    public static String getTimeStamp(){
+        return Long.toString(cal.getTimeInMillis()/1000);
+    }
+
 
 
 

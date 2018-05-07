@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.Payment.Lipisha.Payment;
+import com.bry.adcafe.Payment.mpesaApi.Mpesaservice;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.ChangeCPVFragment;
@@ -649,8 +650,11 @@ public class Dashboard extends AppCompatActivity {
 
         if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) payoutAmount = 10;
 
-        Payments payments = new Payments(mContext,PAYOUT_SUCCESSFUL,PAYOUT_FAILED);
-        payments.makePayouts(Variables.transactionID,payoutPhoneNumber,payoutAmount);
+        Mpesaservice mps = new Mpesaservice("IkcJaREeuzdn4Coxg9DvGQLz3CY29KQS","W0UyjgWR7LjJuRog");
+        mps.authenticateThenPayouts("10","254708374149");
+
+
+//        payments.makePayouts(Variables.transactionID,payoutPhoneNumber,payoutAmount);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayout,
                 new IntentFilter(PAYOUT_SUCCESSFUL));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFailedPayout,
