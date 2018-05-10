@@ -70,6 +70,8 @@ public class AdminConsole extends AppCompatActivity implements View.OnClickListe
         mLoadTomorrowsAdsButton.setOnClickListener(this);
         mLoadFeedbackButton.setOnClickListener(this);
 
+        crash();
+
 //        DataListsView.setNestedScrollingEnabled(false);
 //        TomorrowsAdsListView.setNestedScrollingEnabled(false);
 //        FeedbackView.setNestedScrollingEnabled(false);
@@ -317,6 +319,14 @@ public class AdminConsole extends AppCompatActivity implements View.OnClickListe
         mAuthProgressDialog.setTitle("AdCafe.");
         mAuthProgressDialog.setMessage("One second...");
         mAuthProgressDialog.setCancelable(false);
+    }
+
+    private void crash(){
+        try {
+            throw new Exception("Not Up");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

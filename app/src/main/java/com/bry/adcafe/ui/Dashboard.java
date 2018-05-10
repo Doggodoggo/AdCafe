@@ -184,7 +184,7 @@ public class Dashboard extends AppCompatActivity {
             public boolean onLongClick(View v) {
                 if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")){
                     Intent intent = new Intent(Dashboard.this, AdminConsole.class);
-                    startActivity(intent);
+//                    startActivity(intent);
                 }else{
 //                    Log("Dashboard","NOT administrator.");
                 }

@@ -168,6 +168,7 @@ public class Mpesaservice {
         Call call = client.newCall(request);
         call.enqueue(cb);
     }
+
     public void authenticateThenPayments(final String amount, final String partyB ){
         String app_key = appKey;
         String app_secret = appSecret;
