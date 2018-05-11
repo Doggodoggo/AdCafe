@@ -128,8 +128,16 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
             }
         });
 
-        String sourceString = "By clicking SIGN UP, you agree to our <b>terms of service</b>, <b>privacy policy</b>" +
-                " and <b>advertising policy</b>";
+        mPasswordEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(b) findViewById(R.id.dontForgetStuff).setVisibility(View.VISIBLE);
+                else findViewById(R.id.dontForgetStuff).setVisibility(View.GONE);
+            }
+        });
+
+        String sourceString = "By clicking SIGN UP, you agree to our <b>terms of service</b>, <b>privacy</b>" +
+                " and <b>advertising policy.</b>";
         mPrivPol.setText(Html.fromHtml(sourceString));
         mPrivPol.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -374,6 +382,11 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
     }
 
     private boolean isValidEmail(String email) {
+        if(email.equals("")){
+            mEmailEditText.setError("We need your email.");
+            return false;
+        }
+
         boolean isGoodEmail = (email!=null && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches());
         if(!isGoodEmail){
             mEmailEditText.setError("We need your actual email address please");

@@ -52,6 +52,18 @@
                 android:textColorHint="@color/colorAccent"
                 android:textSize="15sp" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:gravity="left"
+                android:textSize="11sp"
+                android:paddingLeft="10dp"
+                android:visibility="gone"
+                android:layout_marginBottom="7dp"
+                android:id="@+id/dontForgetStuff"
+                android:textColor="@color/colorPrimary"
+                android:text="@string/signUpPasswordNote"
+                android:layout_height="wrap_content" />
+
             <EditText
                 android:id="@+id/passwordEditText"
                 android:layout_width="match_parent"
@@ -101,18 +113,18 @@
                 android:id="@+id/loginTextView"
                 android:layout_gravity="center_horizontal" />
 
-            <TextView
-                android:id="@+id/textLink"
-                android:textColor="@color/colorPrimaryDark"
-                android:layout_marginTop="20dp"
-                android:layout_marginRight="2dp"
-                android:layout_marginLeft="2dp"
-                android:textSize="12sp"
-                android:layout_gravity="center_horizontal"
-                android:layout_width="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_height="wrap_content"
-                android:text=""/>
+            <!--<TextView-->
+                <!--android:id="@+id/textLink"-->
+                <!--android:textColor="@color/colorPrimaryDark"-->
+                <!--android:layout_marginTop="20dp"-->
+                <!--android:layout_marginRight="2dp"-->
+                <!--android:layout_marginLeft="2dp"-->
+                <!--android:textSize="10sp"-->
+                <!--android:layout_gravity="center_horizontal"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_alignParentBottom="true"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text=""/>-->
 
         </LinearLayout>
 
@@ -200,5 +212,15 @@
             android:layout_marginTop="15dp"
             android:textColor="@android:color/white" />
     </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:id="@+id/textLink"
+        android:layout_gravity="bottom"
+        android:gravity="center"
+        android:textSize="9sp"
+        android:text=""
+        android:textColor="@color/colorPrimaryDark"
+        android:layout_height="wrap_content" />
 
 </android.support.design.widget.CoordinatorLayout>

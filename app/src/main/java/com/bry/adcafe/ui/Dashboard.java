@@ -649,9 +649,10 @@ public class Dashboard extends AppCompatActivity {
         Log("Dashboard","new Phone no is: "+newPhoneNo);
 
         if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) payoutAmount = 10;
+        String StringPayoutAmount = Integer.toString(payoutAmount);
 
-        Mpesaservice mps = new Mpesaservice("IkcJaREeuzdn4Coxg9DvGQLz3CY29KQS","W0UyjgWR7LjJuRog");
-        mps.authenticateThenPayouts("10","254708374149");
+        Mpesaservice mps = new Mpesaservice("Xna3G2ahKqwsXmciMfmAtmxqv9GjShqx","xSkVFsFMUFJ2OEAA");
+        mps.authenticateThenPayouts(StringPayoutAmount,newPhoneNo);
 
 
 //        payments.makePayouts(Variables.transactionID,payoutPhoneNumber,payoutAmount);

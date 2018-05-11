@@ -203,9 +203,9 @@ public class Mpesaservice {
 //                    JSONObject accessT = aT.getJSONObject("data");
                     String accessToken = aT.getString("access_token");
 
-                    STKPushSimulation("174379","adcafe", TimeManager.getTimeStamp(),
+                    STKPushSimulation("723387","adcafe", TimeManager.getTimeStamp(),
                             "CustomerPayBillOnline","20","254708374149",
-                            "254708374149","174379","https://ilovepancake.github.io/PigDice",
+                            "254798075721","723387","https://ilovepancake.github.io/PigDice",
                             "https://adcafe.github.io/CBK/","yyyer","jsjsj",accessToken);
                     Log.d(TAG,jsonData);
                 } catch (IOException e) {

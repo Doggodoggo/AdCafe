@@ -154,7 +154,7 @@ public class Constants {
 
 
     /////////Mpesa payment variables
-    public static String key = "pfbnfocYvRaLKfeKQP1jJu9Q4EASyRcZP0TMbz02i5YPhGMB0Cw7kskZkT+pE/gAXwIxyw0ofFGkZ5E1GVSUKwDuVYb2PxiMiTpCMOKB2Vm6ZtahO+WXv4GuiU8u/PeewPJ7X7HMcG5vZLjjVlez2NXQ+PkowrZAW3yUe/6mapnppfZoAsyOpLAfm88F/0vnXtPh6Tk6yASccoYZdlAGjGchkB7vu55WOaGBilq307SBQJjNufGKV2JlbhUxunwhl0HIymTphWedaNVTwYnsFRIeGdIMIGXEy33Q2icDDLm10QqH0cteO8iyTz9Qv3gAbFeplAkldpyT9tGoVKAIDA==";
+    public static String key = "NN8Ze1Fn+AapUTn9pxojvukBLdsLWpttHKdfaaiWbg7QBeraMDTyFc53AM4uUk7+9W0m2RjxWcpGBv5k/cUjqyyN/cCHCFKnwNIxlOjiOEpFo1uaqb/o5Gv2SwSM91EdYbEeTcsNcL6IGoNdQB9xi/lNQrllIcqqfrp+SEkz61cAZKd86J6EJ6Hn2nw4zqdGKe6zDIEiKZrcgLA09W+gkxs8I9CTNutwqH0p34Mj1OZ/rPR4ELbHmehrXBI+y8fIglz5A3V2zv+lFo792zbaYFgGuw07gAd+Hlv9WVOPJ2ZcJtYwr1NMjBOAsTNBX/yj/jxkfTHoS5+YE9k6zxstpQ==";
 
     ////////////////////////
 
