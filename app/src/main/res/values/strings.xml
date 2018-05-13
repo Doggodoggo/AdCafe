@@ -50,14 +50,14 @@
     <string name="successfullyUploaded">"Thanks for using the AdCafé to advertise your product."</string>
     <string name="monitorProcess">FYI: You\'re able to monitor the progress of your ads from the dashboard.(By clicking the Big Button Marked "FIND OUT")</string>
     <string name="unsuccessfullyUploaded">"Something went wrong,try uploading again after a few minutes."</string>
-    <string name="uploadMessage">"Upload may take some time..."</string>
-    <string name="settingUpMessage">"Setting a couple of things up..."</string>
+    <string name="uploadMessage">"Upload may take some time…"</string>
+    <string name="settingUpMessage">"Setting a couple of things up…"</string>
 
 
 
-    <string name="settingUpMessage2">"Setting a few things up..."</string>
-    <string name="settingUpAccountMessage">"Setting up your account..."</string>
-    <string name="loadingTodaysAdsmessage">"Loading today's ads..."</string>
+    <string name="settingUpMessage2">"Setting things up…"</string>
+    <string name="settingUpAccountMessage">"Setting up your account…"</string>
+    <string name="loadingTodaysAdsmessage">"Loading today's ads…"</string>
     <string name="loadingYourPinnedAds">"Loading your pinned ads"</string>
     <string name="failedToLoadTodaysAds">"Failed to load today's ads."</string>
     <string name="noteForPickingMessage">"The number shown is by 1000 (*1000 users). Select having that in mind."</string>

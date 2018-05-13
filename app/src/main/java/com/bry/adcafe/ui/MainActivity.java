@@ -886,6 +886,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+
+
+
     private void loadAdsIntoAdvertCard(){
         String date;
         date = mIsBeingReset ? getNextDay() : getDate();
@@ -1054,6 +1057,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 findViewById(R.id.WebsiteIcon).setAlpha(0.4f);
                 findViewById(R.id.websiteText).setAlpha(0.4f);
                 findViewById(R.id.smallDot).setVisibility(View.INVISIBLE);
+
+                setCategoryIndexInFirebase();
             }
             Variables.isLockedBecauseOfNoMoreAds = true;
             loadAnyAnnouncements();
@@ -1067,6 +1072,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         networkStateReceiver.addListener(this);
         this.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
 //        if(loadMoreAds) loadMoreAds();
+    }
+
+    private void setCategoryIndexInFirebase() {
+        String uid  = User.getUid();
+        DatabaseReference adRef3 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.CURRENT_SUBSCRIPTION_INDEX);
+        Log(TAG,"Setting current subscription index in firebase to :"+Variables.getCurrentSubscriptionIndex());
+        adRef3.setValue(Variables.getCurrentSubscriptionIndex());
     }
 
     private void stretchCard(){
@@ -1426,6 +1439,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startGetAds();
             } catch (Exception e) {
                 Log.e("BACKGROUND_PROC---", e.getMessage());
+                e.printStackTrace();
             }
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
         }
