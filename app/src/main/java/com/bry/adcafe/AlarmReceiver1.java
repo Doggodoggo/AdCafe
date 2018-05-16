@@ -66,6 +66,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
     private int constantAmountPerView = 3;
 
     private String userName;
+    private boolean doesUserWantNotf;
 
 
     @Override
@@ -76,8 +77,8 @@ public class AlarmReceiver1 extends BroadcastReceiver {
         service1.setData((Uri.parse("custom://"+System.currentTimeMillis())));
 
         SharedPreferences prefs = context.getSharedPreferences(Constants.PREFERRED_NOTIF, MODE_PRIVATE);
-        Boolean doesUserWantNotf = prefs.getBoolean(Constants.PREFERRED_NOTIF, true);
-        if(isUserLoggedIn() && doesUserWantNotf) loadTimeFirst();
+        doesUserWantNotf = prefs.getBoolean(Constants.PREFERRED_NOTIF, true);
+        if(isUserLoggedIn()) loadTimeFirst();
     }
 
     private void loadTimeFirst(){
@@ -164,7 +165,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
         checkInForEachCategory(Subscription,currentClusterToBeChecked);
     }
 
-    private void checkInForEachCategory(String category,int cluster){
+    private void checkInForEachCategory(final String category, int cluster){
         Query query = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS).child(getDate())
                 .child(Integer.toString(constantAmountPerView))
                 .child(category).child(Integer.toString(cluster));
@@ -175,11 +176,11 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                 if(dataSnapshot.hasChildren()){
                     for(DataSnapshot snap: dataSnapshot.getChildren()){
                         boolean isFlagged = snap.child("flagged").getValue(boolean.class);
-                        if(!isFlagged)numberOfAdsInTotal+=1;
+                        if(!isFlagged){
+                            numberOfAdsInTotal+=1;
+                            if(numberOfAdsInTotal ==1)setStartingPoint(category);
+                        }
                     }
-//                    int numberOfAds = (int)dataSnapshot.getChildrenCount();
-//                    Log.d(TAG,"adding "+numberOfAds+" to number of ada list.");
-//                    numberOfAdsInTotal+=numberOfAds;
                 }
                 iterations++;
                 if(iterations<numberOfSubsFromFirebase){
@@ -187,6 +188,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                 }else{
                     Log.d(TAG,"All the categories have been handled, total is : "+numberOfAdsInTotal);
                     if(numberOfAdsInTotal>0) beforeHandlingEverything(numberOfAdsInTotal);
+                    if(numberOfAdsInTotal==0) setStartingPoint(category);
                 }
             }
 
@@ -210,7 +212,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                     String date = dataSnapshot.getValue(String.class);
                     if(!date.equals(getDate())){
                         Log.d(TAG,"User was not last online today, continuing to notify user.");
-                        handleEverything(number);
+                        if(doesUserWantNotf) handleEverything(number);
                     }
                 }
 
@@ -301,6 +303,18 @@ public class AlarmReceiver1 extends BroadcastReceiver {
     private boolean isUserLoggedIn(){
         SharedPreferences prefs4 = mContext.getSharedPreferences("IsSignedIn", MODE_PRIVATE);
         return prefs4.getBoolean("isSignedIn", false);
+    }
+
+    private void setStartingPoint(String subscription){
+        SharedPreferences prefs = mContext.getSharedPreferences(Constants.CUSTOM_STARTING_POINT_ENABLED, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(Constants.CUSTOM_STARTING_POINT_ENABLED, true);
+        editor.apply();
+
+        SharedPreferences prefs2 = mContext.getSharedPreferences(Constants.CUSTOM_STARTING_POINT_VALUE, MODE_PRIVATE);
+        SharedPreferences.Editor editor2 = prefs2.edit();
+        editor2.putString(Constants.CUSTOM_STARTING_POINT_VALUE, subscription);
+        editor2.apply();
     }
 
 }

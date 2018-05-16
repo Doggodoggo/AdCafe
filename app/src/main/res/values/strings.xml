@@ -48,7 +48,7 @@
     <string name="MakeSureImage">"Images are compressed to save on our database space. "</string>
     <string name="pleaseChooseIcon">"Please choose an image fist."</string>
     <string name="successfullyUploaded">"Thanks for using the AdCafé to advertise your product."</string>
-    <string name="monitorProcess">FYI: You\'re able to monitor the progress of your ads from the dashboard.(By clicking the Big Button Marked "FIND OUT")</string>
+    <string name="monitorProcess">FYI: You\'re able to monitor the progress of your ads from the dashboard.(By clicking the Button Marked "FIND OUT")</string>
     <string name="unsuccessfullyUploaded">"Something went wrong,try uploading again after a few minutes."</string>
     <string name="uploadMessage">"Upload may take some time…"</string>
     <string name="settingUpMessage">"Setting a couple of things up…"</string>
@@ -89,8 +89,8 @@
         target many of its users in a very short period of time.</string>
     <string name="slide5text">Not quite yet! First you\'ll need to know how to use the app and for that we\'ve prepared
         a short tutorial on how you will interact with it.</string>
-    <string name="slide6text">Now the main page will look something like this.
-        Don\'t worry, we will go over what everything is and what everything does.</string>
+    <string name="slide6text">Now the main page will look something like this. We will go over what
+        everything is and what everything does.</string>
     <string name="slide7text">The advert banners will be hosted in cards looking like this. The centre to top part is where the banner will
         be.</string>
     <string name="slide8text">Below the banner are some buttons which should help you to perform some actions on the ad.</string>

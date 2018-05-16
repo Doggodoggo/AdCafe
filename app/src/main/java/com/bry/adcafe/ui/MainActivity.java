@@ -531,6 +531,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void startGetAds() {
         setUpAllTheViews();
         hideViews();
+        if(canStartFromCustomClass()){
+            Variables.setCurrentSubscriptionIndex(getTheCustomCategoryToStartFrom());
+            Variables.setCurrentAdInSubscription(0);
+            removeTheCustomCategoryEnabling();
+        }
         getGetAdsFromFirebase();
     } ///////////////////////////
 
@@ -2631,6 +2636,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             e.printStackTrace();
         }
 
+    }
+
+    private boolean canStartFromCustomClass(){
+        SharedPreferences prefs4 = getSharedPreferences(Constants.CUSTOM_STARTING_POINT_ENABLED, MODE_PRIVATE);
+        return prefs4.getBoolean(Constants.CUSTOM_STARTING_POINT_ENABLED,false);
+    }
+
+    private int getTheCustomCategoryToStartFrom(){
+        SharedPreferences prefs4 = getSharedPreferences(Constants.CUSTOM_STARTING_POINT_VALUE, MODE_PRIVATE);
+        return getPositionOf(prefs4.getString(Constants.CUSTOM_STARTING_POINT_VALUE, getSubscriptionValue(0)));
+    }
+
+    private void removeTheCustomCategoryEnabling(){
+        SharedPreferences prefs = getSharedPreferences(Constants.CUSTOM_STARTING_POINT_ENABLED, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(Constants.CUSTOM_STARTING_POINT_ENABLED, false);
+        editor.apply();
     }
 
 
