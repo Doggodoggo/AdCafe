@@ -90,7 +90,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
     private BroadcastReceiver mMessageReceiverForSetUpTime = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG,"Finished setting up time.");
+            Log(TAG,"Finished setting up time.");
             checkIfUserWasLastOnlineToday();
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
         }
@@ -99,7 +99,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
     private void checkIfUserWasLastOnlineToday(){
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         User.setUid(uid);
-        Log.d(TAG,"Starting to check if user was last online today.");
+        Log(TAG,"Starting to check if user was last online today.");
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(uid).child(Constants.DATE_IN_FIREBASE);
         adRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -107,7 +107,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String date = dataSnapshot.getValue(String.class);
                 if(!date.equals(getDate())){
-                    Log.d(TAG,"User was not last online today,checking if there are any ads today.");
+                    Log(TAG,"User was not last online today,checking if there are any ads today.");
                     loadSubscriptionsThenCheckForAds();
                 }
             }
@@ -121,7 +121,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
 
     private void loadSubscriptionsThenCheckForAds(){
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Log.d(TAG,"Starting to load users data to check if there are ads");
+        Log(TAG,"Starting to load users data to check if there are ads");
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(uid);
         adRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -138,7 +138,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
 //                    numberOfSubsFromFirebase = (int)dataSnapshot.getChildrenCount();
                     String category = snap.getKey();
                     Integer cluster = snap.getValue(Integer.class);
-                    Log.d(TAG,"Key category gotten from firebase is : "+category+" Value : "+cluster);
+                    Log(TAG,"Key category gotten from firebase is : "+category+" Value : "+cluster);
                     Subscriptions.put(category,cluster);
 //                    checkInForEachCategory(category,cluster);
                 }
@@ -151,7 +151,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG,"Something went wrong : "+databaseError.getMessage());
+                Log(TAG,"Something went wrong : "+databaseError.getMessage());
             }
         });
     }
@@ -186,7 +186,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                 if(iterations<numberOfSubsFromFirebase){
                     checkNumberForEach();
                 }else{
-                    Log.d(TAG,"All the categories have been handled, total is : "+numberOfAdsInTotal);
+                    Log(TAG,"All the categories have been handled, total is : "+numberOfAdsInTotal);
                     if(numberOfAdsInTotal>0) beforeHandlingEverything(numberOfAdsInTotal);
                     if(numberOfAdsInTotal==0) setStartingPoint(category);
                 }
@@ -194,7 +194,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG,"Something went wrong : "+databaseError.getMessage());
+                Log(TAG,"Something went wrong : "+databaseError.getMessage());
             }
         });
     }
@@ -203,7 +203,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
         if(!Variables.isLoginOnline){
             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
             User.setUid(uid);
-            Log.d(TAG,"Starting to check if user was last online today.");
+            Log(TAG,"Starting to check if user was last online today.");
             DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                     .child(uid).child(Constants.DATE_IN_FIREBASE);
             adRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -211,7 +211,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     String date = dataSnapshot.getValue(String.class);
                     if(!date.equals(getDate())){
-                        Log.d(TAG,"User was not last online today, continuing to notify user.");
+                        Log(TAG,"User was not last online today, continuing to notify user.");
                         if(doesUserWantNotf) handleEverything(number);
                     }
                 }
@@ -289,14 +289,14 @@ public class AlarmReceiver1 extends BroadcastReceiver {
     private int getClusterValue(int index) {
         LinkedHashMap map = Subscriptions;
         int cluster = (new ArrayList<Integer>(map.values())).get(index);
-        Log.d(TAG, "Cluster gotten from current subscription is : " + cluster);
+        Log(TAG, "Cluster gotten from current subscription is : " + cluster);
         return cluster;
     }
 
     private String getSubscriptionValue(int index) {
         LinkedHashMap map = Subscriptions;
         String Sub = (new ArrayList<String>(map.keySet())).get(index);
-        Log.d(TAG, "Subscription gotten from getCurrent Subscription method is :" + Sub);
+        Log(TAG, "Subscription gotten from getCurrent Subscription method is :" + Sub);
         return Sub;
     }
 
@@ -306,6 +306,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
     }
 
     private void setStartingPoint(String subscription){
+        Log(TAG,"*****Setting starting point when app starts up: "+subscription);
         SharedPreferences prefs = mContext.getSharedPreferences(Constants.CUSTOM_STARTING_POINT_ENABLED, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(Constants.CUSTOM_STARTING_POINT_ENABLED, true);
@@ -315,6 +316,17 @@ public class AlarmReceiver1 extends BroadcastReceiver {
         SharedPreferences.Editor editor2 = prefs2.edit();
         editor2.putString(Constants.CUSTOM_STARTING_POINT_VALUE, subscription);
         editor2.apply();
+    }
+
+
+    private void Log(String tag,String message){
+        try{
+            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            if(user.equals(Constants.ADMIN_ACC)) Log.d(tag,message);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 }

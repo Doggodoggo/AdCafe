@@ -212,6 +212,7 @@
     <string name="failedSignUp">We may not be able to continue with some of the details you\'ve passed. Perhaps that
         email is already in use.</string>
     <string name="signUpPasswordNote">Please don\'t forget your password. You\'ll need it in the app.</string>
+    <string name="notificationNote">"Note: You'll need a internet connection at the set time to load any notifications."</string>
 
     <string name="feedbacktype">Feedback Type</string>
     <string name="feedbacktype1">Suggestion</string>

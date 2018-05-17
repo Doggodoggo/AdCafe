@@ -2638,6 +2638,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+
+
+
     private boolean canStartFromCustomClass(){
         SharedPreferences prefs4 = getSharedPreferences(Constants.CUSTOM_STARTING_POINT_ENABLED, MODE_PRIVATE);
         return prefs4.getBoolean(Constants.CUSTOM_STARTING_POINT_ENABLED,false);
