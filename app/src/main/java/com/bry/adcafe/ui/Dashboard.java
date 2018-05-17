@@ -14,6 +14,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Vibrator;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
@@ -23,6 +24,7 @@ import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -40,6 +42,7 @@ import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.ChangeCPVFragment;
 import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
+import com.bry.adcafe.services.OnSwipeTouchListener;
 import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.SliderPrefManager;
 import com.bry.adcafe.services.TimeManager;
@@ -113,6 +116,7 @@ public class Dashboard extends AppCompatActivity {
         }
         setListeners();
         createProgressDialog();
+        setGestureListener();
     }
 
     @Override
@@ -928,6 +932,10 @@ public class Dashboard extends AppCompatActivity {
             e.printStackTrace();
         }
 
+    }
+
+    private void setGestureListener(){
+        LinearLayout dashboardCoordinator = findViewById(R.id.linLyt);
     }
 
 }

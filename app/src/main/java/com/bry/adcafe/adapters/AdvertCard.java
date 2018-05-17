@@ -155,14 +155,14 @@ public class AdvertCard{
     private void loadAdPlaceHolderImage() {
         mIsNoAds = true;
 //        MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, 30));
-        Glide.with(mContext).load(R.drawable.noads5).into(profileImageView);
+        Glide.with(mContext).load(R.drawable.noads6).into(profileImageView);
         lockViews();
         clickable=false;
         Variables.setCurrentAdvert(mAdvert);
 
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 1;
-        bs = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.noads5, options);
+        bs = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.noads6, options);
         setUpListOfBlurrs();
     }
 
