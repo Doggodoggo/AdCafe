@@ -164,5 +164,8 @@ public class Constants {
     public static String ADMIN_ACC = "bryonyoni@gmail.com";
     public static String CUSTOM_STARTING_POINT_ENABLED = "CUSTOM_STARTING_POINT_ENABLED";
     public static String CUSTOM_STARTING_POINT_VALUE = "CUSTOM_STARTING_POINT_VALUE";
+    public static String HISTORY_UPLOADS = "AdminUploadHistory";
+
+    public static String HISTORY_TRANSACTIONS ="AllTransactionsHistory";
 
 }

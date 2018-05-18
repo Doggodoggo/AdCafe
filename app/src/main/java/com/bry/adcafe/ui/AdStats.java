@@ -828,6 +828,8 @@ public class AdStats extends AppCompatActivity {
         adRef.child("ReimbursementTransactionID").setValue(Variables.transactionID);
         adRef.child("PhoneNo").setValue(Variables.phoneNo);
         adRef.child("Amount").setValue(reimbursementTotals);
+
+        removeAdminAmm((long)reimbursementTotals);
     }
 
     private void setOlderAdsPaymentValue() {
@@ -860,6 +862,26 @@ public class AdStats extends AppCompatActivity {
         adRef.child("ReimbursementTransactionID").setValue(Variables.transactionID);
         adRef.child("PhoneNo").setValue(Variables.phoneNo);
         adRef.child("Amount").setValue(reimbursementTotals);
+    }
+
+    private void removeAdminAmm(final long amount){
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(Constants.ADMIN_MONEY);
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    long amm = dataSnapshot.getValue(long.class);
+                    long newAmm = amm -= amount;
+                    DatabaseReference mewRef = FirebaseDatabase.getInstance().getReference(Constants.ADMIN_MONEY);
+                    mewRef.setValue(newAmm);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
 

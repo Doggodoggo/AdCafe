@@ -2210,6 +2210,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         DatabaseReference dbref2 = query2.getRef();
         dbref2.setValue(number);
 
+
+
+        DatabaseReference adminRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
+                .child(TimeManager.getPreviousDayYear()).child(TimeManager.getPreviousDayMonth()).child(TimeManager.getPreviousDayDay())
+                .child(ad.getPushRefInAdminConsole()).child("numberOfTimesSeen");
+        adminRef.setValue(number);
+
+
+
         Query query = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
                 .child(date).child(Variables.getCurrentAdvert().getPushRefInAdminConsole()).child("numberOfTimesSeen");
 
@@ -2376,6 +2385,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
     }
+
 
 
 

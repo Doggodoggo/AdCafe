@@ -719,6 +719,7 @@ public class Dashboard extends AppCompatActivity {
     private void resetUserMoneyTotals(){
         int amount = Variables.getTotalReimbursementAmount();
         setPayoutReceiptInFireBase(amount);
+        removeAdminAmm(amount);
 //        addAmountForAdmin(amount);
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -738,26 +739,6 @@ public class Dashboard extends AppCompatActivity {
         setValues();
         mProgForPayments.dismiss();
         showSuccessfulPayoutPrompt();
-    }
-
-    private void addAmountForAdmin(final int amount) {
-        Query query = FirebaseDatabase.getInstance().getReference(Constants.ADMIN_MONEY);
-        DatabaseReference dbRef = query.getRef();
-        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                long number;
-                if (dataSnapshot.exists()) number = dataSnapshot.getValue(long.class);
-                else number = 0;
-                Log("Dashboard", "number gotten for takeout ad totals is : " + number);
-                long newNumber = number + Constants.TOTAL_AMOUNT_PER_VIEW_FOR_ADMIN;
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
     private void showSuccessfulPayoutPrompt() {
@@ -936,6 +917,26 @@ public class Dashboard extends AppCompatActivity {
 
     private void setGestureListener(){
         LinearLayout dashboardCoordinator = findViewById(R.id.linLyt);
+    }
+
+    private void removeAdminAmm(final long amount){
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(Constants.ADMIN_MONEY);
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    long amm = dataSnapshot.getValue(long.class);
+                    long newAmm = amm -= amount;
+                    DatabaseReference mewRef = FirebaseDatabase.getInstance().getReference(Constants.ADMIN_MONEY);
+                    mewRef.setValue(newAmm);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
 }

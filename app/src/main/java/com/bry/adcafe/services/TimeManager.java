@@ -212,6 +212,9 @@ public class TimeManager {
 
     }
 
+
+
+
     public static String getDateFromDays(long days){
         long currentTimeInMills = days*(Constants.HRS_24_IN_MILLS);
 
@@ -317,6 +320,62 @@ public class TimeManager {
         }
 
     }
+
+    private static String getMonthName_Abbr(int month) {
+        Calendar calx = Calendar.getInstance();
+        calx.set(Calendar.MONTH, month);
+        SimpleDateFormat month_date = new SimpleDateFormat("MMM");
+        String month_name = month_date.format(calx.getTime());
+        return month_name;
+    }
+
+
+
+
+    public static String getMonth(){
+        Calendar c = cal;
+        return getMonthName_Abbr(c.get(Calendar.MONTH) + 1);
+    }
+
+    public static String getYear(){
+        Calendar c = cal;
+        return Integer.toString(c.get(Calendar.YEAR));
+    }
+
+    public static String getDay(){
+        Calendar c = cal;
+        return Integer.toString(c.get(Calendar.DAY_OF_MONTH)+1);
+    }
+
+
+
+    public static String getPreviousDayYear(){
+        Calendar c = cal;
+        String yy = Integer.toString(c.get(Calendar.YEAR));
+        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
+        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH)-1);
+
+        return yy;
+    }
+
+    public static String getPreviousDayMonth(){
+        Calendar c = cal;
+        String yy = Integer.toString(c.get(Calendar.YEAR));
+        int mm = (c.get(Calendar.MONTH)+1);
+        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH)-1);
+
+        return getMonthName_Abbr(mm);
+    }
+
+    public static String getPreviousDayDay(){
+        Calendar c = cal;
+        String yy = Integer.toString(c.get(Calendar.YEAR));
+        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
+        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH)-1);
+
+        return dd;
+    }
+
 
 
 }

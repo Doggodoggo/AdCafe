@@ -643,9 +643,30 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             Log(TAG, "Broadcast has been received that Mpesa payment is successful.");
             mProgForPayments.hide();
             startProcessForUpload();
+            addPaymentTotalsInFirebase();
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
         }
     };
+
+    private void addPaymentTotalsInFirebase() {
+        final double amount = Variables.amountToPayForUpload;
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(Constants.ADMIN_MONEY);
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                long amm = 0;
+                if(dataSnapshot.exists()) amm = dataSnapshot.getValue(long.class);
+                long newAmm = amm+=amount;
+                DatabaseReference mewRef = FirebaseDatabase.getInstance().getReference(Constants.ADMIN_MONEY);
+                mewRef.setValue(newAmm);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
 
     private BroadcastReceiver mMessageReceiverForSuccessfulPayment = new BroadcastReceiver() {
         @Override
@@ -653,6 +674,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             Log(TAG, "Broadcast has been received that payment is successful.");
             mProgForPayments.hide();
             startProcessForUpload();
+            addPaymentTotalsInFirebase();
             removePaymentListeners();
         }
     };
@@ -927,6 +949,11 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 .child(User.getUid()).child(Constants.UPLOAD_HISTORY).child(Long.toString(-(getDateInDays()+1)))
                 .child(pushId);
         dbrefh.setValue(advert);
+
+        DatabaseReference dbMyRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
+                .child(TimeManager.getYear()).child(TimeManager.getMonth()).child(TimeManager.getDay())
+                .child(pushId);
+        dbMyRef.setValue(advert);
 
     }
 
