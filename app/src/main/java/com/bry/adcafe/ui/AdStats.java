@@ -632,6 +632,7 @@ public class AdStats extends AppCompatActivity {
         mAuthProgressDialog.show();
         Advert ad = Variables.adToBeFlagged;
         if(ad.isFlagged())mAuthProgressDialog.setMessage("Restoring the ad...");
+        else mAuthProgressDialog.setMessage("Taking down ad...");
         boolean bol = !ad.isFlagged();
 
         DatabaseReference  mRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
@@ -639,6 +640,11 @@ public class AdStats extends AppCompatActivity {
                 .child(ad.getPushRefInAdminConsole())
                 .child("flagged");
         mRef.setValue(bol);
+
+        DatabaseReference mRef3 = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
+                .child(TimeManager.getNextDayYear()).child(TimeManager.getNextDayMonth()).child(TimeManager.getNextDayDay())
+                .child(ad.getPushRefInAdminConsole()).child("flagged");
+        mRef3.setValue(bol);
 
         DatabaseReference mRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(User.getUid()).child(Constants.UPLOAD_HISTORY)

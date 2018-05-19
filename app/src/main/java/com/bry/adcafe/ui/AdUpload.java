@@ -951,7 +951,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         dbrefh.setValue(advert);
 
         DatabaseReference dbMyRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
-                .child(TimeManager.getYear()).child(TimeManager.getMonth()).child(TimeManager.getDay())
+                .child(TimeManager.getNextDayYear()).child(TimeManager.getNextDayMonth()).child(TimeManager.getNextDayDay())
                 .child(pushId);
         dbMyRef.setValue(advert);
 

@@ -344,7 +344,7 @@ public class TimeManager {
 
     public static String getDay(){
         Calendar c = cal;
-        return Integer.toString(c.get(Calendar.DAY_OF_MONTH)+1);
+        return Integer.toString(c.get(Calendar.DAY_OF_MONTH));
     }
 
 
@@ -372,6 +372,34 @@ public class TimeManager {
         String yy = Integer.toString(c.get(Calendar.YEAR));
         String mm = Integer.toString(c.get(Calendar.MONTH)+1);
         String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH)-1);
+
+        return dd;
+    }
+
+
+    public static String getNextDayYear(){
+        Calendar c = cal;
+        String yy = Integer.toString(c.get(Calendar.YEAR));
+        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
+        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH)+1);
+
+        return yy;
+    }
+
+    public static String getNextDayMonth(){
+        Calendar c = cal;
+        String yy = Integer.toString(c.get(Calendar.YEAR));
+        int mm = (c.get(Calendar.MONTH)+1);
+        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH)+1);
+
+        return getMonthName_Abbr(mm);
+    }
+
+    public static String getNextDayDay(){
+        Calendar c = cal;
+        String yy = Integer.toString(c.get(Calendar.YEAR));
+        String mm = Integer.toString(c.get(Calendar.MONTH)+1);
+        String dd = Integer.toString(c.get(Calendar.DAY_OF_MONTH)+1);
 
         return dd;
     }

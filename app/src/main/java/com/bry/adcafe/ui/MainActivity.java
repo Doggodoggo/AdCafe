@@ -2213,7 +2213,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         DatabaseReference adminRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
-                .child(TimeManager.getPreviousDayYear()).child(TimeManager.getPreviousDayMonth()).child(TimeManager.getPreviousDayDay())
+                .child(TimeManager.getYear()).child(TimeManager.getMonth()).child(TimeManager.getDay())
                 .child(ad.getPushRefInAdminConsole()).child("numberOfTimesSeen");
         adminRef.setValue(number);
 
