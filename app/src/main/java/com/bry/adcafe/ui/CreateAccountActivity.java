@@ -136,8 +136,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
             }
         });
 
-        String sourceString = "By clicking SIGN UP, you agree to our <b>terms of service</b>, <b>privacy</b>" +
-                " and <b>advertising policy.</b>";
+        String sourceString = "By clicking SIGN UP, you agree to our <b>End User License Agreement.</b>";
         mPrivPol.setText(Html.fromHtml(sourceString));
         mPrivPol.setOnClickListener(new View.OnClickListener() {
             @Override

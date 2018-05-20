@@ -2282,6 +2282,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
+
+
+
     @Override public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -2669,8 +2673,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+
+
 //    Font: AR ESSENCE.
     private void nothn(){}
 //    No of lns : 30,070 as of 6/05/2018.
+
 
 }
