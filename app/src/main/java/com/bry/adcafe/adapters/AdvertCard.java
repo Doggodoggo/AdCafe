@@ -214,8 +214,10 @@ public class AdvertCard{
         if(rad==1){
             Glide.with(mContext).load(mImageBytes).listener(myRq).into(profileImageView);
         }else{
-            MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, rad));
-            Glide.with(mContext).load(mImageBytes).bitmapTransform(multi).listener(myRq).into(profileImageView);
+//            MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, rad));
+//            Glide.with(mContext).load(mImageBytes).bitmapTransform(multi).listener(myRq).into(profileImageView);
+            Glide.with(mContext).load(mImageBytes).listener(myRq).into(profileImageView);
+
         }
 
     }
@@ -581,6 +583,7 @@ public class AdvertCard{
                     mIsNoAds = false;
                     loadAllAds();
                 }
+                mAvi.setVisibility(android.view.View.GONE);
             }
 
         }
