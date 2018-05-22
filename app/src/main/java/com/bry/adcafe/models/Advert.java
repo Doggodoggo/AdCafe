@@ -229,4 +229,12 @@ public class Advert {
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
+
+    public double getPayoutReimbursalAmount() {
+        return payoutReimbursalAmount;
+    }
+
+    public void setPayoutReimbursalAmount(double payoutReimbursalAmount) {
+        this.payoutReimbursalAmount = payoutReimbursalAmount;
+    }
 }

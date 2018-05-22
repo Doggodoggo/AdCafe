@@ -933,6 +933,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         advert.setPushRefInAdminConsole(pushId);
         advert.setUserEmail(FirebaseAuth.getInstance().getCurrentUser().getEmail());
         advert.setWebsiteLink(mLink);
+        advert.setPayoutReimbursalAmount(0);
         advert.setAmountToPayPerTargetedView(mAmountPlusOurShare);
         advert.setHasBeenReimbursed(false);
         advert.setDateInDays(getDateInDays());

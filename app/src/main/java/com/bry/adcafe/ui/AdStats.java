@@ -84,6 +84,7 @@ public class AdStats extends AppCompatActivity {
     Runnable r;
     private boolean doChildrenExist = false;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +113,8 @@ public class AdStats extends AppCompatActivity {
         setCurrentDateToSharedPrefs();
         h.removeCallbacks(r);
     }
+
+
 
     @Override
     protected void onResume(){
@@ -178,6 +181,8 @@ public class AdStats extends AppCompatActivity {
             }
         },new IntentFilter("AD_STATS_RESET_UP_TIMER"));
     }
+
+
 
     @Override
     protected void onDestroy() {
@@ -284,6 +289,8 @@ public class AdStats extends AppCompatActivity {
                             int pushId = clusterSnap.getValue(int.class);
                             adUploadedByUser.clusters.put(cluster, pushId);
                         }
+                        adUploadedByUser.setPayoutReimbursalAmount(Double.parseDouble(dataSnapshot.child("payoutReimbursalAmount")
+                                .getValue(String.class)));
                         Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds3.add(adUploadedByUser);
                     }
@@ -313,6 +320,7 @@ public class AdStats extends AppCompatActivity {
         }
         loadAdsThatHaveBeenUploaded();
     }
+
 
 
     private void loadAdsThatHaveBeenUploaded() {
@@ -358,6 +366,7 @@ public class AdStats extends AppCompatActivity {
                     cycleCount++;
                     if(dataSnapshot.hasChildren()) {
                         Advert adUploadedByUser = dataSnapshot.getValue(Advert.class);
+                        adUploadedByUser.setPayoutReimbursalAmount(dataSnapshot.child("payoutReimbursalAmount").getValue(double.class));
                         Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds.add(adUploadedByUser);
                     }
@@ -437,6 +446,7 @@ public class AdStats extends AppCompatActivity {
                     cycleCount2++;
                     if(dataSnapshot.hasChildren()) {
                         Advert adUploadedByUser = dataSnapshot.getValue(Advert.class);
+                        adUploadedByUser.setPayoutReimbursalAmount(dataSnapshot.child("payoutReimbursalAmount").getValue(double.class));
                         Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds2.add(adUploadedByUser);
                     }

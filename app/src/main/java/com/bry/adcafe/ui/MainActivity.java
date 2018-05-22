@@ -1146,23 +1146,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if (!Variables.hasBeenPinned) {
                             final Snackbar snackBar = Snackbar.make(findViewById(R.id.mainCoordinatorLayout), R.string.pinning,
                                     Snackbar.LENGTH_SHORT);
-                            snackBar.setAction("Dismiss", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    snackBar.dismiss();
-                                }
-                            });
+//                            snackBar.setAction("", new View.OnClickListener() {
+//                                @Override
+//                                public void onClick(View v) {
+//                                    snackBar.dismiss();
+//                                }
+//                            });
                             snackBar.show();
                             pinAd();
                         } else {
                             final Snackbar snackBar = Snackbar.make(findViewById(R.id.mainCoordinatorLayout), R.string.hasBeenPinned,
                                     Snackbar.LENGTH_SHORT);
-                            snackBar.setAction("Dismiss", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    snackBar.dismiss();
-                                }
-                            });
+//                            snackBar.setAction("", new View.OnClickListener() {
+//                                @Override
+//                                public void onClick(View v) {
+//                                    snackBar.dismiss();
+//                                }
+//                            });
                             snackBar.show();
                         }
                     } else {

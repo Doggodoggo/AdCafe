@@ -83,12 +83,14 @@ public class MyAdStatsItem {
         }
 
         int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen();
-        int ammountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView());
-        String number = Integer.toString(ammountToBeRepaid);
+        int ammountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*
+                (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES));
+        double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();
+        String number = Double.toString(totalReimbursalPlusPayout);
 
         mAmountToReimburse.setText("Reimbursing amount: "+number+" Ksh");
         try{
-            if(ammountToBeRepaid==0){
+            if(totalReimbursalPlusPayout==0){
                 mHasBeenReimbursed.setText("Status: All Users Reached.");
                 mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
             }else {
@@ -97,7 +99,7 @@ public class MyAdStatsItem {
                     mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
                 } else {
                     mHasBeenReimbursed.setText("Status: NOT Reimbursed.");
-                    mAmountToReimburse.setText("Reimbursing amount: " + number + " Ksh");
+                    mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
                 }
             }
         }catch (Exception e){
@@ -159,41 +161,73 @@ public class MyAdStatsItem {
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
             Log("MY_AD_STAT_ITEM","Listener from firebase has responded.Updating users reached so far");
-            try{
-                int newValue = dataSnapshot.getValue(int.class);
-                Log("MY_AD_STAT_ITEM","New value gotten from firebase --"+newValue);
-                mAdvert.setNumberOfTimesSeen(newValue);
-                mUsersReachedSoFar.setText("Users reached so far : "+newValue);
-                int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- newValue;
-                int ammountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView());
-                String number = Integer.toString(ammountToBeRepaid);
-                mAmountToReimburse.setText("Reimbursing amount : "+number+" Ksh");
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-            try{
-                boolean newValue = dataSnapshot.getValue(boolean.class);
-                Log("ADMIN_STAT_ITEM","New value gotten from firebase --"+newValue);
-                mAdvert.setHasBeenReimbursed(newValue);
-                try{
-                    if(mAdvert.isHasBeenReimbursed()) {
-                        mHasBeenReimbursed.setText("Status: Reimbursed.");
+            if(dataSnapshot.getKey().equals("payoutReimbursalAmount")){
+                mAdvert.setPayoutReimbursalAmount(dataSnapshot.getValue(double.class));
+
+                int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach();
+                int ammountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*
+                        (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES));
+                double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();
+                String number = Double.toString(totalReimbursalPlusPayout);
+
+                mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
+                if(totalReimbursalPlusPayout==0){
+                    mHasBeenReimbursed.setText("Status: All Users Reached.");
+                    mAmountToReimburse.setText("Reimbursing :  0 Ksh");
+                }
+            }else{
+                try {
+                    int newValue = dataSnapshot.getValue(int.class);
+                    Log("MY_AD_STAT_ITEM", "New value gotten from firebase --" + newValue);
+                    mAdvert.setNumberOfTimesSeen(newValue);
+                    mUsersReachedSoFar.setText("Users reached so far : " + newValue);
+                    int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach() - newValue;
+
+                    int ammountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*
+                            (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES));
+                    double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();
+                    String number = Double.toString(totalReimbursalPlusPayout);
+
+                    mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
+                    if(totalReimbursalPlusPayout==0){
+                        mHasBeenReimbursed.setText("Status: All Users Reached.");
                         mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
-                        if(isCardForYesterdayAds())mReimburseButton.setVisibility(android.view.View.GONE);
-                    }else{
-                        mHasBeenReimbursed.setText("Status: NOT Reimbursed.");
-                        int numberOfUsersWhoDidntSeeAd = (mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen());
-                        int ammountToBeRepaid = (numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView());
-                        String number = Integer.toString(ammountToBeRepaid);
-                        mAmountToReimburse.setText("Reimbursing amount : "+number+" Ksh");
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+                try {
+                    boolean newValue = dataSnapshot.getValue(boolean.class);
+                    Log("ADMIN_STAT_ITEM", "New value gotten from firebase --" + newValue);
+                    mAdvert.setHasBeenReimbursed(newValue);
+                    try {
+                        if (mAdvert.isHasBeenReimbursed()) {
+                            mHasBeenReimbursed.setText("Status: Reimbursed.");
+                            mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
+                            if (isCardForYesterdayAds())
+                                mReimburseButton.setVisibility(android.view.View.GONE);
+                        } else {
+                            mHasBeenReimbursed.setText("Status: NOT Reimbursed.");
 
+                            int numberOfUsersWhoDidntSeeAd = (mAdvert.getNumberOfUsersToReach() - mAdvert.getNumberOfTimesSeen());
+                            int ammountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*
+                                    (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES));
+                            double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();
+                            String number = Double.toString(totalReimbursalPlusPayout);
+
+                            mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
+                            if(totalReimbursalPlusPayout==0){
+                                mHasBeenReimbursed.setText("Status: All Users Reached.");
+                                mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         @Override

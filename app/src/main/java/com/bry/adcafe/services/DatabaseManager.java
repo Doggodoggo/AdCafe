@@ -1331,13 +1331,13 @@ public class DatabaseManager {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     double value = 0;
-                    if(dataSnapshot.exists()) value = dataSnapshot.getValue(double.class);
+                    if(dataSnapshot.exists()) value = Double.parseDouble(dataSnapshot.getValue(String.class));
                     if(pushRef.equals(ad.getPushRefInAdminConsole())){
                         double newValue = value+newAmount;
-                        mref.setValue(newValue);
+                        mref.setValue(Double.toString(newValue));
                     }else{
                         double newValue = value+newAddValue;
-                        mref.setValue(newValue);
+                        mref.setValue(Double.toString(newValue));
                     }
                 }
 
