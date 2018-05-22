@@ -40,6 +40,7 @@ public class Advert {
 
     private String paymentReference;
     private String paymentMethod;
+    private double payoutReimbursalAmount = 0;
 
     public Advert(String ImageUrl){
         this.imageUrl = ImageUrl;

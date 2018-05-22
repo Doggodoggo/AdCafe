@@ -1468,6 +1468,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         adDayAndMonthTotalsToFirebase();
         onclicks();
 
+        new DatabaseManager().updateValueForUnneededPayoutAmount(Variables.getCurrentAdvert());
+
         getNumberOfTimesAndSetNewNumberOfTimes();
         getAndSetAllAdsThatHaveBeenSeenEver();
         getAndSetTheOtherTotals();
@@ -1495,7 +1497,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setPreviousAdsImage() {
-        int currentAdsPos = Variables.getCurrentAdNumberForAllAdsList();
+        int currentAdsPos = Variables.getPositionOfAdInVariablesAdsList(Variables.getCurrentAdvert());
         try{
             if(currentAdsPos>0){
                 int pos = currentAdsPos-1;
@@ -2117,8 +2119,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ad.setPushId(pushId);
 
         long currentTimeMillis = System.currentTimeMillis();
-        long currentDay = -(currentTimeMillis+1000*60*60*3)/(1000*60*60*24);
-
+//        long currentDay = -(currentTimeMillis+1000*60*60*3)/(1000*60*60*24);
+        long currentDay = Long.parseLong(getDateInDays());
         ad.setDateInDays(currentDay);
 
         DatabaseReference adRef2 = FirebaseDatabase.getInstance().getReference(Constants.PINNED_AD_POOL)

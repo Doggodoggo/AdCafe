@@ -124,6 +124,8 @@ public class Variables {
     public static boolean isOlderAd = false;
     public static String mpesaEmail;
     public static String announcements = "";
+    public static List<String> adsSeenSoFar = new ArrayList<>();
+    public static String topCardId;
 
     public static void resetAllValues(){
          todaysAdTotal = 0;
@@ -257,6 +259,10 @@ public class Variables {
 
     public static Advert getAdFromVariablesAdList(int i){
         return allAdsList.get(i);
+    }
+
+    public static int getPositionOfAdInVariablesAdsList(Advert ad){
+        return allAdsList.indexOf(ad);
     }
 
     public static void adOneToCurrentAdNumberForAllAdsList(){

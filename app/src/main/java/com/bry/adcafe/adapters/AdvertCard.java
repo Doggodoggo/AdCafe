@@ -170,6 +170,9 @@ public class AdvertCard{
         Log("ADVERT_CARD--","LOADING AD NORMALLY.");
         int rad = 30;
         if(mLastOrNotLast.equals(Constants.ANNOUNCEMENTS))rad = 1;
+        if(Variables.topCardId!=null) {
+            if(mAdvert.getPushRefInAdminConsole().equals(Variables.topCardId))rad = 1;
+        }
         MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, rad));
         Glide.with(mContext).load(mImageBytes).bitmapTransform(multi).listener(new RequestListener<byte[], GlideDrawable>() {
             @Override
@@ -295,6 +298,7 @@ public class AdvertCard{
     private void onSwipeHeadCard() {
         Log("EVENT----------", "onSwipeHeadCard");
         profileImageView.setImageBitmap(bs);
+        Variables.topCardId = mAdvert.getPushRefInAdminConsole();
         Variables.currentAdvertImageBitmap = bs;
         Log("AdvertCard","Set the normal image to the image view");
 
@@ -788,7 +792,7 @@ public class AdvertCard{
 
 //        Log.e("pix", w + " " + h + " " + pix.length);
         bitmap.setPixels(pix, 0, w, 0, 0, w, h);
-        positionBL++;
+
         return (bitmap);
     }
 
@@ -803,7 +807,10 @@ public class AdvertCard{
                 positionBL+=3;
             }else{
                 for (int i = 0; i < 3; i++) {
-                    if (i >= positionBL) blurredImageList.set(i, fastblur(bm, scale, (i + 2)));
+                    if (i >= positionBL){
+                        blurredImageList.set(i, fastblur(bm, scale, (i + 2)));
+                        positionBL++;
+                    }
                 }
             }
             return "executed";

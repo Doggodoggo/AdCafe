@@ -42,6 +42,7 @@ import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.ChangeCPVFragment;
 import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
+import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.services.OnSwipeTouchListener;
 import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.SliderPrefManager;
@@ -727,6 +728,7 @@ public class Dashboard extends AppCompatActivity {
                 .child(uid).child(Constants.REIMBURSEMENT_TOTALS);
         adRef9.setValue(0);
 
+        new DatabaseManager().clearAdsSeenSoFarInFirebase();
         Variables.setTotalReimbursementAmount(0);
 
         SharedPreferences pref3 = mContext.getSharedPreferences("ReimbursementTotals",MODE_PRIVATE);

@@ -47,7 +47,7 @@
 
         <TextView
             android:layout_width="match_parent"
-            android:text="*1000 users."
+            android:text="*100 users."
             android:gravity="center"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"

@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.Variables;
+import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -520,6 +521,15 @@ public class DatabaseManager {
                     }
                 }
 
+                //this loads the users seen ads list.
+                DataSnapshot seenAdsListSnap = dataSnapshot.child(Constants.SEEN_AD_IDS);
+                if(seenAdsListSnap.exists()) {
+                    for (DataSnapshot pushIdSnap : seenAdsListSnap.getChildren()) {
+                        String pushId = pushIdSnap.getValue(String.class);
+                        Variables.adsSeenSoFar.add(pushId);
+                    }
+                }
+
                 //this loads the last seen date from firebase
                 DataSnapshot dateSnap = dataSnapshot.child(Constants.DATE_IN_FIREBASE);
                 String date = dateSnap.getValue(String.class);
@@ -559,8 +569,10 @@ public class DatabaseManager {
                     Variables.setCurrentSubscriptionIndex(0);
                     Variables.setCurrentAdInSubscription(0);
                     resetTotalsInFirebase();
+                    clearAdsSeenSoFarInFirebase();
                     setAnnouncementBoolean(mContext);
                     isNewDay = true;
+
                 }
                 DataSnapshot isNeedToResetSubsSnap = dataSnapshot.child(Constants.RESET_ALL_SUBS_BOOLEAN);
                 if(isNewDay && isNeedToResetSubsSnap.getValue(Boolean.class)){
@@ -1285,7 +1297,6 @@ public class DatabaseManager {
         editor.apply();
     }
 
-
     private void Log(String tag,String message){
         try{
             String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
@@ -1294,6 +1305,63 @@ public class DatabaseManager {
             e.printStackTrace();
         }
 
+    }
+
+    public void updateValueForUnneededPayoutAmount(final Advert ad){
+        if(Variables.adsSeenSoFar.size()==Constants.MAX_AMMOUNT_FOR_SHARING_PAYOUT_AMOUNT){
+            clearAdsSeenSoFarInFirebase();
+            Variables.adsSeenSoFar.clear();
+        }
+        Variables.adsSeenSoFar.add(ad.getPushRefInAdminConsole());
+        adToAdsSeenSoFarInFirebase(ad);
+        int size = Variables.adsSeenSoFar.size();
+        int previousSize = Variables.adsSeenSoFar.size()-1;
+        final double previousAmount = previousSize>1?((previousSize-1)*Constants.MPESA_CHARGES)/previousSize:0;
+        final double newAmount = size>1?((size-1)*Constants.MPESA_CHARGES)/size:0;
+        final double newAddValue = newAmount-previousAmount;
+
+        Log(TAG,"Updating values for unneeded payout amount that was paid : previousAmount="+previousAmount
+                +" newAmount="+newAmount+" and newAddValue="+newAddValue);
+
+
+        for (final String pushRef: Variables.adsSeenSoFar) {
+            final DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                    .child(TimeManager.getDate()).child(pushRef).child("payoutReimbursalAmount");
+            mref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    double value = 0;
+                    if(dataSnapshot.exists()) value = dataSnapshot.getValue(double.class);
+                    if(pushRef.equals(ad.getPushRefInAdminConsole())){
+                        double newValue = value+newAmount;
+                        mref.setValue(newValue);
+                    }else{
+                        double newValue = value+newAddValue;
+                        mref.setValue(newValue);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+
+    }
+
+    private void adToAdsSeenSoFarInFirebase(Advert ad){
+        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(User.getUid()).child(Constants.SEEN_AD_IDS);
+        DatabaseReference pushRef = adRef.push();
+        pushRef.setValue(ad.getPushRefInAdminConsole());
+    }
+
+    public void clearAdsSeenSoFarInFirebase(){
+        Variables.adsSeenSoFar.clear();
+        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(User.getUid()).child(Constants.SEEN_AD_IDS);
+        adRef.setValue(null);
     }
 
 }

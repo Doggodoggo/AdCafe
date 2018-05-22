@@ -102,7 +102,7 @@ public class Constants {
     public static String PREFERRED_NOTF_MIN = "PreferredNotfMin";
     public static String USER_NICKNAME = "UserName";
     public static String LAST_SEEN_DATE_IN_DAYS = "LSDate";
-    public static int NUMBER_OF_USERS_PER_CLUSTER = 1000;
+    public static int NUMBER_OF_USERS_PER_CLUSTER = 100;
     public static double PAYMENT_TRANSFER_PERENTAGE = 0.035;
     public static double PAYOUT_TRANSFER_FEE = 0.015;
     public static double TOTAL_PAYOUT_PERCENTAGE = 0.04;
@@ -167,5 +167,8 @@ public class Constants {
     public static String HISTORY_UPLOADS = "AdminUploadHistory";
 
     public static String HISTORY_TRANSACTIONS ="AllTransactionsHistory";
+    public static int MPESA_CHARGES = 15;
+    public static String SEEN_AD_IDS = "SeenAds";
+    public static int MAX_AMMOUNT_FOR_SHARING_PAYOUT_AMOUNT = 15;
 
 }

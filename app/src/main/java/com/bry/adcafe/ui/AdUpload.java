@@ -578,7 +578,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         @Override
         public void onReceive(Context context, Intent intent) {
             Log(TAG, "Broadcast has been received show bottomsheet.");
-            if(Variables.paymentOption.equals(Constants.MPESA_OPTION))startMpesaPayments();
+//            if(Variables.paymentOption.equals(Constants.MPESA_OPTION))startMpesaPayments();
+            if(Variables.paymentOption.equals(Constants.MPESA_OPTION))startTestUpload();
             else if(Variables.paymentOption.equals(Constants.BANK_OPTION)) startBankPayments();
         }
     };
@@ -1010,6 +1011,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 advert.setWebsiteLink(mLink);
                 advert.setCategory(mCategory);
                 advert.setFlagged(false);
+                advert.setAdvertiserUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
                 advert.setDateInDays(getDateInDays());
                 advert.setAdminFlagged(false);
                 advert.setPushRefInAdminConsole(pushrefInAdminConsole);
@@ -1084,6 +1086,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 advert.setWebsiteLink(mLink);
                 advert.setCategory(mCategory);
                 advert.setFlagged(false);
+                advert.setAdvertiserUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
                 advert.setDateInDays(getDateInDays());
                 advert.setAdminFlagged(false);
                 advert.setPushRefInAdminConsole(pushrefInAdminConsole);

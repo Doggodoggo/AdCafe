@@ -47,7 +47,7 @@
     <string name="DoNotPayTwice">"Note that once you pay, you can upload your advert at any time."</string>
     <string name="MakeSureImage">"Images are compressed to save on our database space. "</string>
     <string name="pleaseChooseIcon">"Please choose an image fist."</string>
-    <string name="successfullyUploaded">"Thanks for using the AdCafé to advertise your product."</string>
+    <string name="successfullyUploaded">"Thank you for using the AdCafé to advertise your product."</string>
     <string name="monitorProcess">FYI: You\'re able to monitor the progress of your ads from the dashboard.(By clicking the Button Marked "FIND OUT")</string>
     <string name="unsuccessfullyUploaded">"Something went wrong,try uploading again after a few minutes."</string>
     <string name="uploadMessage">"Upload may take some time…"</string>
@@ -60,7 +60,7 @@
     <string name="loadingTodaysAdsmessage">"Loading today's ads…"</string>
     <string name="loadingYourPinnedAds">"Loading your pinned ads"</string>
     <string name="failedToLoadTodaysAds">"Failed to load today's ads."</string>
-    <string name="noteForPickingMessage">"The number shown is by 1000 (*1000 users). Select having that in mind."</string>
+    <string name="noteForPickingMessage">"The number shown is by 100 (*100 users). Select having that in mind."</string>
     <string name="pickBeforePaying">"So make sure you pick before making any payments."</string>
     <string name="shareText">"Share App for awesomeness."</string>
 
