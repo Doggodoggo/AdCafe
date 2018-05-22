@@ -140,13 +140,15 @@ public class AdvertCard{
     }
 
     private void setImage() {
-        try {
-            bs = decodeFromFirebaseBase64(mAdvert.getImageUrl());
-            Log("SavedAdsCard---","Image has been converted to bitmap.");
-            mImageBytes = bitmapToByte(bs);
-            mAdvert.setImageBitmap(bs);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(bs==null) {
+            try {
+                bs = decodeFromFirebaseBase64(mAdvert.getImageUrl());
+                Log("SavedAdsCard---", "Image has been converted to bitmap.");
+                mImageBytes = bitmapToByte(bs);
+                mAdvert.setImageBitmap(bs);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -173,8 +175,7 @@ public class AdvertCard{
         if(Variables.topCardId!=null) {
             if(mAdvert.getPushRefInAdminConsole().equals(Variables.topCardId))rad = 1;
         }
-        MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, rad));
-        Glide.with(mContext).load(mImageBytes).bitmapTransform(multi).listener(new RequestListener<byte[], GlideDrawable>() {
+        RequestListener myRq = new RequestListener<byte[], GlideDrawable>() {
             @Override
             public boolean onException(Exception e, byte[] model, Target<GlideDrawable> target, boolean isFirstResource) {
                 Log("ADVERT_CARD--","The image has failed to load due to error."+e.getMessage());
@@ -209,7 +210,14 @@ public class AdvertCard{
                 clickable=false;
                 return false;
             }
-        }).into(profileImageView);
+        };
+        if(rad==1){
+            Glide.with(mContext).load(mImageBytes).listener(myRq).into(profileImageView);
+        }else{
+            MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, rad));
+            Glide.with(mContext).load(mImageBytes).bitmapTransform(multi).listener(myRq).into(profileImageView);
+        }
+
     }
 
     private void loadOnlyLastAd(){
@@ -580,7 +588,7 @@ public class AdvertCard{
         @Override
         protected void onPreExecute() {
             mIsNoAds = false;
-            mAvi.setVisibility(android.view.View.VISIBLE);
+            if(bs==null) mAvi.setVisibility(android.view.View.VISIBLE);
             super.onPreExecute();
         }
     }
@@ -800,15 +808,15 @@ public class AdvertCard{
 
         @Override
         protected String doInBackground(String... strings) {
-            Log("Card","Doing in background");
+            Log("Card","blurring in background");
             float scale = 0.6f;
             Bitmap bm = bs;
             if(mLastOrNotLast.equals(Constants.ANNOUNCEMENTS)){
-                positionBL+=3;
+                positionBL+=1;
             }else{
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 1; i++) {
                     if (i >= positionBL){
-                        blurredImageList.set(i, fastblur(bm, scale, (i + 2)));
+                        blurredImageList.set(i, fastblur(bm, scale, 6));
                         positionBL++;
                     }
                 }
@@ -868,7 +876,7 @@ public class AdvertCard{
     private void updateImage() {
         int roundedDistance =(((int)mDistance + 99) / 200 ) * 200;
 
-        profileImageView.setImageBitmap(blurredImageList.get((roundedDistance/200)-1));
+        profileImageView.setImageBitmap(blurredImageList.get(0));
         amount = roundedDistance/200;
     }
 
