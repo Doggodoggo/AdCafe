@@ -135,17 +135,16 @@ public class AlarmReceiver1 extends BroadcastReceiver {
 
                 DataSnapshot subSnap = dataSnapshot.child(Constants.SUBSCRIPTION_lIST);
                 for(DataSnapshot snap: subSnap.getChildren()){
-//                    numberOfSubsFromFirebase = (int)dataSnapshot.getChildrenCount();
                     String category = snap.getKey();
                     Integer cluster = snap.getValue(Integer.class);
                     Log(TAG,"Key category gotten from firebase is : "+category+" Value : "+cluster);
                     Subscriptions.put(category,cluster);
-//                    checkInForEachCategory(category,cluster);
                 }
                 DataSnapshot isNeedToResetSubsSnap = dataSnapshot.child(Constants.RESET_ALL_SUBS_BOOLEAN);
                 if(!isNeedToResetSubsSnap.getValue(Boolean.class)) {
                     numberOfSubsFromFirebase = Subscriptions.size();
-                    checkNumberForEach();
+//                    checkNumberForEach();
+                    checkNumberForAll();
                 }
             }
 
@@ -158,6 +157,40 @@ public class AlarmReceiver1 extends BroadcastReceiver {
 
 
 
+
+    private void checkNumberForAll(){
+        Query query = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS).child(getDate())
+                .child(Integer.toString(constantAmountPerView));
+        DatabaseReference dbRef = query.getRef();
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChildren()){
+                    for(String subscription:Subscriptions.keySet()){
+                        int cluster = Subscriptions.get(subscription);
+                        DataSnapshot adsInSubscription = dataSnapshot.child(subscription).child(Integer.toString(cluster));
+                        if(adsInSubscription.exists()) {
+                            for (DataSnapshot snap : adsInSubscription.getChildren()) {
+                                boolean isFlagged = snap.child("flagged").getValue(boolean.class);
+                                if (!isFlagged) {
+                                    numberOfAdsInTotal += 1;
+                                    if (numberOfAdsInTotal == 1) setStartingPoint(subscription);
+                                }
+                            }
+                        }
+                    }
+                }
+                Log(TAG,"All the categories have been handled, total is : "+numberOfAdsInTotal);
+                if(numberOfAdsInTotal>0) beforeHandlingEverything(numberOfAdsInTotal);
+                if(numberOfAdsInTotal==0) setStartingPoint(getSubscriptionValue(numberOfSubsFromFirebase-1));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
 
     private void checkNumberForEach(){
         int currentClusterToBeChecked = getClusterValue(iterations);

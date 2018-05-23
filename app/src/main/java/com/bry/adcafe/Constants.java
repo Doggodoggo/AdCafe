@@ -169,6 +169,6 @@ public class Constants {
     public static String HISTORY_TRANSACTIONS ="AllTransactionsHistory";
     public static int MPESA_CHARGES = 15;
     public static String SEEN_AD_IDS = "SeenAds";
-    public static int MAX_AMMOUNT_FOR_SHARING_PAYOUT_AMOUNT = 15;
+    public static int MAX_AMMOUNT_FOR_SHARING_PAYOUT_AMOUNT = 1500000000;
 
 }

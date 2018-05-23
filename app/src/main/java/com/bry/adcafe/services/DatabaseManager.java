@@ -1308,7 +1308,7 @@ public class DatabaseManager {
     }
 
     public void updateValueForUnneededPayoutAmount(final Advert ad){
-        if(Variables.adsSeenSoFar.size()==Constants.MAX_AMMOUNT_FOR_SHARING_PAYOUT_AMOUNT){
+        if(Variables.adsSeenSoFar.size()== Constants.MAX_AMMOUNT_FOR_SHARING_PAYOUT_AMOUNT){
             clearAdsSeenSoFarInFirebase();
             Variables.adsSeenSoFar.clear();
         }
