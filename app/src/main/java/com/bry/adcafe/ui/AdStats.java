@@ -289,8 +289,8 @@ public class AdStats extends AppCompatActivity {
                             int pushId = clusterSnap.getValue(int.class);
                             adUploadedByUser.clusters.put(cluster, pushId);
                         }
-                        adUploadedByUser.setPayoutReimbursalAmount(Double.parseDouble(dataSnapshot.child("payoutReimbursalAmount")
-                                .getValue(String.class)));
+                        adUploadedByUser.setPayoutReimbursalAmount(dataSnapshot.child("payoutReimbursalAmount")
+                                .getValue(Long.class));
                         Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds3.add(adUploadedByUser);
                     }
@@ -488,9 +488,8 @@ public class AdStats extends AppCompatActivity {
                 Log(TAG,"Loading upload history");
                 if(dataSnapshot.exists()){
                     doChildrenExist = true;
+                    boolean hasTopBeenAdded = false;
                     findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
-                    DataListsView.addView(new DateForAdStats(mContext,"Your Upload History.",DataListsView));
-                    DataListsView.addView(new DateForAdStats(mContext,"",DataListsView));
                     for(DataSnapshot snap:dataSnapshot.getChildren()){
                        String viewingDate = snap.getKey();
                        Log(TAG,"One date has loaded"+viewingDate);
@@ -504,6 +503,11 @@ public class AdStats extends AppCompatActivity {
                            Log(TAG,"The viewing date is past the dates for not showing");
                            for(DataSnapshot snapMini:snap.getChildren()){
                                Advert ad = snapMini.getValue(Advert.class);
+                               if(!hasTopBeenAdded){
+                                   DataListsView.addView(new DateForAdStats(mContext,"Your Upload History.",DataListsView));
+                                   DataListsView.addView(new DateForAdStats(mContext,"",DataListsView));
+                                   hasTopBeenAdded = true;
+                               }
                                DataListsView.addView(new OlderAdsItem(mContext,DataListsView,ad));
                            }
                        }

@@ -526,7 +526,8 @@ public class DatabaseManager {
                 if(seenAdsListSnap.exists()) {
                     for (DataSnapshot pushIdSnap : seenAdsListSnap.getChildren()) {
                         String pushId = pushIdSnap.getValue(String.class);
-                        Variables.adsSeenSoFar.add(pushId);
+                        String advertiserId = pushIdSnap.getKey();
+                        Variables.adsSeenSoFar.put(pushId,advertiserId);
                     }
                 }
 
@@ -1312,7 +1313,7 @@ public class DatabaseManager {
             clearAdsSeenSoFarInFirebase();
             Variables.adsSeenSoFar.clear();
         }
-        Variables.adsSeenSoFar.add(ad.getPushRefInAdminConsole());
+        Variables.adsSeenSoFar.put(ad.getPushRefInAdminConsole(),ad.getAdvertiserUid());
         adToAdsSeenSoFarInFirebase(ad);
         int size = Variables.adsSeenSoFar.size();
         int previousSize = Variables.adsSeenSoFar.size()-1;
@@ -1324,7 +1325,13 @@ public class DatabaseManager {
                 +" newAmount="+newAmount+" and newAddValue="+newAddValue);
 
 
-        for (final String pushRef: Variables.adsSeenSoFar) {
+        for (final String pushRef: Variables.adsSeenSoFar.keySet()) {
+            String advertiserUid = Variables.adsSeenSoFar.get(pushRef);
+
+            final DatabaseReference mref2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                    .child(advertiserUid).child(Constants.UPLOAD_HISTORY).child(Long.toString(-getDateInDays()))
+                    .child(pushRef).child("payoutReimbursalAmount");
+
             final DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
                     .child(TimeManager.getDate()).child(pushRef).child("payoutReimbursalAmount");
             mref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -1335,9 +1342,11 @@ public class DatabaseManager {
                     if(pushRef.equals(ad.getPushRefInAdminConsole())){
                         double newValue = value+newAmount;
                         mref.setValue(Double.toString(newValue));
+                        mref2.setValue(Double.toString(newValue));
                     }else{
                         double newValue = value+newAddValue;
                         mref.setValue(Double.toString(newValue));
+                        mref2.setValue(Double.toString(newValue));
                     }
                 }
 

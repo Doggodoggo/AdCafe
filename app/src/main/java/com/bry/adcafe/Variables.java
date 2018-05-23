@@ -124,7 +124,7 @@ public class Variables {
     public static boolean isOlderAd = false;
     public static String mpesaEmail;
     public static String announcements = "";
-    public static List<String> adsSeenSoFar = new ArrayList<>();
+    public static LinkedHashMap<String,String> adsSeenSoFar = new LinkedHashMap<>();
     public static String topCardId;
 
     public static void resetAllValues(){

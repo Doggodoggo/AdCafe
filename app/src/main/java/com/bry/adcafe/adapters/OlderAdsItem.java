@@ -70,13 +70,15 @@ public class OlderAdsItem {
         }
 
         int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen();
-        int amountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView());
-        String number = Integer.toString(amountToBeRepaid);
+        int ammountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*
+                (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES));
+        double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();
+        String number = Integer.toString(ammountToBeRepaid);
 
         mAmountToReimburseView.setText(String.format("Reimbursing amount: %s Ksh", number));
 
         try{
-            if(amountToBeRepaid==0){
+            if(ammountToBeRepaid==0){
                 mHasBeenReimbursedView.setText("Status: All Users Reached.");
                 mAmountToReimburseView.setText("Reimbursing amount:  0 Ksh");
             }else{
@@ -91,7 +93,7 @@ public class OlderAdsItem {
         }catch (Exception e){
             e.printStackTrace();
         }
-        if(isCardForYesterdayAds() && amountToBeRepaid !=0 )mReimburseButton.setVisibility(android.view.View.VISIBLE);
+        if(isCardForYesterdayAds() && ammountToBeRepaid !=0 )mReimburseButton.setVisibility(android.view.View.VISIBLE);
         loadListeners();
     }
 
