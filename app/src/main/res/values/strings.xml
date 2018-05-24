@@ -31,7 +31,7 @@
     <string name="Logout">"Logout"</string>
     <string name="pinning">"Pinning."</string>
     <string name="learnSE">"Marketing Made Modest."</string>
-    <string name="lastAd">"This may be the last ad."</string>
+    <string name="lastAd">"This may be the last one."</string>
     <string name="dashInfo">"This is where all the stats concerning ads you've seen and money you can claim is stored."</string>
     <string name="cannotPin">"You cannot pin this without an internet connection"</string>
     <string name="pinningSuccess">"Successfully pinned!"</string>
@@ -51,7 +51,7 @@
     <string name="monitorProcess">FYI: You\'re able to monitor the progress of your ads from the dashboard.(By clicking the Button Marked "FIND OUT")</string>
     <string name="unsuccessfullyUploaded">"Something went wrong,try uploading again after a few minutes."</string>
     <string name="uploadMessage">"Upload may take some time…"</string>
-    <string name="settingUpMessage">"Setting a couple of things up…"</string>
+    <string name="settingUpMessage">"Setting things up…"</string>
 
 
 

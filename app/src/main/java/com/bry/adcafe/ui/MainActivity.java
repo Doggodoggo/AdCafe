@@ -87,8 +87,6 @@ import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
 
-import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,NetworkStateReceiver.NetworkStateReceiverListener {
     private static final String TAG = "MainActivity";
     public String NOTIFICATION_ID = "notification_id";
@@ -145,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int numberOfInitiallyLoadedAds = 0;
     private boolean isNewDay = false;
     private boolean isLoaderShowing = false;
+    private boolean doesWindowHaveFocus = true;
 
 
     @Override
@@ -217,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             sendBroadcastToUnregisterAllReceivers();
             removeAllViews();
             resetEverything();
+            new DatabaseManager().clearAdsSeenSoFarInFirebase();
             lastAdSeen = null;
             Variables.lastAdSeen = null;
         }else if (isAlmostMidNight() && Variables.isMainActivityOnline) {
@@ -224,6 +224,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             sendBroadcastToUnregisterAllReceivers();
             removeAllViews();
             resetEverything();
+            new DatabaseManager().clearAdsSeenSoFarInFirebase();
             lastAdSeen = null;
             Variables.lastAdSeen = null;
         }else if(Variables.hasChangesBeenMadeToCategories && !mIsBeingReset){
@@ -243,6 +244,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     resetEverything();
                     sendBroadcastToUnregisterAllReceivers();
                     removeAllViews();
+                    new DatabaseManager().clearAdsSeenSoFarInFirebase();
                     lastAdSeen = null;
                     Variables.lastAdSeen = null;
                 }
@@ -1419,7 +1421,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             findViewById(R.id.easterText).setVisibility(View.VISIBLE);
             mSwipeView.setVisibility(View.VISIBLE);
             if(isLastAd){
-                Toast.makeText(mContext, "We've got nothing else for you today.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "There's nothing else for you today.", Toast.LENGTH_SHORT).show();
             }
 
             if(Variables.mIsLastOrNotLast.equals(Constants.NO_ADS)||isLastAd) {
@@ -2035,6 +2037,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override public void networkAvailable() {
         Log(TAG, "User is connected to the internet via wifi or cellular data");
         isOffline = false;
+        if(doesWindowHaveFocus) resumeTimerByStartingIt();
         if(stage.equals("VIEWING_ADS") && isHiddenBecauseNetworkDropped){
             //Sets these views if activity has already loaded the ads.
             isHiddenBecauseNetworkDropped = false;
@@ -2070,7 +2073,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override public void networkUnavailable() {
         Log(TAG, "User has gone offline...");
         isOffline = true;
-
+        pauseTimerByStoppingItEntirely();
         if(stage.equals("VIEWING_ADS")){
             isHiddenBecauseNetworkDropped = true;
             mBottomNavButtons.setVisibility(View.GONE);
@@ -2240,22 +2243,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
-    public boolean isStoragePermissionGranted() {
+    public void isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
                 Log.v(TAG, "Permission is granted");
                 startShareImage();
-                return true;
             } else {
                 Log.v(TAG, "Permission is revoked");
                 ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                return false;
             }
         } else { //permission is automatically granted on sdk<23 upon installation
             Log.v(TAG, "Permission is granted");
             startShareImage();
-            return true;
         }
     }
 
@@ -2682,6 +2682,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //    Font: AR ESSENCE.
     private void nothn(){}
 //    No of lns : 30,070 as of 6/05/2018.
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if(!hasFocus) {
+            doesWindowHaveFocus = false;
+            pauseTimerByStoppingItEntirely();
+        }else{
+            doesWindowHaveFocus = true;
+            resumeTimerByStartingIt();
+        }
+    }
 
 
 }
