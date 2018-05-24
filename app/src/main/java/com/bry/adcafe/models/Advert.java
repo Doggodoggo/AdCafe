@@ -237,4 +237,6 @@ public class Advert {
     public void setPayoutReimbursalAmount(double payoutReimbursalAmount) {
         this.payoutReimbursalAmount = payoutReimbursalAmount;
     }
+
+
 }

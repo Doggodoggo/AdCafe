@@ -289,8 +289,8 @@ public class AdStats extends AppCompatActivity {
                             int pushId = clusterSnap.getValue(int.class);
                             adUploadedByUser.clusters.put(cluster, pushId);
                         }
-                        adUploadedByUser.setPayoutReimbursalAmount(dataSnapshot.child("payoutReimbursalAmount")
-                                .getValue(Long.class));
+                        Double payoutReimbursalAmm = dataSnapshot.child("payoutReimbursalAmount").getValue(Double.class);
+                        adUploadedByUser.setPayoutReimbursalAmount(payoutReimbursalAmm);
                         Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds3.add(adUploadedByUser);
                     }
@@ -366,7 +366,8 @@ public class AdStats extends AppCompatActivity {
                     cycleCount++;
                     if(dataSnapshot.hasChildren()) {
                         Advert adUploadedByUser = dataSnapshot.getValue(Advert.class);
-                        adUploadedByUser.setPayoutReimbursalAmount(dataSnapshot.child("payoutReimbursalAmount").getValue(double.class));
+                        Double payoutReimbursalAmm = dataSnapshot.child("payoutReimbursalAmount").getValue(Double.class);
+                        adUploadedByUser.setPayoutReimbursalAmount(payoutReimbursalAmm);
                         Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds.add(adUploadedByUser);
                     }
@@ -446,7 +447,8 @@ public class AdStats extends AppCompatActivity {
                     cycleCount2++;
                     if(dataSnapshot.hasChildren()) {
                         Advert adUploadedByUser = dataSnapshot.getValue(Advert.class);
-                        adUploadedByUser.setPayoutReimbursalAmount(dataSnapshot.child("payoutReimbursalAmount").getValue(double.class));
+                        Double payoutReimbursalAmm = dataSnapshot.child("payoutReimbursalAmount").getValue(Double.class);
+                        adUploadedByUser.setPayoutReimbursalAmount(payoutReimbursalAmm);
                         Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds2.add(adUploadedByUser);
                     }

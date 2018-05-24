@@ -600,6 +600,9 @@ public class DatabaseManager {
 
     }
 
+
+
+
     private void setUsersCurrentSubIndexInFireBase(){
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference adRef3 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
@@ -740,6 +743,9 @@ public class DatabaseManager {
         prefs.edit().putString("hashString", hashMapString).apply();
     }
 
+
+
+
     private String getDate(){
         return TimeManager.getDate();
     }
@@ -774,6 +780,8 @@ public class DatabaseManager {
             }
         });
     }
+
+
 
 
     private String getSubscriptionValue(int index) {
@@ -1315,10 +1323,10 @@ public class DatabaseManager {
         }
         Variables.adsSeenSoFar.put(ad.getPushRefInAdminConsole(),ad.getAdvertiserUid());
         adToAdsSeenSoFarInFirebase(ad);
-        int size = Variables.adsSeenSoFar.size();
-        int previousSize = Variables.adsSeenSoFar.size()-1;
-        final double previousAmount = previousSize>1?((previousSize-1)*Constants.MPESA_CHARGES)/previousSize:0;
-        final double newAmount = size>1?((size-1)*Constants.MPESA_CHARGES)/size:0;
+        double size = Variables.adsSeenSoFar.size();
+        double previousSize = Variables.adsSeenSoFar.size()-1;
+        final double previousAmount = previousSize>1?((previousSize-1)*((double)Constants.MPESA_CHARGES))/previousSize:0.0;
+        final double newAmount = size>1?((size-1)*((double)Constants.MPESA_CHARGES))/size:0.0;
         final double newAddValue = newAmount-previousAmount;
 
         Log(TAG,"Updating values for unneeded payout amount that was paid : previousAmount="+previousAmount
@@ -1338,15 +1346,17 @@ public class DatabaseManager {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     double value = 0;
-                    if(dataSnapshot.exists()) value = Double.parseDouble(dataSnapshot.getValue(String.class));
+                    if(dataSnapshot.exists()){
+                        value = dataSnapshot.getValue(double.class);
+                    }
                     if(pushRef.equals(ad.getPushRefInAdminConsole())){
                         double newValue = value+newAmount;
-                        mref.setValue(Double.toString(newValue));
-                        mref2.setValue(Double.toString(newValue));
+                        mref.setValue(newValue);
+                        mref2.setValue(newValue);
                     }else{
                         double newValue = value+newAddValue;
-                        mref.setValue(Double.toString(newValue));
-                        mref2.setValue(Double.toString(newValue));
+                        mref.setValue(newValue);
+                        mref2.setValue(newValue);
                     }
                 }
 
