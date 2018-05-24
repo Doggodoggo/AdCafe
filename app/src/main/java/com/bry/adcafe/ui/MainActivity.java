@@ -2204,19 +2204,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log(TAG, "Setting the new number of times seen in firebase.");
 
         final Advert ad = Variables.getCurrentAdvert();
+        String dateInDays = isAlmostMidNight()? Long.toString(-(TimeManager.getDateInDays()+1)) : Long.toString(-TimeManager.getDateInDays());
 
         Query query2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(ad.getAdvertiserUid()).child(Constants.UPLOAD_HISTORY)
-                .child(Long.toString(-TimeManager.getDateInDays()))
+                .child(dateInDays)
                 .child(ad.getPushRefInAdminConsole()).child("numberOfTimesSeen");
         DatabaseReference dbref2 = query2.getRef();
         dbref2.setValue(number);
 
-
+        String day = isAlmostMidNight() ? TimeManager.getNextDayDay() : TimeManager.getDay();
+        String month = isAlmostMidNight() ? TimeManager.getNextDayMonth() : TimeManager.getMonth();
+        String year = isAlmostMidNight() ? TimeManager.getNextDayYear() : TimeManager.getYear();
 
         DatabaseReference adminRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
-                .child(TimeManager.getYear()).child(TimeManager.getMonth()).child(TimeManager.getDay())
-                .child(ad.getPushRefInAdminConsole()).child("numberOfTimesSeen");
+                .child(year).child(month).child(day).child(ad.getPushRefInAdminConsole()).child("numberOfTimesSeen");
         adminRef.setValue(number);
 
 

@@ -1332,16 +1332,24 @@ public class DatabaseManager {
         Log(TAG,"Updating values for unneeded payout amount that was paid : previousAmount="+previousAmount
                 +" newAmount="+newAmount+" and newAddValue="+newAddValue);
 
+        String dateInDays = isAlmostMidNight()? Long.toString(-(TimeManager.getDateInDays()+1)) : Long.toString(-TimeManager.getDateInDays());
+        String day = isAlmostMidNight() ? TimeManager.getNextDayDay() : TimeManager.getDay();
+        String month = isAlmostMidNight() ? TimeManager.getNextDayMonth() : TimeManager.getMonth();
+        String year = isAlmostMidNight() ? TimeManager.getNextDayYear() : TimeManager.getYear();
+        String datte = isAlmostMidNight() ? TimeManager.getNextDay() : getDate();
 
         for (final String pushRef: Variables.adsSeenSoFar.keySet()) {
             String advertiserUid = Variables.adsSeenSoFar.get(pushRef);
 
             final DatabaseReference mref2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
-                    .child(advertiserUid).child(Constants.UPLOAD_HISTORY).child(Long.toString(-getDateInDays()))
+                    .child(advertiserUid).child(Constants.UPLOAD_HISTORY).child(dateInDays)
                     .child(pushRef).child("payoutReimbursalAmount");
 
+            final DatabaseReference adminRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
+                    .child(year).child(month).child(day).child(pushRef).child("payoutReimbursalAmount");
+
             final DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
-                    .child(TimeManager.getDate()).child(pushRef).child("payoutReimbursalAmount");
+                    .child(datte).child(pushRef).child("payoutReimbursalAmount");
             mref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -1353,10 +1361,12 @@ public class DatabaseManager {
                         double newValue = value+newAmount;
                         mref.setValue(newValue);
                         mref2.setValue(newValue);
+                        adminRef.setValue(newValue);
                     }else{
                         double newValue = value+newAddValue;
                         mref.setValue(newValue);
                         mref2.setValue(newValue);
+                        adminRef.setValue(newValue);
                     }
                 }
 
@@ -1381,6 +1391,10 @@ public class DatabaseManager {
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(User.getUid()).child(Constants.SEEN_AD_IDS);
         adRef.setValue(null);
+    }
+
+    private boolean isAlmostMidNight(){
+        return TimeManager.isAlmostMidNight();
     }
 
 }
