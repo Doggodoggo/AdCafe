@@ -514,6 +514,7 @@ public class DatabaseManager {
                         Variables.Subscriptions.put(category,cluster);
                     }else{
                         Variables.NSSubs.add(category);
+                        //If the users current subscription index is above the index of the category being removed.
                         if(Variables.getCurrentSubscriptionIndex()>=Variables.Subscriptions.size()) numberToMinus++;
                         Log(TAG,"removing category: "+category);
                         unSubscribeUserFormAdvertCategory(category,cluster);

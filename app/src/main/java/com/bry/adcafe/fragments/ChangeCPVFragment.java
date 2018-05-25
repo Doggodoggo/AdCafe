@@ -61,7 +61,7 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
         mainLayout = (LinearLayout) rootView.findViewById(R.id.mainLayout);
         chooseAmountLayout = (LinearLayout) rootView.findViewById(R.id.chooseAmountLayout);
         TextView currentCpv = rootView.findViewById(R.id.cuurentCPV);
-        currentCpv.setText("Current charge : "+ Variables.constantAmountPerView+"Ksh.");
+        currentCpv.setText(String.format("Current charge : %dKsh.", Variables.constantAmountPerView));
 
         boolean hasChangedPrev =  mContext.getSharedPreferences(Constants.IS_CHANGING_CPV, MODE_PRIVATE)
                 .getBoolean(Constants.IS_CHANGING_CPV, false);
@@ -70,12 +70,13 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
                     .getInt(Constants.NEW_CPV, Variables.constantAmountPerView);
             TextView newCPV = rootView.findViewById(R.id.newCPV);
             newCPV.setVisibility(View.VISIBLE);
-            newCPV.setText("New set charge : "+hasChangedPrevValue+"Ksh.");
+            newCPV.setText(String.format("New set charge : %dKsh.", hasChangedPrevValue));
         }
 
         onclicks();
         return rootView;
     }
+
 
     @Override
     public void onClick(View v) {
@@ -175,7 +176,6 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
             }
         }
     }
-
 
     private boolean isNetworkConnected(Context context){
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
