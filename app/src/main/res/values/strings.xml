@@ -213,6 +213,8 @@
         email is already in use.</string>
     <string name="signUpPasswordNote">Please don\'t forget your password. You\'ll need it in the app.</string>
     <string name="notificationNote">"Note: You'll need a internet connection at the set time to load any notifications."</string>
+    <string name="saveTextMessage">"Are you sure you want to save this to your device's storage?"</string>
+    <string name="saveNote">"The image will be in a 'AdCafePins' folder."</string>
 
     <string name="feedbacktype">Feedback Type</string>
     <string name="feedbacktype1">Suggestion</string>

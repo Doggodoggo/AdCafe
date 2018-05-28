@@ -21,7 +21,6 @@
         android:layout_height="70dp"
         android:gravity="center"
         android:paddingBottom="7dp"
-        android:layout_marginRight="10dp"
         android:id="@+id/bottomNavButtons"
         android:orientation="horizontal"
         android:layout_gravity="bottom">
@@ -29,7 +28,7 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:visibility="visible"
-            android:layout_marginRight="5dp"
+            android:layout_marginRight="1dp"
             android:layout_height="wrap_content">
             <ImageButton
                 android:id="@+id/backBtn"
@@ -91,6 +90,7 @@
 
         <RelativeLayout
             android:layout_width="wrap_content"
+            android:layout_marginRight="10dp"
             android:layout_height="wrap_content"
             android:visibility="visible">
 
@@ -108,6 +108,29 @@
                 android:paddingLeft="19dp"
                 android:paddingTop="40dp"
                 android:text="Unpin."
+                android:textSize="8dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible">
+
+            <ImageButton
+                android:id="@+id/Download"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginLeft="6dp"
+                android:background="@drawable/ic_action_save" />
+
+            <TextView
+                android:id="@+id/DownloadText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:paddingTop="40dp"
+                android:text="Download."
                 android:textSize="8dp" />
         </RelativeLayout>
 

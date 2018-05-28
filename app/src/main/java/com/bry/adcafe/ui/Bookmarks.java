@@ -575,6 +575,7 @@ public class Bookmarks extends AppCompatActivity {
         imageFragment.setMenuVisibility(false);
         imageFragment.show(fm, "View image.");
         imageFragment.setfragcontext(mContext);
+        imageFragment.setActivity(this);
     }
 
     private void createProgressDialog(){
@@ -953,6 +954,7 @@ public class Bookmarks extends AppCompatActivity {
         List<Long> indexes = new ArrayList<Long>(map.keySet());
         return indexes.indexOf(noOfDaysDate);
     }
+
 
 
 }
