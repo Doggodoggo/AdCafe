@@ -13,11 +13,16 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.CardView;
 import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
@@ -25,7 +30,9 @@ import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
+import com.bry.adcafe.services.TimeManager;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
@@ -35,6 +42,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.mindorks.placeholderview.PlaceHolderView;
+import com.mindorks.placeholderview.ViewHolder;
 import com.mindorks.placeholderview.annotations.Click;
 import com.mindorks.placeholderview.annotations.Layout;
 import com.mindorks.placeholderview.annotations.LongClick;
@@ -46,6 +54,8 @@ import com.wang.avi.AVLoadingIndicatorView;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * Created by bryon on 05/09/2017.
@@ -54,11 +64,13 @@ import java.net.InetAddress;
 @NonReusable
 @Layout(R.layout.saved_ads_list_item)
 public class SavedAdsCard {
+    private static final String TAG = "SavedAdsCard";
     @View(R.id.SavedImageView) private ImageView imageView;
     @View(R.id.savedErrorImageView) private ImageView errorImageView;
     @View(R.id.savedAdCardAvi) private AVLoadingIndicatorView mAvi;
     @View(R.id.sacard) private CardView mCardView;
     @View(R.id.selectedIcon) private ImageView mSelectedIcon;
+//    @View(R.id.testText) private TextView testText;
 
     private Context mContext;
     private PlaceHolderView mPlaceHolderView;
@@ -75,34 +87,58 @@ public class SavedAdsCard {
     private byte[] mImageBytes;
     private Bitmap bs;
     private boolean hasLoaded =false;
+    private int index;
 
     private boolean isLoadingImageFromFirebase = false;
     private boolean hasSentIntentToViewAd = false;
+    private PlaceHolderView parentPHView;
 
 
-    public SavedAdsCard(Advert advert, Context context, PlaceHolderView placeHolderView,String pinID,long noOfDays,boolean isLastElement) {
-        mAdvert = advert;
+    public SavedAdsCard(int index,PlaceHolderView parentPHView,Advert advert, Context context, PlaceHolderView placeHolderView,String pinID,long noOfDays,boolean isLastElement) {
+        this.mAdvert = advert;
         mContext = context;
-        mPlaceHolderView = placeHolderView;
-        noOfDaysDate = noOfDays;
+        this.mPlaceHolderView = placeHolderView;
+        this.noOfDaysDate = noOfDays;
         this.mIsLastElement = isLastElement;
+        this.index = index;
+        this.parentPHView = parentPHView;
     }
 
     @Resolve
     private void onResolved() {
-        if(bs!=null) imageView.setImageBitmap(bs);
-        else new LongOperationFI().execute("");
-
-        if(mImageBytes==null)loadListeners();
+        Log.e("SavedAdsCard","The date for pinning is: "+getDateFromDays(noOfDaysDate)+" the pos is: "+index);
+        if(imageView.getDrawable()==null){
+            new LongOperationFI().execute("");
+        }
+//        testText.setText(getDateFromDays(noOfDaysDate));
+        loadListeners();
         sac = this;
         BAWhite();
     }
 
+    private BroadcastReceiver mMessageReceiverToLoadImages = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("SavedAdsCard--","Received broadcast to LoadAd image");
+            setImageFromCardBroadcast();
+        }
+    };
+
+    private void setImageFromCardBroadcast(){
+        imageView.setImageBitmap(Variables.loadedSavedAdsList.get(mAdvert.getPushRefInAdminConsole()));
+        mAvi.setVisibility(android.view.View.GONE);
+    }
+
     private void loadListeners() {
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToUnregisterAllReceivers,
-                new IntentFilter("UNREGISTER"));
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForAddNewBlank,
-                new IntentFilter("ADD_BLANK"+noOfDaysDate+mAdvert.getPushId()));
+        if(!hasLoaded) {
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToUnregisterAllReceivers,
+                    new IntentFilter("UNREGISTER"));
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForAddNewBlank,
+                    new IntentFilter("ADD_BLANK" + noOfDaysDate + mAdvert.getPushId()));
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToLoadImages,
+                    new IntentFilter("SET_IMAGE" + noOfDaysDate));
+            hasLoaded = true;
+        }
     }
 
     private void doNothing() {
@@ -145,6 +181,9 @@ public class SavedAdsCard {
             Log.d("SavedAdsCard---", "Image has been converted to bitmap.");
             bs = getResizedBitmap(bm, 300);
             mImageBytes = bitmapToByte(bs);
+            if(!Variables.loadedSavedAdsList.containsKey(mAdvert.getPushRefInAdminConsole())){
+                Variables.loadedSavedAdsList.put(mAdvert.getPushRefInAdminConsole(),bs);
+            }
             mAdvert.setImageBitmap(bm);
             isLoadingImageFromFirebase = false;
         } catch (IOException e) {
@@ -156,7 +195,8 @@ public class SavedAdsCard {
 
 
     private void loadImage2(){
-        Glide.with(mContext).load(mImageBytes).listener(new RequestListener<byte[], GlideDrawable>() {
+        Glide.with(mContext).load(mImageBytes).diskCacheStrategy(DiskCacheStrategy.ALL)
+                .listener(new RequestListener<byte[], GlideDrawable>() {
             @Override
             public boolean onException(Exception e, byte[] model, Target<GlideDrawable> target, boolean isFirstResource) {
                 try{
@@ -182,7 +222,7 @@ public class SavedAdsCard {
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-               hasLoaded = true;
+                hasLoaded = true;
                 return false;
             }
         }).into(imageView);
@@ -586,7 +626,8 @@ public class SavedAdsCard {
 
         @Override
         protected String doInBackground(String... strings) {
-            loadImageFromFirebaseFirst();
+            if(mAdvert.getImageBitmap()==null) loadImageFromFirebaseFirst();
+            else isLoadingImageFromFirebase = false;
             while(isLoadingImageFromFirebase){
                 doNothing();
             }
@@ -605,6 +646,9 @@ public class SavedAdsCard {
 
         @Override
         protected void onPreExecute() {
+            if(imageView.getDrawable()!=null){
+                imageView.setImageBitmap(null);
+            }
             mAvi.setVisibility(android.view.View.VISIBLE);
             super.onPreExecute();
         }
@@ -617,6 +661,65 @@ public class SavedAdsCard {
         matrix.setSaturation(val);
         ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
         imageView.setColorFilter(filter);
+    }
+
+
+
+    private String getDateFromDays(long days){
+        long currentTimeInMills = -days*(1000*60*60*24);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(currentTimeInMills);
+        int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
+        int monthOfYear = cal.get(Calendar.MONTH);
+        int year = cal.get(Calendar.YEAR);
+
+//        String monthName = new DateFormatSymbols().getMonths()[monthOfYear];
+        String monthName = getMonthName_Abbr(monthOfYear);
+
+        Log.d(TAG,"Date gotten is : "+dayOfMonth+" "+monthName+" "+year);
+
+        Calendar cal2 = Calendar.getInstance();
+        int year2 = cal2.get(Calendar.YEAR);
+        int day2 = cal2.get(Calendar.DAY_OF_MONTH);
+        int month2 = cal2.get(Calendar.MONTH);
+
+        String yearName;
+        String dayWord;
+
+        if(year == year2){
+            Log.d(TAG,"Ad was pined this year...");
+            yearName = "";
+        }else if(year2 == year+1){
+            Log.d(TAG,"Ad was pined last year...");
+            yearName =", "+Integer.toString(year);
+        }else{
+            yearName =", "+ Integer.toString(year);
+        }
+
+        String ret = dayOfMonth+" "+monthName+yearName;
+
+        if((-days) == getDateInDays()-1){
+            ret = "Yesterday";
+        }
+
+        if((-days) == getDateInDays()){
+            ret = "Today";
+        }
+
+        return ret;
+    }
+
+    private long getDateInDays(){
+        return TimeManager.getDateInDays();
+    }
+
+    private String getMonthName_Abbr(int month) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH, month);
+        SimpleDateFormat month_date = new SimpleDateFormat("MMM");
+        String month_name = month_date.format(cal.getTime());
+        return month_name;
     }
 
 }

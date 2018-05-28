@@ -709,6 +709,7 @@ public class Bookmarks extends AppCompatActivity {
     }
 
     private void startLoadAdsIntoViews(){
+//        mPlaceHolderView2.setItemViewCacheSize(HashOfAds.size());
         if(HashOfAds.isEmpty()){
             Log.d(TAG,"No ads have been loaded, perhaps user doesn't have any pinned ads");
             Toast.makeText(mContext,"You do not have any pinned ads.",Toast.LENGTH_SHORT).show();
@@ -718,6 +719,7 @@ public class Bookmarks extends AppCompatActivity {
             loadingText.setVisibility(View.GONE);
             hideProg();
         }else{
+            mPlaceHolderView2.setItemViewCacheSize(HashOfAds.size());
             Log.d(TAG,"Ads have been loaded.");
             if(cycleCount+1<=HashOfAds.size()) {
                 Long days = getDaysFromHash(cycleCount);
@@ -727,6 +729,7 @@ public class Bookmarks extends AppCompatActivity {
             }else{
                 Log.d(TAG,"Cycle-count plus one is not less than hash of ads size.");
                 hideProg();
+                cycleCount=0;
             }
 
         }
@@ -745,7 +748,7 @@ public class Bookmarks extends AppCompatActivity {
         for(int i = 0; i<adList.size();i++){
             boolean islst = false;
             if(i+1==adList.size()) islst = true;
-            mPlaceHolderView.addView(new SavedAdsCard(adList.get(i),mContext,mPlaceHolderView,adList.get(i).getPushId(),noOfDays,islst));
+//            mPlaceHolderView.addView(new SavedAdsCard(adList.get(i),mContext,mPlaceHolderView,adList.get(i).getPushId(),noOfDays,islst));
             Log.d(TAG,"Loaded ad : "+adList.get(i).getPushId()+"; isLast item is : "+islst);
         }
         for(int i = 0;i<getNumber(adList.size());i++){
@@ -759,7 +762,9 @@ public class Bookmarks extends AppCompatActivity {
     }
 
     private void loadDaysAdsIntoViews2(List<Advert> adList, long noOfDays){
-        mPlaceHolderView2.addView(new SAContainer(adList,mContext,mPlaceHolderView2,noOfDays));
+        int pos = getPositionOf(noOfDays);
+        mPlaceHolderView2.addView(pos,new SAContainer(adList,mContext,mPlaceHolderView2,noOfDays));
+//        mPlaceHolderView2.addView(new SAContainer(adList,mContext,mPlaceHolderView2,noOfDays));
         cycleCount++;
         startLoadAdsIntoViews();
     }
@@ -940,6 +945,13 @@ public class Bookmarks extends AppCompatActivity {
 
     private void executeStuff() {
 
+    }
+
+
+    private int getPositionOf(Long noOfDaysDate) {
+        LinkedHashMap map = HashOfAds;
+        List<Long> indexes = new ArrayList<Long>(map.keySet());
+        return indexes.indexOf(noOfDaysDate);
     }
 
 

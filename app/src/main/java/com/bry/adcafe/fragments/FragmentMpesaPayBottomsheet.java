@@ -52,12 +52,13 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
     private double chargeForPayment;
     private double paymentTotals;
 
+
+
     public void setActivity(Activity activity){
         this.mActivity = activity;
     }
 
-    public void setDetails(long targetedUsers, long constantAmountPerUser, String adViewingDate,
-                           String category, String uploaderEmail, String name){
+    public void setDetails(long targetedUsers, long constantAmountPerUser, String adViewingDate, String category, String uploaderEmail, String name){
         this.mTargetedUsers = targetedUsers;
         this.mAdViewingDate = adViewingDate;
         this.mConstantAmountPerUserTargeted = constantAmountPerUser;
@@ -66,7 +67,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         this.mUploaderEmail = uploaderEmail;
         this.mName = name;
         this.mAmountToBePaid = mTargetedUsers*mConstantAmountPerUserTargeted;
-        this.chargeForPayment = mAmountToBePaid* Constants.TOTAL_MPESA_PAYOUT_PERCENTAGE;
+        this.chargeForPayment = mTargetedUsers*Constants.MPESA_CHARGES;
 
         this.paymentTotals = mAmountToBePaid+chargeForPayment;
     }
@@ -101,6 +102,8 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
             Log.d("BSB","sliding " + slideOffset ) ;
         }
     };
+
+
 
     @Override
     public void setupDialog(Dialog dialog, int style) {
@@ -197,7 +200,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         dateView.setText(Html.fromHtml("Ad Viewing Date : <b>" + mAdViewingDate + "</b> (DD/MM/YYYY)"));
         categoryView.setText(Html.fromHtml("Category : <b>" + mCategory + "</b>"));
         userEmailView.setText(Html.fromHtml("Uploader : <b>" + mUploaderEmail + "</b>"));
-        amountToBePaidView.setText(Html.fromHtml("Amount To Be Paid: <b>" + mAmountToBePaid + "Ksh.</b>"));
+        amountToBePaidView.setText(Html.fromHtml("Amount To Be Paid: <b>" + paymentTotals + "Ksh.</b>"));
         phoneToPayVew.setText(Html.fromHtml("Paying phone number : <b>" + mPhoneNo + "</b>"));
         transactionCostView.setText(Html.fromHtml("Transaction cost amount : <b>" + chargeForPayment + "Ksh.</b>"));
 
@@ -212,6 +215,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
             }
         });
     }
+
 
 
     private void setPhoneField(){
@@ -230,7 +234,6 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         editor.apply();
     }
 
-
     private void setPhoneField2(){
         final EditText phoneEdit = mContentView.findViewById(R.id.phoneEditText);
         TelephonyManager tMgr = (TelephonyManager) mActivity.getSystemService(mActivity.TELEPHONY_SERVICE);
@@ -246,6 +249,8 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
             }
         }
     }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {

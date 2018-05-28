@@ -74,7 +74,7 @@ public class Variables {
     public static long previousDaysNumber;
 
     public static int width;
-    public static LinkedHashMap<Long,List> VariablesHashOfAds = new LinkedHashMap<>();
+    public static LinkedHashMap<Long,List<Advert>> VariablesHashOfAds = new LinkedHashMap<>();
     public static boolean isLocked = false;
     public static boolean isAllClearToContinueCountDown = true;
     public static boolean hasFinishedLoadingBlurredImages = false;
@@ -126,6 +126,7 @@ public class Variables {
     public static String announcements = "";
     public static LinkedHashMap<String,String> adsSeenSoFar = new LinkedHashMap<>();
     public static String topCardId;
+    public static LinkedHashMap<String,Bitmap> loadedSavedAdsList = new LinkedHashMap<>();
 
     public static void resetAllValues(){
          todaysAdTotal = 0;

@@ -4,9 +4,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -30,8 +35,11 @@ import com.mindorks.placeholderview.annotations.NonReusable;
 import com.mindorks.placeholderview.annotations.Resolve;
 import com.mindorks.placeholderview.annotations.View;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 
 /**
@@ -52,6 +60,10 @@ public class SAContainer {
     private boolean hasLoaded = false;
     private SAContainer ths;
     private DatabaseReference dbRef;
+    private int cycles = 0;
+    private int backgroundCycles = 0;
+
+    private List<Advert> adList2 = new ArrayList<>();
 
     public SAContainer(List<Advert> adlist, Context context, PlaceHolderView placeHolderView, long noOfDayss) {
         this.adList = adlist;
@@ -63,7 +75,9 @@ public class SAContainer {
     @Resolve
     private void onResolved() {
         dateTextView.setText(getDateFromDays(noOfDays));
-        if(!hasLoaded) addAdsIntoViews();
+        if(!hasLoaded){
+            addAdsIntoViews();
+        }
         ths = this;
     }
 
@@ -75,15 +89,23 @@ public class SAContainer {
         int spanCount = 4;
 
         GridLayoutManager glm = new GridLayoutManager(mContext,calculatedSpanCount);
-        PHViewForSpecificDay.getBuilder().setLayoutManager(glm);
+        glm.supportsPredictiveItemAnimations();
+        PHViewForSpecificDay.setLayoutManager(glm);
 
         PHViewForSpecificDay.setNestedScrollingEnabled(false);
-
+        int idForDayList = mPlaceHolderView.getViewResolverPosition(ths);
+        Log.w("SAContainer","The id for days list is: "+idForDayList);
         for (Advert ad: adList) {
-            PHViewForSpecificDay.addView(new SavedAdsCard(ad,mContext,PHViewForSpecificDay,ad.getPushId(),noOfDays,false));
+            int pos = adList.indexOf(ad);
+            PHViewForSpecificDay.addView(pos,new SavedAdsCard(idForDayList,mPlaceHolderView,ad,mContext,PHViewForSpecificDay,ad.getPushId(),noOfDays,false));
         }
         hasLoaded = true;
         loadListeners();
+    }
+
+    @Resolve
+    public int getItemCount() {
+        return adList.size();
     }
 
     private void loadListeners() {
@@ -294,5 +316,112 @@ public class SAContainer {
         String month_name = month_date.format(cal.getTime());
         return month_name;
     }
+
+
+    private void loadAdImagesFirst(){
+        addAdsIntoViews();
+        for(final Advert ad :adList){
+            Log.d("SavedAdsCard","Loading the image from firebase first");
+            DatabaseReference adRef2 = FirebaseDatabase.getInstance().getReference(Constants.PINNED_AD_POOL)
+                    .child(Long.toString(ad.getDateInDays())).child(ad.getPushRefInAdminConsole()).child("imageUrl");
+
+            Log.d("SavedAdsCard","Query set up is --"+Constants.PINNED_AD_POOL+" : "+
+                    ad.getDateInDays()+" : "+ad.getPushRefInAdminConsole());
+
+            adRef2.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()){
+                        String image = dataSnapshot.getValue(String.class);
+                        if(image!=null)Log.d("SavedAdsContainer","String of image has been loaded from firebase");
+                        ad.setImageUrl(image);
+                        adList2.add(ad);
+                        Log.d("SavedAdsContainer","set image for ad:"+ad.getPushRefInAdminConsole());
+                    }
+                    cycles++;
+                    if(cycles==adList.size()-1){
+                        backgroundCycles = 0;
+                        startSettingImageBitmaps();
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.e("SavedAdsCard","Something went wrong while loading image from firebase : "+databaseError.getDetails());
+                }
+            });
+        }
+    }
+
+    private void startSettingImageBitmaps() {
+        new LongOperationFI().execute("yqlURL");
+    }
+
+    private static Bitmap decodeFromFirebaseBase64(String image){
+        byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
+        Bitmap bitm = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
+//        Bitmap newBm = getResizedBitmap(bitm,00);
+        return bitm;
+    }
+
+    private static Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float) width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+
+        return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
+    private class LongOperationFI extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+            Advert ad = adList.get(backgroundCycles);
+            if(ad.getImageUrl()!=null) {
+                try {
+                    Bitmap bm = decodeFromFirebaseBase64(ad.getImageUrl());
+                    Log.d("SavedAdsCard---", "Image has been converted to bitmap.");
+                    Bitmap bs = getResizedBitmap(bm, 300);
+//                    if (!Variables.loadedSavedAdsList.containsKey(ad.getPushRefInAdminConsole())) {
+//                        Variables.loadedSavedAdsList.put(ad.getPushRefInAdminConsole(), bs);
+//                    }
+                    Variables.loadedSavedAdsList.put(ad.getPushRefInAdminConsole(), bs);
+                    ad.setImageBitmap(bm);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return "executed";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            Log.d("SAContainer","Done converting all the image urls to bitmaps.");
+            backgroundCycles++;
+            if(backgroundCycles==adList.size()){
+                startLoadingTheAds();
+            }else startSettingImageBitmaps();
+        }
+
+        @Override
+        protected void onPreExecute() {
+          Log.d("SAContainer","Preparing to convert background image.");
+        }
+    }
+
+    private void startLoadingTheAds() {
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("SET_IMAGE"+noOfDays));
+    }
+
 
 }
