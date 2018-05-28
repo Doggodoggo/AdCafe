@@ -41,6 +41,7 @@ public class Advert {
     private String paymentReference;
     private String paymentMethod;
     private double payoutReimbursalAmount = 0;
+    private String downloadImageName;
 
     public Advert(String ImageUrl){
         this.imageUrl = ImageUrl;
@@ -239,4 +240,11 @@ public class Advert {
     }
 
 
+    public String getDownloadImageName() {
+        return downloadImageName;
+    }
+
+    public void setDownloadImageName(String downloadImageName) {
+        this.downloadImageName = downloadImageName;
+    }
 }

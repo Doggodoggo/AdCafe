@@ -28,10 +28,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.services.Utils;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -205,6 +209,9 @@ public class ViewImageFragment extends DialogFragment {
         }
     }
 
+
+
+
     private void saveImageToDevice(){
         Bitmap imageToSave = mAdvert.getImageBitmap();
         String fileName = randomInt()+".jpg";
@@ -225,13 +232,14 @@ public class ViewImageFragment extends DialogFragment {
             out.flush();
             out.close();
             Toast.makeText(mContext,"Image saved.",Toast.LENGTH_SHORT).show();
+            setSavingImageName(fileName);
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(mContext,"Image save unsuccessful.",Toast.LENGTH_SHORT).show();
         }
     }
 
-    public static String random() {
+    public String random() {
         Random generator = new Random();
         StringBuilder randomStringBuilder = new StringBuilder();
         int randomLength = generator.nextInt(8);
@@ -250,5 +258,17 @@ public class ViewImageFragment extends DialogFragment {
         int n = rand.nextInt(max) + min;
         return Integer.toString(n);
     }
+
+
+
+    private void setSavingImageName(String image){
+        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String dateInDays = Long.toString(mAdvert.getDateInDays());
+        DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(user).child(Constants.PINNED_AD_LIST).child(dateInDays).child(mAdvert.getPushId())
+                .child("downloadImageName");
+        mref.setValue(image);
+    }
+
 
 }

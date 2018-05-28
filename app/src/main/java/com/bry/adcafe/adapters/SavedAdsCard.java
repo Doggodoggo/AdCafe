@@ -12,6 +12,7 @@ import android.graphics.ColorMatrixColorFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -52,6 +53,7 @@ import com.mindorks.placeholderview.annotations.View;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
@@ -106,14 +108,30 @@ public class SavedAdsCard {
 
     @Resolve
     private void onResolved() {
-        Log.e("SavedAdsCard","The date for pinning is: "+getDateFromDays(noOfDaysDate)+" the pos is: "+index);
-        if(imageView.getDrawable()==null){
-            new LongOperationFI().execute("");
+        if(mAdvert.getDownloadImageName()!=null){
+            Bitmap image = loadImageFromMemory(mAdvert.getDownloadImageName());
+            if(image!=null){
+                mAdvert.setImageBitmap(image);
+                imageView.setImageBitmap(image);
+                try{
+                    mAvi.setVisibility(android.view.View.GONE);
+                    errorImageView.setVisibility(android.view.View.GONE);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                hasLoaded = true;
+            }
+        }else{
+            if(imageView.getDrawable()==null){
+//                if(Variables.loadedSavedAdsList.containsKey(mAdvert.getPushRefInAdminConsole())){
+//                    mAdvert.setImageBitmap(Variables.loadedSavedAdsList.get(mAdvert.getPushRefInAdminConsole()));
+//                }
+                new LongOperationFI().execute("");
+            }
+            loadListeners();
+            sac = this;
+            BAWhite();
         }
-//        testText.setText(getDateFromDays(noOfDaysDate));
-        loadListeners();
-        sac = this;
-        BAWhite();
     }
 
     private BroadcastReceiver mMessageReceiverToLoadImages = new BroadcastReceiver() {
@@ -144,6 +162,10 @@ public class SavedAdsCard {
     private void doNothing() {
 
     }
+
+
+
+
 
     private void loadImageFromFirebaseFirst() {
         isLoadingImageFromFirebase = true;
@@ -190,9 +212,6 @@ public class SavedAdsCard {
             e.printStackTrace();
         }
     }
-
-
-
 
     private void loadImage2(){
         Glide.with(mContext).load(mImageBytes).diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -296,6 +315,10 @@ public class SavedAdsCard {
         }
     };
 
+
+
+
+
     private BroadcastReceiver mMessageReceiverForUnpin2 = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -323,6 +346,7 @@ public class SavedAdsCard {
 
 
 
+
     private void unregisterAllReceivers(){
         try{LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForUnpin);
         }catch (Exception e){
@@ -345,6 +369,9 @@ public class SavedAdsCard {
         if(Variables.isSelectingMultipleItems) selectAdForUnpinning();
         else viewAd();
     }
+
+
+
 
     private void selectAdForUnpinning() {
         if(!Variables.UnpinAdsList.contains(mAdvert)){
@@ -390,6 +417,10 @@ public class SavedAdsCard {
         }
     };
 
+
+
+
+
     private void setReceiver() {
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForRemoveSelf,
                 new IntentFilter(Constants.REMOVE_SELF_LISTENER));
@@ -401,6 +432,8 @@ public class SavedAdsCard {
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForRemoveSelf);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForRemoveRemoveSelfListener);
     }
+
+
 
 
     private void promptUserIfSureToUnpinAd(){
@@ -720,6 +753,17 @@ public class SavedAdsCard {
         SimpleDateFormat month_date = new SimpleDateFormat("MMM");
         String month_name = month_date.format(cal.getTime());
         return month_name;
+    }
+
+
+    private Bitmap loadImageFromMemory(String imageName){
+        File path = new File(Environment.getExternalStorageDirectory(),"/AdCafePins");
+        try{
+            return BitmapFactory.decodeFile(path.getPath()+"/"+imageName);
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }
