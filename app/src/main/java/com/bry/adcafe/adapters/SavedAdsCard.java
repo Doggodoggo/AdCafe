@@ -120,18 +120,19 @@ public class SavedAdsCard {
                     e.printStackTrace();
                 }
                 hasLoaded = true;
+            }else{
+                if(imageView.getDrawable()==null){
+                    new LongOperationFI().execute("");
+                }
             }
         }else{
             if(imageView.getDrawable()==null){
-//                if(Variables.loadedSavedAdsList.containsKey(mAdvert.getPushRefInAdminConsole())){
-//                    mAdvert.setImageBitmap(Variables.loadedSavedAdsList.get(mAdvert.getPushRefInAdminConsole()));
-//                }
                 new LongOperationFI().execute("");
             }
-            loadListeners();
-            sac = this;
-            BAWhite();
         }
+        loadListeners();
+        sac = this;
+        BAWhite();
     }
 
     private BroadcastReceiver mMessageReceiverToLoadImages = new BroadcastReceiver() {

@@ -100,6 +100,7 @@ public class Bookmarks extends AppCompatActivity {
     private boolean isLoadingAds = false;
 
     private int iterationsFofUnpined = 0;
+    ViewImageFragment imageF;
 
 
     @Override
@@ -576,6 +577,7 @@ public class Bookmarks extends AppCompatActivity {
         imageFragment.show(fm, "View image.");
         imageFragment.setfragcontext(mContext);
         imageFragment.setActivity(this);
+        imageF = imageFragment;
     }
 
     private void createProgressDialog(){
@@ -846,10 +848,18 @@ public class Bookmarks extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
-            Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
-            //resume tasks needing this permission
-            shareImage(Variables.adToBeShared.getImageBitmap());
+        if(requestCode == 1){
+            if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
+                //resume tasks needing this permission
+                shareImage(Variables.adToBeShared.getImageBitmap());
+            }
+        }else if(requestCode == 11){
+            if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
+                //resume tasks needing this permission
+                imageF.saveImageToDevice();
+            }
         }
     }
 
