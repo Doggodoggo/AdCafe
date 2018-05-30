@@ -959,6 +959,7 @@ public class Bookmarks extends AppCompatActivity {
     }
 
 
+
     private int getPositionOf(Long noOfDaysDate) {
         LinkedHashMap map = HashOfAds;
         List<Long> indexes = new ArrayList<Long>(map.keySet());

@@ -170,37 +170,60 @@ public class SavedAdsCard {
 
     private void loadImageFromFirebaseFirst() {
         isLoadingImageFromFirebase = true;
-        Log.d("SavedAdsCard","Loading the image from firebase first");
-        DatabaseReference adRef2 = FirebaseDatabase.getInstance().getReference(Constants.PINNED_AD_POOL)
-                .child(Long.toString(mAdvert.getDateInDays())).child(mAdvert.getPushRefInAdminConsole()).child("imageUrl");
+        if(Variables.loadedSavedAdsList.containsKey(mAdvert.getPushRefInAdminConsole())){
+            mAdvert.setImageBitmap(Variables.loadedSavedAdsList.get(mAdvert.getPushRefInAdminConsole()));
+            setImage2();
+        }else{
+            Log.d("SavedAdsCard", "Loading the image from firebase first");
+            DatabaseReference adRef2 = FirebaseDatabase.getInstance().getReference(Constants.PINNED_AD_POOL)
+                    .child(Long.toString(mAdvert.getDateInDays())).child(mAdvert.getPushRefInAdminConsole()).child("imageUrl");
 
-        Log.d("SavedAdsCard","Query set up is --"+Constants.PINNED_AD_POOL+" : "+
-                mAdvert.getDateInDays()+" : "+mAdvert.getPushRefInAdminConsole());
+            Log.d("SavedAdsCard", "Query set up is --" + Constants.PINNED_AD_POOL + " : " +
+                    mAdvert.getDateInDays() + " : " + mAdvert.getPushRefInAdminConsole());
 
-        adRef2.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    String image = dataSnapshot.getValue(String.class);
-                    if(image!=null)Log.d("SavedAdsCard","String of image has been loaded from firebase");
-                    mAdvert.setImageUrl(image);
-                    Log.d("SavedAdsCard","Now running the setImage method");
-                    setImage();
-                }else{
-                    isLoadingImageFromFirebase = false;
+            adRef2.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String image = dataSnapshot.getValue(String.class);
+                        if (image != null)
+                            Log.d("SavedAdsCard", "String of image has been loaded from firebase");
+                        mAdvert.setImageUrl(image);
+                        Log.d("SavedAdsCard", "Now running the setImage method");
+                        setImage();
+                    } else {
+                        isLoadingImageFromFirebase = false;
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e("SavedAdsCard","Something went wrong while loading image from firebase : "+databaseError.getDetails());
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.e("SavedAdsCard", "Something went wrong while loading image from firebase : " + databaseError.getDetails());
+                }
+            });
+        }
+    }
+
+    private void setImage2() {
+        try {
+            Bitmap bm = mAdvert.getImageBitmap();
+            Log.d("SavedAdsCard---", "Image has been converted to bitmap.");
+            bs = getResizedBitmap(bm, 300);
+            mImageBytes = bitmapToByte(bs);
+            if(!Variables.loadedSavedAdsList.containsKey(mAdvert.getPushRefInAdminConsole())){
+                Variables.loadedSavedAdsList.put(mAdvert.getPushRefInAdminConsole(),bs);
             }
-        });
+            isLoadingImageFromFirebase = false;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void setImage() {
         try {
-            Bitmap bm = decodeFromFirebaseBase64(mAdvert.getImageUrl());
+            Bitmap bm;
+            if(!mAdvert.getImageUrl().equals("")) bm = decodeFromFirebaseBase64(mAdvert.getImageUrl());
+            else bm = mAdvert.getImageBitmap();
             Log.d("SavedAdsCard---", "Image has been converted to bitmap.");
             bs = getResizedBitmap(bm, 300);
             mImageBytes = bitmapToByte(bs);
@@ -660,8 +683,7 @@ public class SavedAdsCard {
 
         @Override
         protected String doInBackground(String... strings) {
-            if(mAdvert.getImageBitmap()==null) loadImageFromFirebaseFirst();
-            else isLoadingImageFromFirebase = false;
+            loadImageFromFirebaseFirst();
             while(isLoadingImageFromFirebase){
                 doNothing();
             }
