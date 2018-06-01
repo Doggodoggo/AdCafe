@@ -35,6 +35,7 @@ import com.bry.adcafe.adapters.TomorrowsAdStatItem;
 import com.bry.adcafe.fragments.FragmentAdvertiserPayoutBottomsheet;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
+import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.TimeManager;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -119,6 +120,7 @@ public class AdStats extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
+        new DatabaseManager().loadUsersPassword();
         if(TimeManager.isTimerOnline()) handleOnResumeMethodsAndLogic();
         else handleOnResumeMethodsIfTimeIsOffline();
     }
@@ -766,7 +768,10 @@ public class AdStats extends AppCompatActivity {
         mProgForPayments.show();
         Advert ad = Variables.adToBeReimbursed;
         int numberOfUsersWhoDidntSeeAd = ad.getNumberOfUsersToReach()- ad.getNumberOfTimesSeen();
-        double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*ad.getAmountToPayPerTargetedView());
+        double unneededPayoutAm = ad.getPayoutReimbursalAmount();
+        double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*
+                (ad.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))+unneededPayoutAm;
+
 
 //        Toast.makeText(mContext,"payout!",Toast.LENGTH_SHORT).show();
         String payoutPhoneNumber = Variables.phoneNo;
@@ -911,7 +916,8 @@ public class AdStats extends AppCompatActivity {
     private void showBottomSheetForReimbursement(){
         Advert ad = Variables.adToBeReimbursed;
         int numberOfUsersWhoDidntSeeAd = ad.getNumberOfUsersToReach()- ad.getNumberOfTimesSeen();
-        double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*ad.getAmountToPayPerTargetedView());
+        double unneededPayoutAm = ad.getPayoutReimbursalAmount();
+        double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*(ad.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))+unneededPayoutAm;
 
         FragmentAdvertiserPayoutBottomsheet fragmentModalBottomSheet = new FragmentAdvertiserPayoutBottomsheet();
         fragmentModalBottomSheet.setActivity(AdStats.this);

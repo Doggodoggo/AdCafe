@@ -52,8 +52,10 @@
                 android:layout_marginTop="5dp"
                 android:textSize="11sp"
                 android:id="@+id/AmountToReimburse"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp"
                 android:textAlignment="center"
-                android:text="Reimbursed amount : 200Ksh"
+                android:text="Reimbursed amount : 1200Ksh"
                 android:layout_height="wrap_content" />
 
             <TextView

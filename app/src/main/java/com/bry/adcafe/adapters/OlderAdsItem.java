@@ -80,14 +80,14 @@ public class OlderAdsItem {
         try{
             if(totalReimbursalPlusPayout==0){
                 mHasBeenReimbursedView.setText("Status: All Users Reached.");
-                mAmountToReimburseView.setText("Reimbursing amount:  0 Ksh");
+                mAmountToReimburseView.setText("Reimbursing amount:  0Ksh");
             }else{
                 if (mAdvert.isHasBeenReimbursed()) {
                     mHasBeenReimbursedView.setText("Status: Reimbursed.");
-                    mAmountToReimburseView.setText("Reimbursing amount:  0 Ksh");
+                    mAmountToReimburseView.setText("Reimbursing amount:  0Ksh");
                 } else {
                     mHasBeenReimbursedView.setText("Status: NOT Reimbursed.");
-                    mAmountToReimburseView.setText("Reimbursing amount: " + number + " Ksh.");
+                    mAmountToReimburseView.setText("Reimbursing amount: " + number + "Ksh.");
                 }
             }
         }catch (Exception e){

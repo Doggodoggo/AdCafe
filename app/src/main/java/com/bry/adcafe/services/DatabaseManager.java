@@ -526,8 +526,8 @@ public class DatabaseManager {
                 DataSnapshot seenAdsListSnap = dataSnapshot.child(Constants.SEEN_AD_IDS);
                 if(seenAdsListSnap.exists()) {
                     for (DataSnapshot pushIdSnap : seenAdsListSnap.getChildren()) {
-                        String pushId = pushIdSnap.getValue(String.class);
-                        String advertiserId = pushIdSnap.getKey();
+                        String advertiserId = pushIdSnap.getValue(String.class);
+                        String pushId= pushIdSnap.getKey();
                         Variables.adsSeenSoFar.put(pushId,advertiserId);
                     }
                 }
@@ -1344,13 +1344,13 @@ public class DatabaseManager {
 
             final DatabaseReference mref2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                     .child(advertiserUid).child(Constants.UPLOAD_HISTORY).child(dateInDays)
-                    .child(pushRef).child("payoutReimbursalAmount");
+                    .child(pushRef).child(Constants.UNNEEDED_REIMBURSAL_AMM);
 
             final DatabaseReference adminRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
-                    .child(year).child(month).child(day).child(pushRef).child("payoutReimbursalAmount");
+                    .child(year).child(month).child(day).child(pushRef).child(Constants.UNNEEDED_REIMBURSAL_AMM);
 
             final DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
-                    .child(datte).child(pushRef).child("payoutReimbursalAmount");
+                    .child(datte).child(pushRef).child(Constants.UNNEEDED_REIMBURSAL_AMM);
             mref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -1394,8 +1394,31 @@ public class DatabaseManager {
         adRef.setValue(null);
     }
 
+
+
     private boolean isAlmostMidNight(){
         return TimeManager.isAlmostMidNight();
     }
+
+    public void loadUsersPassword(){
+        if(Variables.getPassword().equals("")){
+            String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            DatabaseReference dbref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                    .child(user).child(Constants.USER_PASSCODE);
+            dbref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    String str = dataSnapshot.getValue(String.class);
+                    Variables.setPassword(str);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+    }
+
 
 }

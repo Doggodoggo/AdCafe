@@ -79,7 +79,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:textSize="19sp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:text="Your New Charge Per View."
                 android:textColor="@color/colorPrimary"
                 android:layout_marginBottom="10dp"

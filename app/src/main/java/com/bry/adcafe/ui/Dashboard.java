@@ -123,6 +123,7 @@ public class Dashboard extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
+        new DatabaseManager().loadUsersPassword();
         if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
         setValues();
     }
