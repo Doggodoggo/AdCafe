@@ -228,7 +228,7 @@ public class SavedAdsCard {
             bs = getResizedBitmap(bm, 300);
             mImageBytes = bitmapToByte(bs);
             if(!Variables.loadedSavedAdsList.containsKey(mAdvert.getPushRefInAdminConsole())){
-                Variables.loadedSavedAdsList.put(mAdvert.getPushRefInAdminConsole(),bs);
+                Variables.loadedSavedAdsList.put(mAdvert.getPushRefInAdminConsole(),bm);
             }
             mAdvert.setImageBitmap(bm);
             isLoadingImageFromFirebase = false;

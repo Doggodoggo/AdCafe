@@ -73,6 +73,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mindorks.placeholderview.PlaceHolderView;
 import com.mindorks.placeholderview.SwipeDecor;
 import com.mindorks.placeholderview.SwipeDirectionalView;
+import com.mindorks.placeholderview.SwipePlaceHolderView;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.ByteArrayOutputStream;
@@ -1964,6 +1965,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Variables.setCurrentAdInSubscription(0);
         Variables.setCurrentSubscriptionIndex(0);
         resetAdTotalsInFirebase();
+
+        new DatabaseManager().clearAdsSeenSoFarInFirebase();
     }
 
 

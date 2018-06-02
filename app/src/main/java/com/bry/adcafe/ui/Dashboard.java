@@ -272,6 +272,12 @@ public class Dashboard extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop(){
+        super.onStop();
+//        finish();
+    }
+
+    @Override
     protected void onDestroy(){
         Variables.isDashboardActivityOnline = false;
         super.onDestroy();
@@ -370,6 +376,8 @@ public class Dashboard extends AppCompatActivity {
         d.setContentView(R.layout.dialog8);
         Button b1 = (Button) d.findViewById(R.id.continueBtn);
         Button b2 = (Button) d.findViewById(R.id.cancelBtn);
+        if(Variables.doesUserWantNotifications)b1.setText("PUT OFF.");
+        else b1.setText("PUT ON.");
         TextView t = (TextView) d.findViewById(R.id.explanation);
         ImageButton imgBtn = (ImageButton) d.findViewById(R.id.pickTimeIcon);
         final TextView timeTxt = (TextView) d.findViewById(R.id.setTimeText);

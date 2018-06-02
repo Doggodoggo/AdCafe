@@ -90,6 +90,7 @@ public class AdvertCard{
 
     private int positionBL = 0;
     private boolean isFirstCard = false;
+    private boolean isOnTop = false;
 
 
     public AdvertCard(Context context, Advert advert, SwipePlaceHolderView swipeView,String lastOrNotLast){
@@ -170,11 +171,7 @@ public class AdvertCard{
 
     private void loadAllAds(){
         Log("ADVERT_CARD--","LOADING AD NORMALLY.");
-        int rad = 30;
-        if(mLastOrNotLast.equals(Constants.ANNOUNCEMENTS))rad = 1;
-        if(Variables.topCardId!=null) {
-            if(mAdvert.getPushRefInAdminConsole().equals(Variables.topCardId))rad = 1;
-        }
+
         RequestListener myRq = new RequestListener<byte[], GlideDrawable>() {
             @Override
             public boolean onException(Exception e, byte[] model, Target<GlideDrawable> target, boolean isFirstResource) {
@@ -211,13 +208,15 @@ public class AdvertCard{
                 return false;
             }
         };
-        if(rad==1){
+        if(mLastOrNotLast.equals(Constants.ANNOUNCEMENTS)){
             Glide.with(mContext).load(mImageBytes).listener(myRq).into(profileImageView);
-        }else{
-//            MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, rad));
-//            Glide.with(mContext).load(mImageBytes).bitmapTransform(multi).listener(myRq).into(profileImageView);
-            Glide.with(mContext).load(mImageBytes).listener(myRq).into(profileImageView);
-
+        }else {
+            if (isOnTop) {
+                Glide.with(mContext).load(mImageBytes).listener(myRq).into(profileImageView);
+            } else {
+                MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, 25));
+                Glide.with(mContext).load(mImageBytes).bitmapTransform(multi).listener(myRq).into(profileImageView);
+            }
         }
 
     }
@@ -308,6 +307,7 @@ public class AdvertCard{
     private void onSwipeHeadCard() {
         Log("EVENT----------", "onSwipeHeadCard");
         profileImageView.setImageBitmap(bs);
+        isOnTop = true;
         Variables.topCardId = mAdvert.getPushRefInAdminConsole();
         Variables.currentAdvertImageBitmap = bs;
         Log("AdvertCard","Set the normal image to the image view");
