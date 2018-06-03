@@ -290,7 +290,7 @@ public class AdCounterBar {
             super.onProgressUpdate(values);
             int value = values[0];
             progressBarTimer.incrementProgressBy(-1);
-
+            Variables.timerLevel = value;
             if (value % 1000 == 0) textViewTime.setText(Integer.toString(value / 1000));
 
         }
@@ -343,6 +343,7 @@ public class AdCounterBar {
             super.onPostExecute(result);
             progressBarTimer.setProgress(140);
             i = 7000;
+            Variables.timerLevel = i;
             sendBroadcast(Constants.TIMER_HAS_ENDED);
             addToSharedPreferencesViaBroadcast();
             hasTimerStarted = false;

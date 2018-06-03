@@ -128,6 +128,8 @@ public class Variables {
     public static String topCardId;
     public static LinkedHashMap<String,Bitmap> loadedSavedAdsList = new LinkedHashMap<>();
 
+    public static int timerLevel = 7000;
+
     public static void resetAllValues(){
          todaysAdTotal = 0;
          mMonthAdTotals = 0;

@@ -2628,7 +2628,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setBooleanForPausingTimer(){
         Log(TAG,"Setting boolean for pausing timer.");
-        if(Variables.isAllClearToContinueCountDown) Variables.isAllClearToContinueCountDown = false;
+        if(Variables.isAllClearToContinueCountDown && Variables.timerLevel>100){
+            Variables.isAllClearToContinueCountDown = false;
+        }
 
     }
 
@@ -2638,7 +2640,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void pauseTimerByStoppingItEntirely(){
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Constants.PAUSE_TIMER));
+        if(Variables.timerLevel>100){
+            LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Constants.PAUSE_TIMER));
+        }
     }
 
 

@@ -6,12 +6,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Base64;
 import android.util.Log;
-import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,14 +18,12 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.Advert;
-import com.bry.adcafe.services.Utils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.google.firebase.auth.FirebaseAuth;
-import com.mindorks.placeholderview.SwipeDecor;
 import com.mindorks.placeholderview.SwipePlaceHolderView;
 import com.mindorks.placeholderview.annotations.Click;
 import com.mindorks.placeholderview.annotations.Layout;
@@ -158,14 +154,14 @@ public class AdvertCard{
     private void loadAdPlaceHolderImage() {
         mIsNoAds = true;
 //        MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, 30));
-        Glide.with(mContext).load(R.drawable.noads6).into(profileImageView);
+        Glide.with(mContext).load(R.drawable.noadssvn).into(profileImageView);
         lockViews();
         clickable=false;
         Variables.setCurrentAdvert(mAdvert);
 
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 1;
-        bs = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.noads6, options);
+        bs = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.noadssvn, options);
         setUpListOfBlurrs();
     }
 
