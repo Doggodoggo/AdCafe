@@ -172,6 +172,6 @@ public class Constants {
     public static int MAX_AMMOUNT_FOR_SHARING_PAYOUT_AMOUNT = 1500000000;
     public static String UNNEEDED_REIMBURSAL_AMM = "payoutReimbursalAmount";
 
-    public static int ANIMATION_DURATION = 290;
+    public static int ANIMATION_DURATION = 200;
 
 }

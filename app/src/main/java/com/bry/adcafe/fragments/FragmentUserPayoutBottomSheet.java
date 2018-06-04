@@ -136,7 +136,7 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
 
     private void showPayoutDetailsPart(){
         mEnterPayoutDetailsPart.setVisibility(View.VISIBLE);
-        mEnterPayoutDetailsPart.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+        mEnterPayoutDetailsPart.animate().setDuration(200).translationX(0)
                 .setInterpolator(new FastOutSlowInInterpolator());
         final EditText phoneEdit = mContentView.findViewById(R.id.phoneEditText);
         final EditText passwordEdit = mContentView.findViewById(R.id.passwordEditText);

@@ -60,7 +60,7 @@
         android:orientation="vertical"
         android:visibility="gone"
         android:padding="15dp"
-        android:translationX="400dp"
+        android:translationX="350dp"
         android:id="@+id/enterPayoutDetailsPart"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -68,7 +68,7 @@
         <TextView
             android:layout_width="match_parent"
             android:textSize="19sp"
-            android:textColor="@color/primary_text"
+            android:textColor="@color/colorPrimary"
             android:text="Payout Details."
             android:layout_marginBottom="10dp"
             android:layout_height="wrap_content" />
@@ -167,13 +167,14 @@
         android:orientation="vertical"
         android:padding="15dp"
         android:id="@+id/confirmLayout"
-        android:translationX="500dp"
+        android:translationX="350dp"
         android:visibility="gone"
         android:layout_height="wrap_content">
 
         <TextView
             android:layout_width="match_parent"
             android:textSize="19sp"
+            android:textColor="@color/colorPrimary"
             android:layout_marginBottom="10dp"
             android:text="Confirm Everything."
             android:layout_height="wrap_content" />

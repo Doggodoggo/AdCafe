@@ -60,7 +60,7 @@
         android:orientation="vertical"
         android:visibility="gone"
         android:padding="15dp"
-        android:translationX="400dp"
+        android:translationX="350dp"
         android:id="@+id/enterPayoutDetailsPart"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -148,7 +148,7 @@
         android:orientation="vertical"
         android:padding="15dp"
         android:id="@+id/confirmLayout"
-        android:translationX="500dp"
+        android:translationX="350dp"
         android:visibility="gone"
         android:layout_height="wrap_content">
 
