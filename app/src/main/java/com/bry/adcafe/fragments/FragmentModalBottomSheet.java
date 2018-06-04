@@ -13,6 +13,7 @@ import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.util.Log;
@@ -210,7 +211,8 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
 
     private void showNextSlide(){
         CardHolderDetailsPart.setVisibility(View.VISIBLE);
-        CardHolderDetailsPart.animate().setDuration(140).translationX(0);
+        CardHolderDetailsPart.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                .setInterpolator(new FastOutSlowInInterpolator());
         final EditText firstName =  mContentView.findViewById(R.id.firstNameEditText);
         final EditText lastName = mContentView.findViewById(R.id.lastnameEditText);
         final EditText email = mContentView.findViewById(R.id.emailEditText);
@@ -302,7 +304,8 @@ public class FragmentModalBottomSheet extends BottomSheetDialogFragment {
 
     private void startNextAnimation(){
         ConfirmDetailsPart.setVisibility(View.VISIBLE);
-        ConfirmDetailsPart.animate().setDuration(140).translationX(0);
+        ConfirmDetailsPart.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                .setInterpolator(new FastOutSlowInInterpolator());
         mStartTransactionThenUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

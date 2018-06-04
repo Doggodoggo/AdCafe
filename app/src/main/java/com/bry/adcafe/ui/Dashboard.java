@@ -257,7 +257,7 @@ public class Dashboard extends AppCompatActivity {
                         if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
                         promptUserAboutPayout();
                     }
-                    else Toast.makeText(mContext,"You need internet connection to do that",Toast.LENGTH_SHORT).show();
+                    else Toast.makeText(mContext,"You need internet connection first.",Toast.LENGTH_SHORT).show();
                 }
             }
         });

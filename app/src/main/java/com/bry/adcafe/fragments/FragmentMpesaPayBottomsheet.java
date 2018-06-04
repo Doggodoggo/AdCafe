@@ -13,6 +13,7 @@ import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.util.Log;
@@ -186,7 +187,8 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
 
     private void loadConfirmDetailsPart() {
         mConfirmLayout.setVisibility(View.VISIBLE);
-        mConfirmLayout.animate().translationX(0).setDuration(150);
+        mConfirmLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                .setInterpolator(new FastOutSlowInInterpolator());
 
         TextView targetingView = mContentView.findViewById(R.id.targetingNumber);
         TextView dateView = mContentView.findViewById(R.id.date);

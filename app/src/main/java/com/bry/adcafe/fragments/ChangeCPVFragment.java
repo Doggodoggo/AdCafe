@@ -11,6 +11,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -86,7 +87,9 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
             dismiss();
         } else if(v == continueBtn){
             mainLayout.setVisibility(View.GONE);
-            chooseAmountLayout.animate().setDuration(140).translationX(0).setListener(new AnimatorListenerAdapter() {
+            chooseAmountLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                    .setInterpolator(new FastOutSlowInInterpolator())
+                    .setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
@@ -127,7 +130,9 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
             public void onClick(View v) {
                 mainLayout.setVisibility(View.GONE);
                 chooseAmountLayout.setVisibility(View.VISIBLE);
-                chooseAmountLayout.animate().setDuration(140).translationX(0).setListener(new AnimatorListenerAdapter() {
+                chooseAmountLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                        .setInterpolator(new FastOutSlowInInterpolator())
+                        .setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);

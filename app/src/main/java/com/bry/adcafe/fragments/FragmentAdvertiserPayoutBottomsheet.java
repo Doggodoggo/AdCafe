@@ -12,6 +12,7 @@ import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -133,7 +134,8 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
 
     private void showPayoutDetailsPart() {
         mEnterPayoutDetailsPart.setVisibility(View.VISIBLE);
-        mEnterPayoutDetailsPart.animate().translationX(0).setDuration(150);
+        mEnterPayoutDetailsPart.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                .setInterpolator(new FastOutSlowInInterpolator());
         final EditText phoneEdit = mContentView.findViewById(R.id.phoneEditText);
 //        final EditText emailEdit = mContentView.findViewById(R.id.emailEditText);
         final EditText passwordEdit = mContentView.findViewById(R.id.passwordEditText);
@@ -188,7 +190,8 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
 
     private void showConfirmDetailsPart() {
         mConfirmLayout.setVisibility(View.VISIBLE);
-        mConfirmLayout.animate().translationX(0).setDuration(150);
+        mConfirmLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                .setInterpolator(new FastOutSlowInInterpolator());
 
         TextView amountToBeSentView = mContentView.findViewById(R.id.amountToBeSent);
         TextView phoneNumberView = mContentView.findViewById(R.id.phoneNumber);
