@@ -111,15 +111,17 @@ public class TomorrowsAdStatItem {
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Log.d("TOMORROWS_AD_STAT_ITEM","Listener from firebase has responded. Updating data.");
-                boolean newValue = dataSnapshot.getValue(boolean.class);
-                Log.d("TOMORROWS_AD_STAT_ITEM","New value gotten from firebase --"+newValue);
-                mAdvert.setFlagged(newValue);
-                if(mAdvert.isFlagged()) {
-                    mTakeDown.setText("Put Up.");
-                    mFlagged.setText("Status : Taken Down.");
-                } else {
-                    mTakeDown.setText("Take Down.");
-                    mFlagged.setText("Status : Uploaded.");
+                if(dataSnapshot.getKey().equals("flagged")) {
+                    boolean newValue = dataSnapshot.getValue(boolean.class);
+                    Log.d("TOMORROWS_AD_STAT_ITEM", "New value gotten from firebase --" + newValue);
+                    mAdvert.setFlagged(newValue);
+                    if (mAdvert.isFlagged()) {
+                        mTakeDown.setText("Put Up.");
+                        mFlagged.setText("Status : Taken Down.");
+                    } else {
+                        mTakeDown.setText("Take Down.");
+                        mFlagged.setText("Status : Uploaded.");
+                    }
                 }
             }
 
