@@ -13,18 +13,16 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.os.Vibrator;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -35,7 +33,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
-import com.bry.adcafe.Payment.Lipisha.Payment;
 import com.bry.adcafe.Payment.mpesaApi.Mpesaservice;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
@@ -43,8 +40,6 @@ import com.bry.adcafe.fragments.ChangeCPVFragment;
 import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
 import com.bry.adcafe.services.DatabaseManager;
-import com.bry.adcafe.services.OnSwipeTouchListener;
-import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.SliderPrefManager;
 import com.bry.adcafe.services.TimeManager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -53,7 +48,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
@@ -666,7 +660,7 @@ public class Dashboard extends AppCompatActivity {
         String StringPayoutAmount = Integer.toString(payoutAmount);
 
         Mpesaservice mps = new Mpesaservice("Xna3G2ahKqwsXmciMfmAtmxqv9GjShqx","xSkVFsFMUFJ2OEAA");
-        mps.authenticateThenPayouts(StringPayoutAmount,newPhoneNo);
+        mps.authenticateThenPayouts(StringPayoutAmount,newPhoneNo,mContext);
 
 
 //        payments.makePayouts(Variables.transactionID,payoutPhoneNumber,payoutAmount);

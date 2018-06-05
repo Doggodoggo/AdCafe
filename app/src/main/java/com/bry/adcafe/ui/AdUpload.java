@@ -578,8 +578,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         @Override
         public void onReceive(Context context, Intent intent) {
             Log(TAG, "Broadcast has been received show bottomsheet.");
-//            if(Variables.paymentOption.equals(Constants.MPESA_OPTION))startMpesaPayments();
-            if(Variables.paymentOption.equals(Constants.MPESA_OPTION))startTestUpload();
+            if(Variables.paymentOption.equals(Constants.MPESA_OPTION))startMpesaPayments();
+//            if(Variables.paymentOption.equals(Constants.MPESA_OPTION))startTestUpload();
             else if(Variables.paymentOption.equals(Constants.BANK_OPTION)) startBankPayments();
         }
     };
