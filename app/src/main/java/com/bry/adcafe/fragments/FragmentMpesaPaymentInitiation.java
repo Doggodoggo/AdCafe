@@ -25,10 +25,6 @@ import com.bry.adcafe.services.Payments;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import org.json.JSONException;
-
-import java.io.IOException;
-
 /**
  * Created by bryon on 28/02/2018.
  */
@@ -94,25 +90,25 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         String FAILED_REQUEST = "FAILED_REQUEST"+mTransactionId;
 
 
-//        String newPhoneNo = "254"+mPhoneNo.substring(1);
-//        Log.d(TAG,"new Phone no is: "+newPhoneNo);
+        String newPhoneNo = "254"+mPhoneNo.substring(1);
+        Log.d(TAG,"new Phone no is: "+newPhoneNo);
         String email = Variables.mpesaEmail;
         int ammount = (int) mAmount;
-//        String amount = Integer.toString(ammount);
+        String amount = Integer.toString(ammount);
 
 //        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) ammount = 20;
 //        mPayment = new Payments(mContext,SUCCESSFUL_REQUEST,FAILED_REQUEST);
 //        mPayment.startMpesaPayment(mTransactionId,mTransactionId,ammount,mPhoneNo,email);
 
-        mpesaService = new Mpesaservice("IkcJaREeuzdn4Coxg9DvGQLz3CY29KQS","W0UyjgWR7LjJuRog");
-        try {
-            mpesaService.authenticate();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        mpesaService.authenticateThenPayments("20","174379");
+        mpesaService = new Mpesaservice("HJju1PU5BthG4QTecPWduXuFz22XTFfe","o2ZUZQgi8eDQYKj7");
+//        try {
+//            mpesaService.authenticate();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+        mpesaService.authenticateThenPayments(amount,newPhoneNo);
 //        try {
 //            mpesaService.C2BSimulation("601465","CustomerPayBillOnline","20","254708374149","Testingess");
 //        } catch (IOException e) {

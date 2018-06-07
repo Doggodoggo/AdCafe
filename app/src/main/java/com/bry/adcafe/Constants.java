@@ -1,7 +1,5 @@
 package com.bry.adcafe;
 
-import com.google.android.gms.wallet.WalletConstants;
-
 /**
  * Created by bryon on 6/4/2017.
  */
@@ -154,14 +152,15 @@ public class Constants {
 
 
     /////////Mpesa payment variables
-    public static String key = "NN8Ze1Fn+AapUTn9pxojvukBLdsLWpttHKdfaaiWbg7QBeraMDTyFc53AM4uUk7+9W0m2RjxWcpGBv5k/cUjqyyN/cCHCFKnwNIxlOjiOEpFo1uaqb/o5Gv2SwSM91EdYbEeTcsNcL6IGoNdQB9xi/lNQrllIcqqfrp+SEkz61cAZKd86J6EJ6Hn2nw4zqdGKe6zDIEiKZrcgLA09W+gkxs8I9CTNutwqH0p34Mj1OZ/rPR4ELbHmehrXBI+y8fIglz5A3V2zv+lFo792zbaYFgGuw07gAd+Hlv9WVOPJ2ZcJtYwr1NMjBOAsTNBX/yj/jxkfTHoS5+YE9k6zxstpQ==";
+    public static String key = "Jbc98YbjL9H9riwA/eweVXF8HhVYmPYjrwLdgp2k1rigPu04E6oqEBe1RP/xq3pDRRrQj+/v+m0D3OGhbJUKfkw0wdxFzrs1FbJ8r9pgdU8iMX9RisnulUwxvYXbdEf1WTHWY4HIekJDnORheEl/8sBHUenWw01WT9twSbUyahx9k/Vx+vXFFITJJ8ldpIRQt/7q7+Ci" +
+            "uGgwUcWcAmXyBoAGtHNtBUkACWO6fGiJ8fm7nVXzPTMfkI7HIccWepcCWs0XBLQolNhawgkrQLdvNXUcN7GvHwiOC2GNicrN/a7fvLGdB5eNnMaOZDv9e+SmZ90a+fdY+hSLH6Rbv9Wuog==";
 
     ////////////////////////
 
 
     public static String ADMIN_MONEY = "AdminTotal";
     public static String TEXT_ANOUNCEMENTS = "Text_Announcements";
-    public static String ADMIN_ACC = "bryonyoni@gmail.com";
+    public static String ADMIN_ACC = "biglebowski@gmail.com";
     public static String CUSTOM_STARTING_POINT_ENABLED = "CUSTOM_STARTING_POINT_ENABLED";
     public static String CUSTOM_STARTING_POINT_VALUE = "CUSTOM_STARTING_POINT_VALUE";
     public static String HISTORY_UPLOADS = "AdminUploadHistory";

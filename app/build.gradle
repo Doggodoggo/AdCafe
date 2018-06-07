@@ -43,6 +43,10 @@ android {
     lintOptions {
         checkReleaseBuilds false
     }
+    aaptOptions {
+        noCompress "cer"
+    }
+
 }
 
 dependencies {
@@ -83,7 +87,11 @@ dependencies {
     implementation 'se.akerfeldt:okhttp-signpost:1.1.0'
     testImplementation 'junit:junit:4.12'
 
-    implementation 'com.braintreepayments:card-form:3.1.1'
+    compile 'com.braintreepayments:card-form:3.1.1'
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    compile 'com.lipisha.sdk:lipisha-sdk:2.0'
+    compile group: 'org.bouncycastle', name: 'bcprov-jdk16', version: '1.46'
+
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
 }
 apply plugin: 'com.google.gms.google-services'

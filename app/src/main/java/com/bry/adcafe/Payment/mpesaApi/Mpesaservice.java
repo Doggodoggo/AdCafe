@@ -1,17 +1,37 @@
 package com.bry.adcafe.Payment.mpesaApi;
 
+import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.util.Base64;
 import android.util.Log;
 
-import com.bry.adcafe.Constants;
 import com.bry.adcafe.services.TimeManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -122,7 +142,7 @@ public class Mpesaservice {
     }
 
 
-    public void authenticateThenPayouts(final String amount, final String partyB ){
+    public void authenticateThenPayouts(final String amount, final String partyB, final Context context){
         String app_key = appKey;
         String app_secret = appSecret;
         String appKeySecret = app_key + ":" + app_secret;
@@ -136,7 +156,67 @@ public class Mpesaservice {
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url("https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials")
+                .url("https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials")
+                .get()
+                .addHeader("authorization", "Basic " + encoded)
+                .addHeader("cache-control", "no-cache")
+                .build();
+
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    String jsonData = response.body().string();
+                    Log.d(TAG,jsonData);
+                    JSONObject aT = new JSONObject(jsonData);
+//                    JSONObject accessT = aT.getJSONObject("data");
+                    String accessToken = aT.getString("access_token");
+
+                    B2CRequest(amount,partyB,accessToken,context);
+                    Log.d(TAG,jsonData);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+    }
+
+    public void authenticateThenPayments(final String amount, final String partyA ){
+        String app_key = appKey;
+        String app_secret = appSecret;
+        String appKeySecret = app_key + ":" + app_secret;
+        String shortCode = "550105";
+        String passKey  ="102178110d0c3f3a71170a35a7fc85530422a987574e616662a3f77d9d310f69";
+        final String timeStamp = TimeManager.getTimeStamp();
+        String passWordEncoded = shortCode+passKey+timeStamp;
+        byte [] bytesPas = new byte[0];
+        try {
+            bytesPas = passWordEncoded.getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        byte[] bytes = new byte[0];
+        try {
+            bytes = appKeySecret.getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        String encoded = Base64.encodeToString(bytes, Base64.NO_WRAP);
+        final String passEncoded = Base64.encodeToString(bytesPas, Base64.NO_WRAP);
+        Log.d("Passencoded :",passEncoded);
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials")
                 .get()
                 .addHeader("authorization", "Basic " + encoded)
                 .addHeader("cache-control", "no-cache")
@@ -156,8 +236,11 @@ public class Mpesaservice {
 //                    JSONObject accessT = aT.getJSONObject("data");
                     String accessToken = aT.getString("access_token");
 
-                    B2CRequest(amount,partyB,accessToken);
-                    Log.d(TAG,jsonData);
+                    STKPushSimulation("550105",passEncoded, timeStamp,
+                            "CustomerPayBillOnline",amount,"254702262663",
+                            partyA,"550105","https://ilovepancake.github.io/PigDice",
+                            "https://adcafe.github.io/CBK/","Adpayment","jsjsj",accessToken);
+                    Log.d(TAG+"payments",jsonData);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -169,65 +252,16 @@ public class Mpesaservice {
         call.enqueue(cb);
     }
 
-    public void authenticateThenPayments(final String amount, final String partyB ){
-        String app_key = appKey;
-        String app_secret = appSecret;
-        String appKeySecret = app_key + ":" + app_secret;
-        byte[] bytes = new byte[0];
-        try {
-            bytes = appKeySecret.getBytes("ISO-8859-1");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        String encoded = Base64.encodeToString(bytes, Base64.NO_WRAP);
-
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url("https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials")
-                .get()
-                .addHeader("authorization", "Basic " + encoded)
-                .addHeader("cache-control", "no-cache")
-                .build();
-
-        Callback cb = new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                try {
-                    String jsonData = response.body().string();
-                    JSONObject aT = new JSONObject(jsonData);
-//                    JSONObject accessT = aT.getJSONObject("data");
-                    String accessToken = aT.getString("access_token");
-
-                    STKPushSimulation("723387","adcafe", TimeManager.getTimeStamp(),
-                            "CustomerPayBillOnline","20","254708374149",
-                            "254798075721","723387","https://ilovepancake.github.io/PigDice",
-                            "https://adcafe.github.io/CBK/","yyyer","jsjsj",accessToken);
-                    Log.d(TAG,jsonData);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        Call call = client.newCall(request);
-        call.enqueue(cb);
-    }
-
-    public String B2CRequest(String amount, String partyB ,String bearer){
+    public String B2CRequest(String amount, String partyB ,String bearer,Context context){
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject = new JSONObject();
+        Log.d(TAG,encryptInitiatorPassword(context,"safaricomcertificate.cer","Adcafeteam#20181"));
         try {
-            jsonObject.put("InitiatorName", "testapi0323");
-            jsonObject.put("SecurityCredential", Constants.key);
+            jsonObject.put("InitiatorName", "payoutsAdcafe");
+            jsonObject.put("SecurityCredential", encryptInitiatorPassword( context,"safaricomcertificate.cer","Adcafeteam#20181"));
             jsonObject.put("CommandID", "PromotionPayment");
             jsonObject.put("Amount", amount);
-            jsonObject.put("PartyA", "600323");
+            jsonObject.put("PartyA", "723387");
             jsonObject.put("PartyB", partyB);
             jsonObject.put("Remarks", "testing123");
             jsonObject.put("QueueTimeOutURL", "https://adcafe.github.io/CBK/");
@@ -245,7 +279,7 @@ public class Mpesaservice {
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType, requestJson);
         Request request = new Request.Builder()
-                .url("https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest")
+                .url(" https://api.safaricom.co.ke/mpesa/b2c/v1/paymentrequest")
                 .post(body)
                 .addHeader("content-type", "application/json")
                 .addHeader("authorization", "Bearer " + bearer)
@@ -332,7 +366,7 @@ public class Mpesaservice {
         String requestJson = jsonArray.toString().replaceAll("[\\[\\]]", "");
 
         OkHttpClient client = new OkHttpClient();
-        String url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+        String url = "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType, requestJson);
         Request request = new Request.Builder()
@@ -499,6 +533,55 @@ public class Mpesaservice {
         return response.body().string();
 
 
+    }
+    public static String encryptInitiatorPassword(Context context, String securityCertificate, String password) {
+        String encryptedPassword = "";
+        InputStream is = null;
+        try {
+            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+            byte[] input = password.getBytes();
+
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
+            AssetManager manager = context.getAssets();
+//            try {
+//               is =  manager.open(securityCertificate);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+            AssetFileDescriptor assetFileDescriptor = manager.openFd(securityCertificate);
+//            FileDescriptor fileDescriptor = assetFileDescriptor.getFileDescriptor();
+            FileInputStream fin =assetFileDescriptor.createInputStream();
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            X509Certificate certificate = (X509Certificate) cf.generateCertificate(fin);
+            PublicKey pk = certificate.getPublicKey();
+            cipher.init(Cipher.ENCRYPT_MODE, pk);
+
+            byte[] cipherText = cipher.doFinal(input);
+
+            // Convert the resulting encrypted byte array into a string using base64 encoding
+            encryptedPassword = Base64.encodeToString(cipherText,Base64.NO_WRAP);
+
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(Mpesaservice.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchProviderException ex) {
+            Logger.getLogger(Mpesaservice.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchPaddingException ex) {
+            Logger.getLogger(Mpesaservice.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Mpesaservice.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (CertificateException ex) {
+            Logger.getLogger(Mpesaservice.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvalidKeyException ex) {
+            Logger.getLogger(Mpesaservice.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalBlockSizeException ex) {
+            Logger.getLogger(Mpesaservice.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (BadPaddingException ex) {
+            Logger.getLogger(Mpesaservice.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return encryptedPassword;
     }
 
 
