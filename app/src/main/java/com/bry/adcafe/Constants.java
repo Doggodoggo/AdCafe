@@ -180,6 +180,6 @@ public class Constants {
     public static String MALE = "Male";
     public static String FEMALE = "Female";
     public static String GENDER = "Gender";
-    public static String AGE = "Age";
+    public static String DATE_OF_BIRTH = "DateOfBirth";
 
 }

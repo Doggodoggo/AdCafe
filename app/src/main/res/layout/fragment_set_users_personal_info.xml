@@ -33,6 +33,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_marginRight="20dp"
+            android:visibility="gone"
             android:layout_marginLeft="20dp"
             android:layout_marginBottom="10dp"
             android:text="@string/personalInfoIntroNote"
@@ -43,11 +44,62 @@
             android:orientation="horizontal"
             android:paddingRight="20dp"
             android:paddingLeft="20dp"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="10dp"
             android:layout_height="40dp">
 
             <Button
                 android:id="@+id/okBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:background="@null"
+                android:text="Continue."
+                android:textColor="@color/colorPrimary" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:id="@+id/mainLayout2"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:textSize="19sp"
+            android:paddingLeft="20dp"
+            android:layout_marginBottom="10dp"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginTop="20dp"
+            android:text="Why?"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:id="@+id/explanation2"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="1dp"
+            android:text="@string/personalInfoExplanation"
+            android:layout_height="wrap_content" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:paddingRight="20dp"
+            android:paddingLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"
+            android:layout_height="40dp">
+
+            <Button
+                android:id="@+id/okBtn1point5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
@@ -123,6 +175,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
+                android:visibility="invisible"
                 android:layout_alignParentLeft="true"
                 android:background="@null"
                 android:text="Skip."
@@ -156,7 +209,7 @@
             android:layout_marginBottom="10dp"
             android:textColor="@color/colorPrimary"
             android:layout_marginTop="20dp"
-            android:text="Your Age."
+            android:text="Your Birthday."
             android:layout_height="wrap_content" />
 
         <TextView
@@ -164,18 +217,32 @@
             android:layout_marginTop="5dp"
             android:layout_marginRight="20dp"
             android:layout_marginLeft="20dp"
-            android:layout_marginBottom="10dp"
             android:text="@string/ageInfo"
             android:layout_height="wrap_content" />
 
-        <NumberPicker
-            android:id="@+id/numberPickerAge"
-            android:layout_width="100dp"
-            android:layout_gravity="center"
-            android:background="@color/grey"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="10dp"
+            android:text="Your set age"
+            android:id="@+id/setAgeText"
+            android:visibility="invisible"
+            android:layout_height="wrap_content" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_marginLeft="20dp"
+                android:id="@+id/calendar"
+                android:background="@drawable/ic_action_calendar"
+                android:layout_height="50dp" />
+
+        </LinearLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -190,6 +257,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
+                android:visibility="invisible"
                 android:layout_alignParentLeft="true"
                 android:background="@null"
                 android:text="Skip."
@@ -250,6 +318,7 @@
             <Button
                 android:layout_width="wrap_content"
                 android:text="Open."
+                android:visibility="invisible"
                 android:id="@+id/openMap"
                 android:layout_marginTop="1dp"
                 android:layout_marginRight="10dp"
@@ -278,6 +347,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
                 android:background="@null"
+                android:visibility="invisible"
                 android:text="Skip."
                 android:textColor="@color/colorPrimary" />
 
@@ -327,6 +397,7 @@
             android:orientation="horizontal"
             android:paddingRight="20dp"
             android:paddingLeft="2dp"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="10dp"
             android:layout_height="40dp">
 

@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,9 +53,7 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
 
     private List<Marker> markers = new ArrayList<>();
     private Button setButton;
-
-
-
+    private View rootView;
 
     public void setfragcontext(Context context) {
         mContext = context;
@@ -68,11 +67,19 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.map_fragment, container, false);
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-        setButton = rootView.findViewById(R.id.setLocations);
-        setButton.setOnClickListener(this);
+        if (rootView != null) {
+            ViewGroup parent = (ViewGroup) rootView.getParent();
+            if (parent != null) parent.removeView(rootView);
+        }
+        try {
+            rootView = inflater.inflate(R.layout.map_fragment, container, false);
+            MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this);
+            setButton = rootView.findViewById(R.id.setLocations);
+            setButton.setOnClickListener(this);
+        } catch (InflateException e) {
+            e.printStackTrace();
+        }
 
         return rootView;
     }
@@ -178,6 +185,13 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
         if(view.equals(setButton)){
             setPreferredLocations();
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        if (f != null) getFragmentManager().beginTransaction().remove(f).commit();
     }
 
 

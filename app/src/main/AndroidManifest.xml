@@ -28,6 +28,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCtidJiOy4EasYpI5tNSKV20Aq6u3upMdY"/>
 
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version"/>
+
         <receiver
             android:name=".AlarmReceiver1"
             android:enabled="true" />

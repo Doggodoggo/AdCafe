@@ -134,6 +134,9 @@ public class Dashboard extends AppCompatActivity {
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForStartPayout,
                 new IntentFilter("START_PAYOUT"));
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForShowMap,
+                new IntentFilter("SHOW_MAP"));
     }
 
     private void removeListeners(){
@@ -141,6 +144,7 @@ public class Dashboard extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForStartPayout);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForSuccessfulPayout);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFailedPayout);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForShowMap);
     }
 
     private BroadcastReceiver mMessageReceiverForShowingPrompt = new BroadcastReceiver() {
@@ -965,6 +969,14 @@ public class Dashboard extends AppCompatActivity {
         cpvFragment.setfragcontext(mContext);
         cpvFragment.setActivity(thisActivity);
     }
+
+    private BroadcastReceiver mMessageReceiverForShowMap = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log("Dashboard", "Broadcast has been received show map.");
+            loadMap();
+        }
+    };
 
     private void loadMap(){
         FragmentManager fm = getFragmentManager();
