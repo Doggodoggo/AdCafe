@@ -230,6 +230,8 @@
     <string name="conclude">We value your privacy as much as you do. Therefore, your provided information will not be shared with third party organisation. We will try our best
         to keep all your information safe and secure to the best of our ability.</string>
 
+    <string name="targetingPermission">Do you wish for the app to stop filtering content based on your provided personal data?</string>
+    <string name="targetingPermissonOn">Do you wish for the app to start filtering content based on your provided personal data?</string>
 
     <string name="feedbacktype">Feedback Type</string>
     <string name="feedbacktype1">Suggestion</string>

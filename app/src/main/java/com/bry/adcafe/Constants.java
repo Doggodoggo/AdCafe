@@ -182,4 +182,6 @@ public class Constants {
     public static String GENDER = "Gender";
     public static String DATE_OF_BIRTH = "DateOfBirth";
 
+    public static String CONSENT_TO_TARGET = "CanUsePersonalData";
+
 }

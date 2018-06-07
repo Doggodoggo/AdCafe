@@ -437,6 +437,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="2dp"
                             android:layout_marginRight="2dp"
+                            android:layout_marginLeft="2dp"
                             android:layout_marginTop="2dp"
                             app:cardCornerRadius="4dp"
                             app:cardElevation="2dp">
@@ -468,10 +469,10 @@
                             app:cardElevation="2dp">
 
                             <ImageButton
-                                android:id="@+id/LogoutBtn"
+                                android:id="@+id/targetedBtn"
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/exithd" />
+                                android:background="@drawable/ic_action_targeted" />
 
                         </android.support.v7.widget.CardView>
 

@@ -167,6 +167,8 @@ public class SetUsersPersonalInfo extends DialogFragment {
         DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(user).child(Constants.GENDER);
         mref.setValue(gender);
+
+        setConsentToTarget(true);
     }
 
 
@@ -256,6 +258,16 @@ public class SetUsersPersonalInfo extends DialogFragment {
                 dismiss();
             }
         });
+    }
+
+    private void setConsentToTarget(Boolean bol){
+        SharedPreferences pref = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);
+        pref.edit().clear().putBoolean(Constants.CONSENT_TO_TARGET, bol).apply();
+
+        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(user).child(Constants.CONSENT_TO_TARGET);
+        mref.setValue(bol);
     }
 
 

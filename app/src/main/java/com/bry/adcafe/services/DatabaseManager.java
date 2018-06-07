@@ -545,6 +545,29 @@ public class DatabaseManager {
                         Variables.usersLatLongs.add(latLng);
                     }
                 }
+                //This loads the users Birthday.
+                DataSnapshot birthdaySnap = dataSnapshot.child(Constants.DATE_OF_BIRTH);
+                if(birthdaySnap.exists()){
+                    int day = birthdaySnap.child("day").getValue(int.class);
+                    int month = birthdaySnap.child("month").getValue(int.class);
+                    int year = birthdaySnap.child("year").getValue(int.class);
+                    SharedPreferences pref = mContext.getSharedPreferences(Constants.DATE_OF_BIRTH, MODE_PRIVATE);
+                    pref.edit().putInt("day", day).putInt("month",month).putInt("year",year).apply();
+                }
+                //This loads the users gender.
+                DataSnapshot genderSnap = dataSnapshot.child(Constants.GENDER);
+                if(genderSnap.exists()){
+                    String gender = genderSnap.getValue(String.class);
+                    SharedPreferences pref = mContext.getSharedPreferences(Constants.GENDER, MODE_PRIVATE);
+                    pref.edit().clear().putString(Constants.GENDER, gender).apply();
+                }
+                //This loads the consent to target.
+                DataSnapshot consentToTarget = dataSnapshot.child(Constants.CONSENT_TO_TARGET);
+                if (consentToTarget.exists()){
+                    boolean consent = consentToTarget.getValue(boolean.class);
+                    SharedPreferences pref = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);
+                    pref.edit().clear().putBoolean(Constants.CONSENT_TO_TARGET, consent).apply();
+                }
 
                 //this loads the last seen date from firebase
                 DataSnapshot dateSnap = dataSnapshot.child(Constants.DATE_IN_FIREBASE);

@@ -85,7 +85,7 @@ public class Dashboard extends AppCompatActivity {
     @Bind(R.id.NotificationBtn) public ImageButton mNotfBtn;
     @Bind(R.id.dotForNotification) public View mDotForNotf;
     @Bind(R.id.ChangeCPVBtn) public ImageButton mCPVBtn;
-//    @Bind(R.id.LogoutBtn) public ImageButton mLogout;
+    @Bind(R.id.targetedBtn) public ImageButton targetedBtn;
     @Bind(R.id.payoutBtn) public ImageButton payoutBtn;
 //    @Bind(R.id.shareAppBtn) public ImageButton shareAppBtn;
 
@@ -251,12 +251,12 @@ public class Dashboard extends AppCompatActivity {
             }
         });
 
-//        mLogout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                promptUserIfSureToLogout();
-//            }
-//        });
+        targetedBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                promptUserToStopTargeting();
+            }
+        });
 
         payoutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -985,6 +985,39 @@ public class Dashboard extends AppCompatActivity {
         mapFragment.show(fm,"Edit User Data.");
         mapFragment.setfragcontext(mContext);
         mapFragment.setActivity(thisActivity);
+    }
+
+    private void promptUserToStopTargeting(){
+        final Dialog d = new Dialog(this);
+        d.setTitle("Targeting.");
+        d.setContentView(R.layout.targeted_dialog);
+        Button setButton = d.findViewById(R.id.stopBtn);
+        TextView targetingPermissionText = d.findViewById(R.id.targetingPermissionText);
+        SharedPreferences pref = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);
+        final boolean canUseData = pref.getBoolean(Constants.CONSENT_TO_TARGET,false);
+        if(!canUseData){
+            setButton.setText("START.");
+            targetingPermissionText.setText(R.string.targetingPermissonOn);
+        }
+        setButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setConsentToTarget(!canUseData);
+                d.dismiss();
+            }
+        });
+        d.show();
+    }
+
+    private void setConsentToTarget(Boolean bol){
+        SharedPreferences pref = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);
+        pref.edit().clear().putBoolean(Constants.CONSENT_TO_TARGET, bol).apply();
+
+        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(user).child(Constants.CONSENT_TO_TARGET);
+        mref.setValue(bol);
+        Toast.makeText(mContext,"Your preference has been set",Toast.LENGTH_SHORT).show();
     }
 
 }
