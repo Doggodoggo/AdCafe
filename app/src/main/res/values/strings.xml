@@ -216,6 +216,19 @@
     <string name="saveTextMessage">"Are you sure you want to save this to your device's storage?"</string>
     <string name="saveNote">"The image will be in a 'AdCafePins' folder."</string>
 
+
+
+
+    <string name="personalInfoIntro">In order to show you more relevant content, the app can filter the content you see
+        based on further advertiser targeting. To achieve this, however, you may be required to provide some personal info about yourself.</string>
+    <string name="personalInfoIntroNote">Do note though, that not all the info listed is mandatory.</string>
+    <string name="genderInfo">First, your preferred gender/sex.</string>
+    <string name="ageInfo">Next, your age. Scroll the wheel to select your age.</string>
+    <string name="locationInfo">"Finally, your area of location. Here, click on the 'open' button or map icon to drop pins on the areas you generally reside in."</string>
+    <string name="conclude">We value your privacy as much as you do. Therefore, your provided information will not be shared with third party organisation. We will try our best
+        to keep all your information safe and secure to the best of our ability.</string>
+
+
     <string name="feedbacktype">Feedback Type</string>
     <string name="feedbacktype1">Suggestion</string>
     <string name="feedbacktype2">Gripe</string>

@@ -57,11 +57,14 @@ import com.bry.adcafe.services.NetworkStateReceiver;
 import com.bry.adcafe.services.TimeManager;
 import com.bry.adcafe.services.Utils;
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -145,6 +148,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean isNewDay = false;
     private boolean isLoaderShowing = false;
     private boolean doesWindowHaveFocus = true;
+
+    private boolean isLoadingDataFromFirebase = false;
 
 
     @Override
@@ -375,6 +380,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editor6.apply();
 
         setSubsInSharedPrefs();
+        setMarkersInSharedPrefs();
+        setSeenAdsInSharedPrefs();
     }
 
     private void clearUserDataFromSharedPreferences(){
@@ -414,6 +421,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editor6.apply();
     }
 
+
+
+
     private void setSubsInSharedPrefs() {
         Gson gson = new Gson();
         String hashMapString = gson.toJson(Variables.Subscriptions);
@@ -422,7 +432,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         prefs.edit().putString("hashString", hashMapString).apply();
     }
 
+    private void setMarkersInSharedPrefs(){
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.USER_MARKERS,MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.putInt(Constants.USER_MARKERS_SIZE, Variables.usersLatLongs.size());
 
+        for(int i = 0; i <Variables.usersLatLongs.size(); i++){
+            editor.putFloat("lat"+i, (float) Variables.usersLatLongs.get(i).latitude);
+            editor.putFloat("long"+i, (float) Variables.usersLatLongs.get(i).longitude);
+        }
+        editor.apply();
+    }
+
+    private void setSeenAdsInSharedPrefs(){
+        Gson gson = new Gson();
+        String hashMapString = gson.toJson(Variables.adsSeenSoFar);
+
+        SharedPreferences prefs = getSharedPreferences("AdsSeenSoFar", MODE_PRIVATE);
+        prefs.edit().putString("AdsSeenSoFarHashString", hashMapString).apply();
+    }
+
+
+
+
+    private void loadSeenAdsInSharedPrefs(){
+        if(!Variables.adsSeenSoFar.isEmpty())Variables.adsSeenSoFar.clear();
+        Gson gson = new Gson();
+        SharedPreferences prefs = getSharedPreferences("AdsSeenSoFar", MODE_PRIVATE);
+        String storedHashMapString = prefs.getString("AdsSeenSoFarHashString", "nil");
+
+        java.lang.reflect.Type type = new TypeToken<LinkedHashMap<String,String>>(){}.getType();
+        Variables.adsSeenSoFar = gson.fromJson(storedHashMapString, type);
+    }
+
+    private void loadMarkersInSharedPrefs(){
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.USER_MARKERS,MODE_PRIVATE);
+        Variables.usersLatLongs.clear();
+        int size = sharedPreferences.getInt(Constants.USER_MARKERS_SIZE, 0);
+        for(int i = 0; i < size; i++){
+            double lat = (double) sharedPreferences.getFloat("lat"+i,0);
+            double longit = (double) sharedPreferences.getFloat("long"+i,0);
+            LatLng latLng = new LatLng(lat,longit);
+            Variables.usersLatLongs.add(latLng);
+        }
+    }
 
     private void loadAdsFromThread() {
         if (dbRef != null) {
@@ -431,6 +485,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (Variables.isStartFromLogin) {
             try {
                 Log(TAG, "---Starting the getAds method...");
+                hideViews();
                 startGetAds();
                 Variables.isStartFromLogin = false;
             } catch (Exception e) {
@@ -438,12 +493,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
         } else {
+            hideViews();
             loadUserDataFromSharedPrefs();
         }
     }
 
+
+
+
+    private void loadUserDataFromFirebaseLikeInLogin(){
+        if(!TimeManager.isTimerOnline()) {
+            TimeManager.setUpTimeManager(Constants.LOAD_TIME,mContext);
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+                    nowRealyStartLoadingUserDataFromFirebaseLikeInLogin();
+                }
+            },new IntentFilter(Constants.LOAD_TIME));
+        }else{
+            nowRealyStartLoadingUserDataFromFirebaseLikeInLogin();
+        }
+    }
+
+    private void nowRealyStartLoadingUserDataFromFirebaseLikeInLogin(){
+        isLoadingDataFromFirebase = true;
+        Variables.Subscriptions.clear();
+        DatabaseManager dbMan = new DatabaseManager();
+        dbMan.setContext(mContext);
+        dbMan.loadUserData(mContext);
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                User.setUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                startGetAds();
+                isLoadingDataFromFirebase = false;
+            }
+        },new IntentFilter(Constants.LOADED_USER_DATA_SUCCESSFULLY));
+
+        while (isLoadingDataFromFirebase) nothn();
+    }
+
     private void loadUserDataFromSharedPrefs() {
         loadSubsFromSharedPrefs();
+        loadMarkersInSharedPrefs();
         Log(TAG, "Loading user data from shared preferences first...");
         SharedPreferences prefs = getSharedPreferences("TodayTotals", MODE_PRIVATE);
         int number = prefs.getInt("TodaysTotals", 0);
@@ -506,11 +599,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             hideViews();
             DatabaseManager dbmanager = new DatabaseManager();
             dbmanager.setContext(mContext);
+            dbmanager.setAnnouncementBoolean(mContext);
+            dbmanager.loadAnyAnnouncementsFromMainActivity();
+            dbmanager.clearAdsSeenSoFarInFirebase();
+            clearSeenAds();
+            dbmanager.syncUserDataInFirebase();
             dbmanager.checkIfNeedToResetUsersSubscriptions(mContext);
             LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForDoneCheckingIfNeedToReCreateClusters,
                     new IntentFilter(Constants.LOADED_USER_DATA_SUCCESSFULLY));
             isNewDay = false;
         }else{
+            loadSeenAdsInSharedPrefs();
             try {
                 Log(TAG, "---Starting the getAds method...");
                 startGetAds();
@@ -530,6 +629,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         java.lang.reflect.Type type = new TypeToken<LinkedHashMap<String,Integer>>(){}.getType();
         Variables.Subscriptions = gson.fromJson(storedHashMapString, type);
     }
+
+    private void clearSeenAds(){
+        if(!Variables.adsSeenSoFar.isEmpty())Variables.adsSeenSoFar.clear();
+        SharedPreferences prefs = getSharedPreferences("AdsSeenSoFar", MODE_PRIVATE);
+        prefs.edit().clear().apply();
+    }
+
+
+
 
     private void startGetAds() {
         setUpAllTheViews();
@@ -1973,6 +2081,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setLastUsedDateInFirebaseDate(String uid) {
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS).child(uid).child(Constants.DATE_IN_FIREBASE);
         adRef.setValue(getDate());
     }
@@ -2004,6 +2113,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void resetEverything() {
+        hideViews();
         resetAdTotalSharedPreferencesAndDayAdTotals();
         Variables.clearAllAdsFromAdList();
         lastAdSeen = null;

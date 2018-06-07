@@ -754,7 +754,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         d.setContentView(R.layout.dialog);
         Button b1 = (Button) d.findViewById(R.id.chooseNumberButton);
         Button b2 = (Button) d.findViewById(R.id.cancelChooseNumberButton);
-        final NumberPicker np = (NumberPicker) d.findViewById(R.id.numberPicker1);
+        final NumberPicker np = d.findViewById(R.id.numberPicker1);
         np.setMaxValue(mClusterTotal);
         np.setMinValue(1);
         np.setWrapSelectorWheel(false);

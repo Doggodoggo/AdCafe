@@ -12,6 +12,7 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -411,6 +412,8 @@ public class DatabaseManager {
                     }catch (Exception e){
                         e.printStackTrace();
                     }
+                }else{
+                    Variables.announcements = "";
                 }
                 loadUserDataNow(context);
             }
@@ -529,6 +532,17 @@ public class DatabaseManager {
                         String advertiserId = pushIdSnap.getValue(String.class);
                         String pushId= pushIdSnap.getKey();
                         Variables.adsSeenSoFar.put(pushId,advertiserId);
+                    }
+                }
+
+                //This loads the users Location Markers list.
+                DataSnapshot userLocationMarkersSnap = dataSnapshot.child(Constants.FIREBASE_USERS_LOCATIONS);
+                if(userLocationMarkersSnap.exists()){
+                    for(DataSnapshot userLocationMark:userLocationMarkersSnap.getChildren()){
+                        double lat = userLocationMark.child("lat").getValue(Double.class);
+                        double longit = userLocationMark.child("lng").getValue(Double.class);
+                        LatLng latLng = new LatLng(lat,longit);
+                        Variables.usersLatLongs.add(latLng);
                     }
                 }
 
@@ -726,7 +740,7 @@ public class DatabaseManager {
         setSubsInSharedPrefs(context);
     }
 
-    private void setAnnouncementBoolean(Context context){
+    public void setAnnouncementBoolean(Context context){
         SharedPreferences pref7 = context.getSharedPreferences(Constants.TEXT_ANOUNCEMENTS, MODE_PRIVATE);
         SharedPreferences.Editor editor7 = pref7.edit();
         editor7.clear();
@@ -1401,7 +1415,26 @@ public class DatabaseManager {
     }
 
     public void loadUsersPassword(){
-        if(Variables.getPassword().equals("")){
+        try{
+            if(Variables.getPassword().equals("")){
+                String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                DatabaseReference dbref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                        .child(user).child(Constants.USER_PASSCODE);
+                dbref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String str = dataSnapshot.getValue(String.class);
+                        Variables.setPassword(str);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        }catch (Exception e){
+            e.printStackTrace();
             String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
             DatabaseReference dbref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                     .child(user).child(Constants.USER_PASSCODE);
@@ -1418,6 +1451,31 @@ public class DatabaseManager {
                 }
             });
         }
+    }
+
+    public void loadAnyAnnouncementsFromMainActivity(){
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(Constants.TEXT_ANOUNCEMENTS).child(getDate());
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    try{
+                        Variables.announcements = dataSnapshot.getValue(String.class);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                } else Variables.announcements = "";
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void syncUserDataInFirebase(){
+        resetTotalsInFirebase();
     }
 
 

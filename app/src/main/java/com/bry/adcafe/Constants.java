@@ -173,5 +173,14 @@ public class Constants {
     public static String UNNEEDED_REIMBURSAL_AMM = "payoutReimbursalAmount";
 
     public static int ANIMATION_DURATION = 200;
+    public static float MAX_DISTANCE_IN_METERS = 1000f;
+    public static String USER_MARKERS = "USER_MARKERS";
+    public static String USER_MARKERS_SIZE = "USER_MARKERS_SIZE";
+    public static String FIREBASE_USERS_LOCATIONS = "UserLocations";
+
+    public static String MALE = "Male";
+    public static String FEMALE = "Female";
+    public static String GENDER = "Gender";
+    public static String AGE = "Age";
 
 }

@@ -1,5 +1,6 @@
 package com.bry.adcafe.ui;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.FragmentManager;
 import android.app.NotificationManager;
@@ -35,13 +36,14 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
-import com.bry.adcafe.Payment.Lipisha.Payment;
 import com.bry.adcafe.Payment.mpesaApi.Mpesaservice;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.fragments.ChangeCPVFragment;
 import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
+import com.bry.adcafe.fragments.SetUsersPersonalInfo;
+import com.bry.adcafe.fragments.myMapFragment;
 import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.services.OnSwipeTouchListener;
 import com.bry.adcafe.services.Payments;
@@ -96,6 +98,8 @@ public class Dashboard extends AppCompatActivity {
     private ProgressDialog mProgForPayments;
     private String joke;
 
+    private Activity thisActivity;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +108,7 @@ public class Dashboard extends AppCompatActivity {
         Variables.isDashboardActivityOnline = true;
         mContext = this.getApplicationContext();
         miniContext = mContext;
+        thisActivity = this;
         ButterKnife.bind(this);
 
         loadViews();
@@ -237,6 +242,13 @@ public class Dashboard extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 promptUserAboutChangingPrice();
+            }
+        });
+
+        findViewById(R.id.UserDataBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadUserDataDialog();
             }
         });
 
@@ -948,6 +960,24 @@ public class Dashboard extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void loadUserDataDialog(){
+        FragmentManager fm = getFragmentManager();
+        SetUsersPersonalInfo cpvFragment = new SetUsersPersonalInfo();
+        cpvFragment.setMenuVisibility(false);
+        cpvFragment.show(fm,"Edit User Data.");
+        cpvFragment.setfragcontext(mContext);
+        cpvFragment.setActivity(thisActivity);
+    }
+
+    private void loadMap(){
+        FragmentManager fm = getFragmentManager();
+        myMapFragment mapFragment = new myMapFragment();
+        mapFragment.setMenuVisibility(false);
+        mapFragment.show(fm,"Edit User Data.");
+        mapFragment.setfragcontext(mContext);
+        mapFragment.setActivity(thisActivity);
     }
 
 }

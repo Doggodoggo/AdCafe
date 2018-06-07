@@ -2,12 +2,15 @@ package com.bry.adcafe;
 
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.location.Location;
 import android.util.Log;
 
 import com.braintreepayments.cardform.view.CardForm;
 import com.bry.adcafe.adapters.AdvertCard;
 import com.bry.adcafe.adapters.SavedAdsCard;
 import com.bry.adcafe.models.Advert;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.mindorks.placeholderview.PlaceHolderView;
 
 import java.util.ArrayList;
@@ -129,6 +132,12 @@ public class Variables {
     public static LinkedHashMap<String,Bitmap> loadedSavedAdsList = new LinkedHashMap<>();
 
     public static int timerLevel = 7000;
+    public static List<LatLng> usersLatLongs = new ArrayList<>();
+
+
+
+
+
 
     public static void resetAllValues(){
          todaysAdTotal = 0;
@@ -337,4 +346,12 @@ public class Variables {
     public static void setPassword(String password) {
         Variables.password = password;
     }
+
+
+    public static float distanceInMetersBetween2Points(Location one,Location two){
+        return one.distanceTo(two);
+    }
+
+
+
 }

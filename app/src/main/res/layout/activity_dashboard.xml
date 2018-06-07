@@ -410,15 +410,15 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="2dp"
                             android:layout_marginLeft="2dp"
-                            android:layout_marginRight="4dp"
+                            android:layout_marginRight="2dp"
                             android:layout_marginTop="2dp"
                             app:cardCornerRadius="4dp"
                             app:cardElevation="2dp">
 
                             <ImageButton
                                 android:id="@+id/NotificationBtn"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
                                 android:background="@drawable/notificat" />
 
                             <View
@@ -432,6 +432,23 @@
 
                         </android.support.v7.widget.CardView>
 
+                        <android.support.v7.widget.CardView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="2dp"
+                            android:layout_marginLeft="1dp"
+                            android:layout_marginTop="2dp"
+                            app:cardCornerRadius="4dp"
+                            app:cardElevation="2dp">
+
+                            <ImageButton
+                                android:id="@+id/UserDataBtn"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:background="@drawable/ic_action_userinfo" />
+
+                        </android.support.v7.widget.CardView>
+
 
                     </LinearLayout>
 
@@ -441,22 +458,22 @@
                         android:layout_marginTop="4dp"
                         android:orientation="horizontal">
 
-                        <!--<android.support.v7.widget.CardView-->
-                            <!--android:layout_width="wrap_content"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:layout_marginBottom="3dp"-->
-                            <!--android:layout_marginLeft="2dp"-->
-                            <!--android:layout_marginRight="2dp"-->
-                            <!--app:cardCornerRadius="4dp"-->
-                            <!--app:cardElevation="2dp">-->
+                        <android.support.v7.widget.CardView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="2dp"
+                            android:layout_marginLeft="2dp"
+                            android:layout_marginRight="2dp"
+                            app:cardCornerRadius="4dp"
+                            app:cardElevation="2dp">
 
-                            <!--<ImageButton-->
-                                <!--android:id="@+id/LogoutBtn"-->
-                                <!--android:layout_width="60dp"-->
-                                <!--android:layout_height="60dp"-->
-                                <!--android:background="@drawable/exithd" />-->
+                            <ImageButton
+                                android:id="@+id/LogoutBtn"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:background="@drawable/exithd" />
 
-                        <!--</android.support.v7.widget.CardView>-->
+                        </android.support.v7.widget.CardView>
 
                         <android.support.v7.widget.CardView
                             android:layout_width="wrap_content"
@@ -464,14 +481,13 @@
                             android:layout_marginBottom="2dp"
                             android:layout_marginLeft="2dp"
                             android:layout_marginRight="2dp"
-                            android:layout_marginTop="2dp"
                             app:cardCornerRadius="4dp"
                             app:cardElevation="2dp">
 
                             <ImageButton
                                 android:id="@+id/ChangeCPVBtn"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
                                 android:background="@drawable/changecpvhd" />
 
                         </android.support.v7.widget.CardView>
@@ -481,8 +497,8 @@
                 </LinearLayout>
 
                 <android.support.v7.widget.CardView
-                    android:layout_width="217dp"
-                    android:layout_height="125dp"
+                    android:layout_width="175dp"
+                    android:layout_height="110dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="5dp"
@@ -494,23 +510,23 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:text="Checkout my money's worth."
                         android:textAlignment="center"
                         android:textSize="13sp" />
 
                     <ImageButton
                         android:id="@+id/payoutBtn"
-                        android:layout_width="70dp"
+                        android:layout_width="60dp"
                         android:layout_gravity="center"
-                        android:layout_marginTop="1dp"
-                        android:layout_height="70dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_height="50dp"
                         android:background="@drawable/money6" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
+                        android:layout_marginBottom="5dp"
                         android:text="PAYOUT."
                         android:layout_gravity="bottom"
                         android:textAlignment="center"
