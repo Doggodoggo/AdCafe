@@ -9,6 +9,7 @@ import com.braintreepayments.cardform.view.CardForm;
 import com.bry.adcafe.adapters.AdvertCard;
 import com.bry.adcafe.adapters.SavedAdsCard;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.AgeGroup;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.mindorks.placeholderview.PlaceHolderView;
@@ -134,7 +135,11 @@ public class Variables {
     public static int timerLevel = 7000;
     public static List<LatLng> usersLatLongs = new ArrayList<>();
 
-
+    //Advertiser targeting data
+    public static boolean isTargeting = false;
+    public static String genderTarget = "";
+    public static AgeGroup ageGroupTarget;
+    public static List<LatLng> locationTarget = new ArrayList<>();
 
 
 
@@ -350,6 +355,13 @@ public class Variables {
 
     public static float distanceInMetersBetween2Points(Location one,Location two){
         return one.distanceTo(two);
+    }
+
+    public static void resetAdvertiserTargetingData(){
+        isTargeting = false;
+        genderTarget = "";
+        ageGroupTarget = null;
+        locationTarget.clear();
     }
 
 

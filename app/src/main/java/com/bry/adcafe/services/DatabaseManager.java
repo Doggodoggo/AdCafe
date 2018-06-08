@@ -544,6 +544,7 @@ public class DatabaseManager {
                         LatLng latLng = new LatLng(lat,longit);
                         Variables.usersLatLongs.add(latLng);
                     }
+                    setMarkersInSharedPrefs(mContext);
                 }
                 //This loads the users Birthday.
                 DataSnapshot birthdaySnap = dataSnapshot.child(Constants.DATE_OF_BIRTH);
@@ -1502,5 +1503,17 @@ public class DatabaseManager {
     }
 
 
+    private void setMarkersInSharedPrefs(Context mContext){
+        SharedPreferences sharedPreferences = mContext.getSharedPreferences(Constants.USER_MARKERS,MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.putInt(Constants.USER_MARKERS_SIZE, Variables.usersLatLongs.size());
+
+        for(int i = 0; i <Variables.usersLatLongs.size(); i++){
+            editor.putFloat("lat"+i, (float) Variables.usersLatLongs.get(i).latitude);
+            editor.putFloat("long"+i, (float) Variables.usersLatLongs.get(i).longitude);
+        }
+        editor.apply();
+    }
 
 }

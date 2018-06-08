@@ -226,12 +226,21 @@
         criteria. Therefore, to see even more content, you will be required to provide the app your information to make this possible.</string>
     <string name="genderInfo">First, your preferred gender/sex.</string>
     <string name="ageInfo">Next, your age. Click the calendar icon to select your birhtday.</string>
-    <string name="locationInfo">"Finally, your area of location. Here, click on the map icon to drop pins on the areas you generally reside in."</string>
+    <string name="locationInfo">"Finally, your area of location. Here, click on the map icon to drop pins on the areas you generally reside in such as work, school or home areas."</string>
     <string name="conclude">We value your privacy as much as you do. Therefore, your provided information will not be shared with third party organisation. We will try our best
         to keep all your information safe and secure to the best of our ability.</string>
 
     <string name="targetingPermission">Do you wish for the app to stop filtering content based on your provided personal data?</string>
     <string name="targetingPermissonOn">Do you wish for the app to start filtering content based on your provided personal data?</string>
+    <string name="advertiserTargetingIntro">The app allows for you to perform further targeting based on criteria such
+        as age groups, sex/gender, and user locations. To do so, click continue. To delete previously set target preferences, click reset.</string>
+    <string name="advertiserTargetingNote">"By adding further targeted preferences, you're essentially filtering your audience based on the selected preferences. So if a user doesn't meet your specified conditions fully, they will not engage your ad."</string>
+    <string name="targetGenderInfo">You can filter your audience based on their preferred sex/gender.</string>
+    <string name="ageGroupInfo">You can also filter your audience based on a specific age range, for instance users aged from 19 to 25.</string>
+    <string name="locationTargeting">You may also filter your audience to only users within a given area or location. To do this, click on the map icon and drop markers on your targeted
+        location. Only users residing in a 2000 meter radius of the marker will engage the ad.</string>
+
+    <string name="confirmDetails">Check that all the details are right before finishing.</string>
 
     <string name="feedbacktype">Feedback Type</string>
     <string name="feedbacktype1">Suggestion</string>

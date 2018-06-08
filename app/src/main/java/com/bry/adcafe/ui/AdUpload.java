@@ -39,11 +39,13 @@ import com.bry.adcafe.fragments.FragmentModalBottomSheet;
 import com.bry.adcafe.fragments.FragmentMpesaPayBottomsheet;
 import com.bry.adcafe.fragments.FragmentMpesaPaymentInitiation;
 import com.bry.adcafe.fragments.FragmentSelectPaymentOptionBottomSheet;
+import com.bry.adcafe.fragments.SetAdvertiserTargetInfoFragment;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.TimeManager;
 import com.bumptech.glide.Glide;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -155,7 +157,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
             startGetNumberOfClusters();
         setUpListeners();
-
+        Variables.resetAdvertiserTargetingData();
     }
 
     private ChildEventListener chilForRefresh = new ChildEventListener() {
@@ -492,6 +494,14 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 }
             });
         }
+        if(findViewById(R.id.targetIcon)!=null){
+            findViewById(R.id.targetIcon).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    loadUserTargetingPrompt();
+                }
+            });
+        }
     }
 
     private void setUpListeners(){
@@ -500,12 +510,16 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForStartPayments,
                 new IntentFilter("START_PAYMENTS_INTENT"));
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForSetTargetInfo,
+                new IntentFilter("IS_ADVERTISER_FILTERING"));
     }
 
     private void removeListeners(){
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForShowingSelectedBottomsheet);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForStartPayments);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForSuccessfulMpesaPayments);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForSetTargetInfo);
         removePaymentListeners();
     }
 
@@ -578,8 +592,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         @Override
         public void onReceive(Context context, Intent intent) {
             Log(TAG, "Broadcast has been received show bottomsheet.");
-            if(Variables.paymentOption.equals(Constants.MPESA_OPTION))startMpesaPayments();
-//            if(Variables.paymentOption.equals(Constants.MPESA_OPTION))startTestUpload();
+//            if(Variables.paymentOption.equals(Constants.MPESA_OPTION))startMpesaPayments();
+            if(Variables.paymentOption.equals(Constants.MPESA_OPTION))startTestUpload();
             else if(Variables.paymentOption.equals(Constants.BANK_OPTION)) startBankPayments();
         }
     };
@@ -1058,6 +1072,21 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                         }
                     }
                 });
+                if(Variables.isTargeting){
+                    if(Variables.genderTarget!=null){
+                        if(!Variables.genderTarget.equals("")) mRef3.child("targetdata").child("gender").setValue(Variables.genderTarget);
+                    }
+                    if(Variables.ageGroupTarget!=null){
+                        mRef3.child("targetdata").child("agegroup").setValue(Variables.ageGroupTarget);
+                    }
+                    if(!Variables.locationTarget.isEmpty()){
+                        for(LatLng latl:Variables.locationTarget){
+                            DatabaseReference pushRef = mRef3.child("targetdata").child("locations").push();
+                            pushRef.child("lat").setValue(latl.latitude);
+                            pushRef.child("lng").setValue(latl.longitude);
+                        }
+                    }
+                }
             }
         }else{
             for(final Integer number : clustersToUpLoadTo){
@@ -1129,6 +1158,21 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                         }
                     }
                 });
+                if(Variables.isTargeting){
+                    if(Variables.genderTarget!=null){
+                        if(!Variables.genderTarget.equals("")) mRef3.child("targetdata").child("gender").setValue(Variables.genderTarget);
+                    }
+                    if(Variables.ageGroupTarget!=null){
+                        mRef3.child("targetdata").child("agegroup").setValue(Variables.ageGroupTarget);
+                    }
+                    if(!Variables.locationTarget.isEmpty()){
+                        for(LatLng latl:Variables.locationTarget){
+                            DatabaseReference pushRef = mRef3.child("targetdata").child("locations").push();
+                            pushRef.child("lat").setValue(latl.latitude);
+                            pushRef.child("lng").setValue(latl.longitude);
+                        }
+                    }
+                }
             }
         }
 
@@ -1349,5 +1393,22 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         }
 
     }
+
+    private void loadUserTargetingPrompt(){
+        FragmentManager fm = getFragmentManager();
+        SetAdvertiserTargetInfoFragment cpvFragment = new SetAdvertiserTargetInfoFragment();
+        cpvFragment.setMenuVisibility(false);
+        cpvFragment.show(fm,"Filter Users.");
+        cpvFragment.setfragcontext(mContext);
+        cpvFragment.setActivity(this);
+    }
+
+    private BroadcastReceiver mMessageReceiverForSetTargetInfo = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(Variables.isTargeting)findViewById(R.id.smallDot2).setVisibility(View.VISIBLE);
+            else findViewById(R.id.smallDot2).setVisibility(View.INVISIBLE);
+        }
+    };
 
 }
