@@ -9,6 +9,8 @@ public class AgeGroup {
         this.mFinishAge = finishingAge;
     }
 
+    public AgeGroup(){}
+
     public int getStartingAge() {
         return mStartingAge;
     }

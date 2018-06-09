@@ -410,5 +410,7 @@ public class TimeManager {
     }
 
 
-
+    public static Calendar getCal() {
+        return cal;
+    }
 }

@@ -15,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -51,6 +52,7 @@ import com.bry.adcafe.adapters.AdCounterBar;
 import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.ReportDialogFragment;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.AgeGroup;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.services.NetworkStateReceiver;
@@ -709,7 +711,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         String pushID = snpsht.getValue(String.class);
                         ad.setPushId(pushID);
                         ad.setPushIdNumber(Integer.parseInt(pushID));
-                        if(!ad.isFlagged()) mAdList.add(ad);
+                        if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"))) mAdList.add(ad);
                     }
                     if(mAdList.size()!=0){
                         Log(TAG,"The one ad was not flagged so its in the adlist");
@@ -762,7 +764,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             String pushID = snpsht.getValue(String.class);
                             ad.setPushId(pushID);
                             ad.setPushIdNumber(Integer.parseInt(pushID));
-                            if(!ad.isFlagged()){
+                            if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"))){
                                 if(Variables.constantAmountPerView>3 && Variables.getAdTotal(mKey)+1>Constants.MAX_NUMBER_FOR7) {
                                     Log(TAG,"User cannot see more than "+Constants.MAX_NUMBER_FOR7+" ads.");
                                 }else mAdList.add(ad);
@@ -1174,7 +1176,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 findViewById(R.id.websiteText).setAlpha(0.4f);
                 findViewById(R.id.smallDot).setVisibility(View.INVISIBLE);
 
-                setCategoryIndexInFirebase();
+                if(Variables.getAdTotal(mKey)==0)setCategoryIndexInFirebase();
             }
             Variables.isLockedBecauseOfNoMoreAds = true;
             loadAnyAnnouncements();
@@ -1757,7 +1759,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         ad.setPushId(pushID);
                         ad.setPushIdNumber(Integer.parseInt(pushID));
                         Log(TAG,"setting push id to : "+ ad.getPushId());
-                        if(!ad.isFlagged()){
+                        if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"))){
                             if(Variables.constantAmountPerView>3 && Variables.getAdTotal(mKey)+1>Constants.MAX_NUMBER_FOR7) {
                                 Log(TAG,"User cannot see more than "+Constants.MAX_NUMBER_FOR7+" ads.");
                             }else{
@@ -2811,5 +2813,68 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private boolean doesUserMeetCriteria(DataSnapshot targetDataSnap){
+        SharedPreferences prefConsent = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);
+        boolean canUseData = prefConsent.getBoolean(Constants.CONSENT_TO_TARGET,false);
+        if(!canUseData) return false;
+
+        if(targetDataSnap.child("gender").exists()){
+            String gender = targetDataSnap.child("gender").getValue(String.class);
+            SharedPreferences prefs2 = mContext.getSharedPreferences(Constants.GENDER, MODE_PRIVATE);
+            String myGender = prefs2.getString(Constants.GENDER, "NULL");
+            if(!gender.equals(myGender))return false;
+        }
+        if(targetDataSnap.child("agegroup").exists()){
+            AgeGroup ageGroup = targetDataSnap.child("agegroup").getValue(AgeGroup.class);
+            SharedPreferences pref = mContext.getSharedPreferences(Constants.DATE_OF_BIRTH, MODE_PRIVATE);
+            if(pref.getInt("year",0)!=0) {
+                int day = pref.getInt("day", 0);
+                int month = pref.getInt("month", 0);
+                int year = pref.getInt("year", 0);
+                Integer userAge = getAge(year,month,day);
+                return userAge >= ageGroup.getStartingAge() && userAge <= ageGroup.getFinishAge();
+            }else return false;
+        }if(targetDataSnap.child("locations").exists()){
+            List<LatLng> checkLocalList = new ArrayList<>();
+            for(DataSnapshot locSnap:targetDataSnap.child("locations").getChildren()){
+                double lat = locSnap.child("lat").getValue(double.class);
+                double lng = locSnap.child("lng").getValue(double.class);
+                checkLocalList.add(new LatLng(lat,lng));
+            }
+            return locationContained(checkLocalList) != 0;
+        }
+        return true;
+    }
+
+    private Integer getAge(int year, int month, int day){
+        Calendar dob = Calendar.getInstance();
+        Calendar today = TimeManager.getCal();
+
+        dob.set(year, month, day);
+
+        int age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
+        if (today.get(Calendar.DAY_OF_YEAR) < dob.get(Calendar.DAY_OF_YEAR)){
+            age--;
+        }
+        return new Integer(age);
+    }
+
+    private int locationContained(List<LatLng> checkLocalLst){
+        int locations = 0;
+        for(LatLng latlngUser : Variables.usersLatLongs){
+            for(LatLng latlngAdv: checkLocalLst){
+                Location locAdv = new Location("");
+                locAdv.setLatitude(latlngAdv.latitude);
+                locAdv.setLongitude(latlngAdv.longitude);
+
+                Location locUser = new Location("");
+                locUser.setLatitude(latlngUser.latitude);
+                locUser.setLongitude(latlngUser.longitude);
+                float distance = Variables.distanceInMetersBetween2Points(locAdv,locUser);
+                if(distance<=Constants.MAX_DISTANCE_IN_METERS) locations++;
+            }
+        }
+        return locations;
+    }
 
 }

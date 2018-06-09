@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
@@ -27,10 +28,12 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.AgeGroup;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.TimeManager;
 import com.bry.adcafe.ui.LoginActivity;
 import com.bry.adcafe.ui.Splash;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -43,6 +46,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -172,7 +176,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                         if(adsInSubscription.exists()) {
                             for (DataSnapshot snap : adsInSubscription.getChildren()) {
                                 boolean isFlagged = snap.child("flagged").getValue(boolean.class);
-                                if (!isFlagged) {
+                                if (!isFlagged && doesUserMeetCriteria(snap.child("targetdata"))) {
                                     numberOfAdsInTotal += 1;
                                     if (numberOfAdsInTotal == 1) setStartingPoint(subscription);
                                 }
@@ -209,7 +213,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                 if(dataSnapshot.hasChildren()){
                     for(DataSnapshot snap: dataSnapshot.getChildren()){
                         boolean isFlagged = snap.child("flagged").getValue(boolean.class);
-                        if(!isFlagged){
+                        if(!isFlagged && doesUserMeetCriteria(snap.child("targetdata"))){
                             numberOfAdsInTotal+=1;
                             if(numberOfAdsInTotal ==1)setStartingPoint(category);
                         }
@@ -360,6 +364,80 @@ public class AlarmReceiver1 extends BroadcastReceiver {
             e.printStackTrace();
         }
 
+    }
+
+    private boolean doesUserMeetCriteria(DataSnapshot targetDataSnap){
+        SharedPreferences prefConsent = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);
+        boolean canUseData = prefConsent.getBoolean(Constants.CONSENT_TO_TARGET,false);
+        if(!canUseData) return false;
+
+        if(targetDataSnap.child("gender").exists()){
+            String gender = targetDataSnap.child("gender").getValue(String.class);
+            SharedPreferences prefs2 = mContext.getSharedPreferences(Constants.GENDER, MODE_PRIVATE);
+            String myGender = prefs2.getString(Constants.GENDER, "NULL");
+            if(!gender.equals(myGender))return false;
+        }
+        if(targetDataSnap.child("agegroup").exists()){
+            AgeGroup ageGroup = targetDataSnap.child("agegroup").getValue(AgeGroup.class);
+            SharedPreferences pref = mContext.getSharedPreferences(Constants.DATE_OF_BIRTH, MODE_PRIVATE);
+            if(pref.getInt("year",0)!=0) {
+                int day = pref.getInt("day", 0);
+                int month = pref.getInt("month", 0);
+                int year = pref.getInt("year", 0);
+                Integer userAge = getAge(year,month,day);
+                return userAge >= ageGroup.getStartingAge() && userAge <= ageGroup.getFinishAge();
+            }else return false;
+        }if(targetDataSnap.child("locations").exists()){
+            List<LatLng> checkLocalList = new ArrayList<>();
+            for(DataSnapshot locSnap:targetDataSnap.child("locations").getChildren()){
+                double lat = locSnap.child("lat").getValue(double.class);
+                double lng = locSnap.child("lng").getValue(double.class);
+                checkLocalList.add(new LatLng(lat,lng));
+            }
+            return locationContained(checkLocalList) != 0;
+        }
+        return true;
+    }
+
+    private Integer getAge(int year, int month, int day){
+        Calendar dob = Calendar.getInstance();
+        Calendar today = TimeManager.getCal();
+
+        dob.set(year, month, day);
+
+        int age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
+        if (today.get(Calendar.DAY_OF_YEAR) < dob.get(Calendar.DAY_OF_YEAR)){
+            age--;
+        }
+        return new Integer(age);
+    }
+
+    private int locationContained(List<LatLng> checkLocalLst){
+        SharedPreferences sharedPreferences = mContext.getSharedPreferences(Constants.USER_MARKERS,MODE_PRIVATE);
+        Variables.usersLatLongs.clear();
+        int size = sharedPreferences.getInt(Constants.USER_MARKERS_SIZE, 0);
+        for(int i = 0; i < size; i++){
+            double lat = (double) sharedPreferences.getFloat("lat"+i,0);
+            double longit = (double) sharedPreferences.getFloat("long"+i,0);
+            LatLng latLng = new LatLng(lat,longit);
+            Variables.usersLatLongs.add(latLng);
+        }
+
+        int locations = 0;
+        for(LatLng latlngUser : Variables.usersLatLongs){
+            for(LatLng latlngAdv: checkLocalLst){
+                Location locAdv = new Location("");
+                locAdv.setLatitude(latlngAdv.latitude);
+                locAdv.setLongitude(latlngAdv.longitude);
+
+                Location locUser = new Location("");
+                locUser.setLatitude(latlngUser.latitude);
+                locUser.setLongitude(latlngUser.longitude);
+                float distance = Variables.distanceInMetersBetween2Points(locAdv,locUser);
+                if(distance<=Constants.MAX_DISTANCE_IN_METERS) locations++;
+            }
+        }
+        return locations;
     }
 
 }

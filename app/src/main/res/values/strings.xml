@@ -238,7 +238,7 @@
     <string name="targetGenderInfo">You can filter your audience based on their preferred sex/gender.</string>
     <string name="ageGroupInfo">You can also filter your audience based on a specific age range, for instance users aged from 19 to 25.</string>
     <string name="locationTargeting">You may also filter your audience to only users within a given area or location. To do this, click on the map icon and drop markers on your targeted
-        location. Only users residing in a 2000 meter radius of the marker will engage the ad.</string>
+        location. Only users residing in a 1000 meter radius of the marker will engage the ad.</string>
 
     <string name="confirmDetails">Check that all the details are right before finishing.</string>
 
