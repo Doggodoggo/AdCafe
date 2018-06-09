@@ -13,11 +13,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceDetectionClient;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -26,12 +37,16 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
 
 public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyCallback,
         GoogleMap.OnMarkerClickListener,View.OnClickListener {
@@ -48,6 +63,11 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
     private HashMap<Marker,Circle> markAndCirc = new HashMap<>();
     private Button setButton;
     private View rootView;
+    private ImageButton searchBtn;
+
+    private GoogleApiClient mGoogleApiClient;
+//    protected GeoDataClient mPlaceDetectionClient;
+    private PlaceDetectionClient mPlaceDetectionClient;
 
 
 
@@ -74,7 +94,11 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
         } catch (InflateException e) {
             e.printStackTrace();
         }
+//        searchBtn = rootView.findViewById(R.id.searchBtn);
+//        mGeoDataClient = Places.getGeoDataClient(this, null);
 
+        // Construct a PlaceDetectionClient.
+        mPlaceDetectionClient = Places.getPlaceDetectionClient(mContext, null);
         return rootView;
     }
 
@@ -153,6 +177,83 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
             }
         });
 
+        LatLng topBnd = new LatLng(-4.543295, 40.331370);
+        LatLng botBnd = new LatLng(4.259043, 33.959300);
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        autocompleteFragment.setBoundsBias(new LatLngBounds(topBnd,botBnd));
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                Log.i(TAG, "Place: " + place.getName());
+                LatLng searchedPlace = place.getLatLng();
+                if(markers.size()<4){
+                    Marker mark = map.addMarker(new MarkerOptions().position(searchedPlace)
+                            .draggable(true));
+                    CircleOptions circleOptions = new CircleOptions().center(searchedPlace).radius(Constants.MAX_DISTANCE_IN_METERS);
+                    circleOptions.strokeWidth(2).strokeColor(Color.rgb(177, 185, 188))
+                            .fillColor(Color.argb(70,128,203,196 ));
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(searchedPlace, 14));
+                    Circle circle = map.addCircle(circleOptions);
+                    markers.add(mark);
+                    markAndCirc.put(mark,circle);
+                }else{
+                    Toast.makeText(mContext,"Only a max of 4 locations are allowed.",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.i(TAG, "An error occurred: " + status);
+            }
+        });
+
+//        searchBtn.setVisibility(View.VISIBLE);
+//        searchBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                try {
+//                    Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+//                            .setBoundsBias(new LatLngBounds(new LatLng(4.259043, 33.959300)
+//                                    ,new LatLng(-4.543295, 40.331370))).build(mActivity);
+//                    startActivityForResult(intent, 693301);
+//                } catch (GooglePlayServicesRepairableException e) {
+//                    // TODO: Handle the error.
+//                } catch (GooglePlayServicesNotAvailableException e) {
+//                    // TODO: Handle the error.
+//                }
+//            }
+//        });
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 693301) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlaceAutocomplete.getPlace(mContext, data);
+                LatLng searchedPlace = place.getLatLng();
+                if(markers.size()<4){
+                    Marker mark = map.addMarker(new MarkerOptions().position(searchedPlace)
+                            .draggable(true));
+                    CircleOptions circleOptions = new CircleOptions().center(searchedPlace).radius(Constants.MAX_DISTANCE_IN_METERS);
+                    circleOptions.strokeWidth(2).strokeColor(Color.rgb(177, 185, 188))
+                            .fillColor(Color.argb(70,128,203,196 ));
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(searchedPlace, 14));
+                    Circle circle = map.addCircle(circleOptions);
+                    markers.add(mark);
+                    markAndCirc.put(mark,circle);
+                }else{
+                    Toast.makeText(mContext,"Only a max of 4 locations are allowed.",Toast.LENGTH_SHORT).show();
+                }
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(mContext, data);
+                // TODO: Handle the error.
+                Log.i(TAG, status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        }
     }
 
     @Override
