@@ -2,11 +2,17 @@ package com.bry.adcafe.fragments;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -40,8 +46,8 @@ import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 
-public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
-        GoogleMap.OnMarkerClickListener,View.OnClickListener {
+public class myMapFragment extends DialogFragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener
+        ,View.OnClickListener ,GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMyLocationClickListener{
     private final String TAG = "myMapFragment";
     private Context mContext;
     private Activity mActivity;
@@ -137,11 +143,13 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
         });
 
 
-//        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 3301);
-//        }else{
-//            map.setMyLocationEnabled(true);
-//        }
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 3301);
+        }else{
+            map.setMyLocationEnabled(true);
+            map.setOnMyLocationButtonClickListener(this);
+            map.setOnMyLocationClickListener(this);
+        }
     }
 
     @Override
@@ -153,7 +161,11 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
                             != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext,
                             Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-                    }else map.setMyLocationEnabled(true);
+                    }else{
+                        map.setMyLocationEnabled(true);
+                        map.setOnMyLocationButtonClickListener(this);
+                        map.setOnMyLocationClickListener(this);
+                    }
                 }
                 break;
         }
@@ -192,6 +204,36 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
         super.onDestroyView();
         MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         if (f != null) getFragmentManager().beginTransaction().remove(f).commit();
+    }
+
+
+    @Override
+    public void onMyLocationClick(@NonNull Location location) {
+        if(markers.size()<4){
+            LatLng myLatLng = new LatLng(location.getLatitude(),location.getLongitude());
+            Marker mark = map.addMarker(new MarkerOptions().position(myLatLng)
+                    .title("Your Location.").flat(true)
+                    .draggable(true)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            markers.add(mark);
+        }else{
+            Toast.makeText(mContext,"Only a max of 4 locations are allowed",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        LocationManager lm = (LocationManager)mContext.getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+
+        if(!gps_enabled) {
+           Toast.makeText(mContext,"Please turn on your GPS-Location.",Toast.LENGTH_SHORT).show();
+        }
+
+        return false;
     }
 
 
