@@ -335,6 +335,10 @@ public class Dashboard extends AppCompatActivity {
         mAmmountNumber.setText(Integer.toString(reimbursementTotals));
 
         if(Variables.doesUserWantNotifications)mDotForNotf.setVisibility(View.VISIBLE);
+
+        SharedPreferences pref = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);
+        final boolean canUseData = pref.getBoolean(Constants.CONSENT_TO_TARGET,false);
+        if(!canUseData) findViewById(R.id.dotForTargeted).setVisibility(View.VISIBLE);
     }
 
 
@@ -1018,6 +1022,8 @@ public class Dashboard extends AppCompatActivity {
                 .child(user).child(Constants.CONSENT_TO_TARGET);
         mref.setValue(bol);
         Toast.makeText(mContext,"Your preference has been set",Toast.LENGTH_SHORT).show();
+        if(bol)findViewById(R.id.dotForTargeted).setVisibility(View.VISIBLE);
+        else findViewById(R.id.dotForTargeted).setVisibility(View.INVISIBLE);
     }
 
 }
