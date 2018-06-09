@@ -27,6 +27,7 @@
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:ems="10"
+        android:textSize="12sp"
         android:hint="Paste the link here."
         android:inputType="textWebEditText" />
 

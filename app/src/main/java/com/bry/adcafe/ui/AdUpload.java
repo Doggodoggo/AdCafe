@@ -534,7 +534,6 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         numberOfClustersBeingUploadedTo = clustersToUpLoadTo.size();
         recheckNoOfChildrenInClulsterToStartFrom();
     }
-    //Remember to comment out the one being called in the onClick listener (Line 420)////////
 
     private void addWebsiteLinkPrompt() {
         final Dialog d = new Dialog(AdUpload.this);

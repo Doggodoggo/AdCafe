@@ -139,33 +139,49 @@
             android:layout_height="50dp"
             android:gravity="left"
             android:paddingLeft="5dp"
-            android:paddingTop="7dp"
             android:orientation="horizontal"
             android:layout_gravity="bottom">
 
-            <ImageButton
-                android:id="@+id/reportBtnPreview"
-                android:layout_width="42dp"
-                android:alpha="0.6"
-                android:layout_height="42dp"
-                android:layout_marginLeft="10dp"
-                android:background="@drawable/ic_action_flag"/>
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:visibility="visible"
+                android:layout_height="wrap_content">
+                <ImageButton
+                    android:id="@+id/targetIcon"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:layout_marginLeft="18dp"
+                    android:background="@drawable/ic_action_target_user"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:id="@+id/Report"
+                    android:text="Filter Users."
+                    android:textSize="8dp"
+                    android:paddingTop="35dp"
+                    android:paddingLeft="19dp"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
 
-            <ImageButton
-                android:id="@+id/bookmark2BtnPreview"
-                android:layout_width="44dp"
-                android:alpha="0.6"
-                android:layout_height="44dp"
-                android:layout_marginLeft="3dp"
-                android:background="@drawable/ic_action_pin"/>
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:visibility="visible"
+                android:layout_height="wrap_content">
+                <ImageButton
+                    android:id="@+id/WebsiteIcon"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_marginLeft="21dp"
+                    android:background="@drawable/ic_action_website"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:id="@+id/websiteText"
+                    android:text="Website Link."
+                    android:textSize="8dp"
+                    android:paddingTop="35dp"
+                    android:paddingLeft="20dp"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
 
-            <ImageButton
-                android:id="@+id/targetIcon"
-                android:layout_width="44dp"
-                android:layout_gravity="bottom"
-                android:layout_height="44dp"
-                android:layout_marginLeft="3dp"
-                android:background="@drawable/ic_action_target_user"/>
 
         </LinearLayout>
 
@@ -180,20 +196,12 @@
             android:layout_height="match_parent"
             android:layout_marginBottom="48dp"/>
 
-        <ImageButton
-            android:id="@+id/WebsiteIcon"
-            android:layout_width="44dp"
-            android:layout_gravity="bottom"
-            android:layout_height="44dp"
-            android:layout_marginLeft="263dp"
-            android:background="@drawable/ic_action_website"/>
-
         <View
             android:layout_width="2dp"
             android:visibility="invisible"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="297dp"
-            android:layout_marginBottom="30dp"
+            android:layout_marginLeft="122dp"
+            android:layout_marginBottom="35dp"
             android:id="@+id/smallDot"
             android:background="@color/fuchsia"
             android:layout_height="2dp"/>
@@ -202,8 +210,8 @@
             android:layout_width="2dp"
             android:visibility="invisible"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="143dp"
-            android:layout_marginBottom="30dp"
+            android:layout_marginLeft="59dp"
+            android:layout_marginBottom="35dp"
             android:id="@+id/smallDot2"
             android:background="@color/fuchsia"
             android:layout_height="2dp"/>
