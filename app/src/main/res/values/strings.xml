@@ -145,7 +145,8 @@
     <string name="advertisebuttonstext">Below the mock card are a few buttons which will help you select and upload your ad.</string>
     <string name="selectimagebutton">Select Image button : This button will help you choose an image from your gallery.</string>
     <string name="selectnumber">Select Number of People button : This is for choosing the number of people you want to reach.</string>
-    <string name="addlinkbutton">Add link button : (Optional) You can ad a link to a relevant website for your advert.</string>
+    <string name="addlinkbutton">Website link button : (Optional) You can ad a link to a relevant website for your advert.</string>
+    <string name="filterUsersBtn">Filter Users button: (Optional) You can further filter your audience based on criteria such as age, location and gender/sex.</string>
     <string name="uploadbutton">Upload button : After setting everything, clicking this button will prompt you for your payment
         details then after making the payment, the upload will be done.</string>
     <string name="dontuploadsameadtwice">We have a strict policy concerning re-uploading ads. Uploading the same ad more than once is not
