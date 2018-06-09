@@ -83,7 +83,6 @@ public class Mpesaservice {
             public void onResponse(Call call, Response response) throws IOException {
                 try {
                     String jsonData = response.body().string();
-
                     Log.d(TAG,jsonData);
                 } catch (IOException e) {
                     e.printStackTrace();

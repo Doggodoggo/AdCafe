@@ -16,7 +16,7 @@
             android:textColor="@color/colorPrimary"
             android:text="Successfully uploaded!"
             android:layout_marginBottom="10dp"
-            android:layout_marginLeft="30dp"
+            android:layout_marginLeft="20dp"
             android:textSize="20sp"
             android:layout_height="wrap_content" />
 

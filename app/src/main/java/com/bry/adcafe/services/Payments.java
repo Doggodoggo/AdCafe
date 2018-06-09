@@ -4,16 +4,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Base64;
 import android.util.Log;
 
 import com.bry.adcafe.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.apache.commons.codec.binary.Hex;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -21,6 +25,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -164,12 +169,7 @@ public class Payments {
 
     private void startCheckerForCompletedPayments(final String sid){
         if(canConfirmPayments){
-//            new Handler().postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-                    checkIfMpesaPaymentsHaveCompleted(sid);
-//                }
-//            }, 3000);
+            checkIfMpesaPaymentsHaveCompleted(sid);
         }
     }
 
@@ -375,7 +375,6 @@ public class Payments {
 
 
 
-
     public void makePayouts(String payoutReference,String payoutPhone,int payoutAmount){
         String myPayoutDataString = Constants.vid+payoutReference+payoutPhone+payoutAmount;
         String myPayoutGeneratedHash = generateHmac(myPayoutDataString, Constants.key);
@@ -419,6 +418,255 @@ public class Payments {
 
 
 
+    public void MpesaMakePayments(final String amount, final String partyA ){
+        String app_key = Constants.appKey;
+        String app_secret = Constants.appSecret;
+        String appKeySecret = app_key + ":" + app_secret;
+        String shortCode = "550105";
+        String passKey  ="102178110d0c3f3a71170a35a7fc85530422a987574e616662a3f77d9d310f69";
+        final String timeStamp = TimeManager.getTimeStamp();
+        String passWordEncoded = shortCode+passKey+timeStamp;
+        byte [] bytesPas = new byte[0];
+        try {
+            bytesPas = passWordEncoded.getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        byte[] bytes = new byte[0];
+        try {
+            bytes = appKeySecret.getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        String encoded = Base64.encodeToString(bytes, Base64.NO_WRAP);
+        final String passEncoded = Base64.encodeToString(bytesPas, Base64.NO_WRAP);
+        Log.d("Passencoded :",passEncoded);
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials")
+                .get()
+                .addHeader("authorization", "Basic " + encoded)
+                .addHeader("cache-control", "no-cache")
+                .build();
+
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    String jsonData = response.body().string();
+                    JSONObject aT = new JSONObject(jsonData);
+                    String accessToken = aT.getString("access_token");
+
+                    STKPushSimulation("550105",passEncoded, timeStamp,
+                            "CustomerPayBillOnline",amount,partyA,
+                            partyA,"550105","https://ilovepancake.github.io/PigDice",
+                            "https://adcafe.github.io/CBK/","Adpayment","jsjsj",accessToken);
+                    Log.d(TAG+"payments",jsonData);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+    }
+
+    private void STKPushSimulation(final String businessShortCode, final String password, final String timestamp, String transactionType, String amount,
+                                     String phoneNumber, String partyA, String partyB, String callBackURL, String queueTimeOutURL,
+                                     String accountReference, String transactionDesc, String bearer) throws IOException, JSONException {
+        JSONArray jsonArray = new JSONArray();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("BusinessShortCode", businessShortCode);
+        jsonObject.put("Password", password);
+        jsonObject.put("Timestamp", timestamp);
+        jsonObject.put("TransactionType", transactionType);
+        jsonObject.put("Amount", amount);
+        jsonObject.put("PhoneNumber", phoneNumber);
+        jsonObject.put("PartyA", partyA);
+        jsonObject.put("PartyB", partyB);
+        jsonObject.put("CallBackURL", callBackURL);
+        jsonObject.put("AccountReference", accountReference);
+        jsonObject.put("QueueTimeOutURL", queueTimeOutURL);
+        jsonObject.put("TransactionDesc", transactionDesc);
+
+
+        jsonArray.put(jsonObject);
+
+        String requestJson = jsonArray.toString().replaceAll("[\\[\\]]", "");
+
+        OkHttpClient client = new OkHttpClient();
+        String url = "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType, requestJson);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .addHeader("content-type", "application/json")
+                .addHeader("authorization", "Bearer " + bearer)
+                .addHeader("cache-control", "no-cache")
+                .build();
+
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                sendIntentForSuccessfulPaymentRequest();
+                try {
+                    String jsonData = response.body().string();
+                    JSONObject aT = new JSONObject(jsonData);
+                    String CheckoutRequestID = aT.getString("CheckoutRequestID");
+                    startPaymentListeningForMpesaPayment(businessShortCode,password,timestamp,CheckoutRequestID);
+                    Log.d(TAG,jsonData);
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+    }
+
+    private void startPaymentListeningForMpesaPayment(String businessShortCode, String password, String timestamp,
+                                                      String checkoutRequestID){
+        if(canConfirmPayments){
+            checkIfMpesaPaymentHasBeenCompleted(businessShortCode, password, timestamp, checkoutRequestID);
+        }
+    }
+
+    private void checkIfMpesaPaymentHasBeenCompleted(final String businessShortCode, final String password, final String timestamp,
+                                                     final String checkoutRequestID) {
+        String app_key = Constants.appKey;
+        String app_secret = Constants.appSecret;
+        String appKeySecret = app_key + ":" + app_secret;
+        String shortCode = "550105";
+        String passKey  ="102178110d0c3f3a71170a35a7fc85530422a987574e616662a3f77d9d310f69";
+        final String timeStamp = TimeManager.getTimeStamp();
+        String passWordEncoded = shortCode+passKey+timeStamp;
+        byte [] bytesPas = new byte[0];
+        try {
+            bytesPas = passWordEncoded.getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        byte[] bytes = new byte[0];
+        try {
+            bytes = appKeySecret.getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        String encoded = Base64.encodeToString(bytes, Base64.NO_WRAP);
+        final String passEncoded = Base64.encodeToString(bytesPas, Base64.NO_WRAP);
+        Log.d("Passencoded :",passEncoded);
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials")
+                .get()
+                .addHeader("authorization", "Basic " + encoded)
+                .addHeader("cache-control", "no-cache")
+                .build();
+
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    String jsonData = response.body().string();
+                    JSONObject aT = new JSONObject(jsonData);
+                    String accessToken = aT.getString("access_token");
+                    STKPushTransactionStatus(businessShortCode,password,timestamp,checkoutRequestID,accessToken);
+                     Log.d(TAG+"payments",jsonData);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+    }
+
+    private void STKPushTransactionStatus(final String businessShortCode, final String password, final String timestamp,
+                                          final String checkoutRequestID, String accessToken) throws IOException, JSONException {
+        JSONArray jsonArray = new JSONArray();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("BusinessShortCode", businessShortCode);
+        jsonObject.put("Password", password);
+        jsonObject.put("Timestamp", timestamp);
+        jsonObject.put("CheckoutRequestID", checkoutRequestID);
+
+        jsonArray.put(jsonObject);
+
+        String requestJson = jsonArray.toString().replaceAll("[\\[\\]]", "");
+        OkHttpClient client = new OkHttpClient();
+
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType, requestJson);
+        Request request = new Request.Builder()
+                .url("https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query")
+                .post(body)
+                .addHeader("authorization", "Bearer " + accessToken)
+                .addHeader("content-type", "application/json")
+                .build();
+
+        Callback cb = new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    String jsonData = response.body().string();
+                    Log.d(TAG,jsonData);
+                    JSONObject aT = new JSONObject(jsonData);
+                    if(aT.has("ResponseCode")&& aT.has("MerchantRequestID")) {
+                        String ResponseCode = aT.getString("ResponseCode");
+                        String MerchantRequestID = aT.getString("MerchantRequestID");
+                        String CheckoutRequestID = aT.getString("CheckoutRequestID");
+                        String ResultCode = aT.getString("ResultCode");
+                        if(ResponseCode.equals("0") &&ResultCode.equals("0")){
+                            Log.d(TAG,"Payment has been completed,sending brodcast to start upload");
+                            sendIntentForCompletedPayments();
+                        }else if(ResponseCode.equals("0") &&ResultCode.equals("1")){
+
+                        }
+                        else{
+                            Log.d(TAG,"Payments have failed for some reason..");
+                            startPaymentListeningForMpesaPayment(businessShortCode, password, timestamp,checkoutRequestID);
+                        }
+                    }else startPaymentListeningForMpesaPayment(businessShortCode, password, timestamp,checkoutRequestID);
+                    Log.d(TAG,jsonData);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Call call = client.newCall(request);
+        call.enqueue(cb);
+
+    }
+
 
 
     private void sendIntentForCompletedPayments(){
@@ -428,6 +676,12 @@ public class Payments {
     private void sendIntentForFailedPayments(){
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(mFailedFilter));
     }
+
+    private void sendIntentForSuccessfulPaymentRequest(){
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("STK-PUSHED"+mSuccessfulFilter));
+    }
+
+
 
     private String generateHmac(String data,String key){
         String myGeneratedHash = null;

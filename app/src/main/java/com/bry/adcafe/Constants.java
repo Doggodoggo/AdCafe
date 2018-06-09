@@ -154,6 +154,9 @@ public class Constants {
     /////////Mpesa payment variables
     public static String key = "Jbc98YbjL9H9riwA/eweVXF8HhVYmPYjrwLdgp2k1rigPu04E6oqEBe1RP/xq3pDRRrQj+/v+m0D3OGhbJUKfkw0wdxFzrs1FbJ8r9pgdU8iMX9RisnulUwxvYXbdEf1WTHWY4HIekJDnORheEl/8sBHUenWw01WT9twSbUyahx9k/Vx+vXFFITJJ8ldpIRQt/7q7+Ci" +
             "uGgwUcWcAmXyBoAGtHNtBUkACWO6fGiJ8fm7nVXzPTMfkI7HIccWepcCWs0XBLQolNhawgkrQLdvNXUcN7GvHwiOC2GNicrN/a7fvLGdB5eNnMaOZDv9e+SmZ90a+fdY+hSLH6Rbv9Wuog==";
+    public static String appKey = "HJju1PU5BthG4QTecPWduXuFz22XTFfe";
+    public static String appSecret = "o2ZUZQgi8eDQYKj7";
+
 
     ////////////////////////
 

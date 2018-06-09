@@ -16,12 +16,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.Payment.mpesaApi.Mpesaservice;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.services.Payments;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -94,28 +96,17 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         Log.d(TAG,"new Phone no is: "+newPhoneNo);
         String email = Variables.mpesaEmail;
         int ammount = (int) mAmount;
+        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) ammount = 10;
         String amount = Integer.toString(ammount);
 
-//        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) ammount = 20;
+        //This is for Ipay.
 //        mPayment = new Payments(mContext,SUCCESSFUL_REQUEST,FAILED_REQUEST);
 //        mPayment.startMpesaPayment(mTransactionId,mTransactionId,ammount,mPhoneNo,email);
 
-        mpesaService = new Mpesaservice("HJju1PU5BthG4QTecPWduXuFz22XTFfe","o2ZUZQgi8eDQYKj7");
-//        try {
-//            mpesaService.authenticate();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-        mpesaService.authenticateThenPayments(amount,newPhoneNo);
-//        try {
-//            mpesaService.C2BSimulation("601465","CustomerPayBillOnline","20","254708374149","Testingess");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
+        //This is for Safaricom.
+        mPayment = new Payments(mContext,SUCCESSFUL_REQUEST,FAILED_REQUEST);
+        mPayment.MpesaMakePayments(amount,newPhoneNo);
+
 
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForCompleteTransaction,
                 new IntentFilter(SUCCESSFUL_REQUEST));
@@ -126,14 +117,15 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
     }
 
     private void restartPaymentRequest() {
-//        mPayment.stopRecursiveChecker();
+        Toast.makeText(mContext,"Restarting payments",Toast.LENGTH_SHORT).show();
+        mPayment.stopRecursiveChecker();
         removeTheseGodDamnReceivers();
         startPaymentProcess();
     }
 
     @Override
     public void dismiss(){
-//        mPayment.stopRecursiveChecker();
+        mPayment.stopRecursiveChecker();
         removeTheseGodDamnReceivers();
         super.dismiss();
     }
@@ -141,7 +133,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
     @Override
     public void onDismiss(final DialogInterface dialog) {
         super.onDismiss(dialog);
-//        mPayment.stopRecursiveChecker();
+        mPayment.stopRecursiveChecker();
         removeTheseGodDamnReceivers();
         final Activity activity = getActivity();
         if (activity instanceof DialogInterface.OnDismissListener) {
@@ -167,7 +159,9 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
             Log.d(TAG, "Broadcast has been received that request for pay is successful.");
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFailedToSendRequest);
-            prog.setVisibility(View.INVISIBLE);
+//            prog.setVisibility(View.INVISIBLE);
+            Toast.makeText(mContext,"Payment request sent.",Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext,"Waiting for confirmation of payments from Safaricom.",Toast.LENGTH_LONG).show();
 //            listenForCompletePayments();
         }
     };
