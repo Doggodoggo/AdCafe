@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -135,6 +136,8 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
 
     private void loadFirstView2(){
         mainLaout2.setVisibility(View.VISIBLE);
+        mainLaout2.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                .setInterpolator(new FastOutSlowInInterpolator());
         okBtn1point5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -148,6 +151,8 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
 
     private void loadGenderView(){
         genderLayout.setVisibility(View.VISIBLE);
+        genderLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                .setInterpolator(new FastOutSlowInInterpolator());
         if(Variables.genderTarget.equals(Constants.MALE)) radioButtonMale.setChecked(true);
         else if(Variables.genderTarget.equals(Constants.FEMALE)) radioButtonFemale.setChecked(true);
         okBtn2.setOnClickListener(new View.OnClickListener() {
@@ -177,6 +182,8 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
 
     private void loadAgeGroupView() {
         ageLayout.setVisibility(View.VISIBLE);
+        ageLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                .setInterpolator(new FastOutSlowInInterpolator());
         try{
             if(Variables.ageGroupTarget!=null) setAgeTextView.setText(String.format("Age Group set is: from %d to %d",
                     Variables.ageGroupTarget.getStartingAge(), Variables.ageGroupTarget.getFinishAge()));
@@ -217,6 +224,8 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
 
     private void loadMapLayout() {
         locationLayout.setVisibility(View.VISIBLE);
+        locationLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                .setInterpolator(new FastOutSlowInInterpolator());
         openMapImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -258,6 +267,8 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
 
     private void loadConfirmDetailsView(){
         concludeLayout.setVisibility(View.VISIBLE);
+        concludeLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                .setInterpolator(new FastOutSlowInInterpolator());
         if(Variables.genderTarget!=null){
             if(!Variables.genderTarget.equals(""))
             confirmGender.setText(String.format("Set gender/sex target: %s.", Variables.genderTarget));

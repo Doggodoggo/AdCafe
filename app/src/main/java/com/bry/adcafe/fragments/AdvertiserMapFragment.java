@@ -120,6 +120,7 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
                 markers.add(mark);
                 markAndCirc.put(mark,circle);
             }
+            Variables.locationTarget.clear();
         }
 
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {

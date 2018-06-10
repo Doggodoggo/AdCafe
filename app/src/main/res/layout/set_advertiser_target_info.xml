@@ -68,6 +68,7 @@
         android:layout_width="match_parent"
         android:orientation="vertical"
         android:visibility="gone"
+        android:translationX="400dp"
         android:id="@+id/mainLayout2"
         android:layout_height="wrap_content">
 
@@ -118,6 +119,7 @@
         android:layout_width="match_parent"
         android:orientation="vertical"
         android:visibility="gone"
+        android:translationX="400dp"
         android:id="@+id/genderLayout"
         android:layout_height="wrap_content">
 
@@ -201,6 +203,7 @@
         android:layout_width="match_parent"
         android:orientation="vertical"
         android:visibility="gone"
+        android:translationX="400dp"
         android:id="@+id/ageLayout"
         android:layout_height="wrap_content">
 
@@ -301,6 +304,7 @@
         android:layout_width="match_parent"
         android:orientation="vertical"
         android:visibility="gone"
+        android:translationX="400dp"
         android:id="@+id/locationLayout"
         android:layout_height="wrap_content">
 
@@ -389,6 +393,7 @@
         android:layout_width="match_parent"
         android:orientation="vertical"
         android:visibility="gone"
+        android:translationX="400dp"
         android:id="@+id/concludeLayout"
         android:layout_height="wrap_content">
 
