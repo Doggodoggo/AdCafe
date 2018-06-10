@@ -94,7 +94,7 @@ public class OlderAdsItem {
         }catch (Exception e){
             e.printStackTrace();
         }
-        if(isCardForYesterdayAds() && totalReimbursalPlusPayout !=0 ){
+        if(!mAdvert.isHasBeenReimbursed() && isCardForYesterdayAds() && totalReimbursalPlusPayout !=0 ){
 //            mReimburseButton.setVisibility(android.view.View.VISIBLE);
             isClickable = true;
         }else{
