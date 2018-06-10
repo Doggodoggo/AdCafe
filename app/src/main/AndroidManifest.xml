@@ -26,7 +26,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCtidJiOy4EasYpI5tNSKV20Aq6u3upMdY"/>
+            android:value="@string/mapKey"/>
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -79,7 +79,7 @@
 
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="e8d463a013974f8861522487a012c2b4de2f72f3" />
+            android:value="@string/fabricKey" />
 
         <receiver android:name=".services.AlarmReceiver" />
         <receiver
