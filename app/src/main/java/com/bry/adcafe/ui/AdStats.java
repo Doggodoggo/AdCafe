@@ -80,6 +80,8 @@ public class AdStats extends AppCompatActivity {
     private int numberOfClusters =0;
     private int runCount = 0;
 
+    private int numberOfElements = 0;
+
     Handler h = new Handler();
     Runnable r;
     private boolean doChildrenExist = false;
@@ -294,6 +296,7 @@ public class AdStats extends AppCompatActivity {
                         adUploadedByUser.setPayoutReimbursalAmount(payoutReimbursalAmm);
                         Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds3.add(adUploadedByUser);
+                        numberOfElements++;
                     }
                     if (cycleCount3 == mAdList3.size()) {
                         Log(TAG, "All the ads have been handled.");
@@ -371,6 +374,7 @@ public class AdStats extends AppCompatActivity {
                         adUploadedByUser.setPayoutReimbursalAmount(payoutReimbursalAmm);
                         Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds.add(adUploadedByUser);
+                        numberOfElements++;
                     }
                     if (cycleCount == mAdList.size()) {
                         Log(TAG, "All the ads have been handled.");
@@ -452,6 +456,7 @@ public class AdStats extends AppCompatActivity {
                         adUploadedByUser.setPayoutReimbursalAmount(payoutReimbursalAmm);
                         Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds2.add(adUploadedByUser);
+                        numberOfElements++;
                     }
                     if (cycleCount2 == mAdList2.size()) {
                         Log(TAG, "All the ads have been handled.");
@@ -493,8 +498,16 @@ public class AdStats extends AppCompatActivity {
                     doChildrenExist = true;
                     boolean hasTopBeenAdded = false;
                     findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
+                    int numberOfUploads = 0;
+                    for(DataSnapshot snap:dataSnapshot.getChildren()){
+                        for(DataSnapshot adSnap:snap.getChildren()){
+                            numberOfUploads++;
+                        }
+                    }
+                    if(numberOfUploads>0) DataListsView.setItemViewCacheSize(numberOfUploads+6);
                     for(DataSnapshot snap:dataSnapshot.getChildren()){
                        String viewingDate = snap.getKey();
+
                        Log(TAG,"One date has loaded"+viewingDate);
                        long viewingDateInDays = Long.valueOf(viewingDate)*-1;
                        long tomorrowsDateInDays = getDateInDays()+1;
