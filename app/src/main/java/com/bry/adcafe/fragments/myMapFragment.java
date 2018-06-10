@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,6 +17,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -36,6 +39,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
@@ -68,6 +72,8 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
     private List<Marker> markers = new ArrayList<>();
     private Button setButton;
     private View rootView;
+    MapFragment mapFragment;
+    PlaceAutocompleteFragment autocompleteFragment;
 
     public void setfragcontext(Context context) {
         mContext = context;
@@ -78,23 +84,18 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
     }
 
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
-        if (rootView != null) {
-            ViewGroup parent = (ViewGroup) rootView.getParent();
-            if (parent != null) parent.removeView(rootView);
-        }
         try {
             rootView = inflater.inflate(R.layout.map_fragment, container, false);
-            MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-            mapFragment.getMapAsync(this);
+            mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+
             setButton = rootView.findViewById(R.id.setLocations);
             setButton.setOnClickListener(this);
+            mapFragment.getMapAsync(this);
         } catch (InflateException e) {
             e.printStackTrace();
         }
-
         return rootView;
     }
 
@@ -161,7 +162,7 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
 
         LatLng topBnd = new LatLng(-4.543295, 40.331370);
         LatLng botBnd = new LatLng(4.259043, 33.959300);
-        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+        autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
         autocompleteFragment.setBoundsBias(new LatLngBounds(topBnd,botBnd));
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
@@ -191,15 +192,13 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
         switch (requestCode) {
             case 3301:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
-                            != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext,
-                            Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-                    }else{
+                    try{
                         map.setMyLocationEnabled(true);
-                        map.setOnMyLocationButtonClickListener(this);
-                        map.setOnMyLocationClickListener(this);
+                    }catch (SecurityException e){
+                        e.printStackTrace();
                     }
+                    map.setOnMyLocationButtonClickListener(this);
+                    map.setOnMyLocationClickListener(this);
                 }
                 break;
         }
@@ -233,11 +232,24 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
         }
     }
 
+
     @Override
     public void onDestroyView() {
+        Log.e(TAG,"onDestroy view called.....");
+        try{
+            if (mapFragment != null){
+                Log.d(TAG,"Map fragment is not null, attempting to remove it ....");
+                getFragmentManager().beginTransaction().remove(mapFragment).commit();
+            }
+            if(autocompleteFragment!=null){
+                Log.d(TAG,"Autocomplete fragment is not null, attempting to remove it");
+                getFragmentManager().beginTransaction().remove(autocompleteFragment).commit();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         super.onDestroyView();
-        MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-        if (f != null) getFragmentManager().beginTransaction().remove(f).commit();
+
     }
 
 

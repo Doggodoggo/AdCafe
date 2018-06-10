@@ -475,9 +475,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             findViewById(R.id.reupload).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    for(Integer failedCluster : failedClustersToUploadTo){
-                        clustersToUpLoadTo.add(failedCluster);
-                    }
+                    clustersToUpLoadTo.addAll(failedClustersToUploadTo);
                     failedClustersToUploadTo.clear();
                     if(bm!=null){
                         setAllOtherViewsToBeGone();

@@ -339,7 +339,7 @@ public class TimeManager {
 
     public static int getMonthVal(){
         Calendar c = cal;
-        return c.get(Calendar.MONTH) + 1;
+        return c.get(Calendar.MONTH);
     }
 
     public static String getYear(){
@@ -413,4 +413,6 @@ public class TimeManager {
     public static Calendar getCal() {
         return cal;
     }
+
+
 }

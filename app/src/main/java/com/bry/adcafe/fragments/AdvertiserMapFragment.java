@@ -65,9 +65,8 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
     private View rootView;
     private ImageButton searchBtn;
 
-    private GoogleApiClient mGoogleApiClient;
-//    protected GeoDataClient mPlaceDetectionClient;
-    private PlaceDetectionClient mPlaceDetectionClient;
+    MapFragment mapFragment;
+    PlaceAutocompleteFragment autocompleteFragment;
 
 
 
@@ -87,18 +86,14 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
         }
         try {
             rootView = inflater.inflate(R.layout.map_fragment, container, false);
-            MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+            mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
             mapFragment.getMapAsync(this);
             setButton = rootView.findViewById(R.id.setLocations);
             setButton.setOnClickListener(this);
         } catch (InflateException e) {
             e.printStackTrace();
         }
-//        searchBtn = rootView.findViewById(R.id.searchBtn);
-//        mGeoDataClient = Places.getGeoDataClient(this, null);
 
-        // Construct a PlaceDetectionClient.
-        mPlaceDetectionClient = Places.getPlaceDetectionClient(mContext, null);
         return rootView;
     }
 
@@ -179,7 +174,7 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
 
         LatLng topBnd = new LatLng(-4.543295, 40.331370);
         LatLng botBnd = new LatLng(4.259043, 33.959300);
-        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+        autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
         autocompleteFragment.setBoundsBias(new LatLngBounds(topBnd,botBnd));
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
@@ -289,8 +284,18 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-        if (f != null) getFragmentManager().beginTransaction().remove(f).commit();
+       try{
+           if (mapFragment != null){
+               Log.d(TAG,"Map fragment is not null, attempting to remove it ....");
+               getFragmentManager().beginTransaction().remove(mapFragment).commit();
+           }
+           if(autocompleteFragment!=null){
+               Log.d(TAG,"Autocomplete fragment is not null, attempting to remove it");
+               getFragmentManager().beginTransaction().remove(autocompleteFragment).commit();
+           }
+       }catch (Exception e){
+           e.printStackTrace();
+       }
     }
 
     private void setPreferredLocations(){
