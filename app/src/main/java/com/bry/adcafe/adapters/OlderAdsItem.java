@@ -50,6 +50,7 @@ public class OlderAdsItem {
     private PlaceHolderView mPlaceHolderView;
     private Advert mAdvert;
     private DatabaseReference dbRef;
+    private boolean isClickable = false;
 
 
     public OlderAdsItem(Context Context, PlaceHolderView PlaceHolderView, Advert Advert){
@@ -93,7 +94,14 @@ public class OlderAdsItem {
         }catch (Exception e){
             e.printStackTrace();
         }
-        if(isCardForYesterdayAds() && totalReimbursalPlusPayout !=0 )mReimburseButton.setVisibility(android.view.View.VISIBLE);
+        if(isCardForYesterdayAds() && totalReimbursalPlusPayout !=0 ){
+//            mReimburseButton.setVisibility(android.view.View.VISIBLE);
+            isClickable = true;
+        }else{
+            isClickable = false;
+            mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
+            mReimburseButton.setText("Reimbursed");
+        }
         loadListeners();
     }
 
@@ -109,9 +117,11 @@ public class OlderAdsItem {
 
     @Click(R.id.reimburseOldBtn)
     private void onClick(){
-        Variables.isOlderAd = true;
-        Variables.adToBeReimbursed = mAdvert;
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("START_ADVERTISER_PAYOUT"));
+        if (isClickable) {
+            Variables.isOlderAd = true;
+            Variables.adToBeReimbursed = mAdvert;
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("START_ADVERTISER_PAYOUT"));
+        }
     }
 
 
@@ -208,7 +218,10 @@ public class OlderAdsItem {
                     if(mAdvert.isHasBeenReimbursed()) {
                         mHasBeenReimbursedView.setText("Status: Reimbursed.");
                         mAmountToReimburseView.setText("Reimbursing amount:  0 Ksh");
-                        if(isCardForYesterdayAds())mReimburseButton.setVisibility(android.view.View.GONE);
+                        if(isCardForYesterdayAds()){
+                            isClickable = false;
+                            mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
+                        }
                     }else{
                         mHasBeenReimbursedView.setText("Status: NOT Reimbursed.");
                         int numberOfUsersWhoDidntSeeAd = (mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen());

@@ -87,7 +87,7 @@
     <string name="slide3text2">Your attention has value to advertisers. Here you can charge them for it, making money in the process.</string>
     <string name="slide4text">Even better! Among many other benefits, the AdCafe gives you the ability to
         target many of its users in a very short period of time.</string>
-    <string name="slide5text">Not quite yet! First you\'ll need to know how to use the app and for that we\'ve prepared
+    <string name="slide5text">Not quite yet. First you\'ll need to know how to use the app and for that we\'ve prepared
         a short tutorial on how you will interact with it.</string>
     <string name="slide6text">Now the main page will look something like this. We will go over what
         everything is and what everything does.</string>
@@ -165,8 +165,8 @@
     <string name="needUserDetails">We also need a few more details from you before we can continue.</string>
     <string name="tutorialExplanationAdvertiser6.2">The cost of advertising here depends on the amount charged by
         the group of users you are targeting. For instance, some users charge 3Ksh per view.</string>
-    <string name="tutorialExplanationAdvertiser6.3">So if you were to target the 3Ksh users, you would pay 5000Ksh per 1000 users reached
-        &#13;&#10; i.e   3Ksh + 2Ksh per user reached.</string>
+    <string name="tutorialExplanationAdvertiser6.3">So if you were to target the 3Ksh users, you would pay 500Ksh per 100 users reached
+        &#13;&#10; i.e   3Ksh + 2Ksh(plus 15Ksh for making a user payout) per user reached.</string>
 
 
 
@@ -213,7 +213,7 @@
     <string name="failedSignUp">We may not be able to continue with some of the details you\'ve passed. Perhaps that
         email is already in use.</string>
     <string name="signUpPasswordNote">Please don\'t forget your password. You\'ll need it in the app.</string>
-    <string name="notificationNote">"Note: You'll need a internet connection at the set time to load any notifications."</string>
+    <string name="notificationNote">"Note: You'll need a internet connection at the set time to show the notification."</string>
     <string name="saveTextMessage">"Are you sure you want to save this to your device's storage?"</string>
     <string name="saveNote">"The image will be in a 'AdCafePins' folder."</string>
 

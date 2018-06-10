@@ -24,6 +24,7 @@
         android:layout_marginTop="5dp"
         android:textSize="15dp"
         android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:text="Indicate what you find wrong with this ad." />
 
     <LinearLayout
@@ -43,7 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                android:text="I've seen this ad before!" />
+                android:text="I've seen this before!" />
 
             <RadioButton
                 android:id="@+id/radioButtonAbusive"

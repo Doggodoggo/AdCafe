@@ -13,6 +13,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
@@ -61,6 +62,7 @@ public class MyAdStatsItem {
     private Advert mAdvert;
     private DatabaseReference dbRef;
     private byte[] mImageBytes;
+    private boolean isClickable = false;
 
     public MyAdStatsItem(Context Context, PlaceHolderView PlaceHolderView, Advert Advert){
         this.mContext = Context;
@@ -105,7 +107,14 @@ public class MyAdStatsItem {
         }catch (Exception e){
             e.printStackTrace();
         }
-        if(isCardForYesterdayAds() && ammountToBeRepaid !=0 )mReimburseButton.setVisibility(android.view.View.VISIBLE);
+        if(!mAdvert.isHasBeenReimbursed() && isCardForYesterdayAds() && ammountToBeRepaid !=0 ){
+            mReimburseButton.setVisibility(android.view.View.VISIBLE);
+            isClickable = true;
+        }else{
+            isClickable = false;
+            if(isCardForYesterdayAds()) mReimburseButton.setVisibility(android.view.View.VISIBLE);
+            mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
+        }
         loadListeners();
     }
 
@@ -137,14 +146,21 @@ public class MyAdStatsItem {
 
     @Click(R.id.reimburseBtn)
     private void onClick(){
-        Variables.adToBeReimbursed = mAdvert;
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("START_ADVERTISER_PAYOUT"));
+        if(isClickable) {
+            Variables.adToBeReimbursed = mAdvert;
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("START_ADVERTISER_PAYOUT"));
+        }
     }
 
 
     private void loadListeners() {
+        String tme = getDate();
+        if(isCardForYesterdayAds())tme = TimeManager.getPreviousDay();
         Query query = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
-                .child(getDate()).child(mAdvert.getPushRefInAdminConsole());
+                .child(tme).child(mAdvert.getPushRefInAdminConsole());
+        Log.d("MyAdStatItem","Adding listener for : "+mAdvert.getPushRefInAdminConsole());
+        Log.d("MyAdStatItem","Query set up is: "+Constants.ADS_FOR_CONSOLE+" : "+getDate()+" : "
+            +mAdvert.getPushRefInAdminConsole());
         dbRef = query.getRef();
         dbRef.addChildEventListener(chil);
 
@@ -174,6 +190,8 @@ public class MyAdStatsItem {
                 if(totalReimbursalPlusPayout==0){
                     mHasBeenReimbursed.setText("Status: All Users Reached.");
                     mAmountToReimburse.setText("Reimbursing :  0 Ksh");
+                    isClickable = false;
+                    mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
                 }
             }else{
                 try {
@@ -192,6 +210,8 @@ public class MyAdStatsItem {
                     if(totalReimbursalPlusPayout==0){
                         mHasBeenReimbursed.setText("Status: All Users Reached.");
                         mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
+                        isClickable = false;
+                        mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -205,7 +225,9 @@ public class MyAdStatsItem {
                             mHasBeenReimbursed.setText("Status: Reimbursed.");
                             mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
                             if (isCardForYesterdayAds())
-                                mReimburseButton.setVisibility(android.view.View.GONE);
+//                                mReimburseButton.setVisibility(android.view.View.GONE);
+                                isClickable = false;
+                                mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
                         } else {
                             mHasBeenReimbursed.setText("Status: NOT Reimbursed.");
 
@@ -219,6 +241,8 @@ public class MyAdStatsItem {
                             if(totalReimbursalPlusPayout==0){
                                 mHasBeenReimbursed.setText("Status: All Users Reached.");
                                 mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
+                                isClickable = false;
+                                mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
                             }
                         }
                     } catch (Exception e) {
