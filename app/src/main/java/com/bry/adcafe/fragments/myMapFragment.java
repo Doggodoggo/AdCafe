@@ -117,6 +117,7 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
                         .draggable(true));
                 markers.add(mark);
             }
+            Variables.usersLatLongs.clear();
         }
 
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {

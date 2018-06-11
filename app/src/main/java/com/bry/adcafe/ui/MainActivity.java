@@ -67,6 +67,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -153,6 +154,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean isLoadingDataFromFirebase = false;
 
+    private boolean isWindowPaused = false;
+    private DatabaseReference SKListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,6 +189,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }catch (Exception e){
             e.printStackTrace();
         }
+        setIsAppOnline(true);
+        setLastUserOfAppInSharedPreferences(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 
     private void setUpTimeIfNeedBe(){
@@ -209,6 +215,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override protected void onResume() {
         super.onResume();
+        isWindowPaused = false;
         if (!TimeManager.isTimerOnline()) handleOnResumeMethodsIfTimeIsOffline();
         else handleOnResumeMethodsAndLogic();
     }
@@ -260,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
         h.postDelayed(r, 60000);
+        addListenerForChangeInSessionKey();
     }
 
     private void handleOnResumeMethodsIfTimeIsOffline(){
@@ -290,6 +298,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override protected void onPause() {
+        isWindowPaused = true;
         super.onPause();
         h.removeCallbacks(r);
         if(Variables.hasTimerStarted){
@@ -298,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         setCurrentDateToSharedPrefs();
         setUserDataInSharedPrefs();
-
+        removeListenerForChangeInSessionKey();
     }
 
 
@@ -329,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Variables.isMainActivityOnline = false;
         super.onDestroy();
+        setIsAppOnline(false);
     }
 
     private void setUserDataInSharedPrefs() {
@@ -2083,9 +2093,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setLastUsedDateInFirebaseDate(String uid) {
-        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS).child(uid).child(Constants.DATE_IN_FIREBASE);
-        adRef.setValue(getDate());
+        try {
+            uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS).child(uid).child(Constants.DATE_IN_FIREBASE);
+            adRef.setValue(getDate());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void resetAdTotalsInFirebase() {
@@ -2875,6 +2889,132 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         return locations;
+    }
+
+
+    private void setIsAppOnline(boolean bol){
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(Constants.ONLINE_NESS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.putBoolean(Constants.ONLINE_NESS, bol);
+        Log(TAG, "Setting onlineness - " + bol);
+        editor.apply();
+    }
+
+    private void setLastUserOfAppInSharedPreferences(String uid){
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(Constants.USER_ID, MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.putString(Constants.USER_ID, uid);
+        Log(TAG, "Setting uid in shared prefs - " + uid);
+        editor.apply();
+    }
+
+
+    ChildEventListener chil = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            if(dataSnapshot.getKey().equals(Constants.BOI_IS_DA_KEY)){
+                String firebasekey = dataSnapshot.getValue(String.class);
+                if(!firebasekey.equals(getSessionKey())){
+                    PerformShutdown();
+                }
+            }
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
+
+    public void addListenerForChangeInSessionKey(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference FirstCheckref = FirebaseDatabase.getInstance().getReference().child(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.BOI_IS_DA_KEY);
+        FirstCheckref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    String firebasekey = dataSnapshot.getValue(String.class);
+                    if (!firebasekey.equals(getSessionKey())) {
+                        PerformShutdown();
+                    }else{
+                        nowReallyAddLisenerForChangeInSessionKey();
+                    }
+                }else{
+                    PerformShutdown();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    public void nowReallyAddLisenerForChangeInSessionKey(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        SKListener = FirebaseDatabase.getInstance().getReference().child(Constants.FIREBASE_CHILD_USERS)
+                .child(uid);
+        SKListener.addChildEventListener(chil);
+    }
+
+    public void removeListenerForChangeInSessionKey(){
+        if(SKListener!=null){
+            SKListener.removeEventListener(chil);
+        }
+    }
+
+    public String getSessionKey(){
+        SharedPreferences prefs2 = getSharedPreferences(Constants.BOI_IS_DA_KEY, MODE_PRIVATE);
+        String sk = prefs2.getString(Constants.BOI_IS_DA_KEY, "NULL");
+        Log(TAG, "Loading session key from shared prefs - " + sk);
+        return sk;
+    }
+
+
+
+    public void PerformShutdown(){
+        setLastUsedDateInFirebaseDate(User.getUid());
+        if (dbRef != null) {
+            dbRef.removeEventListener(val);
+        }
+        User.setID(0, mKey);
+        unregisterAllReceivers();
+        if (FirebaseAuth.getInstance() != null) {
+            FirebaseAuth.getInstance().signOut();
+        }
+        setIsUserLoggedOnInSharedPrefs(false);
+        clearUserDataFromSharedPreferences();
+        Variables.resetAllValues();
+        if(!isWindowPaused){
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }else{
+            finish();
+        }
+
     }
 
 }

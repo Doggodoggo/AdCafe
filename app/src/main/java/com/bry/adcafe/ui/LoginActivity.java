@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
@@ -83,6 +84,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private boolean hasEverythingLoaded;
     private boolean isActivityVisible;
+    private boolean didUserJustLogInManually = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,11 +124,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         Log.d(TAG,"user is online, setting up everything normally");
                         mRelative.setVisibility(View.GONE);
                         mNoConnectionLayout.setVisibility(View.GONE);
-//                        mAvi.setVisibility(View.VISIBLE);
                         mProgressBarLogin.setVisibility(View.VISIBLE);
                         mLoadingMessage.setVisibility(View.VISIBLE);
                         mIsLoggingIn = false;
-
                         startLoadingUserData();
                     }else{
                         setNoInternetView();
@@ -319,7 +319,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             Snackbar.make(findViewById(R.id.loginCoordinatorLayout), R.string.LogInNoConnection,
                     Snackbar.LENGTH_LONG).show();
         }else{
-//            mAvi.setVisibility(View.VISIBLE);
             mProgressBarLogin.setVisibility(View.VISIBLE);
             mLoadingMessage.setVisibility(View.VISIBLE);
             mRelative.setVisibility(View.GONE);
@@ -333,15 +332,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             Log.d(TAG,"signInWithEmail:onComplete"+task.isSuccessful());
                             if(!task.isSuccessful()){
                                 Log.w(TAG,"SignInWithEmail",task.getException());
-//                                mRelative.setVisibility(View.VISIBLE);
                                 mRelative.setVisibility(View.VISIBLE);
-//                                mAvi.setVisibility(View.GONE);
                                 mProgressBarLogin.setVisibility(View.GONE);
                                 mLoadingMessage.setVisibility(View.GONE);
                                 mIsLoggingIn = false;
                                 showFailedLogin();
-//                                Toast.makeText(LoginActivity.this,"You may have mistyped your username or password.",Toast.LENGTH_LONG).show();
                             }else{
+                                didUserJustLogInManually = true;
                                 setUserPasswordInFireBase(password);
                                 Variables.setPassword(password);
                                 Variables.isGottenNewPasswordFromLogInOrSignUp = true;
@@ -386,6 +383,86 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void reallyStartLoadingUserData(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference FirstCheckref = FirebaseDatabase.getInstance().getReference().child(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.BOI_IS_DA_KEY);
+        FirstCheckref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    String firebasekey = dataSnapshot.getValue(String.class);
+                    if (!firebasekey.equals(getSessionKey())) {
+                        PerformShutdown();
+                    }else{
+                        nowReallyStartLoadingUserData();
+                    }
+                }else{
+                    PerformShutdown();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void PerformShutdown() {
+        if(!didUserJustLogInManually) {
+            if (FirebaseAuth.getInstance() != null) {
+                FirebaseAuth.getInstance().signOut();
+            }
+            Variables.resetAllValues();
+            mRelative.setVisibility(View.VISIBLE);
+            mProgressBarLogin.setVisibility(View.GONE);
+            mLoadingMessage.setVisibility(View.GONE);
+            mIsLoggingIn = false;
+        }else setNewSessionKeyThenReallyStartLoadingUsersData();
+
+    }
+
+    private void setNewSessionKeyThenReallyStartLoadingUsersData() {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        final String newSessionKey = generateRandomString();
+        DatabaseReference FirstCheckref = FirebaseDatabase.getInstance().getReference().child(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.BOI_IS_DA_KEY);
+        FirstCheckref.setValue(newSessionKey).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    setSessionKeyInSharedPrefs(newSessionKey);
+                    nowReallyStartLoadingUserData();
+                }
+            }
+        });
+    }
+
+    private void setSessionKeyInSharedPrefs(String newKey){
+        SharedPreferences pref2 = getApplicationContext().getSharedPreferences(Constants.BOI_IS_DA_KEY, MODE_PRIVATE);
+        SharedPreferences.Editor editor2 = pref2.edit();
+        editor2.clear();
+        editor2.putString(Constants.BOI_IS_DA_KEY, newKey);
+        editor2.apply();
+    }
+
+    private String generateRandomString(){
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("R");
+        DatabaseReference myref = ref.push();
+        String key = myref.getKey();
+        String finalKey = "R"+key;
+        Log.i("Dashboard","generated randomString : "+finalKey);
+        return finalKey;
+    }
+
+    public String getSessionKey(){
+        SharedPreferences prefs2 = getSharedPreferences(Constants.BOI_IS_DA_KEY, MODE_PRIVATE);
+        String sk = prefs2.getString(Constants.BOI_IS_DA_KEY, "NULL");
+        Log.d(TAG, "Loading session key from shared prefs - " + sk);
+        return sk;
+    }
+
+    private void nowReallyStartLoadingUserData(){
         Variables.Subscriptions.clear();
         DatabaseManager dbMan = new DatabaseManager();
         dbMan.setContext(mContext);

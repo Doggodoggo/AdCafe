@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Point;
@@ -48,6 +49,7 @@ import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -101,6 +103,10 @@ public class Bookmarks extends AppCompatActivity {
 
     private int iterationsFofUnpined = 0;
     ViewImageFragment imageF;
+
+    private boolean isWindowPaused = false;
+    private DatabaseReference SKListener;
+    private boolean isNeedToLoadLogin = false;
 
 
     @Override
@@ -228,7 +234,25 @@ public class Bookmarks extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume(){
+        isWindowPaused = false;
+        super.onResume();
+        if(isNeedToLoadLogin){
+            Intent intent = new Intent(Bookmarks.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }else addListenerForChangeInSessionKey();
 
+    }
+
+    @Override
+    protected void onPause(){
+        removeListenerForChangeInSessionKey();
+        isWindowPaused = true;
+        super.onPause();
+    }
 
 
     @Override
@@ -966,6 +990,101 @@ public class Bookmarks extends AppCompatActivity {
         return indexes.indexOf(noOfDaysDate);
     }
 
+    ChildEventListener chil = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            if(dataSnapshot.getKey().equals(Constants.BOI_IS_DA_KEY)){
+                String firebasekey = dataSnapshot.getValue(String.class);
+                if(!firebasekey.equals(getSessionKey())){
+                    PerformShutdown();
+                }
+            }
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
+    public void addListenerForChangeInSessionKey(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference FirstCheckref = FirebaseDatabase.getInstance().getReference().child(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.BOI_IS_DA_KEY);
+        FirstCheckref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    String firebasekey = dataSnapshot.getValue(String.class);
+                    if (!firebasekey.equals(getSessionKey())) {
+                        PerformShutdown();
+                    }else{
+                        nowReallyAddLisenerForChangeInSessionKey();
+                    }
+                }else{
+                    PerformShutdown();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    public void nowReallyAddLisenerForChangeInSessionKey(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        SKListener = FirebaseDatabase.getInstance().getReference().child(Constants.FIREBASE_CHILD_USERS)
+                .child(uid);
+        SKListener.addChildEventListener(chil);
+    }
+
+    public void removeListenerForChangeInSessionKey(){
+        if(SKListener!=null){
+            SKListener.removeEventListener(chil);
+        }
+    }
+
+    public String getSessionKey(){
+        SharedPreferences prefs2 = getSharedPreferences(Constants.BOI_IS_DA_KEY, MODE_PRIVATE);
+        String sk = prefs2.getString(Constants.BOI_IS_DA_KEY, "NULL");
+        Log.d(TAG, "Loading session key from shared prefs - " + sk);
+        return sk;
+    }
+
+
+
+    public void PerformShutdown(){
+        if (FirebaseAuth.getInstance() != null) {
+            FirebaseAuth.getInstance().signOut();
+        }
+        Variables.resetAllValues();
+        if(!isWindowPaused){
+            Intent intent = new Intent(Bookmarks.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }else{
+            isNeedToLoadLogin = true;
+        }
+
+    }
 
 }

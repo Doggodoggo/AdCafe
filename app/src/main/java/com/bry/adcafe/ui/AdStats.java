@@ -40,6 +40,7 @@ import com.bry.adcafe.services.TimeManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -85,6 +86,12 @@ public class AdStats extends AppCompatActivity {
     Handler h = new Handler();
     Runnable r;
     private boolean doChildrenExist = false;
+    private boolean isMakingPayout = false;
+    private DatabaseReference dbListener;
+
+    private boolean isWindowPaused = false;
+    private DatabaseReference SKListener;
+    private boolean isNeedToLoadLogin = false;
 
 
     @Override
@@ -107,6 +114,7 @@ public class AdStats extends AppCompatActivity {
             showNoConnectionView();
         }
         DataListsView.getBuilder().setLayoutManager(new GridLayoutManager(mContext,2));
+        addListenerForPaymentSession();
     }
 
     @Override
@@ -114,16 +122,26 @@ public class AdStats extends AppCompatActivity {
         super.onPause();
         setCurrentDateToSharedPrefs();
         h.removeCallbacks(r);
+        removeListenerForChangeInSessionKey();
+        isWindowPaused = true;
     }
 
 
 
     @Override
     protected void onResume(){
+        isWindowPaused = false;
         super.onResume();
         new DatabaseManager().loadUsersPassword();
         if(TimeManager.isTimerOnline()) handleOnResumeMethodsAndLogic();
         else handleOnResumeMethodsIfTimeIsOffline();
+
+        if(isNeedToLoadLogin){
+            Intent intent = new Intent(AdStats.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }else addListenerForChangeInSessionKey();
     }
 
     private void handleOnResumeMethodsAndLogic(){
@@ -190,6 +208,7 @@ public class AdStats extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         unregisterReceivers();
+        removeLisenerForPaymentSession();
         super.onDestroy();
     }
 
@@ -748,6 +767,7 @@ public class AdStats extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log(TAG, "Broadcast has been received to show bottom sheet.");
+            new DatabaseManager().setIsMakingPayoutInFirebase(true);
             showBottomSheetForReimbursement();
         }
     };
@@ -829,6 +849,7 @@ public class AdStats extends AppCompatActivity {
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
             mProgForPayments.dismiss();
             showFailedPayoutsView();
+            new DatabaseManager().setIsMakingPayoutInFirebase(false);
         }
     };
 
@@ -999,6 +1020,7 @@ public class AdStats extends AppCompatActivity {
             }
         });
         d.show();
+        new DatabaseManager().setIsMakingPayoutInFirebase(false);
     }
 
 
@@ -1030,6 +1052,155 @@ public class AdStats extends AppCompatActivity {
             if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
         }catch (Exception e){
             e.printStackTrace();
+        }
+
+    }
+
+
+    ChildEventListener chil = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            if(dataSnapshot.getKey().equals(Constants.IS_MAKING_PAYOUT)){
+                isMakingPayout = dataSnapshot.getValue(boolean.class);
+                if(isMakingPayout)sendBroadcastToHideBtns();
+                else sendBroadcastToShowBtns();
+            }
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
+    private void addListenerForPaymentSession(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        dbListener = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS).child(uid);
+        dbListener.addChildEventListener(chil);
+    }
+
+    private void removeLisenerForPaymentSession(){
+        if(dbListener!=null) dbListener.removeEventListener(chil);
+    }
+
+    private void sendBroadcastToHideBtns(){
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Constants.IS_MAKING_PAYOUT+"true"));
+    }
+
+    private void sendBroadcastToShowBtns(){
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Constants.IS_MAKING_PAYOUT+"false"));
+    }
+
+
+
+    ChildEventListener chil2 = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            if(dataSnapshot.getKey().equals(Constants.BOI_IS_DA_KEY)){
+                String firebasekey = dataSnapshot.getValue(String.class);
+                if(!firebasekey.equals(getSessionKey())){
+                    PerformShutdown();
+                }
+            }
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
+    public void addListenerForChangeInSessionKey(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference FirstCheckref = FirebaseDatabase.getInstance().getReference().child(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.BOI_IS_DA_KEY);
+        FirstCheckref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    String firebasekey = dataSnapshot.getValue(String.class);
+                    if (!firebasekey.equals(getSessionKey())) {
+                        PerformShutdown();
+                    }else{
+                        nowReallyAddLisenerForChangeInSessionKey();
+                    }
+                }else{
+                    PerformShutdown();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    public void nowReallyAddLisenerForChangeInSessionKey(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        SKListener = FirebaseDatabase.getInstance().getReference().child(Constants.FIREBASE_CHILD_USERS)
+                .child(uid);
+        SKListener.addChildEventListener(chil2);
+    }
+
+    public void removeListenerForChangeInSessionKey(){
+        if(SKListener!=null){
+            SKListener.removeEventListener(chil2);
+        }
+    }
+
+    public String getSessionKey(){
+        SharedPreferences prefs2 = getSharedPreferences(Constants.BOI_IS_DA_KEY, MODE_PRIVATE);
+        String sk = prefs2.getString(Constants.BOI_IS_DA_KEY, "NULL");
+        Log.d(TAG, "Loading session key from shared prefs - " + sk);
+        return sk;
+    }
+
+
+
+    public void PerformShutdown(){
+        if (FirebaseAuth.getInstance() != null) {
+            FirebaseAuth.getInstance().signOut();
+        }
+        Variables.resetAllValues();
+        if(!isWindowPaused){
+            Intent intent = new Intent(AdStats.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }else{
+            isNeedToLoadLogin = true;
         }
 
     }

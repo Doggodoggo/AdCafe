@@ -186,5 +186,10 @@ public class Constants {
     public static String DATE_OF_BIRTH = "DateOfBirth";
 
     public static String CONSENT_TO_TARGET = "CanUsePersonalData";
+    public static String ONLINE_NESS = "ONLINE_NESS";
+    public static String USER_ID = "USER_ID";
+
+    public static String IS_MAKING_PAYOUT = "IsMakingPayout";
+    public static String BOI_IS_DA_KEY = "SessionKey";
 
 }

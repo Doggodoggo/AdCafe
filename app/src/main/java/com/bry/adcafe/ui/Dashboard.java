@@ -45,8 +45,10 @@ import com.bry.adcafe.fragments.myMapFragment;
 import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.services.SliderPrefManager;
 import com.bry.adcafe.services.TimeManager;
+import com.google.android.gms.maps.model.Dash;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -94,6 +96,13 @@ public class Dashboard extends AppCompatActivity {
     private String joke;
 
     private Activity thisActivity;
+    private DatabaseReference dbListener;
+    private DatabaseReference dbListenerForMoney;
+    private boolean isMakingPayout = false;
+
+    private boolean isWindowPaused = false;
+    private DatabaseReference SKListener;
+    private boolean isNeedToLoadLogin = false;
 
 
     @Override
@@ -118,6 +127,8 @@ public class Dashboard extends AppCompatActivity {
         setListeners();
         createProgressDialog();
         setGestureListener();
+        addListenerForPaymentSession();
+        addListenerForChangeInPayoutTotals();
     }
 
     @Override
@@ -126,6 +137,20 @@ public class Dashboard extends AppCompatActivity {
         new DatabaseManager().loadUsersPassword();
         if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
         setValues();
+        isWindowPaused = false;
+        if(isNeedToLoadLogin){
+            Intent intent = new Intent(Dashboard.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }else addListenerForChangeInSessionKey();
+    }
+
+    @Override
+    protected void onPause(){
+        removeListenerForChangeInSessionKey();
+        isWindowPaused = true;
+        super.onPause();
     }
 
     private void setListeners(){
@@ -266,7 +291,7 @@ public class Dashboard extends AppCompatActivity {
                 }else{
                     if(isOnline(mContext)){
                         if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
-                        promptUserAboutPayout();
+                        if(!isMakingPayout) promptUserAboutPayout();
                     }
                     else Toast.makeText(mContext,"You need internet connection first.",Toast.LENGTH_SHORT).show();
                 }
@@ -291,6 +316,8 @@ public class Dashboard extends AppCompatActivity {
     @Override
     protected void onDestroy(){
         Variables.isDashboardActivityOnline = false;
+        removeLisenerForPaymentSession();
+        removeListenerForChangeInPayoutTotals();
         super.onDestroy();
         removeListeners();
     }
@@ -331,7 +358,6 @@ public class Dashboard extends AppCompatActivity {
         }
         mTotalAdsSeenAllTime.setText(Integer.toString(monthsTotals));
         mTotalAdsSeenAllTime.setText(format.format(monthsTotals));
-        int totalAmounts = (int)(monthsTotals*Constants.CONSTANT_AMMOUNT_FOR_USER);
         mAmmountNumber.setText(Integer.toString(reimbursementTotals));
 
         if(Variables.doesUserWantNotifications)mDotForNotf.setVisibility(View.VISIBLE);
@@ -511,6 +537,8 @@ public class Dashboard extends AppCompatActivity {
         fragmentModalBottomSheet.setActivity(Dashboard.this);
         fragmentModalBottomSheet.setDetails(reimbursementTotals,Variables.getPassword());
         fragmentModalBottomSheet.show(getSupportFragmentManager(),"BottomSheet Fragment");
+
+        new DatabaseManager().setIsMakingPayoutInFirebase(true);
     }
 
     private void promptUserToShareApp(){
@@ -658,7 +686,7 @@ public class Dashboard extends AppCompatActivity {
     //Payout api implementation comes here...
     private void startPayout(){
         int reimbursementTotals;
-
+        new DatabaseManager().setIsMakingPayoutInFirebase(true);
         if(Variables.getMonthAdTotals(mKey) ==0) {
             SharedPreferences prefs3 = getSharedPreferences("ReimbursementTotals", MODE_PRIVATE);
             reimbursementTotals = prefs3.getInt(Constants.REIMBURSEMENT_TOTALS, 0);
@@ -708,6 +736,7 @@ public class Dashboard extends AppCompatActivity {
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
             showFailedPayoutsView();
             mProgForPayments.dismiss();
+            new DatabaseManager().setIsMakingPayoutInFirebase(false);
         }
     };
 
@@ -779,6 +808,7 @@ public class Dashboard extends AppCompatActivity {
             }
         });
         d.show();
+        new DatabaseManager().setIsMakingPayoutInFirebase(false);
     }
 
     private void setPayoutReceiptInFireBase(int amount) {
@@ -1025,5 +1055,205 @@ public class Dashboard extends AppCompatActivity {
         if(bol)findViewById(R.id.dotForTargeted).setVisibility(View.VISIBLE);
         else findViewById(R.id.dotForTargeted).setVisibility(View.INVISIBLE);
     }
+
+
+
+    ChildEventListener chil = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            if(dataSnapshot.getKey().equals(Constants.IS_MAKING_PAYOUT)){
+                isMakingPayout = dataSnapshot.getValue(boolean.class);
+                CardView payoutCard = findViewById(R.id.payoutCard);
+                if(isMakingPayout)payoutCard.setAlpha(0.4f);
+                else payoutCard.setAlpha(1.0f);
+
+            }
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
+    private void addListenerForPaymentSession(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        dbListener = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS).child(uid);
+        dbListener.addChildEventListener(chil);
+    }
+
+    private void removeLisenerForPaymentSession(){
+        if(dbListener!=null) dbListener.removeEventListener(chil);
+    }
+
+
+
+    ChildEventListener chil2 = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            if(dataSnapshot.getKey().equals(Constants.REIMBURSEMENT_TOTALS)){
+                int reimbursementAmount = dataSnapshot.getValue(int.class);
+                if(reimbursementAmount==0) {
+                    Variables.setTotalReimbursementAmount(reimbursementAmount);
+
+                    SharedPreferences pref7 = getApplicationContext().getSharedPreferences("ReimbursementTotals", MODE_PRIVATE);
+                    SharedPreferences.Editor editor7 = pref7.edit();
+                    editor7.clear();
+                    editor7.putInt(Constants.REIMBURSEMENT_TOTALS, Variables.getTotalReimbursementAmount());
+                    Log("Dashboard", "Setting the Reimbursement totals in shared " +
+                            "preferences - " + Integer.toString(Variables.getTotalReimbursementAmount()));
+                    editor7.apply();
+                    setValues();
+                }
+            }
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
+    private void addListenerForChangeInPayoutTotals(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        dbListenerForMoney = FirebaseDatabase.getInstance().getReference().child(Constants.FIREBASE_CHILD_USERS)
+                .child(uid);
+        dbListenerForMoney.addChildEventListener(chil2);
+    }
+
+    private void removeListenerForChangeInPayoutTotals(){
+        if(dbListenerForMoney!=null) dbListenerForMoney.removeEventListener(chil2);
+    }
+
+
+
+
+    ChildEventListener chil3 = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            if(dataSnapshot.getKey().equals(Constants.BOI_IS_DA_KEY)){
+                String firebasekey = dataSnapshot.getValue(String.class);
+                if(!firebasekey.equals(getSessionKey())){
+                    PerformShutdown();
+                }
+            }
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
+    public void addListenerForChangeInSessionKey(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference FirstCheckref = FirebaseDatabase.getInstance().getReference().child(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.BOI_IS_DA_KEY);
+        FirstCheckref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    String firebasekey = dataSnapshot.getValue(String.class);
+                    if (!firebasekey.equals(getSessionKey())) {
+                        PerformShutdown();
+                    }else{
+                        nowReallyAddLisenerForChangeInSessionKey();
+                    }
+                }else{
+                    PerformShutdown();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    public void nowReallyAddLisenerForChangeInSessionKey(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        SKListener = FirebaseDatabase.getInstance().getReference().child(Constants.FIREBASE_CHILD_USERS)
+                .child(uid);
+        SKListener.addChildEventListener(chil3);
+    }
+
+    public void removeListenerForChangeInSessionKey(){
+        if(SKListener!=null){
+            SKListener.removeEventListener(chil3);
+        }
+    }
+
+    public String getSessionKey(){
+        SharedPreferences prefs2 = getSharedPreferences(Constants.BOI_IS_DA_KEY, MODE_PRIVATE);
+        String sk = prefs2.getString(Constants.BOI_IS_DA_KEY, "NULL");
+        Log.d("Dashboard", "Loading session key from shared prefs - " + sk);
+        return sk;
+    }
+
+
+
+    public void PerformShutdown(){
+        if (FirebaseAuth.getInstance() != null) {
+            FirebaseAuth.getInstance().signOut();
+        }
+        Variables.resetAllValues();
+        if(!isWindowPaused){
+            Intent intent = new Intent(Dashboard.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }else{
+            isNeedToLoadLogin = true;
+        }
+
+    }
+
 
 }

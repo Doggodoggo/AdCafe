@@ -3,6 +3,7 @@ package com.bry.adcafe.fragments;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -27,6 +28,7 @@ import android.widget.TextView;
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
+import com.bry.adcafe.services.DatabaseManager;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -43,6 +45,8 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
     private LinearLayout mConfirmLayout;
     private double mTotals;
     private String mPassword;
+
+    private boolean isMakingPayout = false;
 
 
     public void setActivity(Activity activity) {
@@ -203,11 +207,19 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
             @Override
             public void onClick(View view) {
                 Variables.phoneNo = mPhoneNo;
+                isMakingPayout = true;
                 dismiss();
                 LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent("START_PAYOUT"));
             }
         });
 
+    }
+
+
+    @Override
+    public void onDismiss(final DialogInterface dialog) {
+        if(!isMakingPayout) new DatabaseManager().setIsMakingPayoutInFirebase(false);
+        super.onDismiss(dialog);
     }
 
 
@@ -264,4 +276,5 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
             }
         }
     }
+
 }

@@ -110,6 +110,7 @@ public class MyAdStatsItem {
         if(!mAdvert.isHasBeenReimbursed() && isCardForYesterdayAds() && ammountToBeRepaid !=0 ){
             mReimburseButton.setVisibility(android.view.View.VISIBLE);
             isClickable = true;
+            addListenerForPayoutSessions();
         }else{
             isClickable = false;
             if(isCardForYesterdayAds()) mReimburseButton.setVisibility(android.view.View.VISIBLE);
@@ -227,6 +228,7 @@ public class MyAdStatsItem {
                             if (isCardForYesterdayAds())
 //                                mReimburseButton.setVisibility(android.view.View.GONE);
                                 isClickable = false;
+                                removeListenerForPayoutSessions();
                                 mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
                         } else {
                             mHasBeenReimbursed.setText("Status: NOT Reimbursed.");
@@ -243,6 +245,7 @@ public class MyAdStatsItem {
                                 mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
                                 isClickable = false;
                                 mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
+                                removeListenerForPayoutSessions();
                             }
                         }
                     } catch (Exception e) {
@@ -274,7 +277,34 @@ public class MyAdStatsItem {
         @Override
         public void onReceive(Context context, Intent intent) {
           dbRef.removeEventListener(chil);
+          removeListenerForPayoutSessions();
           LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+        }
+    };
+
+    private BroadcastReceiver mMessageReceiverForHideBtnsBecauseOfPayoutSessionStart = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            hidePayoutButtons();
+        }
+    };
+
+    private void addListenerForPayoutSessions(){
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForHideBtnsBecauseOfPayoutSessionStart,
+                new IntentFilter(Constants.IS_MAKING_PAYOUT+"true"));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForShowBtnsBecauseOfPayoutSessionStop,
+                new IntentFilter(Constants.IS_MAKING_PAYOUT+"false"));
+    }
+
+    private void removeListenerForPayoutSessions(){
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForHideBtnsBecauseOfPayoutSessionStart);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForShowBtnsBecauseOfPayoutSessionStop);
+    }
+
+    private BroadcastReceiver mMessageReceiverForShowBtnsBecauseOfPayoutSessionStop = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            showPayoutButtons();
         }
     };
 
@@ -396,5 +426,17 @@ public class MyAdStatsItem {
         }
 
     }
+
+
+    private void hidePayoutButtons(){
+        mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
+        isClickable = false;
+    }
+
+    private void showPayoutButtons(){
+        mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.colorPrimaryDark));
+        isClickable = true;
+    }
+
 
 }
