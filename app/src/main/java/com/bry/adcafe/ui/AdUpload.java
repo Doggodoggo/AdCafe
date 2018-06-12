@@ -212,6 +212,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     protected void onResume(){
         isWindowPaused = false;
         super.onResume();
+        if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
         if(isNeedToLoadLogin){
             Intent intent = new Intent(AdUpload.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -223,6 +224,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
     @Override
     protected void onPause(){
+        if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
         removeListenerForChangeInSessionKey();
         isWindowPaused = true;
         super.onPause();
@@ -1016,7 +1018,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 //        String encodedImageToUpload = encodeBitmapForFirebaseStorage(bm);
         uploading = true;
         try{
-            mRef6.removeEventListener(chilForRefresh);
+            if(mRef6!=null) mRef6.removeEventListener(chilForRefresh);
         }catch (Exception e){
             e.printStackTrace();
         }

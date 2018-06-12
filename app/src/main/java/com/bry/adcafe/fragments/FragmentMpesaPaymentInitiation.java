@@ -123,22 +123,31 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         startPaymentProcess();
     }
 
-    @Override
-    public void dismiss(){
-        mPayment.stopRecursiveChecker();
-        removeTheseGodDamnReceivers();
-        super.dismiss();
-    }
+//    @Override
+//    public void dismiss(){
+//        mPayment.stopRecursiveChecker();
+//        removeTheseGodDamnReceivers();
+////        super.dismiss();
+//    }
 
     @Override
     public void onDismiss(final DialogInterface dialog) {
-        super.onDismiss(dialog);
-        mPayment.stopRecursiveChecker();
-        removeTheseGodDamnReceivers();
+        try{
+            super.onDismiss(dialog);
+            mPayment.stopRecursiveChecker();
+            removeTheseGodDamnReceivers();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         final Activity activity = getActivity();
         if (activity instanceof DialogInterface.OnDismissListener) {
             ((DialogInterface.OnDismissListener) activity).onDismiss(dialog);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
     }
 
 

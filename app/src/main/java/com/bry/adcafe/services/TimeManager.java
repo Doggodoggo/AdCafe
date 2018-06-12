@@ -292,7 +292,11 @@ public class TimeManager {
             r = new Runnable() {
                 @Override
                 public void run() {
-                    cal.add(Calendar.SECOND,4);
+                    try{
+                        cal.add(Calendar.SECOND,4);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                     if(canUpdate) {
                         h.postDelayed(r, 4000);
                         Log("Time-Service", "Updating timer."+getTime());
