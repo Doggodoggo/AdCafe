@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean isWindowPaused = false;
     private DatabaseReference SKListener;
+    private DataSnapshot mAdsSnapshot;
 
 
     @Override
@@ -659,7 +660,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Variables.setCurrentAdInSubscription(0);
             removeTheCustomCategoryEnabling();
         }
-        getGetAdsFromFirebase();
+//        getGetAdsFromFirebase();
+        startGetAdsThroughOneSnapShot();
     } ///////////////////////////
 
 
@@ -676,6 +678,207 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         runOnUiThread(returnRes);
     }//method for loading ads from thread.Contains sleep length...
 
+
+
+    //this loads the entire top node,with all the categories, then equates it to a local variable, then uses that
+    // as a snapshot. Much faster and efficient than traditional method.
+    private void startGetAdsThroughOneSnapShot(){
+//        if(mAdsSnapshot!=null){
+//            getAdsSnapShot();
+//        }
+        getAdsSnapShot();
+    }
+
+    private void getAdsSnapShot(){
+        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS);
+        adRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mAdsSnapshot = dataSnapshot;
+                getAdsFromSnapshot();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                mAvi.setVisibility(View.GONE);
+                mLoadingText.setVisibility(View.GONE);
+                showFailedView();
+            }
+        });
+    }
+
+    private void getAdsFromSnapshot(){
+        String date;
+        date = mIsBeingReset ? getNextDay() : getDate();
+
+        if(!mAdList.isEmpty()) mAdList.clear();
+        Variables.clearAllAdsFromAdList();
+
+        Variables.nextSubscriptionIndex = Variables.getCurrentSubscriptionIndex();
+        DataSnapshot mySnap = mAdsSnapshot.child(date).child(Integer.toString(Variables.constantAmountPerView))
+                .child(getSubscriptionValue(Variables.getCurrentSubscriptionIndex()))
+                .child(Integer.toString(getClusterValue(Variables.getCurrentSubscriptionIndex())));
+
+        Log(TAG, "---Query set up is : " + date + " : "+Variables.constantAmountPerView+ " : "
+                + getSubscriptionValue(Variables.getCurrentSubscriptionIndex())+ " : "
+                + getClusterValue(Variables.getCurrentSubscriptionIndex()));
+
+        List<DataSnapshot> dbSnaps = new ArrayList<>();
+        if(Variables.getCurrentAdInSubscription()==0){
+            int start = 1;
+            int stop = start+Constants.NO_OF_ADS_TO_LOAD;
+            for(int i = start; i<stop; i++){
+                String key = Integer.toString(i);
+                Log(TAG,"Attempting to load ad "+key+" in category "+getSubscriptionValue(Variables.getCurrentSubscriptionIndex()));
+                DataSnapshot adSnap = mySnap.child(key);
+                if(adSnap.exists()){
+                    dbSnaps.add(adSnap);
+                }
+            }
+        }else{
+            int start = Variables.getCurrentAdInSubscription();
+            int stop = start+Constants.NO_OF_ADS_TO_LOAD;
+            for(int i = start; i<stop; i++){
+                String key = Integer.toString(i);
+                Log(TAG,"Attempting to load ad "+key+" in category "+getSubscriptionValue(Variables.getCurrentSubscriptionIndex()));
+                DataSnapshot adSnap = mySnap.child(key);
+                if(adSnap.exists()){
+                    dbSnaps.add(adSnap);
+                }
+            }
+        }
+        handleDbSnapShotList(dbSnaps);
+    }
+
+    private void handleDbSnapShotList(List<DataSnapshot> dbSnaps) {
+        Log(TAG,"Number of children from firebase is : "+dbSnaps.size());
+        boolean canLoad = true;
+        if(Variables.constantAmountPerView>3
+                && Variables.getAdTotal(mKey)+Constants.NO_OF_ADS_TO_LOAD2>Constants.MAX_NUMBER_FOR7){
+            canLoad = false;
+        }
+        if (!dbSnaps.isEmpty()) {
+            if(dbSnaps.size()==1){
+                //if only one ad has loaded.
+                Log(TAG,"Only one ad has loaded.");
+                for (DataSnapshot snap : dbSnaps) {
+                    Advert ad = snap.getValue(Advert.class);
+                    DataSnapshot snpsht = snap.child("pushId");
+                    String pushID = snpsht.getValue(String.class);
+                    ad.setPushId(pushID);
+                    ad.setPushIdNumber(Integer.parseInt(pushID));
+                    if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"))) mAdList.add(ad);
+                }
+                if(mAdList.size()!=0){
+                    Log(TAG,"The one ad was not flagged so its in the adlist");
+                    if(Variables.getCurrentAdInSubscription()!=Integer.parseInt(mAdList.get(0).getPushId())){
+                        //user hasn't seen the one ad that has been loaded
+                        Log(TAG,"The user hasn't seen the one ad in the adlist.");
+                        Log(TAG,"Since the currentAdInSubscription is : "+Variables.getCurrentAdInSubscription()+" and " +
+                                "the ad's pushID is : "+(mAdList.get(0).getPushId()));
+                        mChildToStartFrom = Variables.getCurrentAdInSubscription()+ mAdList.size();
+                        Log(TAG,"The child set to start from is : "+mChildToStartFrom);
+                        Variables.setCurrentAdNumberForAllAdsList(0);
+                        loadAdsIntoAdvertCard();
+                    }else{
+                        //user has seen the one ad that has been loaded.
+                        Log(TAG,"User has seen the one ad that has been loaded so going to the next subscription");
+                        Log(TAG,"Since the currentAdInSubscription is : "+Variables.getCurrentAdInSubscription()+" and " +
+                                "the ad's pushID is : "+(mAdList.get(0).getPushId()));
+                        lastAdSeen = mAdList.get(0);
+                        mChildToStartFrom = Integer.parseInt(lastAdSeen.getPushId());
+                        if (Variables.getCurrentSubscriptionIndex()+1 < Variables.Subscriptions.size()) {
+                            Log(TAG,"Trying the next subscription.");
+                            Variables.setNextSubscriptionIndex();
+                            Variables.setCurrentAdInSubscription(0);
+                            getAdsFromSnapshot();
+                        } else {
+                            Log(TAG, "---There are no ads in any of the subscriptions");
+                            loadAdsIntoAdvertCard();
+                        }
+                    }
+                }else{
+                    //the one ad may have been flagged so moving on to the next subscription
+                    Log(TAG,"the one ad may have been flagged so moving on to the next subscription");
+                    if (Variables.getCurrentSubscriptionIndex()+1 < Variables.Subscriptions.size()) {
+                        Log(TAG,"Trying the next subscription.");
+                        Variables.setNextSubscriptionIndex();
+                        Variables.setCurrentAdInSubscription(0);
+                        getAdsFromSnapshot();
+                    } else {
+                        Log(TAG, "---There are no ads in any of the subscriptions");
+                        loadAdsIntoAdvertCard();
+                    }
+                }
+
+            }else{
+                //if multiple ads have loaded.
+                Log(TAG,"More than one ad has been loaded from firebase");
+                for (DataSnapshot snap : dbSnaps) {
+                    Advert ad = snap.getValue(Advert.class);
+                    DataSnapshot snpsht = snap.child("pushId");
+                    String pushID = snpsht.getValue(String.class);
+                    ad.setPushId(pushID);
+                    ad.setPushIdNumber(Integer.parseInt(pushID));
+                    if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"))){
+                        if(Variables.constantAmountPerView>3 && Variables.getAdTotal(mKey)+1>Constants.MAX_NUMBER_FOR7) {
+                            Log(TAG,"User cannot see more than "+Constants.MAX_NUMBER_FOR7+" ads.");
+                        }else mAdList.add(ad);
+                    }
+                }
+                if(mAdList.size()==0){
+                    //all the ads loaded may have been flagged so loading the next ads after those ones.
+                    Log(TAG,"All the ads loaded have been flagged so loading the next batch");
+                    Variables.setCurrentAdInSubscription(Variables.getCurrentAdInSubscription()+ (int)dbSnaps.size());
+                    getAdsFromSnapshot();
+                }else if(mAdList.size()==1 && Variables.getCurrentAdInSubscription()==Integer.parseInt(mAdList.get(0).getPushId())){
+                    Log(TAG,"There is only one ad that has been loaded.Perhaps the others were skipped because they were flagged");
+                    Log(TAG,"User has seen the one ad that has been loaded so going to the next subscription");
+                    Log(TAG,"Since the currentAdInSubscription is : "+Variables.getCurrentAdInSubscription()+" and " +
+                            "the ad's pushID is : "+(mAdList.get(0).getPushId()));
+                    lastAdSeen = mAdList.get(0);
+                    mChildToStartFrom = Integer.parseInt(lastAdSeen.getPushId());
+                    if (Variables.getCurrentSubscriptionIndex()+1 < Variables.Subscriptions.size()) {
+                        Log(TAG,"Trying the next subscription.");
+                        Variables.setNextSubscriptionIndex();
+                        Variables.setCurrentAdInSubscription(0);
+                        getAdsFromSnapshot();
+                    } else {
+                        Log(TAG, "---There are no ads in any of the subscriptions");
+                        loadAdsIntoAdvertCard();
+                    }
+                } else{
+                    Variables.setCurrentAdNumberForAllAdsList(0);
+                    //removing the first ad if the user has seen it.
+                    Log(TAG,"removing the first ad if the user has seen it.");
+                    if(Variables.getCurrentAdInSubscription()==Integer.parseInt(mAdList.get(0).getPushId())) {
+                        mAdList.remove(0);
+                        Log(TAG,"First ad has been removed because it has been seen");
+                    }
+                    mChildToStartFrom = Variables.getCurrentAdInSubscription()+mAdList.size();
+                    Log(TAG, "Child set to start from is -- " + mChildToStartFrom);
+                    Log(TAG, "---All the ads have been handled.Total is " + mAdList.size());
+                    loadAdsIntoAdvertCard();
+                }
+            }
+
+        }else{
+            if (Variables.getCurrentSubscriptionIndex()+1 < Variables.Subscriptions.size()) {
+                Log(TAG, "---There are no ads in subscription : "
+                        + getSubscriptionValue(Variables.getCurrentSubscriptionIndex()) + ". Retrying in the next category");
+                Variables.setNextSubscriptionIndex();
+                Variables.setCurrentAdInSubscription(0);
+                getAdsFromSnapshot();
+            } else {
+                Log(TAG, "---There are no ads in any of the subscriptions");
+                loadAdsIntoAdvertCard();
+            }
+        }
+    }
+
+
+
+    //this is the original method, individually querying one node at a time.
     private void getGetAdsFromFirebase() {
         String date;
         date = mIsBeingReset ? getNextDay() : getDate();
@@ -1708,7 +1911,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onReceive(Context context, Intent intent) {
             if (!mIsBeingReset && !isLoadingMoreAds && Variables.nextSubscriptionIndex + 1 < Variables.Subscriptions.size()) {
-                loadMoreAds();
+                startLoadingMoreAdsFromSnapshot();
             }
         }
     };
@@ -1719,7 +1922,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startShareImage2();
         }
     };
-
 
 
 
@@ -1838,6 +2040,146 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+
+
+
+    private void startLoadingMoreAdsFromSnapshot(){
+        if(mAdsSnapshot!=null){
+            loadMoreAdsFromSnapshot();
+        }else {
+            DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS);
+            adRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    mAdsSnapshot = dataSnapshot;
+                    loadMoreAdsFromSnapshot();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
+    }
+
+    private void loadMoreAdsFromSnapshot(){
+        isLoadingMoreAds = true;
+        if(!areViewsHidden){
+            if(!isLoaderShowing){
+                isLoaderShowing = true;
+                mAviLoadingMoreAds.smoothToShow();
+            }
+        }
+
+        Log(TAG, "Loading more ads since user has seen almost all....");
+        String date = isAlmostMidNight() ? getNextDay() : getDate();
+
+        DataSnapshot mySnap = mAdsSnapshot.child(date)
+                .child(Integer.toString(Variables.constantAmountPerView))
+                .child(getSubscriptionValue(Variables.nextSubscriptionIndex))
+                .child(Integer.toString(getClusterValue(Variables.nextSubscriptionIndex)));
+
+        Log(TAG, "---Query set up is : " + date + " : "+Variables.constantAmountPerView+ " : "
+                + getSubscriptionValue(Variables.nextSubscriptionIndex)
+                + " : "
+                + Integer.toString(getClusterValue(Variables.nextSubscriptionIndex)));
+
+        Log(TAG,"Dbref starts at "+(mChildToStartFrom + 1));
+        List<DataSnapshot> dbSnaps = new ArrayList<>();
+        int start = mChildToStartFrom + 1;
+        int stop = start+Constants.NO_OF_ADS_TO_LOAD;
+        for(int i = start; i<stop; i++){
+            String key = Integer.toString(i);
+            Log(TAG,"Attempting to load ad "+key+" in category "
+                    +getSubscriptionValue(Variables.nextSubscriptionIndex));
+            DataSnapshot adSnap = mySnap.child(key);
+            if(adSnap.exists()){
+                dbSnaps.add(adSnap);
+            }
+        }
+
+        handleLoadMoreAdsResults(dbSnaps);
+    }
+
+    private void handleLoadMoreAdsResults(List<DataSnapshot> dbSnaps) {
+        boolean canLoad = true;
+        if(Variables.constantAmountPerView>3
+                && Variables.getAdTotal(mKey)+Constants.NO_OF_ADS_TO_LOAD2>Constants.MAX_NUMBER_FOR7){
+            canLoad = false;
+        }
+        if (!dbSnaps.isEmpty()) {
+            Log(TAG, "---More children in dataSnapshot from firebase exist");
+            for (DataSnapshot snap : dbSnaps) {
+                Advert ad = snap.getValue(Advert.class);
+                DataSnapshot snpsht = snap.child("pushId");
+                String pushID = snpsht.getValue(String.class);
+                ad.setPushId(pushID);
+                ad.setPushIdNumber(Integer.parseInt(pushID));
+                Log(TAG,"setting push id to : "+ ad.getPushId());
+                if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"))){
+                    if(Variables.constantAmountPerView>3 && Variables.getAdTotal(mKey)+1>Constants.MAX_NUMBER_FOR7) {
+                        Log(TAG,"User cannot see more than "+Constants.MAX_NUMBER_FOR7+" ads.");
+                    }else{
+                        mAdList.add(ad);
+                        Log(TAG,"Loaded ad : "+ad.getPushRefInAdminConsole());
+                    }
+                }
+            }
+            Log(TAG, "---All the new ads have been handled.Total is " + mAdList.size());
+            if(mAdList.size()!=0){
+                loadMoreAdsIntoAdvertCard();
+                mChildToStartFrom += (int) dbSnaps.size();
+                isLoadingMoreAds = false;
+
+            }else{
+                Log(TAG,"Loaded no ad, loading more ads...");
+                if(Variables.nextSubscriptionIndex+1<Variables.Subscriptions.size()){
+                    mChildToStartFrom=0;
+                    Variables.nextSubscriptionIndex+=1;
+                    loadMoreAdsFromSnapshot();
+                }else{
+                    Log(TAG,"No more ads are available from the rest of the subscriptions");
+                    isLoadingMoreAds = false;
+                    if(isLoaderShowing) {
+                        isLoaderShowing = false;
+                        mAviLoadingMoreAds.smoothToHide();
+                    }
+                    if(mSwipeView.getChildCount()==1){
+                        if(!hasShowedToastForNoMoreAds){
+                            hasShowedToastForNoMoreAds = true;
+                            Toast.makeText(mContext, R.string.lastAd, Toast.LENGTH_SHORT).show();
+                        }
+                        loadAnyAnnouncements();
+                    }
+//                            spinner.setVisibility(View.VISIBLE);
+                }
+            }
+        } else {
+            //no ads were found in the subscription
+            Log(TAG, "----No ads are available in subscription: "+getSubscriptionValue(Variables.nextSubscriptionIndex));
+            if(Variables.nextSubscriptionIndex+1<Variables.Subscriptions.size()){
+                mChildToStartFrom=0;
+                Variables.nextSubscriptionIndex+=1;
+                loadMoreAdsFromSnapshot();
+            }else{
+                Log(TAG,"No more ads are available from the rest of the subscriptions");
+                isLoadingMoreAds = false;
+                if(isLoaderShowing) {
+                    isLoaderShowing = false;
+                    mAviLoadingMoreAds.smoothToHide();
+                }
+                if(mSwipeView.getChildCount()==1){
+                    if(!hasShowedToastForNoMoreAds){
+                        hasShowedToastForNoMoreAds = true;
+                        Toast.makeText(mContext, R.string.lastAd, Toast.LENGTH_SHORT).show();
+                    }
+                    loadAnyAnnouncements();
+                }
+            }
+        }
+    }
+
+
 
     private void loadMoreAdsIntoAdvertCard(){
         String date = isAlmostMidNight() ? getNextDay() : getDate();

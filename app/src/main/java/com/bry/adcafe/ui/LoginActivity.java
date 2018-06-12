@@ -48,6 +48,7 @@ import com.wang.avi.AVLoadingIndicatorView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.UUID;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -447,10 +448,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private String generateRandomString(){
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("R");
-        DatabaseReference myref = ref.push();
-        String key = myref.getKey();
-        String finalKey = "R"+key;
+//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("R");
+//        DatabaseReference myref = ref.push();
+//        String key = myref.getKey();
+//        String finalKey = "R"+key;
+
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+        String uuid2 = UUID.randomUUID().toString().replaceAll("-", "");
+        String finalKey= uuid+uuid2;
         Log.i("Dashboard","generated randomString : "+finalKey);
         return finalKey;
     }

@@ -17,14 +17,14 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, final Intent intent) {
 
-        int status = NetworkUtil.getConnectivityStatusString(context);
+//        int status = NetworkUtil.getConnectivityStatusString(context);
         Log.e("NetworkChangeReceiver", "Network change has been detected");
         if (!"android.net.conn.CONNECTIVITY_CHANGE".equals(intent.getAction())) {
-            if(status==NetworkUtil.NETWORK_STATUS_NOT_CONNECTED){
-                checkIfNeedToUpdateOnlinenessInFirebase();
-            }else{
-                checkIfNeedToUpdateOnlinenessInFirebase();
-            }
+//            if(status==NetworkUtil.NETWORK_STATUS_NOT_CONNECTED){
+//                checkIfNeedToUpdateOnlinenessInFirebase();
+//            }else{
+//                checkIfNeedToUpdateOnlinenessInFirebase();
+//            }
 
         }
     }
@@ -46,5 +46,6 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     private String getLastUserId(){
         SharedPreferences pref = mContext.getSharedPreferences(Constants.USER_ID,MODE_PRIVATE);
         return pref.getString(Constants.USER_ID,"NULL");
+
     }
 }

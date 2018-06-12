@@ -163,7 +163,7 @@ public class Constants {
 
     public static String ADMIN_MONEY = "AdminTotal";
     public static String TEXT_ANOUNCEMENTS = "Text_Announcements";
-    public static String ADMIN_ACC = "biglebowski@gmail.com";
+    public static String ADMIN_ACC = "bryonyoni@gmail.com";
     public static String CUSTOM_STARTING_POINT_ENABLED = "CUSTOM_STARTING_POINT_ENABLED";
     public static String CUSTOM_STARTING_POINT_VALUE = "CUSTOM_STARTING_POINT_VALUE";
     public static String HISTORY_UPLOADS = "AdminUploadHistory";
