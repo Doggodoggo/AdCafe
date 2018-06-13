@@ -191,5 +191,8 @@ public class Constants {
 
     public static String IS_MAKING_PAYOUT = "IsMakingPayout";
     public static String BOI_IS_DA_KEY = "SessionKey";
+    public static String TRANSACTIONS = "Transactions";
+    public static String PAYMENTS = "Payments";
+    public static String MPESA_PAYMENTS = "PayViaSafMpesa";
 
 }

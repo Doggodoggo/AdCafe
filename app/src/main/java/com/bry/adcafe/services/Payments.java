@@ -8,6 +8,8 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.bry.adcafe.Constants;
+import com.bry.adcafe.Variables;
+import com.bry.adcafe.models.PaymentResponse;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.apache.commons.codec.binary.Hex;
@@ -417,7 +419,7 @@ public class Payments {
 
 
 
-
+    //this handles the payment api calls and logic for making payments.
     public void MpesaMakePayments(final String amount, final String partyA ){
         String app_key = Constants.appKey;
         String app_secret = Constants.appSecret;
@@ -640,11 +642,16 @@ public class Payments {
                     JSONObject aT = new JSONObject(jsonData);
                     if(aT.has("ResponseCode")&& aT.has("MerchantRequestID")) {
                         String ResponseCode = aT.getString("ResponseCode");
+                        String ResponseDescription = aT.getString("ResponseDescription");
                         String MerchantRequestID = aT.getString("MerchantRequestID");
                         String CheckoutRequestID = aT.getString("CheckoutRequestID");
                         String ResultCode = aT.getString("ResultCode");
+                        String ResultDesc = aT.getString("ResultDesc");
                         if(ResponseCode.equals("0") &&ResultCode.equals("0")){
                             Log.d(TAG,"Payment has been completed,sending brodcast to start upload");
+                            Variables.transactionID = checkoutRequestID;
+                            Variables.transactionObject = new PaymentResponse(ResponseCode,ResponseDescription,MerchantRequestID
+                                    ,CheckoutRequestID,ResultCode,ResultDesc);
                             sendIntentForCompletedPayments();
                         }else if(ResponseCode.equals("0") &&ResultCode.equals("1")){
 

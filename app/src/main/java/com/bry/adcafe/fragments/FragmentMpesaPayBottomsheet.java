@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
@@ -25,6 +27,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
@@ -209,11 +212,15 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         mContentView.findViewById(R.id.startButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dismiss();
-                Variables.phoneNo = mPhoneNo;
-                Variables.mpesaEmail = mUploaderEmail;
-                Variables.amountToPayForUpload = paymentTotals;
-                LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent("START_PAYMENTS_INTENT"));
+                if(isOnline(mActivity)) {
+                    dismiss();
+                    Variables.phoneNo = mPhoneNo;
+                    Variables.mpesaEmail = mUploaderEmail;
+                    Variables.amountToPayForUpload = paymentTotals;
+                    LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent("START_PAYMENTS_INTENT"));
+                }else{
+                    Toast.makeText(mActivity,"Please have an internet connection to continue",Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -272,5 +279,13 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
             }
         }
     }
+
+    public boolean isOnline(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        //should check null because in airplane mode it will be null
+        return (netInfo != null && netInfo.isConnected());
+    }
+
 
 }

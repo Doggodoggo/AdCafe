@@ -96,7 +96,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         Log.d(TAG,"new Phone no is: "+newPhoneNo);
         String email = Variables.mpesaEmail;
         int ammount = (int) mAmount;
-        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) ammount = 10;
+        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals(Constants.ADMIN_ACC)) ammount = 10;
         String amount = Integer.toString(ammount);
 
         //This is for Ipay.

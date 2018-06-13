@@ -174,6 +174,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         skip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Variables.genderTarget = "";
                 genderLayout.setVisibility(View.GONE);
                 loadAgeGroupView();
             }
@@ -270,8 +271,8 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         concludeLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
                 .setInterpolator(new FastOutSlowInInterpolator());
         if(Variables.genderTarget!=null){
-            if(!Variables.genderTarget.equals(""))
-            confirmGender.setText(String.format("Set gender/sex target: %s.", Variables.genderTarget));
+            if(Variables.genderTarget.equals(""))confirmGender.setText("No preferred Gender/Sex set.");
+            else confirmGender.setText(String.format("Set gender/sex target: %s.", Variables.genderTarget));
         }else{
             confirmGender.setText("No preferred Gender/Sex set.");
         }

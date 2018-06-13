@@ -996,6 +996,16 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 .child(pushId);
         dbMyRef.setValue(advert);
 
+        DatabaseReference dbrefTrans = FirebaseDatabase.getInstance().getReference(Constants.TRANSACTIONS)
+                .child(Constants.PAYMENTS).child(Constants.MPESA_PAYMENTS)
+                .child(TimeManager.getNextDayYear()).child(TimeManager.getNextDayMonth()).child(TimeManager.getNextDayDay())
+                .child(pushId);
+        Variables.transactionObject.setTimeOfDay(TimeManager.getTime());
+        Variables.transactionObject.setDate(TimeManager.getDate());
+        Variables.transactionObject.setPayingPhoneNumber(Variables.phoneNo);
+        Variables.transactionObject.setPushrefInAdminConsole(pushId);
+        Variables.transactionObject.setUploaderId(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        dbrefTrans.setValue(Variables.transactionObject);
     }
 
     private void createProgressDialog(){

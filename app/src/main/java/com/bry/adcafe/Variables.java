@@ -10,9 +10,12 @@ import com.bry.adcafe.adapters.AdvertCard;
 import com.bry.adcafe.adapters.SavedAdsCard;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.AgeGroup;
+import com.bry.adcafe.models.PaymentResponse;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.mindorks.placeholderview.PlaceHolderView;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -140,7 +143,7 @@ public class Variables {
     public static String genderTarget = "";
     public static AgeGroup ageGroupTarget;
     public static List<LatLng> locationTarget = new ArrayList<>();
-
+    public static PaymentResponse transactionObject;
 
 
 
