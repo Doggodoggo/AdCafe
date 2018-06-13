@@ -678,6 +678,7 @@ public class Payments {
 
     private void sendIntentForCompletedPayments(){
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(mSuccessfulFilter));
+
     }
 
     private void sendIntentForFailedPayments(){

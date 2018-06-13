@@ -40,6 +40,9 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
     private Mpesaservice mpesaService;
     private String mTransactionId;
     private ProgressBar prog;
+    private FragmentMpesaPaymentInitiation fmi;
+
+    private boolean isToDismiss = false;
 
 
     public void setContext(Context context){
@@ -78,6 +81,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
                 }, 5000);
             }
         });
+        fmi = this;
         prog.setVisibility(View.VISIBLE);
         startPaymentProcess();
         return rootView;
@@ -192,8 +196,18 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Broadcast has been received that transaction is complete.");
             Variables.transactionID = mTransactionId;
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("FINISHED_MPESA_PAYMENTS"));
-            dismiss();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("FINISHED_MPESA_PAYMENTS"));
+                    try{
+                        dismiss();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        isToDismiss = true;
+                    }
+                }
+            }, 2500);
         }
     };
 
@@ -201,6 +215,24 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedSendingRequest);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFailedToSendRequest);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForCompleteTransaction);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if(isToDismiss){
+            try{
+                dismiss();
+            }catch (Exception e){
+                e.printStackTrace();
+
+            }
+        }
     }
 
 }

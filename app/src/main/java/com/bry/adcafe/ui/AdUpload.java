@@ -1419,6 +1419,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
 
 
+
     private void Log(String tag,String message){
         try{
             String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
@@ -1445,6 +1446,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             else findViewById(R.id.smallDot2).setVisibility(View.INVISIBLE);
         }
     };
+
 
 
     ChildEventListener chil = new ChildEventListener() {
