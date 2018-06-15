@@ -217,7 +217,7 @@ public class Mpesaservice {
         Request request = new Request.Builder()
                 .url("https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials")
                 .get()
-                .addHeader("authorization", "Basic " + encoded)
+                .addHeader("authorization", "Basic " + encoded )
                 .addHeader("cache-control", "no-cache")
                 .build();
 
@@ -238,7 +238,7 @@ public class Mpesaservice {
                     STKPushSimulation("550105",passEncoded, timeStamp,
                             "CustomerPayBillOnline",amount,"254702262663",
                             partyA,"550105","https://ilovepancake.github.io/PigDice",
-                            "https://adcafe.github.io/CBK/","Adpayment","jsjsj",accessToken);
+                            "https://adcafe.github.io/CBK/","AdCafe","Adpayment",accessToken);
                     Log.d(TAG+"payments",jsonData);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -254,10 +254,11 @@ public class Mpesaservice {
     public String B2CRequest(String amount, String partyB ,String bearer,Context context){
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject = new JSONObject();
-        Log.d(TAG,encryptInitiatorPassword(context,"safaricomcertificate.cer","Adcafeteam#20181"));
+        Log.d(TAG,encryptInitiatorPassword(context,"apicallercert.cer","AdcafeTeam#20182"));
         try {
             jsonObject.put("InitiatorName", "payoutsAdcafe");
-            jsonObject.put("SecurityCredential", encryptInitiatorPassword( context,"safaricomcertificate.cer","Adcafeteam#20181"));
+            jsonObject.put("SecurityCredential",//*"NgjGPoag+85JmfXQHZWd/7IY3CGHI3iJacJRbsmTgz4xz+lpgkAxm9m4EqX2lWcZbLEdYWlNvFgIX9acvr19RIewOHd6nvvq4EVTjRVxuIgfJP/B+WPyJPKg6eQHpGGG8pqFfyJRm1NFDUkpCKG0D+guQPXW4nPI8RGEKABWv3ssh9OK8WjRCzqdorOgBOduvz7+tjfba1KGzPYEPDDuiTfq79uf00hEDnX+ZhYGlml7a+wqBpyQdgrjYE4CcKOScEcdvrVPADUR6op7XaROgkgBSBHYgFOn1G3a27mKDUfkzwdGZcaeGrbjTpY73Kz02AD2RSmI/7yb8Fzv/rVMYA==");
+                     encryptInitiatorPassword( context,"apicallercert.cer","AdcafeTeam#20182"));
             jsonObject.put("CommandID", "PromotionPayment");
             jsonObject.put("Amount", amount);
             jsonObject.put("PartyA", "723387");
@@ -535,21 +536,20 @@ public class Mpesaservice {
     }
     public static String encryptInitiatorPassword(Context context, String securityCertificate, String password) {
         String encryptedPassword = "";
-        InputStream is = null;
+        AssetManager manager = context.getAssets();
+        FileInputStream fis;
+        InputStream is;
         try {
             Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
             byte[] input = password.getBytes();
 
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
-            AssetManager manager = context.getAssets();
-//            try {
-//               is =  manager.open(securityCertificate);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
+            is = manager.open(securityCertificate);
+//            fis = new FileInputStream(new File(securityCertificate)) ;
             AssetFileDescriptor assetFileDescriptor = manager.openFd(securityCertificate);
 //            FileDescriptor fileDescriptor = assetFileDescriptor.getFileDescriptor();
             FileInputStream fin =assetFileDescriptor.createInputStream();
+//            FileInputStream fis = openFileInput(securityCertificate);
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             X509Certificate certificate = (X509Certificate) cf.generateCertificate(fin);
             PublicKey pk = certificate.getPublicKey();
