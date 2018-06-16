@@ -33,6 +33,7 @@ import com.bry.adcafe.adapters.OlderAdsItem;
 import com.bry.adcafe.adapters.TomorrowsAdStatItem;
 import com.bry.adcafe.fragments.FragmentAdvertiserPayoutBottomsheet;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.PayoutResponse;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.services.Payments;
@@ -217,7 +218,7 @@ public class AdStats extends AppCompatActivity {
                 new IntentFilter("TAKE_DOWN"));
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForStartPayout,
-                new IntentFilter("START_PAYOUT"));
+                new IntentFilter("START_PAYOUT_ADVERTISER"));
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForShowBottomSheet,
                 new IntentFilter("START_ADVERTISER_PAYOUT"));
@@ -816,14 +817,14 @@ public class AdStats extends AppCompatActivity {
         Log("Dashboard","new Phone no is: "+newPhoneNo);
         int amount = Integer.parseInt(totalsToReimburse);
 
-        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) amount = 10;
-        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.PAY_POOL);
-        DatabaseReference pushRef = adRef.push();
-        Variables.transactionID = "TRANS"+pushRef.getKey();
-
+        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals(Constants.ADMIN_ACC)){
+            amount = 10;
+            totalsToReimburse = "10";
+        }
 
         Payments mPayments = new Payments(mContext,PAYOUT_SUCCESSFUL,PAYOUT_FAILED);
-        mPayments.makePayouts(Variables.transactionID,payoutPhoneNumber,amount);
+        mPayments.MpesaMakePayouts(totalsToReimburse,newPhoneNo,mContext);
+
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulPayout,
                 new IntentFilter(PAYOUT_SUCCESSFUL));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFailedPayout,
@@ -836,8 +837,9 @@ public class AdStats extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             Log("Dashboard", "Broadcast has been received that payout is finished.");
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
-            if(Variables.isOlderAd)setOlderAdsPaymentValue();
-            else SetPaymentValues();
+            if(Variables.isOlderAd){
+                setOlderAdsPaymentValue();
+            } else SetPaymentValues();
         }
     };
 
@@ -853,6 +855,7 @@ public class AdStats extends AppCompatActivity {
         }
     };
 
+    //this handles logic when payouts have been completed..
     private void SetPaymentValues() {
         Advert ad = Variables.adToBeReimbursed;
         boolean bol = !ad.isHasBeenReimbursed();
@@ -876,7 +879,7 @@ public class AdStats extends AppCompatActivity {
         });
 
         int numberOfUsersWhoDidntSeeAd = ad.getNumberOfUsersToReach()- ad.getNumberOfTimesSeen();
-        double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*ad.getAmountToPayPerTargetedView());
+        double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*(ad.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES));
 
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
@@ -884,10 +887,20 @@ public class AdStats extends AppCompatActivity {
                 .child(Long.toString(-(TimeManager.getDateInDays()-1)))
                 .child(ad.getPushRefInAdminConsole()).child(Constants.REIMBURSEMENT_HISTORY);
 
-        adRef.child("Date").setValue(TimeManager.getDate());
-        adRef.child("ReimbursementTransactionID").setValue(Variables.transactionID);
-        adRef.child("PhoneNo").setValue(Variables.phoneNo);
-        adRef.child("Amount").setValue(reimbursementTotals);
+        PayoutResponse myResp = Variables.payoutObject;
+        myResp.setDateInDays(TimeManager.getDateInDays());
+        myResp.setDate(TimeManager.getDate());
+        myResp.setTime(TimeManager.getTime());
+        myResp.setPhoneNo(Variables.phoneNo);
+        myResp.setUserId(uid);
+        myResp.setAmount((int)reimbursementTotals);
+        adRef.setValue(myResp);
+
+        DatabaseReference dbrefTrans = FirebaseDatabase.getInstance().getReference(Constants.TRANSACTIONS)
+                .child(Constants.AD_PAYOUTS).child(Constants.MPESA_PAYOUTS)
+                .child(TimeManager.getYear()).child(TimeManager.getMonth()).child(TimeManager.getDay())
+                .child(ad.getPushRefInAdminConsole());
+        dbrefTrans.setValue(myResp);
 
         removeAdminAmm((long)reimbursementTotals);
     }
@@ -910,7 +923,7 @@ public class AdStats extends AppCompatActivity {
         });
 
         int numberOfUsersWhoDidntSeeAd = ad.getNumberOfUsersToReach()- ad.getNumberOfTimesSeen();
-        double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*ad.getAmountToPayPerTargetedView());
+        double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*(ad.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES));
 
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
@@ -918,10 +931,22 @@ public class AdStats extends AppCompatActivity {
                 .child(Long.toString(-(ad.getDateInDays()+1)))
                 .child(ad.getPushRefInAdminConsole()).child(Constants.REIMBURSEMENT_HISTORY);
 
-        adRef.child("Date").setValue(TimeManager.getDate());
-        adRef.child("ReimbursementTransactionID").setValue(Variables.transactionID);
-        adRef.child("PhoneNo").setValue(Variables.phoneNo);
-        adRef.child("Amount").setValue(reimbursementTotals);
+        PayoutResponse myResp = Variables.payoutObject;
+        myResp.setDateInDays(TimeManager.getDateInDays());
+        myResp.setDate(TimeManager.getDate());
+        myResp.setTime(TimeManager.getTime());
+        myResp.setPhoneNo(Variables.phoneNo);
+        myResp.setUserId(uid);
+        myResp.setAmount((int)reimbursementTotals);
+        adRef.setValue(myResp);
+
+        DatabaseReference dbrefTrans = FirebaseDatabase.getInstance().getReference(Constants.TRANSACTIONS)
+                .child(Constants.AD_PAYOUTS).child(Constants.MPESA_PAYOUTS)
+                .child(TimeManager.getYear()).child(TimeManager.getMonth()).child(TimeManager.getDay())
+                .child(ad.getPushRefInAdminConsole());
+        dbrefTrans.setValue(myResp);
+
+        removeAdminAmm((long)reimbursementTotals);
     }
 
     private void removeAdminAmm(final long amount){

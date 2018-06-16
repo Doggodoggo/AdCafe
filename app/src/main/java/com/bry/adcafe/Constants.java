@@ -156,6 +156,8 @@ public class Constants {
             "uGgwUcWcAmXyBoAGtHNtBUkACWO6fGiJ8fm7nVXzPTMfkI7HIccWepcCWs0XBLQolNhawgkrQLdvNXUcN7GvHwiOC2GNicrN/a7fvLGdB5eNnMaOZDv9e+SmZ90a+fdY+hSLH6Rbv9Wuog==";
     public static String appKey = "HJju1PU5BthG4QTecPWduXuFz22XTFfe";
     public static String appSecret = "o2ZUZQgi8eDQYKj7";
+    public static String payoutAppKey = "Xna3G2ahKqwsXmciMfmAtmxqv9GjShqx";
+    public static String payoutAppSecret = "xSkVFsFMUFJ2OEAA";
 
 
     ////////////////////////
@@ -194,5 +196,9 @@ public class Constants {
     public static String TRANSACTIONS = "Transactions";
     public static String PAYMENTS = "Payments";
     public static String MPESA_PAYMENTS = "PayViaSafMpesa";
+    public static String PAYOUTS = "Payouts";
+    public static String MPESA_PAYOUTS = "PayoutViaSafMpesa";
+
+    public static String AD_PAYOUTS = "AdPayouts";
 
 }

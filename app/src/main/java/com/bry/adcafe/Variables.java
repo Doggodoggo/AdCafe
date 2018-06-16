@@ -11,6 +11,7 @@ import com.bry.adcafe.adapters.SavedAdsCard;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.AgeGroup;
 import com.bry.adcafe.models.PaymentResponse;
+import com.bry.adcafe.models.PayoutResponse;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.mindorks.placeholderview.PlaceHolderView;
@@ -144,6 +145,7 @@ public class Variables {
     public static AgeGroup ageGroupTarget;
     public static List<LatLng> locationTarget = new ArrayList<>();
     public static PaymentResponse transactionObject;
+    public static PayoutResponse payoutObject;
 
 
 

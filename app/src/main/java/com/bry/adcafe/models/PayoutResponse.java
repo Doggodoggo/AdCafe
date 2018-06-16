@@ -3,17 +3,28 @@ package com.bry.adcafe.models;
 public class PayoutResponse {
     private String Date;
     private String Time;
-    private String TransactionID;
+    private Long DateInDays;
     private String PhoneNo;
-    private String Amount;
+    private int Amount;
     private String pushID;
+    private String ConversationID;
+    private String OriginatorConversationID;
+    private String ResponseCode;
+    private String ResponseDescription;
+    private String userId;
 
     public PayoutResponse(){}
 
-    public PayoutResponse(String date, String time, String transactionID, String phoneNo, String amount, String pushID){
+    public PayoutResponse(String conversationID,String originatorConversationID,String responseCode,String responseDescription){
+        this.ConversationID = conversationID;
+        this.OriginatorConversationID = originatorConversationID;
+        this.ResponseCode = responseCode;
+        this.ResponseDescription = responseDescription;
+    }
+
+    public PayoutResponse(String date, String time, String phoneNo, int amount, String pushID){
         this.Date = date;
         this.Time = time;
-        this.TransactionID = transactionID;
         this.PhoneNo = phoneNo;
         this.Amount = amount;
         this.pushID = pushID;
@@ -35,14 +46,6 @@ public class PayoutResponse {
         Time = time;
     }
 
-    public String getTransactionID() {
-        return TransactionID;
-    }
-
-    public void setTransactionID(String transactionID) {
-        TransactionID = transactionID;
-    }
-
     public String getPhoneNo() {
         return PhoneNo;
     }
@@ -51,11 +54,11 @@ public class PayoutResponse {
         PhoneNo = phoneNo;
     }
 
-    public String getAmount() {
+    public int getAmount() {
         return Amount;
     }
 
-    public void setAmount(String amount) {
+    public void setAmount(int amount) {
         Amount = amount;
     }
 
@@ -65,5 +68,53 @@ public class PayoutResponse {
 
     public void setPushID(String pushID) {
         this.pushID = pushID;
+    }
+
+    public Long getDateInDays() {
+        return DateInDays;
+    }
+
+    public void setDateInDays(Long dateInDays) {
+        DateInDays = dateInDays;
+    }
+
+    public String getConversationID() {
+        return ConversationID;
+    }
+
+    public void setConversationID(String conversationID) {
+        ConversationID = conversationID;
+    }
+
+    public String getOriginatorConversationID() {
+        return OriginatorConversationID;
+    }
+
+    public void setOriginatorConversationID(String originatorConversationID) {
+        OriginatorConversationID = originatorConversationID;
+    }
+
+    public String getResponseCode() {
+        return ResponseCode;
+    }
+
+    public void setResponseCode(String responseCode) {
+        ResponseCode = responseCode;
+    }
+
+    public String getResponseDescription() {
+        return ResponseDescription;
+    }
+
+    public void setResponseDescription(String responseDescription) {
+        ResponseDescription = responseDescription;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

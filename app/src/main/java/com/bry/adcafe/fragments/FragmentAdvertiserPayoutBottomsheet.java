@@ -209,7 +209,7 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
                 Variables.phoneNo = mPhoneNo;
                 isMakingPayout = true;
                 dismiss();
-                LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent("START_PAYOUT"));
+                LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent("START_PAYOUT_ADVERTISER"));
             }
         });
 

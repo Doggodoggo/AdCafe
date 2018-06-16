@@ -44,6 +44,7 @@ import com.bry.adcafe.fragments.SetUsersPersonalInfo;
 import com.bry.adcafe.fragments.myMapFragment;
 import com.bry.adcafe.models.PayoutResponse;
 import com.bry.adcafe.services.DatabaseManager;
+import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.SliderPrefManager;
 import com.bry.adcafe.services.TimeManager;
 import com.google.android.gms.maps.model.Dash;
@@ -707,11 +708,11 @@ public class Dashboard extends AppCompatActivity {
         Log("Dashboard","new Phone no is: "+newPhoneNo);
 
 
-        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("biglebowski@gmail.com")) payoutAmount = 10;
+        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals(Constants.ADMIN_ACC)) payoutAmount = 10;
         String StringPayoutAmount = Integer.toString(payoutAmount);
 
-        Mpesaservice mps = new Mpesaservice("Xna3G2ahKqwsXmciMfmAtmxqv9GjShqx","xSkVFsFMUFJ2OEAA");
-        mps.authenticateThenPayouts(StringPayoutAmount,newPhoneNo,mContext);
+        Payments mps = new Payments(mContext,PAYOUT_SUCCESSFUL,PAYOUT_FAILED);
+        mps.MpesaMakePayouts(StringPayoutAmount,newPhoneNo,mContext);
 
 
 //        payments.makePayouts(Variables.transactionID,payoutPhoneNumber,payoutAmount);
@@ -759,7 +760,7 @@ public class Dashboard extends AppCompatActivity {
     private void promptUserForUnableToPayout(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Payout");
-        builder.setMessage("You cant make a payout of 0Ksh.")
+        builder.setMessage("You can't make a payout of 0Ksh.")
                 .setCancelable(true)
                 .setPositiveButton("Ok.", new DialogInterface.OnClickListener() {
                     @Override
@@ -799,6 +800,7 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void showSuccessfulPayoutPrompt() {
+        Log.e("Dashboard","Showing Payout");
         final Dialog d = new Dialog(this);
         d.setTitle("Successful Payout.");
         d.setContentView(R.layout.dialog95);
@@ -820,12 +822,22 @@ public class Dashboard extends AppCompatActivity {
         DatabaseReference pushRef = adRef.push();
         String pushId= pushRef.getKey();
 
-        pushRef.child("Date").setValue(TimeManager.getDateInDays());
-        pushRef.child("Time").setValue(TimeManager.getTime());
-        pushRef.child("TransactionID").setValue(Variables.transactionID);
-        pushRef.child("PhoneNo").setValue(Variables.phoneNo);
-        pushRef.child("Amount").setValue(amount);
-        pushRef.child("pushID").setValue(pushId);
+        PayoutResponse myResp = Variables.payoutObject;
+        myResp.setDateInDays(TimeManager.getDateInDays());
+        myResp.setDate(TimeManager.getDate());
+        myResp.setTime(TimeManager.getTime());
+        myResp.setPhoneNo(Variables.phoneNo);
+        myResp.setUserId(uid);
+        myResp.setAmount(amount);
+        myResp.setPushID(pushId);
+
+        pushRef.setValue(myResp);
+
+        DatabaseReference dbrefTrans = FirebaseDatabase.getInstance().getReference(Constants.TRANSACTIONS)
+                .child(Constants.PAYOUTS).child(Constants.MPESA_PAYOUTS)
+                .child(TimeManager.getYear()).child(TimeManager.getMonth()).child(TimeManager.getDay())
+                .child(pushId);
+        dbrefTrans.setValue(myResp);
     }
 
     private void clearUserDataFromSharedPreferences(){
@@ -979,15 +991,30 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void removeAdminAmm(final long amount){
-        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(Constants.TOTAL_ALL_TIME_ADS);
+        final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(Constants.TOTAL_ALL_TIME_ADS);
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()) {
                     long amm = dataSnapshot.getValue(long.class);
                     long newAmm = amm -= amount;
-                    DatabaseReference mewRef = FirebaseDatabase.getInstance().getReference(Constants.TOTAL_ALL_TIME_ADS);
-                    mewRef.setValue(newAmm);
+                    dbRef.setValue(newAmm);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        final DatabaseReference dbRef2 = FirebaseDatabase.getInstance().getReference(Constants.ADMIN_MONEY);
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    long amm = dataSnapshot.getValue(long.class);
+                    long newAmm = amm -= amount;
+                    dbRef2.setValue(newAmm);
                 }
             }
 
