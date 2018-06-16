@@ -42,6 +42,7 @@ import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
 import com.bry.adcafe.fragments.SetUsersPersonalInfo;
 import com.bry.adcafe.fragments.myMapFragment;
+import com.bry.adcafe.models.PayoutResponse;
 import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.services.SliderPrefManager;
 import com.bry.adcafe.services.TimeManager;
@@ -705,7 +706,7 @@ public class Dashboard extends AppCompatActivity {
         String newPhoneNo = "254"+payoutPhoneNumber.substring(1);
         Log("Dashboard","new Phone no is: "+newPhoneNo);
 
-        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")) payoutAmount = 10;
+        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals(Constants.ADMIN_ACC)) payoutAmount = 10;
         String StringPayoutAmount = Integer.toString(payoutAmount);
 
         Mpesaservice mps = new Mpesaservice("Xna3G2ahKqwsXmciMfmAtmxqv9GjShqx","xSkVFsFMUFJ2OEAA");
@@ -817,6 +818,7 @@ public class Dashboard extends AppCompatActivity {
                 .child(uid).child(Constants.REIMBURSEMENT_HISTORY).child(Long.toString(-TimeManager.getDateInDays()));
         DatabaseReference pushRef = adRef.push();
         String pushId= pushRef.getKey();
+
         pushRef.child("Date").setValue(TimeManager.getDateInDays());
         pushRef.child("Time").setValue(TimeManager.getTime());
         pushRef.child("TransactionID").setValue(Variables.transactionID);
@@ -976,14 +978,14 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void removeAdminAmm(final long amount){
-        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(Constants.ADMIN_MONEY);
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(Constants.TOTAL_ALL_TIME_ADS);
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()) {
                     long amm = dataSnapshot.getValue(long.class);
                     long newAmm = amm -= amount;
-                    DatabaseReference mewRef = FirebaseDatabase.getInstance().getReference(Constants.ADMIN_MONEY);
+                    DatabaseReference mewRef = FirebaseDatabase.getInstance().getReference(Constants.TOTAL_ALL_TIME_ADS);
                     mewRef.setValue(newAmm);
                 }
             }

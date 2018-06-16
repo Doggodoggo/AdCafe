@@ -5,10 +5,10 @@ package com.bry.adcafe;
  */
 
 public class Constants {
-    public static String ADVERT_CARD_BROADCAST_TO_AD_COUNTER = "ADVERT_CARD_BROADCAST_TO_AD_COUNTER";
-    public static String ADVERT_CARD_BROADCAST = "ADVERT_CARD_BROADCAST";
-    public static String AD_TIMER_BROADCAST = "AD_TIMER_BROADCAST";
-    public static String NUMBER_OF_ADS  = "NUMBER_OF_ADS";
+    public static final String ADVERT_CARD_BROADCAST_TO_AD_COUNTER = "ADVERT_CARD_BROADCAST_TO_AD_COUNTER";
+    public static final String ADVERT_CARD_BROADCAST = "ADVERT_CARD_BROADCAST";
+    public static final String AD_TIMER_BROADCAST = "AD_TIMER_BROADCAST";
+    public static final String NUMBER_OF_ADS  = "NUMBER_OF_ADS";
     public static final String TIMER_HAS_ENDED = "TIMER_HAS_ENDED";
 
 

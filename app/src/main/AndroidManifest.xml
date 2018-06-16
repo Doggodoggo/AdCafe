@@ -79,7 +79,7 @@
 
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="@string/fabricKey" />
+            android:value="e8d463a013974f8861522487a012c2b4de2f72f3" />
 
         <receiver android:name=".services.AlarmReceiver" />
         <receiver

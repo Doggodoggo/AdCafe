@@ -341,6 +341,8 @@ public class Mpesaservice {
 
     }
 
+
+
     public String STKPushSimulation(String businessShortCode, String password, String timestamp, String transactionType, String amount,
                                     String phoneNumber, String partyA, String partyB, String callBackURL, String queueTimeOutURL,
                                     String accountReference, String transactionDesc,String bearer) throws IOException, JSONException {
@@ -533,6 +535,8 @@ public class Mpesaservice {
 
 
     }
+
+
     public static String encryptInitiatorPassword(Context context, String securityCertificate, String password) {
         String encryptedPassword = "";
         InputStream is = null;
