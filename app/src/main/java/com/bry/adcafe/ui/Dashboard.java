@@ -706,7 +706,8 @@ public class Dashboard extends AppCompatActivity {
         String newPhoneNo = "254"+payoutPhoneNumber.substring(1);
         Log("Dashboard","new Phone no is: "+newPhoneNo);
 
-        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals(Constants.ADMIN_ACC)) payoutAmount = 10;
+
+        if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("biglebowski@gmail.com")) payoutAmount = 10;
         String StringPayoutAmount = Integer.toString(payoutAmount);
 
         Mpesaservice mps = new Mpesaservice("Xna3G2ahKqwsXmciMfmAtmxqv9GjShqx","xSkVFsFMUFJ2OEAA");
