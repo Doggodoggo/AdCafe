@@ -119,7 +119,7 @@ public class Payments {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 Log(TAG,"response gotten");
                 Log(TAG,""+response.message());
                 Log(TAG,""+response.code());
@@ -175,7 +175,7 @@ public class Payments {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 try {
                     String jsonData = response.body().string();
                     Log(TAG,jsonData);
@@ -223,7 +223,7 @@ public class Payments {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 try {
                     String jsonData = response.body().string();
                     Log(TAG,jsonData);
@@ -295,7 +295,7 @@ public class Payments {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 Log(TAG,"response gotten");
                 Log(TAG,""+response.message());
                 Log(TAG,""+response.code());
@@ -372,7 +372,7 @@ public class Payments {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 try {
                     String jsonData = response.body().string();
                     Log(TAG,jsonData);
@@ -425,7 +425,7 @@ public class Payments {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 try{
                     String jsonData = response.body().string();
                     Log(TAG,jsonData);
@@ -480,7 +480,7 @@ public class Payments {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 try {
                     String jsonData = response.body().string();
                     JSONObject aT = new JSONObject(jsonData);
@@ -504,7 +504,7 @@ public class Payments {
 
     private void STKPushSimulation(final String businessShortCode, final String password, final String timestamp, String transactionType, String amount,
                                      String phoneNumber, String partyA, String partyB, String callBackURL, String queueTimeOutURL,
-                                     String accountReference, String transactionDesc, String bearer) throws IOException, JSONException {
+                                     String accountReference, String transactionDesc, String bearer) throws JSONException {
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("BusinessShortCode", businessShortCode);
@@ -544,7 +544,7 @@ public class Payments {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 sendIntentForSuccessfulPaymentRequest();
                 try {
                     String jsonData = response.body().string();
@@ -608,7 +608,7 @@ public class Payments {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 try {
                     String jsonData = response.body().string();
                     JSONObject aT = new JSONObject(jsonData);
@@ -627,7 +627,7 @@ public class Payments {
     }
 
     private void STKPushTransactionStatus(final String businessShortCode, final String password, final String timestamp,
-                                          final String checkoutRequestID, String accessToken) throws IOException, JSONException {
+                                          final String checkoutRequestID, String accessToken) throws JSONException {
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("BusinessShortCode", businessShortCode);
@@ -656,7 +656,7 @@ public class Payments {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 try {
                     String jsonData = response.body().string();
                     Log.d(TAG,jsonData);
@@ -725,7 +725,7 @@ public class Payments {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 try {
                     String jsonData = response.body().string();
                     Log.d(TAG,jsonData);
@@ -788,7 +788,7 @@ public class Payments {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 try {
                     String jsonData = response.body().string();
                     Log.d(TAG,jsonData);

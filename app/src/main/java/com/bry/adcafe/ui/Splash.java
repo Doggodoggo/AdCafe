@@ -49,8 +49,8 @@ public class Splash extends AppCompatActivity {
 
         isUserSeeingAcivity=true;
         isClearToMoveToNextActivity = false;
-        LSEText = (TextView) findViewById(R.id.LSEText);
-        LogoText = (TextView) findViewById(R.id.logoText);
+        LSEText = findViewById(R.id.LSEText);
+        LogoText = findViewById(R.id.logoText);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

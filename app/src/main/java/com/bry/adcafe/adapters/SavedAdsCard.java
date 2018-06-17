@@ -232,7 +232,7 @@ public class SavedAdsCard {
             }
             mAdvert.setImageBitmap(bm);
             isLoadingImageFromFirebase = false;
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -277,7 +277,7 @@ public class SavedAdsCard {
             Bitmap bm = decodeFromFirebaseBase64(mAdvert.getImageUrl());
             mAdvert.setImageBitmap(bm);
             Log.d("SavedAdsCard---","Image has been converted to bitmap and set in model instance.");
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         Glide.with(mContext).load(bitmapToByte(getResizedBitmap(mAdvert.getImageBitmap(),170))).listener(new RequestListener<byte[], GlideDrawable>() {
@@ -623,7 +623,7 @@ public class SavedAdsCard {
 
 
 
-    private static Bitmap decodeFromFirebaseBase64(String image) throws IOException {
+    private static Bitmap decodeFromFirebaseBase64(String image) {
         byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
         Bitmap bitm = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
 //        Bitmap newBm = getResizedBitmap(bitm,00);

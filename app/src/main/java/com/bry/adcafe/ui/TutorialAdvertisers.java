@@ -41,10 +41,10 @@ public class TutorialAdvertisers extends AppCompatActivity {
 
         setContentView(R.layout.activity_tutorial_advertisers);
         myPrefManager = new SliderPrefManager(this);
-        viewPager = (ViewPager) findViewById(R.id.view_pager);
-        myDotsLayout = (LinearLayout) findViewById(R.id.layoutDots);
-        myBtnSkip = (Button) findViewById(R.id.btn_skip);
-        myBtnNext = (Button) findViewById(R.id.btn_next);
+        viewPager = findViewById(R.id.view_pager);
+        myDotsLayout = findViewById(R.id.layoutDots);
+        myBtnSkip = findViewById(R.id.btn_skip);
+        myBtnNext = findViewById(R.id.btn_next);
 
         // layouts of all welcome sliders
         myLayouts = new int[]{

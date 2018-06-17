@@ -77,18 +77,18 @@ public class ViewImageFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_view_image_dialog, container, false);
 
-        mBackButton = (ImageButton) rootView.findViewById(R.id.backBtn);
-        mShareButton = (ImageButton) rootView.findViewById(R.id.shareBtn);
-        mWebsiteLink = (ImageButton) rootView.findViewById(R.id.Website);
-        TextView websiteTextxx = (TextView) rootView.findViewById(R.id.websiteTextxx);
-        mDeleteButton = (ImageButton) rootView.findViewById(R.id.Delete);
+        mBackButton = rootView.findViewById(R.id.backBtn);
+        mShareButton = rootView.findViewById(R.id.shareBtn);
+        mWebsiteLink = rootView.findViewById(R.id.Website);
+        TextView websiteTextxx = rootView.findViewById(R.id.websiteTextxx);
+        mDeleteButton = rootView.findViewById(R.id.Delete);
         mDownloadButton = rootView.findViewById(R.id.Download);
         mAdvert = Variables.adToBeViewed;
         if(mAdvert.getWebsiteLink().equals(igsNein)) {
             mWebsiteLink.setAlpha(0.4f);
             websiteTextxx.setAlpha(0.4f);
         }
-        mImageView = (ImageView) rootView.findViewById(R.id.theAdImage);
+        mImageView = rootView.findViewById(R.id.theAdImage);
         mImageView.setImageBitmap(mAdvert.getImageBitmap());
 
         mBackButton.setOnClickListener(new View.OnClickListener() {

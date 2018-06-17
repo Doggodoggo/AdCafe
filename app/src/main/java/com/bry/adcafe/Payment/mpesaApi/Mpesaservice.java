@@ -55,7 +55,7 @@ public class Mpesaservice {
     }
 
 
-    public String authenticate() throws IOException, JSONException {
+    public String authenticate() throws IOException {
         String app_key = appKey;
         String app_secret = appSecret;
         String appKeySecret = app_key + ":" + app_secret;
@@ -80,7 +80,7 @@ public class Mpesaservice {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 try {
                     String jsonData = response.body().string();
                     Log.d(TAG,jsonData);
@@ -131,7 +131,7 @@ public class Mpesaservice {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 processResponse(response);
             }
         };
@@ -168,7 +168,7 @@ public class Mpesaservice {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 try {
                     String jsonData = response.body().string();
                     Log.d(TAG,jsonData);
@@ -228,7 +228,7 @@ public class Mpesaservice {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 try {
                     String jsonData = response.body().string();
                     JSONObject aT = new JSONObject(jsonData);
@@ -293,7 +293,7 @@ public class Mpesaservice {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 try {
                     String jsonData = response.body().string();
                     Log.d(TAG,jsonData);
@@ -351,7 +351,7 @@ public class Mpesaservice {
 
     public String STKPushSimulation(String businessShortCode, String password, String timestamp, String transactionType, String amount,
                                     String phoneNumber, String partyA, String partyB, String callBackURL, String queueTimeOutURL,
-                                    String accountReference, String transactionDesc,String bearer) throws IOException, JSONException {
+                                    String accountReference, String transactionDesc,String bearer) throws JSONException {
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("BusinessShortCode", businessShortCode);
@@ -395,7 +395,7 @@ public class Mpesaservice {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 processResponse(response);
             }
         };

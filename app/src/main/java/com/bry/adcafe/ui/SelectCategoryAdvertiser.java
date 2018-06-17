@@ -215,15 +215,15 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
         final Dialog d = new Dialog(acCont);
         d.setTitle("Targeted people category.");
         d.setContentView(R.layout.dialog6);
-        Button b1 = (Button) d.findViewById(R.id.submitButton);
-        Button b2 = (Button) d.findViewById(R.id.cancelButton);
+        Button b1 = d.findViewById(R.id.submitButton);
+        Button b2 = d.findViewById(R.id.cancelButton);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int cpv;
-                RadioButton button3 = (RadioButton) d.findViewById(R.id.radioButton3);
-                RadioButton button5 = (RadioButton) d.findViewById(R.id.radioButton5);
-                RadioButton button8 = (RadioButton) d.findViewById(R.id.radioButton8);
+                RadioButton button3 = d.findViewById(R.id.radioButton3);
+                RadioButton button5 = d.findViewById(R.id.radioButton5);
+                RadioButton button8 = d.findViewById(R.id.radioButton8);
                 if(button3.isChecked()){
                     cpv = 3;
                 }else if(button5.isChecked()){

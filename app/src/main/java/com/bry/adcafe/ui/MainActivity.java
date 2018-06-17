@@ -829,7 +829,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(mAdList.size()==0){
                     //all the ads loaded may have been flagged so loading the next ads after those ones.
                     Log(TAG,"All the ads loaded have been flagged so loading the next batch");
-                    Variables.setCurrentAdInSubscription(Variables.getCurrentAdInSubscription()+ (int)dbSnaps.size());
+                    Variables.setCurrentAdInSubscription(Variables.getCurrentAdInSubscription()+ dbSnaps.size());
                     getAdsFromSnapshot();
                 }else if(mAdList.size()==1 && Variables.getCurrentAdInSubscription()==Integer.parseInt(mAdList.get(0).getPushId())){
                     Log(TAG,"There is only one ad that has been loaded.Perhaps the others were skipped because they were flagged");
@@ -1164,22 +1164,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setUpAllTheViews() {
-        mSwipeView = (SwipeDirectionalView) findViewById(R.id.swipeView);
-        mAdCounterView = (PlaceHolderView) findViewById(R.id.adCounterView);
-        mBottomNavButtons = (LinearLayout) findViewById(R.id.bottomNavButtons);
+        mSwipeView = findViewById(R.id.swipeView);
+        mAdCounterView = findViewById(R.id.adCounterView);
+        mBottomNavButtons = findViewById(R.id.bottomNavButtons);
 
-        mAvi = (AVLoadingIndicatorView) findViewById(R.id.mainActivityAvi);
-        mLoadingProgressBar = (ProgressBar) findViewById(R.id.progressBarMain);
-        mAviLoadingMoreAds = (AVLoadingIndicatorView) findViewById(R.id.aviLoadingNextAds);
-        spinner = (ProgressBar)findViewById(R.id.progressBar1);
+        mAvi = findViewById(R.id.mainActivityAvi);
+        mLoadingProgressBar = findViewById(R.id.progressBarMain);
+        mAviLoadingMoreAds = findViewById(R.id.aviLoadingNextAds);
+        spinner = findViewById(R.id.progressBar1);
 
-        mLoadingText = (TextView) findViewById(R.id.loadingAdsMessage);
-        mFailedToLoadLayout = (LinearLayout) findViewById(R.id.failedLoadAdsLayout);
-        mRetryButton = (Button) findViewById(R.id.retryLoadingAds);
-        mLogoutButton = (ImageButton) findViewById(R.id.logoutBtn);
+        mLoadingText = findViewById(R.id.loadingAdsMessage);
+        mFailedToLoadLayout = findViewById(R.id.failedLoadAdsLayout);
+        mRetryButton = findViewById(R.id.retryLoadingAds);
+        mLogoutButton = findViewById(R.id.logoutBtn);
 
-        cannotLoadLayout = (LinearLayout) findViewById(R.id.noInternetLayout);
-        retryLoadingFromCannotLoad =(Button) findViewById(R.id.btn_retry);
+        cannotLoadLayout = findViewById(R.id.noInternetLayout);
+        retryLoadingFromCannotLoad = findViewById(R.id.btn_retry);
 
         int bottomMargin = Utils.dpToPx(90);
         Point windowSize = Utils.getDisplaySize(getWindowManager());
@@ -1212,7 +1212,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void loadAdCounter() {
-        mAdCounterView = (PlaceHolderView) findViewById(R.id.adCounterView);
+        mAdCounterView = findViewById(R.id.adCounterView);
         mAdCounterView.addView(new AdCounterBar(this.getApplicationContext(), mAdCounterView));
 
     }
@@ -2128,7 +2128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log(TAG, "---All the new ads have been handled.Total is " + mAdList.size());
             if(mAdList.size()!=0){
                 loadMoreAdsIntoAdvertCard();
-                mChildToStartFrom += (int) dbSnaps.size();
+                mChildToStartFrom += dbSnaps.size();
                 isLoadingMoreAds = false;
 
             }else{
@@ -2789,7 +2789,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(Intent.createChooser(share, "Share Image"));
     }
 
-    private Bitmap decodeFromFirebaseBase64(String image) throws IOException {
+    private Bitmap decodeFromFirebaseBase64(String image) {
         byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
         Bitmap bitm = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
 //        return getResizedBitmap(bitm,700);

@@ -93,7 +93,7 @@ public class ipayservice {
         this.lname = lastName;
         this.oid = transactionid;
         this.inv = transactionid;
-        carddataString = vid+tel+eml+cvv+cardno+month+year+cust_address+cust_city+cust_country+postcode+stateprov+fname+lname;;
+        carddataString = vid+tel+eml+cvv+cardno+month+year+cust_address+cust_city+cust_country+postcode+stateprov+fname+lname;
     }
 
 
@@ -179,7 +179,7 @@ public class ipayservice {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 processResponse(response);
             }
         };
@@ -228,7 +228,7 @@ public class ipayservice {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 processCardResponse(response);
             }
         };
@@ -265,7 +265,7 @@ public class ipayservice {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 processStkCallResponse(response);
             }
         };
@@ -300,7 +300,7 @@ public class ipayservice {
                 }
 
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
+                public void onResponse(Call call, Response response) {
                     processMpesaTransactResponse(response);
                 }
             };
@@ -370,7 +370,7 @@ public class ipayservice {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
 
                 processCardTransactResponse(response);
             }
@@ -406,7 +406,7 @@ public class ipayservice {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 processPayoutRequest(response);
             }
         };
@@ -439,7 +439,7 @@ public class ipayservice {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 processPayoutStatus(response);
             }
         };

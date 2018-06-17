@@ -54,6 +54,7 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
     private Context mContext;
     private Activity mActivity;
 
+
     private GoogleMap map;
     private double CBD_LAT = -1.2805;
     private double CBD_LONG = 36.8163;

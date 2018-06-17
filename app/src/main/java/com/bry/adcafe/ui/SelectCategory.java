@@ -155,15 +155,15 @@ public class SelectCategory extends AppCompatActivity implements View.OnClickLis
         final Dialog d = new Dialog(this);
         d.setTitle("Amount to receive.");
         d.setContentView(R.layout.dialog7);
-        Button b1 = (Button) d.findViewById(R.id.submitButton);
-        Button b2 = (Button) d.findViewById(R.id.cancelButton);
+        Button b1 = d.findViewById(R.id.submitButton);
+        Button b2 = d.findViewById(R.id.cancelButton);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int cpv;
-                RadioButton button1 = (RadioButton) d.findViewById(R.id.radioButton1);
-                RadioButton button3 = (RadioButton) d.findViewById(R.id.radioButton3);
-                RadioButton button6 = (RadioButton) d.findViewById(R.id.radioButton6);
+                RadioButton button1 = d.findViewById(R.id.radioButton1);
+                RadioButton button3 = d.findViewById(R.id.radioButton3);
+                RadioButton button6 = d.findViewById(R.id.radioButton6);
                 if(button1.isChecked()){
                     cpv = 1;
                 }else if(button3.isChecked()){

@@ -71,8 +71,8 @@ public class TomorrowsAdStatItem {
         mEmail.setText("Uploaded by : "+mAdvert.getUserEmail());
         mTargetedNumber.setText(String.format("No. of users targeted : %d", mAdvert.getNumberOfUsersToReach()));
         mCategory.setText("Category : "+mAdvert.getCategory());
-        String amount = Integer.toString((int)(mAdvert.getNumberOfUsersToReach()*
-                (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES)));
+        String amount = Integer.toString(mAdvert.getNumberOfUsersToReach()*
+                (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES));
         mAmountToReimburse.setText(String.format("Paid amount : %s Ksh.", amount));
         if(mAdvert.isFlagged()) {
             mTakeDown.setText("Put Up.");
@@ -90,7 +90,7 @@ public class TomorrowsAdStatItem {
             Log.d("TomorrowsAdItem---","Image has been converted to bitmap.");
             mImageBytes = bitmapToByte(bm);
             mAdvert.setImageBitmap(bm);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -174,7 +174,7 @@ public class TomorrowsAdStatItem {
         return byteArray;
     }
 
-    private static Bitmap decodeFromFirebaseBase64(String image) throws IOException {
+    private static Bitmap decodeFromFirebaseBase64(String image) {
         byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
     }

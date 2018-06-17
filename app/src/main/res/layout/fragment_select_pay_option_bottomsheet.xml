@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@drawable/dialog_bg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:padding="15dp"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:textSize="19sp"
+            android:text="Payment Options."
+            android:layout_marginBottom="10dp"
+            android:textColor="@color/colorPrimary"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginBottom="10dp"
+            android:text="@string/needToMakePayments"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"
+            android:text="@string/noteAboutCreditCardInfo"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:paddingBottom="10dp"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:visibility="gone"
+                android:background="@drawable/visa"
+                android:layout_height="30dp" />
+
+            <ImageView
+                android:layout_width="40dp"
+                android:visibility="gone"
+                android:background="@drawable/ms"
+                android:layout_marginLeft="10dp"
+                android:layout_height="30dp" />
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/mpesa_icon_f"
+                android:layout_marginLeft="10dp"
+                android:layout_height="20dp" />
+
+        </LinearLayout>
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:id="@+id/selectPaymentRadioGroup"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioButtonM"
+                android:checked="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Pay via Mpesa."/>
+
+            <RadioButton
+                android:id="@+id/radioButtonC"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Pay via Credit/Debit Card."/>
+
+        </RadioGroup>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="40dp">
+
+            <Button
+                android:id="@+id/cancelBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:background="@null"
+                android:text="Cancel"
+                android:visibility="invisible"
+                android:textColor="@color/colorPrimary" />
+
+            <Button
+                android:id="@+id/continueButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:background="@null"
+                android:text="Proceed."
+                android:textColor="@color/colorPrimary" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

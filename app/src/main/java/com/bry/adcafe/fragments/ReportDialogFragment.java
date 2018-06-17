@@ -38,8 +38,8 @@ public class ReportDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_report_dialog, container, false);
-        Button cancelButton = (Button) rootView.findViewById(R.id.cancelButton);
-        Button submitButton = (Button) rootView.findViewById(R.id.submitButton);
+        Button cancelButton = rootView.findViewById(R.id.cancelButton);
+        Button submitButton = rootView.findViewById(R.id.submitButton);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -50,9 +50,9 @@ public class ReportDialogFragment extends DialogFragment {
         submitButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                RadioGroup surveyRadioGroup = (RadioGroup) rootView.findViewById(R.id.reportRadioGroup);
+                RadioGroup surveyRadioGroup = rootView.findViewById(R.id.reportRadioGroup);
                 final int selectedId = surveyRadioGroup.getCheckedRadioButtonId();
-                final RadioButton selectedRadioButton = (RadioButton) rootView.findViewById((selectedId));
+                final RadioButton selectedRadioButton = rootView.findViewById((selectedId));
 
                 Log.d("ReportDialog---",selectedRadioButton.getText().toString());
                 Log.d("ReportDialog---","Ad being reported is : "+ Variables.getCurrentAdvert().getPushId());

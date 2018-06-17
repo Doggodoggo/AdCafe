@@ -85,8 +85,8 @@ public class MyAdStatsItem {
         }
 
         int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen();
-        int ammountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*
-                (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES));
+        int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
+                (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
         double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();
         String number = Double.toString(totalReimbursalPlusPayout);
 
@@ -125,7 +125,7 @@ public class MyAdStatsItem {
             Log("SavedAdsCard---","Image has been converted to bitmap.");
             mImageBytes = bitmapToByte(bm);
             mAdvert.setImageBitmap(bm);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -139,7 +139,7 @@ public class MyAdStatsItem {
             Bitmap bm = decodeFromFirebaseBase64(mAdvert.getImageUrl());
             mAdvert.setImageBitmap(bm);
             Log("MY_AD_STAT_ITEM---","Image has been converted to bitmap and set in model instance.");
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         Glide.with(mContext).load(bitmapToByte(getResizedBitmap(mAdvert.getImageBitmap(),150))).into(mAdImage);
@@ -182,8 +182,8 @@ public class MyAdStatsItem {
                 mAdvert.setPayoutReimbursalAmount(dataSnapshot.getValue(double.class));
 
                 int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach();
-                int ammountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*
-                        (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES));
+                int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
+                        (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
                 double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();
                 String number = Double.toString(totalReimbursalPlusPayout);
 
@@ -202,8 +202,8 @@ public class MyAdStatsItem {
                     mUsersReachedSoFar.setText("Users reached so far : " + newValue);
                     int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach() - newValue;
 
-                    int ammountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*
-                            (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES));
+                    int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
+                            (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
                     double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();
                     String number = Double.toString(totalReimbursalPlusPayout);
 
@@ -234,8 +234,8 @@ public class MyAdStatsItem {
                             mHasBeenReimbursed.setText("Status: NOT Reimbursed.");
 
                             int numberOfUsersWhoDidntSeeAd = (mAdvert.getNumberOfUsersToReach() - mAdvert.getNumberOfTimesSeen());
-                            int ammountToBeRepaid = (int)(numberOfUsersWhoDidntSeeAd*
-                                    (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES));
+                            int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
+                                    (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
                             double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();
                             String number = Double.toString(totalReimbursalPlusPayout);
 
@@ -320,7 +320,7 @@ public class MyAdStatsItem {
         return byteArray;
     }
 
-    private static Bitmap decodeFromFirebaseBase64(String image) throws IOException {
+    private static Bitmap decodeFromFirebaseBase64(String image) {
         byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
         Bitmap bitm = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
         Bitmap newBm = getResizedBitmap(bitm,500);

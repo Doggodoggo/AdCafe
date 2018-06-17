@@ -143,7 +143,7 @@ public class AdvertCard{
                 Log("SavedAdsCard---", "Image has been converted to bitmap.");
                 mImageBytes = bitmapToByte(bs);
                 mAdvert.setImageBitmap(bs);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -476,7 +476,7 @@ public class AdvertCard{
         return byteArray;
     }
 
-    private static Bitmap decodeFromFirebaseBase64(String image) throws IOException {
+    private static Bitmap decodeFromFirebaseBase64(String image) {
         byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
         Bitmap bitm = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
         return getResizedBitmap(bitm,1200);

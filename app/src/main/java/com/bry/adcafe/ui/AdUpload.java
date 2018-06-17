@@ -243,20 +243,20 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
 
     private void setUpViews() {
-        mBottomNavs = (LinearLayout) findViewById(R.id.bottomNavs);
-        mUploadButton = (ImageView) findViewById(R.id.uploadIcon);
-        mChoosingImage = (ImageView) findViewById(R.id.chooseImageIcon);
-        mProfileImageViewPreview = (ImageView) findViewById(R.id.profileImageViewPreview);
-        mCardviewForShowingPreviewOfAd = (CardView) findViewById(R.id.cardviewForShowingPreviewOfAd);
-        mTopBarPreview = (LinearLayout) findViewById(R.id.topBarPreview);
-        mAvi = (AVLoadingIndicatorView) findViewById(R.id.AdUploadAvi);
-        mLoadingTextView = (TextView) findViewById(R.id.loadingText);
-        mSelectText = (TextView) findViewById(R.id.selectText);
-        mUploadText = (TextView) findViewById(R.id.uploadText);
-        mNoConnection = (LinearLayout) findViewById(R.id.noConnectionMessage);
-        tv = (TextView) findViewById(R.id.numberOfUsersToAdvertiseTo);
-        b = (ImageButton) findViewById(R.id.chooseNumberButton);
-        mNumberOfUsersChosenText = (TextView) findViewById(R.id.chooseNumberText);
+        mBottomNavs = findViewById(R.id.bottomNavs);
+        mUploadButton = findViewById(R.id.uploadIcon);
+        mChoosingImage = findViewById(R.id.chooseImageIcon);
+        mProfileImageViewPreview = findViewById(R.id.profileImageViewPreview);
+        mCardviewForShowingPreviewOfAd = findViewById(R.id.cardviewForShowingPreviewOfAd);
+        mTopBarPreview = findViewById(R.id.topBarPreview);
+        mAvi = findViewById(R.id.AdUploadAvi);
+        mLoadingTextView = findViewById(R.id.loadingText);
+        mSelectText = findViewById(R.id.selectText);
+        mUploadText = findViewById(R.id.uploadText);
+        mNoConnection = findViewById(R.id.noConnectionMessage);
+        tv = findViewById(R.id.numberOfUsersToAdvertiseTo);
+        b = findViewById(R.id.chooseNumberButton);
+        mNumberOfUsersChosenText = findViewById(R.id.chooseNumberText);
     }
 
     private void getNumberOfClusters() {
@@ -791,8 +791,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         final Dialog d = new Dialog(AdUpload.this);
         d.setTitle("Targeted people no.");
         d.setContentView(R.layout.dialog);
-        Button b1 = (Button) d.findViewById(R.id.chooseNumberButton);
-        Button b2 = (Button) d.findViewById(R.id.cancelChooseNumberButton);
+        Button b1 = d.findViewById(R.id.chooseNumberButton);
+        Button b2 = d.findViewById(R.id.cancelChooseNumberButton);
         final NumberPicker np = d.findViewById(R.id.numberPicker1);
         np.setMaxValue(mClusterTotal);
         np.setMinValue(1);
@@ -826,7 +826,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent.createChooser(intent,"Select Picture"),PICK_IMAGE_REQUEST);
+        startActivityForResult(Intent.createChooser(intent,"Select Picture"),PICK_IMAGE_REQUEST);
     }
 
 
@@ -1237,7 +1237,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             final Dialog d = new Dialog(AdUpload.this);
             d.setTitle("Upload incomplete");
             d.setContentView(R.layout.dialog2);
-            Button b1 = (Button) d.findViewById(R.id.buttonOk);
+            Button b1 = d.findViewById(R.id.buttonOk);
             b1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -1375,8 +1375,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             final Dialog d = new Dialog(AdUpload.this);
             d.setTitle("Upload incomplete");
             d.setContentView(R.layout.dialog3);
-            Button b1 = (Button) d.findViewById(R.id.buttonYes);
-            Button b2 = (Button) d.findViewById(R.id.buttonNo);
+            Button b1 = d.findViewById(R.id.buttonYes);
+            Button b2 = d.findViewById(R.id.buttonNo);
             b1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

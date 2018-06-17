@@ -41,10 +41,10 @@ public class TutorialUsers extends AppCompatActivity {
         }
         setContentView(R.layout.activity_tutorial_users);
         myPrefManager = new SliderPrefManager(getApplicationContext());
-        viewPager = (ViewPager) findViewById(R.id.view_pager);
-        myDotsLayout = (LinearLayout) findViewById(R.id.layoutDots);
-        myBtnSkip = (Button) findViewById(R.id.btn_skip);
-        myBtnNext = (Button) findViewById(R.id.btn_next);
+        viewPager = findViewById(R.id.view_pager);
+        myDotsLayout = findViewById(R.id.layoutDots);
+        myBtnSkip = findViewById(R.id.btn_skip);
+        myBtnNext = findViewById(R.id.btn_next);
         myBtnSkip.setVisibility(View.GONE);
         // layouts of all welcome sliders
         myLayouts = new int[]{

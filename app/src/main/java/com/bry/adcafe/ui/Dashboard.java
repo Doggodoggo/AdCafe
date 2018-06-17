@@ -325,12 +325,12 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void loadViews() {
-        mTotalAdsSeenAllTime = (TextView) findViewById(R.id.AdsSeenAllTimeNumber);
-        mTotalAdsSeenToday = (TextView) findViewById(R.id.AdsSeenTodayNumber);
-        mInfoImageView = (ImageView) findViewById(R.id.helpIcon);
-        mUploadAnAdIcon = (CardView) findViewById(R.id.uploadAnAdIcon);
-        mAmmountNumber = (TextView) findViewById(R.id.ammountNumber);
-        mUploadedAdsStats = (Button) findViewById(R.id.uploadedAdsStats);
+        mTotalAdsSeenAllTime = findViewById(R.id.AdsSeenAllTimeNumber);
+        mTotalAdsSeenToday = findViewById(R.id.AdsSeenTodayNumber);
+        mInfoImageView = findViewById(R.id.helpIcon);
+        mUploadAnAdIcon = findViewById(R.id.uploadAnAdIcon);
+        mAmmountNumber = findViewById(R.id.ammountNumber);
+        mUploadedAdsStats = findViewById(R.id.uploadedAdsStats);
     }
 
     private void setValues() {
@@ -417,13 +417,13 @@ public class Dashboard extends AppCompatActivity {
         final Dialog d = new Dialog(this);
         d.setTitle("Notifications.");
         d.setContentView(R.layout.dialog8);
-        Button b1 = (Button) d.findViewById(R.id.continueBtn);
-        Button b2 = (Button) d.findViewById(R.id.cancelBtn);
+        Button b1 = d.findViewById(R.id.continueBtn);
+        Button b2 = d.findViewById(R.id.cancelBtn);
         if(Variables.doesUserWantNotifications)b1.setText("PUT OFF.");
         else b1.setText("PUT ON.");
-        TextView t = (TextView) d.findViewById(R.id.explanation);
-        ImageButton imgBtn = (ImageButton) d.findViewById(R.id.pickTimeIcon);
-        final TextView timeTxt = (TextView) d.findViewById(R.id.setTimeText);
+        TextView t = d.findViewById(R.id.explanation);
+        ImageButton imgBtn = d.findViewById(R.id.pickTimeIcon);
+        final TextView timeTxt = d.findViewById(R.id.setTimeText);
         t.setText(message);
 
         String hour = Integer.toString(Variables.preferredHourOfNotf);
@@ -509,8 +509,8 @@ public class Dashboard extends AppCompatActivity {
         final Dialog d = new Dialog(this);
         d.setTitle("Logout.");
         d.setContentView(R.layout.dialog9);
-        Button b1 = (Button) d.findViewById(R.id.continueBtn);
-        Button b2 = (Button) d.findViewById(R.id.cancelBtn);
+        Button b1 = d.findViewById(R.id.continueBtn);
+        Button b2 = d.findViewById(R.id.cancelBtn);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -696,7 +696,7 @@ public class Dashboard extends AppCompatActivity {
         }else reimbursementTotals = Variables.getTotalReimbursementAmount();
 
         String payoutPhoneNumber = Variables.phoneNo;
-        int payoutAmount = (int)(reimbursementTotals);
+        int payoutAmount = reimbursementTotals;
         String PAYOUT_SUCCESSFUL = "PAYOUT_SUCCESSFUL";
         String PAYOUT_FAILED = "PAYOUT_FAILED";
 
@@ -954,7 +954,7 @@ public class Dashboard extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 Log("Dashboard","Response gotten"+ response.toString());
                 try{
                     String jsonData = response.body().string();

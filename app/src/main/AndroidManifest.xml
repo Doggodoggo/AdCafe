@@ -58,7 +58,6 @@
         <activity
             android:name=".ui.Dashboard"
             android:screenOrientation="portrait" />
-        <activity android:name=".ui.NoConnectionActivity" />
         <activity
             android:name=".ui.Splash"
             android:screenOrientation="portrait">
@@ -81,29 +80,17 @@
             android:name="io.fabric.ApiKey"
             android:value="e8d463a013974f8861522487a012c2b4de2f72f3" />
 
-        <receiver android:name=".services.AlarmReceiver" />
-        <receiver
-            android:name=".services.AlarmBootReceiver"
-            android:enabled="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
 
         <activity android:name=".ui.AdminConsole" />
         <activity
             android:name=".ui.AdStats"
             android:screenOrientation="portrait" />
 
-        <receiver android:name="services.NotificationPublisher" />
-
         <activity
             android:name=".ui.SelectCategory"
             android:screenOrientation="portrait" />
 
         <activity android:name=".ui.SelectCategoryAdvertiser" />
-        <activity android:name=".ui.WebActivity" />
         <activity android:name=".ui.SubscriptionManager" />
 
         <service android:name=".services.TimeManager$MyTestService"

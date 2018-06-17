@@ -44,10 +44,10 @@ public class FeedbackFragment extends DialogFragment implements View.OnClickList
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView =  inflater.inflate(R.layout.fragment_feedbck, container, false);
-        submitButton = (Button)rootView.findViewById(R.id.SubmitAll);
-        cancelButton = (Button)rootView.findViewById(R.id.cancelAll);
-        editText = (EditText)rootView.findViewById(R.id.feedback);
-        spinner = (Spinner)rootView.findViewById(R.id.SpinnerFeedbackType);
+        submitButton = rootView.findViewById(R.id.SubmitAll);
+        cancelButton = rootView.findViewById(R.id.cancelAll);
+        editText = rootView.findViewById(R.id.feedback);
+        spinner = rootView.findViewById(R.id.SpinnerFeedbackType);
 
         submitButton.setOnClickListener(this);
         cancelButton.setOnClickListener(this);

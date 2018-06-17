@@ -319,10 +319,10 @@ public class Bookmarks extends AppCompatActivity {
     }
 
     private void loadPlaceHolderViews() {
-        mAvi = (AVLoadingIndicatorView) findViewById(R.id.avi);
-        loadingText = (TextView) findViewById(R.id.loadingPinnedAdsMessage);
+        mAvi = findViewById(R.id.avi);
+        loadingText = findViewById(R.id.loadingPinnedAdsMessage);
 
-        noAdsText = (TextView) findViewById(R.id.noPins);
+        noAdsText = findViewById(R.id.noPins);
 
         Point windowSize = Utils.getDisplaySize(getWindowManager());
         int width = windowSize.x;

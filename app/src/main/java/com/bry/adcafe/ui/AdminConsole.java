@@ -274,7 +274,7 @@ public class AdminConsole extends AppCompatActivity implements View.OnClickListe
     private void takeDownAd() {
         mAuthProgressDialog.show();
         Advert ad = Variables.adToBeFlagged;
-        boolean bol = ad.isFlagged() ? false : true;
+        boolean bol = !ad.isFlagged();
 
         DatabaseReference  mRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
                 .child(getNextDay())

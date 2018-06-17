@@ -54,13 +54,13 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView =  inflater.inflate(R.layout.fragment_change_cpv, container, false);
         mRootView = rootView;
-        cancelBtn1 = (Button) rootView.findViewById(R.id.cancelBtn);
-        continueBtn = (Button) rootView.findViewById(R.id.continueBtn);
-        cancelBtn2 = (Button) rootView.findViewById(R.id.cancelButton);
-        changeBtn = (Button) rootView.findViewById(R.id. submitButton);
+        cancelBtn1 = rootView.findViewById(R.id.cancelBtn);
+        continueBtn = rootView.findViewById(R.id.continueBtn);
+        cancelBtn2 = rootView.findViewById(R.id.cancelButton);
+        changeBtn = rootView.findViewById(R.id. submitButton);
 
-        mainLayout = (LinearLayout) rootView.findViewById(R.id.mainLayout);
-        chooseAmountLayout = (LinearLayout) rootView.findViewById(R.id.chooseAmountLayout);
+        mainLayout = rootView.findViewById(R.id.mainLayout);
+        chooseAmountLayout = rootView.findViewById(R.id.chooseAmountLayout);
         TextView currentCpv = rootView.findViewById(R.id.cuurentCPV);
         currentCpv.setText(String.format("Current charge : %dKsh.", Variables.constantAmountPerView));
 
@@ -97,9 +97,9 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
             });
         }else if(v == changeBtn){
             int cpv;
-            RadioButton button3 = (RadioButton) mRootView.findViewById(R.id.radioButton3);
-            RadioButton button5 = (RadioButton) mRootView.findViewById(R.id.radioButton5);
-            RadioButton button8 = (RadioButton) mRootView.findViewById(R.id.radioButton8);
+            RadioButton button3 = mRootView.findViewById(R.id.radioButton3);
+            RadioButton button5 = mRootView.findViewById(R.id.radioButton5);
+            RadioButton button8 = mRootView.findViewById(R.id.radioButton8);
             if(button3.isChecked()){
                 cpv = 3;
             }else if(button5.isChecked()){
@@ -144,9 +144,9 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
             @Override
             public void onClick(View v) {
                 int cpv;
-                RadioButton button3 = (RadioButton) mRootView.findViewById(R.id.radioButton1);
-                RadioButton button5 = (RadioButton) mRootView.findViewById(R.id.radioButton3);
-                RadioButton button8 = (RadioButton) mRootView.findViewById(R.id.radioButton6);
+                RadioButton button3 = mRootView.findViewById(R.id.radioButton1);
+                RadioButton button5 = mRootView.findViewById(R.id.radioButton3);
+                RadioButton button8 = mRootView.findViewById(R.id.radioButton6);
                 if(button3.isChecked()) cpv = 1;
                 else if(button5.isChecked()) cpv = 3;
                 else cpv = 6;

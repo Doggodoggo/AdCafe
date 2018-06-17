@@ -56,7 +56,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
  */
 
 public class AlarmReceiver1 extends BroadcastReceiver {
-    private static final String TAG = "AlarmReceiver - ";
+    private static final String TAG = "AlarmReceiver ";
     private NotificationManager notificationManager;
     private PendingIntent pendingIntent;
     private static int NOTIFICATION_ID = 1880;
@@ -77,9 +77,6 @@ public class AlarmReceiver1 extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.w("AlarmReceiver","Broadcast has been received by alarm.");
         mContext = context;
-        Intent service1 = new Intent(context, NotificationService1.class);
-        service1.setData((Uri.parse("custom://"+System.currentTimeMillis())));
-
         SharedPreferences prefs = context.getSharedPreferences(Constants.PREFERRED_NOTIF, MODE_PRIVATE);
         doesUserWantNotf = prefs.getBoolean(Constants.PREFERRED_NOTIF, true);
         if(isUserLoggedIn()) loadTimeFirst();
@@ -278,7 +275,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
         Bundle bundle = new Bundle();
         bundle.putString("Test","test");
         mIntent.putExtras(bundle);
-        pendingIntent = pendingIntent.getActivity(context,0,mIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+        pendingIntent = PendingIntent.getActivity(context,0,mIntent,PendingIntent.FLAG_UPDATE_CURRENT);
 
         Resources res = context.getResources();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);

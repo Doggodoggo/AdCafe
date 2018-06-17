@@ -38,12 +38,12 @@ public class GetAmmountPerUserFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView =  inflater.inflate(R.layout.dialog6, container, false);
-        Button b1 = (Button) rootView.findViewById(R.id.submitButton);
-        Button b2 = (Button) rootView.findViewById(R.id.cancelButton);
+        Button b1 = rootView.findViewById(R.id.submitButton);
+        Button b2 = rootView.findViewById(R.id.cancelButton);
 
-        TextView t3 = (TextView) rootView.findViewById(R.id.shStats3);
-        TextView t5 = (TextView) rootView.findViewById(R.id.shStats5);
-        TextView t8 = (TextView) rootView.findViewById(R.id.shStats8);
+        TextView t3 = rootView.findViewById(R.id.shStats3);
+        TextView t5 = rootView.findViewById(R.id.shStats5);
+        TextView t8 = rootView.findViewById(R.id.shStats8);
         long numberOfUsersIn1;
         long numberOfUsersIn3;
         long numberOfUsersIn6;
@@ -75,9 +75,9 @@ public class GetAmmountPerUserFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 int cpv;
-                RadioButton button3 = (RadioButton) rootView.findViewById(R.id.radioButton3);
-                RadioButton button5 = (RadioButton) rootView.findViewById(R.id.radioButton5);
-                RadioButton button8 = (RadioButton) rootView.findViewById(R.id.radioButton8);
+                RadioButton button3 = rootView.findViewById(R.id.radioButton3);
+                RadioButton button5 = rootView.findViewById(R.id.radioButton5);
+                RadioButton button8 = rootView.findViewById(R.id.radioButton8);
                 if(button3.isChecked()){
                     cpv = 1;
                 }else if(button5.isChecked()){

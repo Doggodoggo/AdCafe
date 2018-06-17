@@ -3,6 +3,7 @@ package com.bry.adcafe.fragments;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -244,7 +245,7 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
 
     private void setPhoneField2(){
         final EditText phoneEdit = mContentView.findViewById(R.id.phoneEditText);
-        TelephonyManager tMgr = (TelephonyManager) mActivity.getSystemService(mActivity.TELEPHONY_SERVICE);
+        TelephonyManager tMgr = (TelephonyManager) mActivity.getSystemService(Context.TELEPHONY_SERVICE);
         if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(mActivity,
@@ -265,7 +266,7 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
             Log.v("AdvertiserPayout", "Permission: " + permissions[0] + "was " + grantResults[0]);
             //resume tasks needing this permission
             final EditText phoneEdit = mContentView.findViewById(R.id.phoneEditText);
-            TelephonyManager tMgr = (TelephonyManager) mActivity.getSystemService(mActivity.TELEPHONY_SERVICE);
+            TelephonyManager tMgr = (TelephonyManager) mActivity.getSystemService(Context.TELEPHONY_SERVICE);
             if (tMgr != null) {
                 if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED
                         && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {

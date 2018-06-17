@@ -68,7 +68,7 @@ public class TimeManager {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 processResponse(response,callbackString,context);
             }
         };

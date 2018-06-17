@@ -68,20 +68,15 @@ public class AdminAdsItem {
         mCategory.setText(String.format("Category : %s", mAdvert.getCategory()));
         mFlagged.setText(String.format("Is Flagged : %s", mAdvert.isFlagged()));
 
-        String ammount = Integer.toString((int)(mAdvert.getNumberOfUsersToReach()*mAdvert.getAmountToPayPerTargetedView()));
+        String ammount = Integer.toString(mAdvert.getNumberOfUsersToReach()*mAdvert.getAmountToPayPerTargetedView());
         mAmountToReimburse.setText(String.format("Reimbursing amount : %s", ammount));
 
         if(mAdvert.isFlagged()) mTakeDown.setText("Put Up.");
         else mTakeDown.setText("Take Down.");
 
-        try {
-            Glide.with(mContext).load(bitmapToByte(getResizedBitmap(decodeFromFirebaseBase64(mAdvert.getImageUrl()),400)))
-                    .into(mImage);
-            Log("AdminAdsItem---","Image has been converted to bitmap and set in model instance.");
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(mContext,"something went wrong"+e.getMessage(),Toast.LENGTH_LONG).show();
-        }
+        Glide.with(mContext).load(bitmapToByte(getResizedBitmap(decodeFromFirebaseBase64(mAdvert.getImageUrl()),400)))
+                .into(mImage);
+        Log("AdminAdsItem---","Image has been converted to bitmap and set in model instance.");
         loadListeners();
     }
 
@@ -147,7 +142,7 @@ public class AdminAdsItem {
         return byteArray;
     }
 
-    private static Bitmap decodeFromFirebaseBase64(String image) throws IOException {
+    private static Bitmap decodeFromFirebaseBase64(String image) {
         byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
     }
