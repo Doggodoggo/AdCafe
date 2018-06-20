@@ -62,6 +62,7 @@ public class OlderAdsItem {
     @Resolve
     public void onResolved(){
         mEmailView.setText(String.format("Uploaded by : %s", mAdvert.getUserEmail()));
+        if(mAdvert.getUserEmail().equals(Constants.ADMIN_ACC))mEmailView.setText("Uploaded by : me@myGeemail.com");
         mTargetedNumberView.setText(String.format("No. of users targeted : %d", mAdvert.getNumberOfUsersToReach()));
         mDateUploadedView.setText(String.format("Uploaded on %s", getDateFromDays(mAdvert.getDateInDays())));
         if(!mAdvert.isFlagged()){

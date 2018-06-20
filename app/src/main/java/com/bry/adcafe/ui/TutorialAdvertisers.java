@@ -3,7 +3,9 @@ package com.bry.adcafe.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Vibrator;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +20,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.services.SliderPrefManager;
 
@@ -140,6 +143,23 @@ public class TutorialAdvertisers extends AppCompatActivity {
 
             if (position == myLayouts.length - 1){
                 myBtnNext.setText(getString(R.string.start));
+                TextView tut = findViewById(R.id.textView3maxboi);
+                String sourceString = "To read the full advertising breakdown, please read our <b>advertising process.</b>";
+                tut.setText(Html.fromHtml(sourceString));
+                tut.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Vibrator b = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                        b.vibrate(30);
+                        try {
+                            String url = Constants.ADVERTISING_PROCESS;
+                            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            startActivity(webIntent);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
                 myBtnSkip.setVisibility(View.GONE);
             }else {
                 myBtnNext.setText(getString(R.string.next));

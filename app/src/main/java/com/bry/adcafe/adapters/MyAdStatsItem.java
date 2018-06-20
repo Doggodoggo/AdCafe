@@ -76,6 +76,7 @@ public class MyAdStatsItem {
         else loadImage2();
 
         mEmail.setText(String.format("Uploaded by : %s", mAdvert.getUserEmail()));
+        if(mAdvert.getUserEmail().equals(Constants.ADMIN_ACC))mEmail.setText("Uploaded by : me@myGeemail.com");
         mTargetedNumber.setText(String.format("No. of users targeted : %d", mAdvert.getNumberOfUsersToReach()));
         mDateUploaded.setText(String.format("Uploaded on %s", getDateFromDays(mAdvert.getDateInDays())));
         if(!mAdvert.isFlagged()){
@@ -181,7 +182,7 @@ public class MyAdStatsItem {
             if(dataSnapshot.getKey().equals("payoutReimbursalAmount")){
                 mAdvert.setPayoutReimbursalAmount(dataSnapshot.getValue(double.class));
 
-                int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach();
+                int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen();
                 int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
                         (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
                 double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();

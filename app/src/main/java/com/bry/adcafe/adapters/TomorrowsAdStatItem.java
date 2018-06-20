@@ -69,6 +69,7 @@ public class TomorrowsAdStatItem {
 
         //dddddddddddd
         mEmail.setText("Uploaded by : "+mAdvert.getUserEmail());
+        if(mAdvert.getUserEmail().equals(Constants.ADMIN_ACC))mEmail.setText("Uploaded by : me@myGeemail.com");
         mTargetedNumber.setText(String.format("No. of users targeted : %d", mAdvert.getNumberOfUsersToReach()));
         mCategory.setText("Category : "+mAdvert.getCategory());
         String amount = Integer.toString(mAdvert.getNumberOfUsersToReach()*
