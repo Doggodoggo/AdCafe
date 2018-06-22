@@ -61,7 +61,7 @@ public class TutorialAdvertisers extends AppCompatActivity {
                 R.layout.tutorial_advertiser_slider_6_4,
                 R.layout.tutorial_advertiser_slider_6_5,
                 R.layout.tutorial_advertiser_slider_6_6,
-                R.layout.tutorial_advertiser_slider_6,
+//                R.layout.tutorial_advertiser_slider_6,
                 R.layout.tutorial_advertiser_slider_7
         };
 

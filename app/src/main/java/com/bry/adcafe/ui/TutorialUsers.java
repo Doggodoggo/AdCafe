@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Vibrator;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +21,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.services.SliderPrefManager;
@@ -137,6 +140,23 @@ public class TutorialUsers extends AppCompatActivity {
             if (position == myLayouts.length - 1){
                 myBtnNext.setText(getString(R.string.start));
                 myBtnSkip.setVisibility(View.GONE);
+                TextView tut = findViewById(R.id.textView33maxboi);
+                String sourceString = "To fully understand how you will use the app, please check out our <b>User tutorial.</b>";
+                tut.setText(Html.fromHtml(sourceString));
+                tut.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Vibrator b = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                        b.vibrate(30);
+                        try {
+                            String url = Constants.USER_TUTORIAL;
+                            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            startActivity(webIntent);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             }else {
                 myBtnNext.setText(getString(R.string.next));
 //                myBtnSkip.setVisibility(View.VISIBLE);

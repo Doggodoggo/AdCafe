@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
@@ -59,6 +60,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -421,7 +423,48 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         else reallySetUpUserSpace();
     }
 
+    private void setNewSessionKeyThenReallyStartLoadingUsersData() {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        final String newSessionKey = generateRandomString();
+        DatabaseReference FirstCheckref = FirebaseDatabase.getInstance().getReference().child(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.BOI_IS_DA_KEY);
+        FirstCheckref.setValue(newSessionKey).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    setSessionKeyInSharedPrefs(newSessionKey);
+                    nowReallySetUpUserSpace();
+                }
+            }
+        });
+    }
+
+    private void setSessionKeyInSharedPrefs(String newKey){
+        SharedPreferences pref2 = getApplicationContext().getSharedPreferences(Constants.BOI_IS_DA_KEY, MODE_PRIVATE);
+        SharedPreferences.Editor editor2 = pref2.edit();
+        editor2.clear();
+        editor2.putString(Constants.BOI_IS_DA_KEY, newKey);
+        editor2.apply();
+    }
+
+    private String generateRandomString(){
+//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("R");
+//        DatabaseReference myref = ref.push();
+//        String key = myref.getKey();
+//        String finalKey = "R"+key;
+
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+        String uuid2 = UUID.randomUUID().toString().replaceAll("-", "");
+        String finalKey= uuid+uuid2;
+        Log.i("Dashboard","generated randomString : "+finalKey);
+        return finalKey;
+    }
+
     private void reallySetUpUserSpace(){
+        setNewSessionKeyThenReallyStartLoadingUsersData();
+    }
+
+    private void nowReallySetUpUserSpace(){
         DatabaseManager dbManager = new DatabaseManager();
         dbManager.createUserSpace(mContext);
     }

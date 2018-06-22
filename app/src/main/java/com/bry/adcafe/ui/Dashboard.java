@@ -43,11 +43,13 @@ import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
 import com.bry.adcafe.fragments.SetUsersPersonalInfo;
 import com.bry.adcafe.fragments.myMapFragment;
 import com.bry.adcafe.models.PayoutResponse;
+import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.SliderPrefManager;
 import com.bry.adcafe.services.TimeManager;
 import com.google.android.gms.maps.model.Dash;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -56,6 +58,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -63,6 +67,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Calendar;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 
 import butterknife.Bind;
@@ -75,6 +80,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class Dashboard extends AppCompatActivity {
+    private final String TAG = "Dashboard";
     private TextView mTotalAdsSeenToday;
     private TextView mTotalAdsSeenAllTime;
     private ImageView mInfoImageView;
@@ -131,6 +137,14 @@ public class Dashboard extends AppCompatActivity {
         setGestureListener();
         addListenerForPaymentSession();
         addListenerForChangeInPayoutTotals();
+    }
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+        if(!Variables.isMainActivityOnline){
+            loadUserDataFromSharedPrefs();
+        }
     }
 
     @Override
@@ -411,8 +425,8 @@ public class Dashboard extends AppCompatActivity {
     private void promptUserAboutNotifications(){
         String message;
         if(Variables.doesUserWantNotifications)
-            message = "Do you wish to put off daily morning alerts about new ads?";
-        else message = "Do you wish to put back on daily morning notifications?";
+            message = "Do you wish to put off daily alerts about new ads?";
+        else message = "Do you wish to put back on daily notifications?";
 
         final Dialog d = new Dialog(this);
         d.setTitle("Notifications.");
@@ -1283,6 +1297,87 @@ public class Dashboard extends AppCompatActivity {
             isNeedToLoadLogin = true;
         }
 
+    }
+
+
+    private void loadUserDataFromSharedPrefs() {
+        loadSubsFromSharedPrefs();
+        loadMarkersInSharedPrefs();
+        Log(TAG, "Loading user data from shared preferences first...");
+        SharedPreferences prefs = getSharedPreferences("TodayTotals", MODE_PRIVATE);
+        int number = prefs.getInt("TodaysTotals", 0);
+        Log(TAG, "AD TOTAL NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + number);
+        Variables.setAdTotal(number, mKey);
+
+        SharedPreferences prefs2 = getSharedPreferences("MonthTotals", MODE_PRIVATE);
+        int number2 = prefs2.getInt("MonthsTotals", 0);
+        Log(TAG, "MONTH AD TOTAL NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + number2);
+        Variables.setMonthAdTotals(mKey, number2);
+
+        SharedPreferences prefs7 = getSharedPreferences("ReimbursementTotals", MODE_PRIVATE);
+        int number7 = prefs7.getInt(Constants.REIMBURSEMENT_TOTALS, 0);
+        Log(TAG, "REIMBURSEMENT TOTAL NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + number7);
+        Variables.setTotalReimbursementAmount(number7);
+
+        SharedPreferences prefs8 = getSharedPreferences(Constants.CONSTANT_AMMOUNT_PER_VIEW,MODE_PRIVATE);
+        int number8 = prefs8.getInt(Constants.CONSTANT_AMMOUNT_PER_VIEW,3);
+        Log(TAG,"CONSTANT AMOUNT GOTTEN PER AD FROM SHARED PREFERENCES IS -   "+number8);
+        Variables.constantAmountPerView = number8;
+
+        SharedPreferences pref9 = getSharedPreferences(Constants.PREFERRED_NOTF_HOUR,MODE_PRIVATE);
+        Variables.preferredHourOfNotf = pref9.getInt(Constants.PREFERRED_NOTF_HOUR,7);
+
+        SharedPreferences pref10 = getSharedPreferences(Constants.PREFERRED_NOTF_MIN,MODE_PRIVATE);
+        Variables.preferredMinuteOfNotf = pref10.getInt(Constants.PREFERRED_NOTF_MIN,30);
+
+        SharedPreferences prefs4 = getSharedPreferences("UID", MODE_PRIVATE);
+        String uid = prefs4.getString("Uid", "");
+        Log(TAG, "UID NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + uid);
+        User.setUid(uid);
+
+        SharedPreferences prefs5 = getSharedPreferences("CurrentSubIndex", MODE_PRIVATE);
+        int currentSubIndex = prefs5.getInt("CurrentSubIndex",0);
+        Log(TAG, "CURRENT SUBSCRIPTION INDEX NUMBER GOTTEN FROM SHARED PREFERENCES IS - " + currentSubIndex);
+        Variables.setCurrentSubscriptionIndex(currentSubIndex);
+
+        SharedPreferences prefs6 = getSharedPreferences("CurrentAdInSubscription", MODE_PRIVATE);
+        int currentAdInSubscription = prefs6.getInt("CurrentAdInSubscription",0);
+        Log(TAG,"CURRENT AD IN SUBSCRIPTION GOTTEN FROM SHARED PREFERENCES IS : "+currentAdInSubscription);
+        Variables.setCurrentAdInSubscription(currentAdInSubscription);
+
+        loadSeenAdsInSharedPrefs();
+    }
+
+    private void loadSeenAdsInSharedPrefs(){
+        if(!Variables.adsSeenSoFar.isEmpty())Variables.adsSeenSoFar.clear();
+        Gson gson = new Gson();
+        SharedPreferences prefs = getSharedPreferences("AdsSeenSoFar", MODE_PRIVATE);
+        String storedHashMapString = prefs.getString("AdsSeenSoFarHashString", "nil");
+
+        java.lang.reflect.Type type = new TypeToken<LinkedHashMap<String,String>>(){}.getType();
+        Variables.adsSeenSoFar = gson.fromJson(storedHashMapString, type);
+    }
+
+    private void loadMarkersInSharedPrefs(){
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.USER_MARKERS,MODE_PRIVATE);
+        Variables.usersLatLongs.clear();
+        int size = sharedPreferences.getInt(Constants.USER_MARKERS_SIZE, 0);
+        for(int i = 0; i < size; i++){
+            double lat = (double) sharedPreferences.getFloat("lat"+i,0);
+            double longit = (double) sharedPreferences.getFloat("long"+i,0);
+            LatLng latLng = new LatLng(lat,longit);
+            Variables.usersLatLongs.add(latLng);
+        }
+    }
+
+    private void loadSubsFromSharedPrefs() {
+        if(!Variables.Subscriptions.isEmpty())Variables.Subscriptions.clear();
+        Gson gson = new Gson();
+        SharedPreferences prefs = getSharedPreferences("Subscriptions", MODE_PRIVATE);
+        String storedHashMapString = prefs.getString("hashString", "nil");
+
+        java.lang.reflect.Type type = new TypeToken<LinkedHashMap<String,Integer>>(){}.getType();
+        Variables.Subscriptions = gson.fromJson(storedHashMapString, type);
     }
 
 
