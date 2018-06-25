@@ -143,23 +143,27 @@ public class TutorialAdvertisers extends AppCompatActivity {
 
             if (position == myLayouts.length - 1){
                 myBtnNext.setText(getString(R.string.start));
-                TextView tut = findViewById(R.id.textView3maxboi);
-                String sourceString = "To read the full advertising breakdown, please read our <b>advertising process.</b>";
-                tut.setText(Html.fromHtml(sourceString));
-                tut.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Vibrator b = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                        b.vibrate(30);
-                        try {
-                            String url = Constants.ADVERTISING_PROCESS;
-                            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                            startActivity(webIntent);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                try {
+                    TextView tut = findViewById(R.id.textView3maxboi);
+                    String sourceString = "To read the full advertising breakdown, please read our <b>advertising process.</b>";
+                    tut.setText(Html.fromHtml(sourceString));
+                    tut.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Vibrator b = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                            b.vibrate(30);
+                            try {
+                                String url = Constants.ADVERTISING_PROCESS;
+                                Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                                startActivity(webIntent);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                });
+                    });
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
                 myBtnSkip.setVisibility(View.GONE);
             }else {
                 myBtnNext.setText(getString(R.string.next));
@@ -199,6 +203,27 @@ public class TutorialAdvertisers extends AppCompatActivity {
             LayoutInflater myLayoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             View view = myLayoutInflater.inflate(myLayouts[position], container, false);
+            try {
+                TextView tut = view.findViewById(R.id.textView3maxboi);
+                String sourceString = "To read the full advertising breakdown, please read our <b>advertising process.</b>";
+                tut.setText(Html.fromHtml(sourceString));
+                tut.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Vibrator b = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                        b.vibrate(30);
+                        try {
+                            String url = Constants.ADVERTISING_PROCESS;
+                            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            startActivity(webIntent);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             container.addView(view);
             return view;
         }

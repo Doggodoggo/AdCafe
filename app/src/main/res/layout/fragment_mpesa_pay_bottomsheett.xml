@@ -37,6 +37,7 @@
                 android:layout_marginTop="15dp"
                 android:text="Your Phone Number."
                 android:layout_height="wrap_content" />
+
             <EditText
                 android:layout_width="match_parent"
                 android:id="@+id/phoneEditText"
@@ -162,8 +163,15 @@
             <TextView
                 android:layout_width="match_parent"
                 android:id="@+id/transationCost"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:text="Transaction cost: 250Ksh"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:id="@+id/vatCost"
+                android:visibility="visible"
+                android:text="VAT amount: 250Ksh"
                 android:layout_height="wrap_content" />
 
             <LinearLayout

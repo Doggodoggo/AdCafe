@@ -202,5 +202,6 @@ public class Constants {
     public static String MPESA_PAYOUTS = "PayoutViaSafMpesa";
 
     public static String AD_PAYOUTS = "AdPayouts";
+    public static Double VAT_CONSTANT = 0.16;
 
 }

@@ -55,6 +55,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
     private long mAmountToBePaid;
     private double chargeForPayment;
     private double paymentTotals;
+    private double VATamm;
 
 
 
@@ -70,10 +71,11 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         this.mCategory = category;
         this.mUploaderEmail = uploaderEmail;
         this.mName = name;
-        this.mAmountToBePaid = mTargetedUsers*mConstantAmountPerUserTargeted;
-        this.chargeForPayment = mTargetedUsers*Constants.MPESA_CHARGES;
-
-        this.paymentTotals = mAmountToBePaid+chargeForPayment;
+        this.mAmountToBePaid = mTargetedUsers*(mConstantAmountPerUserTargeted+Constants.MPESA_CHARGES);
+        this.VATamm = getVATAmmount(mTargetedUsers*(mConstantAmountPerUserTargeted-2));
+        this.paymentTotals = mAmountToBePaid+VATamm;
+        this.chargeForPayment = getChargeForTransaction(paymentTotals);
+        paymentTotals+=chargeForPayment;
     }
 
     private BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
@@ -200,6 +202,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         TextView amountToBePaidView = mContentView.findViewById(R.id.amountToBePaid);
         TextView phoneToPayVew = mContentView.findViewById(R.id.payingPhoneNumber);
         TextView transactionCostView = mContentView.findViewById(R.id.transationCost);
+        TextView vatCostView = mContentView.findViewById(R.id.vatCost);
 
         targetingView.setText(Html.fromHtml("Targeting : <b>" + Long.toString(mTargetedUsers) + " users.</b>"));
         dateView.setText(Html.fromHtml("Ad Viewing Date : <b>" + mAdViewingDate + "</b> (DD/MM/YYYY)"));
@@ -208,6 +211,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         amountToBePaidView.setText(Html.fromHtml("Amount To Be Paid: <b>" + paymentTotals + "Ksh.</b>"));
         phoneToPayVew.setText(Html.fromHtml("Paying phone number : <b>" + mPhoneNo + "</b>"));
         transactionCostView.setText(Html.fromHtml("Transaction cost amount : <b>" + chargeForPayment + "Ksh.</b>"));
+        vatCostView.setText(Html.fromHtml("VAT amount : <b>" + VATamm + "Ksh.</b>"));
 
         mContentView.findViewById(R.id.startButton).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -287,5 +291,24 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         return (netInfo != null && netInfo.isConnected());
     }
 
+    private int getChargeForTransaction(double amount){
+        if(amount<2500){
+            return 33;
+        }else if(amount<5000){
+            return 55;
+        }else if(amount<10000){
+            return 83;
+        }else if(amount<35000){
+            return 110;
+        }else if(amount<50000){
+            return 198;
+        }else{
+            return 220;
+        }
+    }
+
+    private double getVATAmmount(long amount){
+       return amount*Constants.VAT_CONSTANT;
+    }
 
 }

@@ -162,7 +162,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
             Log.d(TAG, "Broadcast has been received that request has failed.");
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedSendingRequest);
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
-
+            Toast.makeText(mContext,"The payment request has failed, check your connection and retry",Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -174,7 +174,6 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFailedToSendRequest);
 //            prog.setVisibility(View.INVISIBLE);
             Toast.makeText(mContext,"Payment request sent.",Toast.LENGTH_LONG).show();
-            Toast.makeText(mContext,"Waiting for confirmation of payments from Safaricom.",Toast.LENGTH_LONG).show();
 //            listenForCompletePayments();
         }
     };

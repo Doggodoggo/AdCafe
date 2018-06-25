@@ -70,6 +70,7 @@ public class TomorrowsAdStatItem {
         //dddddddddddd
         mEmail.setText("Uploaded by : "+mAdvert.getUserEmail());
         if(mAdvert.getUserEmail().equals(Constants.ADMIN_ACC))mEmail.setText("Uploaded by : me@myGeemail.com");
+        double vat = (mAdvert.getNumberOfUsersToReach()*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))*Constants.VAT_CONSTANT;
         mTargetedNumber.setText(String.format("No. of users targeted : %d", mAdvert.getNumberOfUsersToReach()));
         mCategory.setText("Category : "+mAdvert.getCategory());
         String amount = Integer.toString(mAdvert.getNumberOfUsersToReach()*

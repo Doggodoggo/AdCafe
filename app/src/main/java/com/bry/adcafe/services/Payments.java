@@ -476,6 +476,7 @@ public class Payments {
         Callback cb = new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                sendIntentForFailedPayments();
                 e.printStackTrace();
             }
 
@@ -540,18 +541,23 @@ public class Payments {
         Callback cb = new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                sendIntentForFailedPayments();
                 e.printStackTrace();
             }
 
             @Override
             public void onResponse(Call call, Response response) {
-                sendIntentForSuccessfulPaymentRequest();
                 try {
                     String jsonData = response.body().string();
                     JSONObject aT = new JSONObject(jsonData);
-                    String CheckoutRequestID = aT.getString("CheckoutRequestID");
-                    startPaymentListeningForMpesaPayment(businessShortCode,password,timestamp,CheckoutRequestID);
-                    Log.d(TAG,jsonData);
+                    if(aT.has("CheckoutRequestID")) {
+                        String CheckoutRequestID = aT.getString("CheckoutRequestID");
+                        startPaymentListeningForMpesaPayment(businessShortCode, password, timestamp, CheckoutRequestID);
+                        sendIntentForSuccessfulPaymentRequest();
+                        Log.d(TAG, jsonData);
+                    }else{
+                        sendIntentForFailedPayments();
+                    }
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
@@ -722,6 +728,7 @@ public class Payments {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
+                sendIntentForFailedPayments();
             }
 
             @Override
@@ -784,6 +791,7 @@ public class Payments {
         Callback cb = new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                sendIntentForFailedPayments();
                 e.printStackTrace();
             }
 
