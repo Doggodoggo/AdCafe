@@ -89,14 +89,39 @@
                                           </PersistentState>
                                         </value>
                                       </entry>
+                                      <entry key="text">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="color" value="455a64" />
+                                                <entry key="paddingPercent" value="40" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
+                                      <entry key="textAsset">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="fontFamily" value="AR ESSENCE" />
+                                                <entry key="text" value="Ad" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
                                     </map>
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="backgroundColor" value="dfddde" />
+                                      <entry key="assetType" value="IMAGE" />
+                                      <entry key="backgroundColor" value="455a64" />
                                       <entry key="iconShape" value="CIRCLE" />
-                                      <entry key="imageAsset" value="C:\Users\bryon\AndroidStudioProjects\AdCafe\app\src\main\res\mipmap-xxxhdpi\ic_launcher5.png" />
-                                      <entry key="outputName" value="ic_search" />
+                                      <entry key="imageAsset" value="C:\Users\bryon\AndroidStudioProjects\AdCafe\app\src\main\ic_web_icon3-web.png" />
+                                      <entry key="outputName" value="ic_web_icon4" />
                                     </map>
                                   </option>
                                 </PersistentState>

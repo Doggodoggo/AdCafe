@@ -442,6 +442,15 @@
             android:text="Locations set: 3 Locations"
             android:layout_height="wrap_content" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:id="@+id/usersToBeReached"
+            android:textSize="12sp"
+            android:text="Users that will be reached: 3 Users."
+            android:layout_height="wrap_content" />
+
 
         <RelativeLayout
             android:layout_width="match_parent"

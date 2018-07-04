@@ -370,5 +370,26 @@ public class Variables {
     }
 
 
+    public static int getTotalPayForOneUserForAdvertiser(int ammount){
+        if(ammount==1){
+            return 3;
+        }else if(ammount==3){
+            return 5;
+        }else if(ammount==6){
+            return 8;
+        }else return 8;
+    }
+
+    public static int getUserCpvFromTotalPayPerUser(int amount){
+        if(amount==3){
+            return 1;
+        }else if(amount==5){
+            return 3;
+        }else if(amount==8){
+            return 6;
+        }else return 6;
+    }
+
+
 
 }

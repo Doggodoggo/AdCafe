@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -42,6 +43,7 @@ import com.bry.adcafe.fragments.FragmentMpesaPaymentInitiation;
 import com.bry.adcafe.fragments.FragmentSelectPaymentOptionBottomSheet;
 import com.bry.adcafe.fragments.SetAdvertiserTargetInfoFragment;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.TargetedUser;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.TimeManager;
@@ -62,6 +64,7 @@ import com.wang.avi.AVLoadingIndicatorView;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.Bind;
@@ -138,6 +141,10 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private DatabaseReference SKListener;
     private boolean isNeedToLoadLogin = false;
 
+    private List<String> userIds = new ArrayList<>();
+    private List<TargetedUser> UsersInCategory = new ArrayList<>();
+    private List <String> knownTargetedUsers = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,7 +160,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         mCategoryText.setText(mCategory);
 
         mAmountToPayPerTargetedView = Variables.amountToPayPerTargetedView;
-        mAmountPlusOurShare = Variables.amountToPayPerTargetedView+2;
+
+        mAmountPlusOurShare = Variables.getTotalPayForOneUserForAdvertiser(Variables.amountToPayPerTargetedView);
         Log(TAG,"Amount to pay per targeted user is : "+ mAmountToPayPerTargetedView);
         Log(TAG,"Amount to pay per targeted user is : "+ mAmountPlusOurShare);
 
@@ -259,6 +267,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         mNumberOfUsersChosenText = findViewById(R.id.chooseNumberText);
     }
 
+
     private void getNumberOfClusters() {
 //        mAvi.setVisibility(View.VISIBLE);
         mProgressBarUpload.setVisibility(View.VISIBLE);
@@ -268,71 +277,70 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         //When restructuring to advertising to specific type of users,add .child("%AdvertCategory%");
         mRef = FirebaseDatabase.getInstance().getReference(Constants.CLUSTERS).child(Constants.CLUSTERS_LIST)
                 .child(Integer.toString(mAmountToPayPerTargetedView)).child(mCategory);
-        mRef.addListenerForSingleValueEvent(val);
+        mRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot clusterSnap:dataSnapshot.getChildren()){
+                    for(DataSnapshot userIdSnap:clusterSnap.getChildren()){
+                        String userId = userIdSnap.getValue(String.class);
+                        Log(TAG,"Loaded user: "+userId);
+                        userIds.add(userId);
+                    }
+                }
+                long numberOfClusters;
+                if(dataSnapshot.getChildrenCount() == 0){
+                    numberOfClusters = 1;
+                }else{
+                    numberOfClusters = dataSnapshot.getChildrenCount();
+                }
+                mClusterTotal = (int)numberOfClusters;
+                Log(TAG,"---Number of clusters gotten from firebase is-- "+mClusterTotal);
+                getClusterToStartForm();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                mProgressBarUpload.setVisibility(View.GONE);
+                mNoConnection.setVisibility(View.VISIBLE);
+                mBottomNavs.setVisibility(View.GONE);
+            }
+        });
 
     }
-
-
-
-    ValueEventListener val= new ValueEventListener() {
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            long numberOfClusters;
-            if(dataSnapshot.getChildrenCount() == 0){
-                numberOfClusters = 1;
-            }else{
-                numberOfClusters = dataSnapshot.getChildrenCount();
-            }
-            mClusterTotal = (int)numberOfClusters;
-            Log(TAG,"---Number of clusters gotten from firebase is-- "+mClusterTotal);
-            getClusterToStartForm();
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-//            setAllOtherViewsToBeVisible();
-//            mAvi.setVisibility(View.GONE);
-            mProgressBarUpload.setVisibility(View.GONE);
-            mNoConnection.setVisibility(View.VISIBLE);
-            mBottomNavs.setVisibility(View.GONE);
-        }
-    }; //triggers getClusterToStartFrom method.
 
     private void getClusterToStartForm() {
         Log(TAG,"---getting cluster to start from");
         //When changing to specific clusters, this will need to change from this to .getReference("%AdvertCategory%_cluster_to_start_from");
         mRef2 = FirebaseDatabase.getInstance().getReference(Constants.CLUSTER_TO_START_FROM)
                 .child(Integer.toString(mAmountToPayPerTargetedView)).child(mCategory+"_cluster_to_start_from");
-        mRef2.addListenerForSingleValueEvent(val2);
-    }
+        mRef2.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int clusterGotten;
+                if(dataSnapshot.hasChildren()){
+                    clusterGotten = dataSnapshot.getValue(int.class);
+                }else{
+                    clusterGotten = 1;
+                }
+                mClusterToStartFrom = clusterGotten;
+                Log(TAG,"---Cluster to start from is -- "+mClusterToStartFrom);
+                loadClusterToStartFromChildrenNo();
 
-    ValueEventListener val2 = new ValueEventListener() {
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            int clusterGotten;
-            if(dataSnapshot.hasChildren()){
-                clusterGotten = dataSnapshot.getValue(int.class);
-            }else{
-                clusterGotten = 1;
             }
-            mClusterToStartFrom = clusterGotten;
-            Log(TAG,"---Cluster to start from is -- "+mClusterToStartFrom);
-            loadClusterToStartFromChildrenNo();
 
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 //            setAllOtherViewsToBeVisible();
-            mNoConnection.setVisibility(View.VISIBLE);
-            mBottomNavs.setVisibility(View.GONE);
+                mNoConnection.setVisibility(View.VISIBLE);
+                mBottomNavs.setVisibility(View.GONE);
 //            mAvi.setVisibility(View.GONE);
-            mProgressBarUpload.setVisibility(View.GONE);
-            Log(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
-            Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
-                    Snackbar.LENGTH_LONG).show();
-        }
-    };
+                mProgressBarUpload.setVisibility(View.GONE);
+                Log(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
+                Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
+                        Snackbar.LENGTH_LONG).show();
+            }
+        });
+    }
 
     private void loadClusterToStartFromChildrenNo() {
         Log(TAG,"---Starting query for no of ads in cluster to start from.");
@@ -340,29 +348,27 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         DatabaseReference boolRef = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS)
                 .child(getNextDay()).child(Integer.toString(mAmountToPayPerTargetedView))
                 .child(mCategory).child(Integer.toString(mClusterToStartFrom));
-        boolRef.addListenerForSingleValueEvent(val3);
-    }
+        boolRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                noOfChildrenInClusterToStartFrom = (int)dataSnapshot.getChildrenCount();
+                Log(TAG,"--Number of children in cluster to start from gotten from firebase is  -"+noOfChildrenInClusterToStartFrom);
+                getNumberOfUploadedAdsInLatestCluster();
+            }
 
-    ValueEventListener val3 = new ValueEventListener() {
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            noOfChildrenInClusterToStartFrom = (int)dataSnapshot.getChildrenCount();
-            Log(TAG,"--Number of children in cluster to start from gotten from firebase is  -"+noOfChildrenInClusterToStartFrom);
-            getNumberOfUploadedAdsInLatestCluster();
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 //            setAllOtherViewsToBeVisible();
-            mNoConnection.setVisibility(View.VISIBLE);
-            mBottomNavs.setVisibility(View.GONE);
+                mNoConnection.setVisibility(View.VISIBLE);
+                mBottomNavs.setVisibility(View.GONE);
 //            mAvi.setVisibility(View.GONE);
-            mProgressBarUpload.setVisibility(View.GONE);
-            Log(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
-            Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
-                    Snackbar.LENGTH_LONG).show();
-        }
-    };
+                mProgressBarUpload.setVisibility(View.GONE);
+                Log(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
+                Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
+                        Snackbar.LENGTH_LONG).show();
+            }
+        });
+    }
 
     private void getNumberOfUploadedAdsInLatestCluster(){
         Log(TAG,"---Starting query for no of ads in Latest cluster now.");
@@ -379,12 +385,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                     noOfChildrenInLatestCluster = 0;
                 }
                 Log(TAG,"---the number of children gotten is: "+noOfChildrenInLatestCluster);
-                setAllOtherViewsToBeVisible();
-//                mAvi.setVisibility(View.GONE);
-                mProgressBarUpload.setVisibility(View.GONE);
-                mLoadingTextView.setVisibility(View.GONE);
-                OnClicks();
-//                loadListenerForRecreate();
+                loadAllUsersForCategory();
             }
 
             @Override
@@ -401,14 +402,131 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         });
     }
 
+    private void loadAllUsersForCategory(){
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS);
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(String uid:userIds){
+                    DataSnapshot userSnap = dataSnapshot.child(uid);
+                    String gender = "";
+                    int birthday = 0;
+                    int birthmonth = 0;
+                    int birthyear = 0;
+                    if(userSnap.child(Constants.GENDER).exists()) gender = userSnap.child(Constants.GENDER).getValue(String.class);
+                    if(userSnap.child(Constants.DATE_OF_BIRTH).exists()) {
+                        birthday = userSnap.child(Constants.DATE_OF_BIRTH).child("day").getValue(int.class);
+                        birthmonth = userSnap.child(Constants.DATE_OF_BIRTH).child("month").getValue(int.class);
+                        birthyear = userSnap.child(Constants.DATE_OF_BIRTH).child("year").getValue(int.class);
+                    }
+                    List<LatLng> userLocations = new ArrayList<>();
+                    DataSnapshot locationSnap = userSnap.child(Constants.FIREBASE_USERS_LOCATIONS);
+                    for(DataSnapshot location:locationSnap.getChildren()){
+                        double lat = location.child("lat").getValue(double.class);
+                        double lng = location.child("lng").getValue(double.class);
+                        userLocations.add(new LatLng(lat,lng));
+                    }
+                    int cluster = userSnap.child(Constants.SUBSCRIPTION_lIST).child(mCategory).getValue(int.class);
+                    UsersInCategory.add(new TargetedUser(uid,gender,birthday,birthmonth,birthyear,userLocations,cluster));
+                }
+                setAllOtherViewsToBeVisible();
+                mProgressBarUpload.setVisibility(View.GONE);
+                mLoadingTextView.setVisibility(View.GONE);
+                OnClicks();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+//                setAllOtherViewsToBeVisible();
+                mNoConnection.setVisibility(View.VISIBLE);
+                mBottomNavs.setVisibility(View.GONE);
+//                mAvi.setVisibility(View.GONE);
+                mProgressBarUpload.setVisibility(View.GONE);
+                Log(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
+                Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase, Snackbar.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
+//    ValueEventListener val= new ValueEventListener() {
+//        @Override
+//        public void onDataChange(DataSnapshot dataSnapshot) {
+//            long numberOfClusters;
+//            if(dataSnapshot.getChildrenCount() == 0){
+//                numberOfClusters = 1;
+//            }else{
+//                numberOfClusters = dataSnapshot.getChildrenCount();
+//            }
+//            mClusterTotal = (int)numberOfClusters;
+//            Log(TAG,"---Number of clusters gotten from firebase is-- "+mClusterTotal);
+//            getClusterToStartForm();
+//        }
+//
+//        @Override
+//        public void onCancelled(DatabaseError databaseError) {
+//            mProgressBarUpload.setVisibility(View.GONE);
+//            mNoConnection.setVisibility(View.VISIBLE);
+//            mBottomNavs.setVisibility(View.GONE);
+//        }
+//    }; //triggers getClusterToStartFrom method.
+
+//    ValueEventListener val2 = new ValueEventListener() {
+//        @Override
+//        public void onDataChange(DataSnapshot dataSnapshot) {
+//            int clusterGotten;
+//            if(dataSnapshot.hasChildren()){
+//                clusterGotten = dataSnapshot.getValue(int.class);
+//            }else{
+//                clusterGotten = 1;
+//            }
+//            mClusterToStartFrom = clusterGotten;
+//            Log(TAG,"---Cluster to start from is -- "+mClusterToStartFrom);
+//            loadClusterToStartFromChildrenNo();
+//
+//        }
+//
+//        @Override
+//        public void onCancelled(DatabaseError databaseError) {
+////            setAllOtherViewsToBeVisible();
+//            mNoConnection.setVisibility(View.VISIBLE);
+//            mBottomNavs.setVisibility(View.GONE);
+////            mAvi.setVisibility(View.GONE);
+//            mProgressBarUpload.setVisibility(View.GONE);
+//            Log(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
+//            Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
+//                    Snackbar.LENGTH_LONG).show();
+//        }
+//    };
+
+//    ValueEventListener val3 = new ValueEventListener() {
+//        @Override
+//        public void onDataChange(DataSnapshot dataSnapshot) {
+//            noOfChildrenInClusterToStartFrom = (int)dataSnapshot.getChildrenCount();
+//            Log(TAG,"--Number of children in cluster to start from gotten from firebase is  -"+noOfChildrenInClusterToStartFrom);
+//            getNumberOfUploadedAdsInLatestCluster();
+//        }
+//
+//        @Override
+//        public void onCancelled(DatabaseError databaseError) {
+////            setAllOtherViewsToBeVisible();
+//            mNoConnection.setVisibility(View.VISIBLE);
+//            mBottomNavs.setVisibility(View.GONE);
+////            mAvi.setVisibility(View.GONE);
+//            mProgressBarUpload.setVisibility(View.GONE);
+//            Log(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
+//            Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
+//                    Snackbar.LENGTH_LONG).show();
+//        }
+//    };
 
 
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        if(mRef!=null) mRef.removeEventListener(val);
-        if(mRef2!=null) mRef2.removeEventListener(val2);
-        if(boolRef!=null) boolRef.removeEventListener(val3);
+//        if(mRef!=null) mRef.removeEventListener(val);
+//        if(mRef2!=null) mRef2.removeEventListener(val2);
+//        if(boolRef!=null) boolRef.removeEventListener(val3);
         if(mRef6!=null) mRef6.removeEventListener(chilForRefresh);
         removeListeners();
     }
@@ -524,7 +642,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             findViewById(R.id.targetIcon).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    loadUserTargetingPrompt();
+                    if(mHasNumberBeenChosen) loadUserTargetingPrompt();
+                    else Toast.makeText(mContext,"First choose the number of people your targeting.",Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -755,8 +874,14 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         FragmentMpesaPayBottomsheet fragmentModalBottomSheet = new FragmentMpesaPayBottomsheet();
 
+        List<TargetedUser> usersTargetedForSelectedClusters = new ArrayList<>(getNumberOfUsersAfterFiltering());
+        knownTargetedUsers = new ArrayList<>();
+        for(TargetedUser user: usersTargetedForSelectedClusters){
+            knownTargetedUsers.add(user.getUserId());
+        }
         fragmentModalBottomSheet.setDetails((mNumberOfClusters*Constants.NUMBER_OF_USERS_PER_CLUSTER),
-                mAmountPlusOurShare, TimeManager.getNextDayPlus(), mCategory,userEmail,Variables.userName);
+                mAmountPlusOurShare, TimeManager.getNextDayPlus(), mCategory,userEmail,Variables.userName,
+                usersTargetedForSelectedClusters);
         fragmentModalBottomSheet.setActivity(AdUpload.this);
 
         fragmentModalBottomSheet.show(getSupportFragmentManager(),"BottomSheet Fragment");
@@ -807,6 +932,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 mNumberOfClusters = np.getValue();
 //                addToClusterListToUploadTo(mNumberOfClusters);
                 mNumberOfUsersToAdvertiseTo.setVisibility(View.VISIBLE);
+                addToClusterListToUploadTo(mNumberOfClusters);
                 d.dismiss();
             }
         });
@@ -952,7 +1078,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
     private void uploadImageToManagerConsole() {
         String encodedImageToUpload = encodeBitmapForFirebaseStorage(bm);
-        addToClusterListToUploadTo(mNumberOfClusters);
+//        addToClusterListToUploadTo(mNumberOfClusters);
         Log(TAG, "Uploading Ad to AdminConsole.");
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE).child(getNextDay());
         DatabaseReference pushRef = adRef.push();
@@ -969,6 +1095,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         advert.setPaymentMethod(Variables.paymentOption);
         advert.setAdvertiserUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
         advert.setNumberOfUsersToReach(mNumberOfClusters*Constants.NUMBER_OF_USERS_PER_CLUSTER);
+        if(Variables.isTargeting)advert.setNumberOfUsersToReach(knownTargetedUsers.size());
         advert.setPushRefInAdminConsole(pushId);
         advert.setUserEmail(FirebaseAuth.getInstance().getCurrentUser().getEmail());
         advert.setWebsiteLink(mLink);
@@ -1006,6 +1133,15 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         Variables.transactionObject.setPushrefInAdminConsole(pushId);
         Variables.transactionObject.setUploaderId(FirebaseAuth.getInstance().getCurrentUser().getUid());
         dbrefTrans.setValue(Variables.transactionObject);
+
+        if(Variables.isTargeting) {
+            DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child(Constants.TARGET_USER_DATA)
+                    .child(getNextDay()).child(pushId);
+            for (String uid : knownTargetedUsers) {
+                String pos = Integer.toString(knownTargetedUsers.indexOf(uid));
+                myRef.child(pos).setValue(uid);
+            }
+        }
     }
 
     private void createProgressDialog(){
@@ -1280,6 +1416,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
 
     private void addToClusterListToUploadTo(int number){
+        clustersToUpLoadTo.clear();
         Log(TAG,"The number of total clusters is : "+mClusterTotal);
         Log(TAG,"The cluster to start from is : "+mClusterToStartFrom);
         Log(TAG,"Number of clusters to upload to is : "+mNumberOfClusters);
@@ -1291,26 +1428,6 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             }else{
                 clustersToUpLoadTo.add(mClusterToStartFrom+i);
                 Log(TAG,"Adding cluster to list normally : "+(mClusterToStartFrom+i));
-            }
-        }
-
-    }
-
-    private void addToClusterListToUploadToTest(int number){
-        Log(TAG,"The number of total clusters is : "+5000);
-        Log(TAG,"The cluster to start from is : "+1);
-        Log(TAG,"Number of clusters to upload to is : "+mNumberOfClusters);
-
-        int numberOfClustersToStartFrom = 1;
-        int clusterTotal = 5000;
-
-        for(int i = 0; i < 5000; i++){
-            if(numberOfClustersToStartFrom+i>clusterTotal){
-                clustersToUpLoadTo.add(numberOfClustersToStartFrom+i-(clusterTotal));
-                Log(TAG,"Limit has been exceeded.setting cluster to upload to : "+(numberOfClustersToStartFrom+i-(clusterTotal)));
-            }else{
-                clustersToUpLoadTo.add(numberOfClustersToStartFrom+i);
-                Log(TAG,"Adding cluster to list normally : "+(numberOfClustersToStartFrom+i));
             }
         }
 
@@ -1435,6 +1552,9 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         SetAdvertiserTargetInfoFragment cpvFragment = new SetAdvertiserTargetInfoFragment();
         cpvFragment.setMenuVisibility(false);
         cpvFragment.show(fm,"Filter Users.");
+
+        List<TargetedUser> usersTargetedForSelectedClusters = new ArrayList<>(getNumberOfUsersAfterFilteringByCategories());
+        cpvFragment.setUsersThatCanBeReached(usersTargetedForSelectedClusters);
         cpvFragment.setfragcontext(mContext);
         cpvFragment.setActivity(this);
     }
@@ -1545,5 +1665,97 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         }
 
     }
+
+    public List<TargetedUser> getTargetedUsersByCluster(int cluster){
+        List<TargetedUser> specificUsers = new ArrayList<>();
+
+        for(TargetedUser user:UsersInCategory){
+            if(user.getClusterId()==cluster){
+                specificUsers.add(user);
+            }
+        }
+        return specificUsers;
+    }
+
+
+    private List<TargetedUser> getNumberOfUsersAfterFilteringByCategories(){
+        List<TargetedUser> usersQualified = new ArrayList<>(UsersInCategory);
+
+        for(TargetedUser user : UsersInCategory){
+            if(!clustersToUpLoadTo.contains(user.getClusterId())){
+                if(usersQualified.contains(user)) usersQualified.remove(user);
+            }
+        }
+
+        return usersQualified;
+    }
+
+    private List<TargetedUser> getNumberOfUsersAfterFiltering(){
+        List<TargetedUser> usersQualified = new ArrayList<>(UsersInCategory);
+
+        for(TargetedUser user : UsersInCategory){
+            if(!clustersToUpLoadTo.contains(user.getClusterId())){
+                if(usersQualified.contains(user)) usersQualified.remove(user);
+            }
+        }
+
+        if(!Variables.genderTarget.equals("")){
+            for(TargetedUser user: UsersInCategory){
+                if(!user.getGender().equals(Variables.genderTarget)){
+                    if(usersQualified.contains(user)) usersQualified.remove(user);
+                }
+            }
+        }
+        if(Variables.ageGroupTarget!=null){
+            for(TargetedUser user:UsersInCategory){
+                if(user.getBirthday()!=0) {
+                    Integer userAge = getAge(user.getBirthYear(), user.getBirthMonth(), user.getBirthday());
+                    if(userAge < Variables.ageGroupTarget.getStartingAge() || userAge > Variables.ageGroupTarget.getFinishAge()){
+                        if(usersQualified.contains(user)) usersQualified.remove(user);
+                    }
+                }
+            }
+        }
+        if(Variables.locationTarget!=null){
+            for(TargetedUser user:UsersInCategory){
+                if(locationContained(user.getUserLocations())==0){
+                    if(usersQualified.contains(user)) usersQualified.remove(user);
+                }
+            }
+        }
+        return usersQualified;
+    }
+
+    private Integer getAge(int year, int month, int day){
+        Calendar dob = Calendar.getInstance();
+        Calendar today = TimeManager.getCal();
+
+        dob.set(year, month, day);
+
+        int age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
+        if (today.get(Calendar.DAY_OF_YEAR) < dob.get(Calendar.DAY_OF_YEAR)){
+            age--;
+        }
+        return age;
+    }
+
+    private int locationContained(List<LatLng> checkLocalLst){
+        int locations = 0;
+        for(LatLng latlngUser : checkLocalLst){
+            for(LatLng latlngAdv: Variables.locationTarget){
+                Location locAdv = new Location("");
+                locAdv.setLatitude(latlngAdv.latitude);
+                locAdv.setLongitude(latlngAdv.longitude);
+
+                Location locUser = new Location("");
+                locUser.setLatitude(latlngUser.latitude);
+                locUser.setLongitude(latlngUser.longitude);
+                float distance = Variables.distanceInMetersBetween2Points(locAdv,locUser);
+                if(distance<=Constants.MAX_DISTANCE_IN_METERS) locations++;
+            }
+        }
+        return locations;
+    }
+
 
 }

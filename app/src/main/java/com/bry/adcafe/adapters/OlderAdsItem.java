@@ -74,7 +74,9 @@ public class OlderAdsItem {
         int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen();
         int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
                 (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
-        double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();
+        double vat = (numberOfUsersWhoDidntSeeAd*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))
+                *Constants.VAT_CONSTANT;
+        double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
         String number = Double.toString(totalReimbursalPlusPayout);
 
         mAmountToReimburseView.setText(String.format("Reimbursing amount: %s Ksh", number));
@@ -208,7 +210,9 @@ public class OlderAdsItem {
                 mUsersReachedSoFarView.setText("Users reached so far : "+newValue);
                 int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- newValue;
                 int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView();
-                String number = Integer.toString(ammountToBeRepaid);
+                double vat = (numberOfUsersWhoDidntSeeAd*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))
+                        *Constants.VAT_CONSTANT;
+                String number = Integer.toString(ammountToBeRepaid+(int)vat);
                 mAmountToReimburseView.setText("Reimbursing amount : "+number+" Ksh");
             }catch (Exception e){
                 e.printStackTrace();
@@ -229,7 +233,9 @@ public class OlderAdsItem {
                         mHasBeenReimbursedView.setText("Status: NOT Reimbursed.");
                         int numberOfUsersWhoDidntSeeAd = (mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen());
                         int ammountToBeRepaid = (numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView());
-                        String number = Integer.toString(ammountToBeRepaid);
+                        double vat = (numberOfUsersWhoDidntSeeAd*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))
+                                *Constants.VAT_CONSTANT;
+                        String number = Integer.toString(ammountToBeRepaid+(int) vat);
                         mAmountToReimburseView.setText("Reimbursing amount : "+number+" Ksh");
                     }
                 }catch (Exception e){

@@ -203,5 +203,7 @@ public class Constants {
 
     public static String AD_PAYOUTS = "AdPayouts";
     public static Double VAT_CONSTANT = 0.16;
+    public static String TARGET_USER_DATA = "TargetUserData";
+
 
 }

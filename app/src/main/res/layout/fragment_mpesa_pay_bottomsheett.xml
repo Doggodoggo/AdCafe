@@ -163,7 +163,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:id="@+id/transationCost"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:text="Transaction cost: 250Ksh"
                 android:layout_height="wrap_content" />
 

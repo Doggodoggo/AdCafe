@@ -712,7 +712,7 @@ public class AdStats extends AppCompatActivity {
     private void flagSpecific(int cluster, int pushId, final Advert ad, final boolean bol){
         DatabaseReference  mRef3 = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS)
                 .child(getNextDay())
-                .child(Integer.toString(ad.getAmountToPayPerTargetedView()-2))
+                .child(Integer.toString(Variables.getUserCpvFromTotalPayPerUser(ad.getAmountToPayPerTargetedView())))
                 .child(ad.getCategory())
                 .child(Integer.toString(cluster))
                 .child(Integer.toString(pushId))

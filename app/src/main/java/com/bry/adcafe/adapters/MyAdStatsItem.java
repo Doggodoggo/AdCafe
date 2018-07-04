@@ -88,7 +88,10 @@ public class MyAdStatsItem {
         int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen();
         int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
                 (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
-        double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();
+        double vat = (numberOfUsersWhoDidntSeeAd*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))
+                *Constants.VAT_CONSTANT;
+
+        double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
         String number = Double.toString(totalReimbursalPlusPayout);
 
         mAmountToReimburse.setText("Reimbursing amount: "+number+" Ksh");
@@ -185,7 +188,10 @@ public class MyAdStatsItem {
                 int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen();
                 int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
                         (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
-                double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();
+                double vat = (numberOfUsersWhoDidntSeeAd*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))
+                        *Constants.VAT_CONSTANT;
+
+                double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
                 String number = Double.toString(totalReimbursalPlusPayout);
 
                 mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
@@ -205,7 +211,9 @@ public class MyAdStatsItem {
 
                     int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
                             (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
-                    double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();
+                    double vat = (numberOfUsersWhoDidntSeeAd*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))
+                            *Constants.VAT_CONSTANT;
+                    double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
                     String number = Double.toString(totalReimbursalPlusPayout);
 
                     mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
@@ -237,7 +245,9 @@ public class MyAdStatsItem {
                             int numberOfUsersWhoDidntSeeAd = (mAdvert.getNumberOfUsersToReach() - mAdvert.getNumberOfTimesSeen());
                             int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
                                     (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
-                            double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount();
+                            double vat = (numberOfUsersWhoDidntSeeAd*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))
+                                    *Constants.VAT_CONSTANT;
+                            double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
                             String number = Double.toString(totalReimbursalPlusPayout);
 
                             mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");

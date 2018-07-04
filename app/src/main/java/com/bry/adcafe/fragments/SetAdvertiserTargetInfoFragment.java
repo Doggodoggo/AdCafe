@@ -5,6 +5,7 @@ import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
@@ -23,6 +24,13 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.AgeGroup;
+import com.bry.adcafe.models.TargetedUser;
+import com.bry.adcafe.services.TimeManager;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private final String TAG = "SetAdvertiserTargetInfoFragment";
@@ -59,7 +67,10 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private TextView confirmGender;
     private TextView confirmAge;
     private TextView confirmLocations;
+    private TextView usersToBeReached;
     private Button okBtn5;
+
+    private List<TargetedUser> targetedUserData;
 
 
     public void setfragcontext(Context context) {
@@ -68,6 +79,10 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
 
     public void setActivity(Activity activity) {
         this.mActivity = activity;
+    }
+
+    public void setUsersThatCanBeReached(List<TargetedUser> users){
+        this.targetedUserData = users;
     }
 
     @Override
@@ -105,6 +120,8 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         confirmAge = rootView.findViewById(R.id.confirmAge);
         confirmLocations = rootView.findViewById(R.id.confirmLocations);
         okBtn5= rootView.findViewById(R.id.okBtn5);
+
+        usersToBeReached = rootView.findViewById(R.id.usersToBeReached);
 
         loadFirstView();
         return rootView;
@@ -287,6 +304,10 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         }else{
             confirmLocations.setText("No preferred Locations set.");
         }
+
+        long noOfUsersThatWillBeReached = getNumberOfUsersAfterFiltering();
+        usersToBeReached.setText("Users that will be reached: "+noOfUsersThatWillBeReached+" Users");
+
         okBtn5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -302,6 +323,64 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     }
 
 
+    private long getNumberOfUsersAfterFiltering(){
+        List<TargetedUser> usersQualified = new ArrayList<>(targetedUserData);
+        if(!Variables.genderTarget.equals("")){
+            for(TargetedUser user: targetedUserData){
+                if(!user.getGender().equals(Variables.genderTarget)){
+                    if(usersQualified.contains(user)) usersQualified.remove(user);
+                }
+            }
+        }
+        if(Variables.ageGroupTarget!=null){
+            for(TargetedUser user:targetedUserData){
+                if(user.getBirthday()!=0) {
+                    Integer userAge = getAge(user.getBirthYear(), user.getBirthMonth(), user.getBirthday());
+                    if(userAge < Variables.ageGroupTarget.getStartingAge() || userAge > Variables.ageGroupTarget.getFinishAge()){
+                        if(usersQualified.contains(user)) usersQualified.remove(user);
+                    }
+                }
+            }
+        }
+        if(Variables.locationTarget!=null){
+            for(TargetedUser user:targetedUserData){
+                if(locationContained(user.getUserLocations())==0){
+                    if(usersQualified.contains(user)) usersQualified.remove(user);
+                }
+            }
+        }
+        return (long)usersQualified.size();
+    }
 
+    private Integer getAge(int year, int month, int day){
+        Calendar dob = Calendar.getInstance();
+        Calendar today = TimeManager.getCal();
+
+        dob.set(year, month, day);
+
+        int age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
+        if (today.get(Calendar.DAY_OF_YEAR) < dob.get(Calendar.DAY_OF_YEAR)){
+            age--;
+        }
+        return age;
+    }
+
+    private int locationContained(List<LatLng> checkLocalLst){
+        int locations = 0;
+        for(LatLng latlngUser : checkLocalLst){
+            for(LatLng latlngAdv: Variables.locationTarget){
+                Location locAdv = new Location("");
+                locAdv.setLatitude(latlngAdv.latitude);
+                locAdv.setLongitude(latlngAdv.longitude);
+
+                Location locUser = new Location("");
+                locUser.setLatitude(latlngUser.latitude);
+                locUser.setLongitude(latlngUser.longitude);
+                float distance = Variables.distanceInMetersBetween2Points(locAdv,locUser);
+                if(distance<=Constants.MAX_DISTANCE_IN_METERS) locations++;
+            }
+        }
+        return locations;
+    }
 
 }

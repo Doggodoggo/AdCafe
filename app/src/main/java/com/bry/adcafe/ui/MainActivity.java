@@ -157,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean isWindowPaused = false;
     private DatabaseReference SKListener;
     private DataSnapshot mAdsSnapshot;
+    private DataSnapshot mTargetUsersDataList;
 
 
     @Override
@@ -695,7 +696,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mAdsSnapshot = dataSnapshot;
-                getAdsFromSnapshot();
+                getTargetedUsersDataList();
             }
 
             @Override
@@ -703,6 +704,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mAvi.setVisibility(View.GONE);
                 mLoadingText.setVisibility(View.GONE);
                 showFailedView();
+            }
+        });
+    }
+
+    private void getTargetedUsersDataList(){
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child(Constants.TARGET_USER_DATA);
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mTargetUsersDataList = dataSnapshot;
+                getAdsFromSnapshot();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }
@@ -767,7 +784,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String pushID = snpsht.getValue(String.class);
                     ad.setPushId(pushID);
                     ad.setPushIdNumber(Integer.parseInt(pushID));
-                    if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"))) mAdList.add(ad);
+                    if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"),ad)) mAdList.add(ad);
                 }
                 if(mAdList.size()!=0){
                     Log(TAG,"The one ad was not flagged so its in the adlist");
@@ -820,7 +837,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String pushID = snpsht.getValue(String.class);
                     ad.setPushId(pushID);
                     ad.setPushIdNumber(Integer.parseInt(pushID));
-                    if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"))){
+                    if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"),ad)){
                         if(Variables.constantAmountPerView>3 && Variables.getAdTotal(mKey)+1>Constants.MAX_NUMBER_FOR7) {
                             Log(TAG,"User cannot see more than "+Constants.MAX_NUMBER_FOR7+" ads.");
                         }else mAdList.add(ad);
@@ -924,7 +941,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         String pushID = snpsht.getValue(String.class);
                         ad.setPushId(pushID);
                         ad.setPushIdNumber(Integer.parseInt(pushID));
-                        if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"))) mAdList.add(ad);
+                        if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"),ad)) mAdList.add(ad);
                     }
                     if(mAdList.size()!=0){
                         Log(TAG,"The one ad was not flagged so its in the adlist");
@@ -977,7 +994,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             String pushID = snpsht.getValue(String.class);
                             ad.setPushId(pushID);
                             ad.setPushIdNumber(Integer.parseInt(pushID));
-                            if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"))){
+                            if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"),ad)){
                                 if(Variables.constantAmountPerView>3 && Variables.getAdTotal(mKey)+1>Constants.MAX_NUMBER_FOR7) {
                                     Log(TAG,"User cannot see more than "+Constants.MAX_NUMBER_FOR7+" ads.");
                                 }else mAdList.add(ad);
@@ -1971,7 +1988,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         ad.setPushId(pushID);
                         ad.setPushIdNumber(Integer.parseInt(pushID));
                         Log(TAG,"setting push id to : "+ ad.getPushId());
-                        if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"))){
+                        if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"),ad)){
                             if(Variables.constantAmountPerView>3 && Variables.getAdTotal(mKey)+1>Constants.MAX_NUMBER_FOR7) {
                                 Log(TAG,"User cannot see more than "+Constants.MAX_NUMBER_FOR7+" ads.");
                             }else{
@@ -2116,7 +2133,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ad.setPushId(pushID);
                 ad.setPushIdNumber(Integer.parseInt(pushID));
                 Log(TAG,"setting push id to : "+ ad.getPushId());
-                if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"))){
+                if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"),ad)){
                     if(Variables.constantAmountPerView>3 && Variables.getAdTotal(mKey)+1>Constants.MAX_NUMBER_FOR7) {
                         Log(TAG,"User cannot see more than "+Constants.MAX_NUMBER_FOR7+" ads.");
                     }else{
@@ -3169,7 +3186,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private boolean doesUserMeetCriteria(DataSnapshot targetDataSnap){
+    private boolean doesUserMeetCriteria(DataSnapshot targetDataSnap, Advert ad){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         SharedPreferences prefConsent = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);
         boolean canUseData = prefConsent.getBoolean(Constants.CONSENT_TO_TARGET,false);
         if(!canUseData) return false;
@@ -3188,7 +3206,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 int month = pref.getInt("month", 0);
                 int year = pref.getInt("year", 0);
                 Integer userAge = getAge(year,month,day);
-                return userAge >= ageGroup.getStartingAge() && userAge <= ageGroup.getFinishAge();
+                if(userAge < ageGroup.getStartingAge()|| userAge > ageGroup.getFinishAge()) return false;
             }else return false;
         }if(targetDataSnap.child("locations").exists()){
             List<LatLng> checkLocalList = new ArrayList<>();
@@ -3197,7 +3215,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 double lng = locSnap.child("lng").getValue(double.class);
                 checkLocalList.add(new LatLng(lat,lng));
             }
-            return locationContained(checkLocalList) != 0;
+            if(locationContained(checkLocalList) == 0) return false;
+        }if(mTargetUsersDataList.child(getDate()).child(ad.getPushRefInAdminConsole()).exists()){
+            List<String> targetUids = new ArrayList<>();
+            for(DataSnapshot targetSnapUid:mTargetUsersDataList.child(getDate()).child(ad.getPushRefInAdminConsole()).getChildren()){
+                targetUids.add(targetSnapUid.getValue(String.class));
+            }
+            if(!targetUids.contains(uid)) return false;
         }
         return true;
     }

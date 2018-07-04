@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
@@ -32,6 +33,13 @@ import android.widget.Toast;
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
+import com.bry.adcafe.models.TargetedUser;
+import com.bry.adcafe.services.TimeManager;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -47,15 +55,19 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
     private LinearLayout mConfirmLayout;
 
     private long mTargetedUsers;
+    private long mTargetedUsersBeforeFiltering;
     private String mAdViewingDate;
     private long mConstantAmountPerUserTargeted;
     private String mCategory;
     private String mUploaderEmail;
     private String mName;
+
     private long mAmountToBePaid;
     private double chargeForPayment;
     private double paymentTotals;
     private double VATamm;
+
+    private List<TargetedUser> targetedUserData;
 
 
 
@@ -63,7 +75,10 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         this.mActivity = activity;
     }
 
-    public void setDetails(long targetedUsers, long constantAmountPerUser, String adViewingDate, String category, String uploaderEmail, String name){
+    public void setDetails(long targetedUsers, long constantAmountPerUser, String adViewingDate,
+                           String category, String uploaderEmail, String name, List<TargetedUser> targetedUserDatas) {
+        this.targetedUserData = targetedUserDatas;
+        this.mTargetedUsersBeforeFiltering = targetedUsers;
         this.mTargetedUsers = targetedUsers;
         this.mAdViewingDate = adViewingDate;
         this.mConstantAmountPerUserTargeted = constantAmountPerUser;
@@ -71,8 +86,11 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         this.mCategory = category;
         this.mUploaderEmail = uploaderEmail;
         this.mName = name;
+
+        if(Variables.isTargeting) this.mTargetedUsers = targetedUserDatas.size();
+
         this.mAmountToBePaid = mTargetedUsers*(mConstantAmountPerUserTargeted+Constants.MPESA_CHARGES);
-        this.VATamm = getVATAmmount(mTargetedUsers*(mConstantAmountPerUserTargeted-2));
+        this.VATamm = getVATAmmount(mTargetedUsers*(Variables.getUserCpvFromTotalPayPerUser((int)mConstantAmountPerUserTargeted)));
         this.paymentTotals = mAmountToBePaid+VATamm;
         this.chargeForPayment = getChargeForTransaction(paymentTotals);
         paymentTotals+=chargeForPayment;
@@ -204,7 +222,12 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         TextView transactionCostView = mContentView.findViewById(R.id.transationCost);
         TextView vatCostView = mContentView.findViewById(R.id.vatCost);
 
-        targetingView.setText(Html.fromHtml("Targeting : <b>" + Long.toString(mTargetedUsers) + " users.</b>"));
+        targetingView.setText(Html.fromHtml("Targeting : <b>" + Long.toString(mTargetedUsersBeforeFiltering) + " users.</b>"));
+        if(Variables.isTargeting){
+            targetingView.setText(Html.fromHtml("Targeting : <b>" +
+                    Long.toString(mTargetedUsersBeforeFiltering) + " users.</b> However, <b>"+
+                    Long.toString(mTargetedUsersBeforeFiltering)+" users</b> will be reached."));
+        }
         dateView.setText(Html.fromHtml("Ad Viewing Date : <b>" + mAdViewingDate + "</b> (DD/MM/YYYY)"));
         categoryView.setText(Html.fromHtml("Category : <b>" + mCategory + "</b>"));
         userEmailView.setText(Html.fromHtml("Uploader : <b>" + mUploaderEmail + "</b>"));
@@ -292,23 +315,85 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
     }
 
     private int getChargeForTransaction(double amount){
-        if(amount<2500){
-            return 33;
-        }else if(amount<5000){
-            return 55;
-        }else if(amount<10000){
-            return 83;
-        }else if(amount<35000){
-            return 110;
-        }else if(amount<50000){
-            return 198;
-        }else{
-            return 220;
-        }
+//        if(amount<2500){
+//            return 33;
+//        }else if(amount<5000){
+//            return 55;
+//        }else if(amount<10000){
+//            return 83;
+//        }else if(amount<35000){
+//            return 110;
+//        }else if(amount<50000){
+//            return 198;
+//        }else{
+//            return 220;
+//        }
+        return 0;
     }
 
     private double getVATAmmount(long amount){
        return amount*Constants.VAT_CONSTANT;
+    }
+
+
+    private long getNumberOfUsersAfterFiltering(){
+        List<TargetedUser> usersQualified = new ArrayList<>(targetedUserData);
+        if(!Variables.genderTarget.equals("")){
+            for(TargetedUser user: targetedUserData){
+                if(!user.getGender().equals(Variables.genderTarget)){
+                   if(usersQualified.contains(user)) usersQualified.remove(user);
+                }
+            }
+        }
+        if(Variables.ageGroupTarget!=null){
+            for(TargetedUser user:targetedUserData){
+                if(user.getBirthday()!=0) {
+                    Integer userAge = getAge(user.getBirthYear(), user.getBirthMonth(), user.getBirthday());
+                    if(userAge < Variables.ageGroupTarget.getStartingAge() || userAge > Variables.ageGroupTarget.getFinishAge()){
+                        if(usersQualified.contains(user)) usersQualified.remove(user);
+                    }
+                }
+            }
+        }
+        if(Variables.locationTarget!=null){
+            for(TargetedUser user:targetedUserData){
+                if(locationContained(user.getUserLocations())==0){
+                    if(usersQualified.contains(user)) usersQualified.remove(user);
+                }
+            }
+        }
+        return (long)usersQualified.size();
+    }
+
+    private Integer getAge(int year, int month, int day){
+        Calendar dob = Calendar.getInstance();
+        Calendar today = TimeManager.getCal();
+
+        dob.set(year, month, day);
+
+        int age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
+        if (today.get(Calendar.DAY_OF_YEAR) < dob.get(Calendar.DAY_OF_YEAR)){
+            age--;
+        }
+        return age;
+    }
+
+    private int locationContained(List<LatLng> checkLocalLst){
+        int locations = 0;
+        for(LatLng latlngUser : checkLocalLst){
+            for(LatLng latlngAdv: Variables.locationTarget){
+                Location locAdv = new Location("");
+                locAdv.setLatitude(latlngAdv.latitude);
+                locAdv.setLongitude(latlngAdv.longitude);
+
+                Location locUser = new Location("");
+                locUser.setLatitude(latlngUser.latitude);
+                locUser.setLongitude(latlngUser.longitude);
+                float distance = Variables.distanceInMetersBetween2Points(locAdv,locUser);
+                if(distance<=Constants.MAX_DISTANCE_IN_METERS) locations++;
+            }
+        }
+        return locations;
     }
 
 }
