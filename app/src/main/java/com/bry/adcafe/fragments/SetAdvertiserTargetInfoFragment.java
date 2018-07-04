@@ -9,6 +9,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +34,7 @@ import java.util.Calendar;
 import java.util.List;
 
 public class SetAdvertiserTargetInfoFragment extends DialogFragment {
-    private final String TAG = "SetAdvertiserTargetInfoFragment";
+    private final String TAG = "AdvTargetInfoFrag";
     private Context mContext;
     private Activity mActivity;
 
@@ -325,10 +326,21 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
 
     private long getNumberOfUsersAfterFiltering(){
         List<TargetedUser> usersQualified = new ArrayList<>(targetedUserData);
+        Log.d(TAG,"No of users in targetedUserdDataList: "+usersQualified.size());
+        for(TargetedUser user: usersQualified){
+            Log.d(TAG,"User id: "+user.getUserId());
+            Log.d(TAG,"User birthday: "+user.getBirthday()+":"+user.getBirthMonth()+":"+user.getBirthYear());
+            Log.d(TAG,"User gender: "+user.getGender());
+            Log.d(TAG,"Cluster id: "+user.getClusterId());
+        }
         if(!Variables.genderTarget.equals("")){
             for(TargetedUser user: targetedUserData){
                 if(!user.getGender().equals(Variables.genderTarget)){
-                    if(usersQualified.contains(user)) usersQualified.remove(user);
+                    if(usersQualified.contains(user)){
+                        Log.d(TAG,"Removing user "+user.getUserId()+" since, gender required is "+Variables.genderTarget+
+                        " while users gender is: "+user.getGender());
+                        usersQualified.remove(user);
+                    }
                 }
             }
         }
@@ -336,16 +348,20 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
             for(TargetedUser user:targetedUserData){
                 if(user.getBirthday()!=0) {
                     Integer userAge = getAge(user.getBirthYear(), user.getBirthMonth(), user.getBirthday());
+                    Log.d(TAG,"User age: "+userAge);
                     if(userAge < Variables.ageGroupTarget.getStartingAge() || userAge > Variables.ageGroupTarget.getFinishAge()){
                         if(usersQualified.contains(user)) usersQualified.remove(user);
                     }
                 }
             }
         }
-        if(Variables.locationTarget!=null){
+        if(!Variables.locationTarget.isEmpty()){
             for(TargetedUser user:targetedUserData){
                 if(locationContained(user.getUserLocations())==0){
-                    if(usersQualified.contains(user)) usersQualified.remove(user);
+                    if(usersQualified.contains(user)) {
+                        usersQualified.remove(user);
+                        Log.d(TAG, "Removing user: " + user.getUserId() + " since they are not situated near any location");
+                    }
                 }
             }
         }

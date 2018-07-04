@@ -59,6 +59,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.ByteArrayOutputStream;
@@ -1137,10 +1138,10 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         if(Variables.isTargeting) {
             DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child(Constants.TARGET_USER_DATA)
                     .child(getNextDay()).child(pushId);
-            for (String uid : knownTargetedUsers) {
-                String pos = Integer.toString(knownTargetedUsers.indexOf(uid));
-                myRef.child(pos).setValue(uid);
-            }
+
+            Gson gson = new Gson();
+            String userListString = gson.toJson(knownTargetedUsers);
+            myRef.setValue(userListString);
         }
     }
 
@@ -1716,7 +1717,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 }
             }
         }
-        if(Variables.locationTarget!=null){
+        if(!Variables.locationTarget.isEmpty()){
             for(TargetedUser user:UsersInCategory){
                 if(locationContained(user.getUserLocations())==0){
                     if(usersQualified.contains(user)) usersQualified.remove(user);

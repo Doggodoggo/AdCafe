@@ -3217,11 +3217,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             if(locationContained(checkLocalList) == 0) return false;
         }if(mTargetUsersDataList.child(getDate()).child(ad.getPushRefInAdminConsole()).exists()){
-            List<String> targetUids = new ArrayList<>();
-            for(DataSnapshot targetSnapUid:mTargetUsersDataList.child(getDate()).child(ad.getPushRefInAdminConsole()).getChildren()){
-                targetUids.add(targetSnapUid.getValue(String.class));
-            }
-            if(!targetUids.contains(uid)) return false;
+            List<String> targetUids;
+            String targetUserListString = mTargetUsersDataList.child(getDate()).child(ad.getPushRefInAdminConsole()).getValue(String.class);
+
+            Gson gson = new Gson();
+            java.lang.reflect.Type type = new TypeToken<ArrayList<String>>(){}.getType();
+            targetUids = gson.fromJson(targetUserListString,type);
+
+            if (targetUids != null && !targetUids.contains(uid)) return false;
         }
         return true;
     }

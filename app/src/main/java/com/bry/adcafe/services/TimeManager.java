@@ -327,7 +327,7 @@ public class TimeManager {
 
     private static String getMonthName_Abbr(int month) {
         Calendar calx = Calendar.getInstance();
-        calx.set(Calendar.MONTH, month);
+        calx.set(Calendar.MONTH, month-1);
         SimpleDateFormat month_date = new SimpleDateFormat("MMM");
         String month_name = month_date.format(calx.getTime());
         return month_name;

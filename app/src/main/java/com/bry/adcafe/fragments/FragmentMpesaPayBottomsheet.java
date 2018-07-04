@@ -226,7 +226,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         if(Variables.isTargeting){
             targetingView.setText(Html.fromHtml("Targeting : <b>" +
                     Long.toString(mTargetedUsersBeforeFiltering) + " users.</b> However, <b>"+
-                    Long.toString(mTargetedUsersBeforeFiltering)+" users</b> will be reached."));
+                    Long.toString(mTargetedUsers)+"</b> will be reached."));
         }
         dateView.setText(Html.fromHtml("Ad Viewing Date : <b>" + mAdViewingDate + "</b> (DD/MM/YYYY)"));
         categoryView.setText(Html.fromHtml("Category : <b>" + mCategory + "</b>"));
@@ -355,7 +355,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
                 }
             }
         }
-        if(Variables.locationTarget!=null){
+        if(!Variables.locationTarget.isEmpty()){
             for(TargetedUser user:targetedUserData){
                 if(locationContained(user.getUserLocations())==0){
                     if(usersQualified.contains(user)) usersQualified.remove(user);

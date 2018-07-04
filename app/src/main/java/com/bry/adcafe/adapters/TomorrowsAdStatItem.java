@@ -70,13 +70,14 @@ public class TomorrowsAdStatItem {
         //dddddddddddd
         mEmail.setText("Uploaded by : "+mAdvert.getUserEmail());
         if(mAdvert.getUserEmail().equals(Constants.ADMIN_ACC))mEmail.setText("Uploaded by : me@myGeemail.com");
-        double vat = (mAdvert.getNumberOfUsersToReach()*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))
+        double vat = (mAdvert.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(mAdvert.getAmountToPayPerTargetedView()))
                 *Constants.VAT_CONSTANT;
 
         mTargetedNumber.setText(String.format("No. of users targeted : %d", mAdvert.getNumberOfUsersToReach()));
         mCategory.setText("Category : "+mAdvert.getCategory());
-        String amount = Integer.toString((mAdvert.getNumberOfUsersToReach()*
-                (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))+(int)vat);
+        double am = (mAdvert.getNumberOfUsersToReach()*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))+vat;
+
+        String amount = Double.toString(am);
         mAmountToReimburse.setText(String.format("Paid amount : %s Ksh.", amount));
         if(mAdvert.isFlagged()) {
             mTakeDown.setText("Put Up.");

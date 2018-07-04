@@ -41,6 +41,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -71,6 +73,8 @@ public class AlarmReceiver1 extends BroadcastReceiver {
 
     private String userName;
     private boolean doesUserWantNotf;
+
+    private DataSnapshot mTargetUsersDataList;
 
 
     @Override
@@ -145,7 +149,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                 if(!isNeedToResetSubsSnap.getValue(Boolean.class)) {
                     numberOfSubsFromFirebase = Subscriptions.size();
 //                    checkNumberForEach();
-                    checkNumberForAll();
+                    getTargetedUsersDataList();
                 }
             }
 
@@ -156,7 +160,21 @@ public class AlarmReceiver1 extends BroadcastReceiver {
         });
     }
 
+    private void getTargetedUsersDataList(){
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child(Constants.TARGET_USER_DATA);
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mTargetUsersDataList = dataSnapshot;
+                checkNumberForAll();
+            }
 
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
 
 
     private void checkNumberForAll(){
@@ -173,7 +191,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                         if(adsInSubscription.exists()) {
                             for (DataSnapshot snap : adsInSubscription.getChildren()) {
                                 boolean isFlagged = snap.child("flagged").getValue(boolean.class);
-                                if (!isFlagged && doesUserMeetCriteria(snap.child("targetdata"))) {
+                                if (!isFlagged && doesUserMeetCriteria(snap.child("targetdata"), snap.child("pushRefInAdminConsole"))) {
                                     numberOfAdsInTotal += 1;
                                     if (numberOfAdsInTotal == 1) setStartingPoint(subscription);
                                 }
@@ -210,7 +228,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                 if(dataSnapshot.hasChildren()){
                     for(DataSnapshot snap: dataSnapshot.getChildren()){
                         boolean isFlagged = snap.child("flagged").getValue(boolean.class);
-                        if(!isFlagged && doesUserMeetCriteria(snap.child("targetdata"))){
+                        if(!isFlagged && doesUserMeetCriteria(snap.child("targetdata"), snap.child("pushRefInAdminConsole"))){
                             numberOfAdsInTotal+=1;
                             if(numberOfAdsInTotal ==1)setStartingPoint(category);
                         }
@@ -363,7 +381,10 @@ public class AlarmReceiver1 extends BroadcastReceiver {
 
     }
 
-    private boolean doesUserMeetCriteria(DataSnapshot targetDataSnap){
+    private boolean doesUserMeetCriteria(DataSnapshot targetDataSnap,DataSnapshot pushId){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String pushIdInAdminConsole = pushId.getValue(String.class);
+
         SharedPreferences prefConsent = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);
         boolean canUseData = prefConsent.getBoolean(Constants.CONSENT_TO_TARGET,false);
         if(!canUseData) return false;
@@ -382,7 +403,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                 int month = pref.getInt("month", 0);
                 int year = pref.getInt("year", 0);
                 Integer userAge = getAge(year,month,day);
-                return userAge >= ageGroup.getStartingAge() && userAge <= ageGroup.getFinishAge();
+                if(userAge < ageGroup.getStartingAge()|| userAge > ageGroup.getFinishAge()) return false;
             }else return false;
         }if(targetDataSnap.child("locations").exists()){
             List<LatLng> checkLocalList = new ArrayList<>();
@@ -391,7 +412,16 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                 double lng = locSnap.child("lng").getValue(double.class);
                 checkLocalList.add(new LatLng(lat,lng));
             }
-            return locationContained(checkLocalList) != 0;
+            if(locationContained(checkLocalList) == 0) return false;
+        }if(mTargetUsersDataList.child(getDate()).child(pushIdInAdminConsole).exists()){
+            List<String> targetUids;
+            String targetUserListString = mTargetUsersDataList.child(getDate()).child(pushIdInAdminConsole).getValue(String.class);
+
+            Gson gson = new Gson();
+            java.lang.reflect.Type type = new TypeToken<ArrayList<String>>(){}.getType();
+            targetUids = gson.fromJson(targetUserListString,type);
+
+            if (targetUids != null && !targetUids.contains(uid)) return false;
         }
         return true;
     }
