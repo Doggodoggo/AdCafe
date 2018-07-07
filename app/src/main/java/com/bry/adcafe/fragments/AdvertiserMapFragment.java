@@ -5,6 +5,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
+import com.bry.adcafe.models.TargetedUser;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -68,6 +70,8 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
 
     MapFragment mapFragment;
     PlaceAutocompleteFragment autocompleteFragment;
+    private boolean didUserPressSetBtn = false;
+    private List<TargetedUser> targetedUserData;
 
 
 
@@ -77,6 +81,10 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
 
     public void setActivity(Activity activity) {
         this.mActivity = activity;
+    }
+
+    public void setUsersThatCanBeReached(List<TargetedUser> users){
+        this.targetedUserData = users;
     }
 
     @Override
@@ -122,6 +130,17 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
                 markAndCirc.put(mark,circle);
             }
             Variables.locationTarget.clear();
+        }
+
+        if(!targetedUserData.isEmpty()){
+            for(TargetedUser user: targetedUserData){
+                for(LatLng loc:user.getUserLocations()){
+                    CircleOptions myOptions = new CircleOptions().center(loc).radius(10);
+                    myOptions.strokeWidth(1).strokeColor(Color.rgb(0, 137, 48))
+                            .fillColor(Color.argb(80,0,137,48 ));
+                    Circle circle = map.addCircle(myOptions);
+                }
+            }
         }
 
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -286,6 +305,9 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if(!didUserPressSetBtn){
+            onMyBackPressed();
+        }
        try{
            if (mapFragment != null){
                Log.d(TAG,"Map fragment is not null, attempting to remove it ....");
@@ -308,15 +330,31 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
         }
     }
 
+
     private void setMerkerLocationsForTargeting(){
+        didUserPressSetBtn = true;
         for(Marker m: markers){
             LatLng selLatLng = new LatLng(m.getPosition().latitude,m.getPosition().longitude);
             Variables.locationTarget.add(selLatLng);
         }
         Variables.isTargeting = true;
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Constants.SET_LOCATION_DATA));
         Toast.makeText(mContext,"Target Locations set.",Toast.LENGTH_SHORT).show();
         dismiss();
+    }
+
+    private void onMyBackPressed(){
+        if(markers.isEmpty()){
+            if(Variables.ageGroupTarget==null && Variables.genderTarget.equals("")){
+                Variables.isTargeting = false;
+            }
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Constants.SET_LOCATION_DATA));
+            Toast.makeText(mContext,"No Locations set.",Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(mContext,"Locations edit cancelled.",Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

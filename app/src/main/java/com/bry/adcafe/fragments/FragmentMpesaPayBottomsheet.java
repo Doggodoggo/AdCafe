@@ -239,14 +239,18 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         mContentView.findViewById(R.id.startButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(isOnline(mActivity)) {
-                    dismiss();
-                    Variables.phoneNo = mPhoneNo;
-                    Variables.mpesaEmail = mUploaderEmail;
-                    Variables.amountToPayForUpload = paymentTotals;
-                    LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent("START_PAYMENTS_INTENT"));
-                }else{
-                    Toast.makeText(mActivity,"Please have an internet connection to continue",Toast.LENGTH_SHORT).show();
+                if(Variables.isTargeting && mTargetedUsers==0){
+                    Toast.makeText(mActivity,"You can't target 0 users.",Toast.LENGTH_SHORT).show();
+                }else {
+                    if (isOnline(mActivity)) {
+                        dismiss();
+                        Variables.phoneNo = mPhoneNo;
+                        Variables.mpesaEmail = mUploaderEmail;
+                        Variables.amountToPayForUpload = paymentTotals;
+                        LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent("START_PAYMENTS_INTENT"));
+                    } else {
+                        Toast.makeText(mActivity, "Please have an internet connection to continue", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });

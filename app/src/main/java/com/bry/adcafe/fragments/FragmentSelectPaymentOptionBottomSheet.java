@@ -13,7 +13,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.TextView;
 
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
@@ -26,6 +28,10 @@ import com.bry.adcafe.Variables;
 public class FragmentSelectPaymentOptionBottomSheet extends BottomSheetDialogFragment {
     private Activity mActivity;
     private View mContentView;
+    private boolean shouldShowOption = false;
+    private int number = 0;
+    private String mCategory;
+    private boolean hasShownOption = false;
 
 
     public void setActivity(Activity activity){
@@ -63,6 +69,12 @@ public class FragmentSelectPaymentOptionBottomSheet extends BottomSheetDialogFra
         }
     };
 
+    public void setTargetOptionData(boolean shouldShowOption, int numberOfPeople, String category){
+        this.shouldShowOption = shouldShowOption;
+        this.number = numberOfPeople;
+        this.mCategory = category;
+    }
+
     @Override
     public void setupDialog(Dialog dialog, int style) {
         View contentView = View.inflate(getContext(), R.layout.fragment_select_pay_option_bottomsheet, null);
@@ -78,34 +90,66 @@ public class FragmentSelectPaymentOptionBottomSheet extends BottomSheetDialogFra
             ((BottomSheetBehavior) behavior).setHideable(false);
         }
 
+        final TextView paymentMessage = contentView.findViewById(R.id.paymentMessage);
+        final LinearLayout optionImages = contentView.findViewById(R.id.optionImages);
         Button cancelBtn = contentView.findViewById(R.id.cancelBtn);
         Button proceedBtn = contentView.findViewById(R.id.continueButton);
         final RadioButton rbCard = contentView.findViewById(R.id.radioButtonC);
         final RadioButton rbMpesa = contentView.findViewById(R.id.radioButtonM);
 
-        cancelBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dismiss();
-            }
-        });
-        proceedBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dismiss();
-//                if(rbCard.isChecked()) Variables.paymentOption = Constants.BANK_OPTION;
-//                else if(rbMpesa.isChecked())Variables.paymentOption = Constants.MPESA_OPTION;
-//                else Variables.paymentOption = Constants.BANK_OPTION;
+        final LinearLayout specificOnlyLayout = contentView.findViewById(R.id.specificOnlyLayout);
+        TextView message = contentView.findViewById(R.id.usersInfo);
+        final RadioButton yes = contentView.findViewById(R.id.radioButtonYes);
+        final RadioButton no = contentView.findViewById(R.id.radioButtonNo);
 
-                Variables.paymentOption = Constants.MPESA_OPTION;
-                Intent intent = new Intent("PROCEED_CARD_DETAILS_PART");
-                LocalBroadcastManager.getInstance(mActivity).sendBroadcast(intent);
-            }
-        });
+        if(shouldShowOption){
+            yes.setText("Yes, Pay only for the "+number+" users.");
+            message.setText(String.format("As of now, there are %d users interested in %s. You can pay for these users only. However if they increase, the new users will not see your advert.", number, mCategory));
+
+            proceedBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(!hasShownOption){
+                        hasShownOption = true;
+                        specificOnlyLayout.setVisibility(View.VISIBLE);
+                        paymentMessage.setVisibility(View.GONE);
+                        optionImages.setVisibility(View.GONE);
+                    }else{
+                        Variables.isTargeting = yes.isChecked();
+                        setDetailsAndProceed();
+                        dismiss();
+                    }
+                }
+            });
+        }else{
+            cancelBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dismiss();
+                }
+            });
+            proceedBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    setDetailsAndProceed();
+                    dismiss();
+                }
+            });
+        }
 
         FrameLayout bottomSheet = dialog.getWindow().findViewById(android.support.design.R.id.design_bottom_sheet);
         bottomSheet.setBackgroundResource(R.drawable.dialog_bg);
 
+    }
+
+    private void setDetailsAndProceed(){
+//        if(rbCard.isChecked()) Variables.paymentOption = Constants.BANK_OPTION;
+//                else if(rbMpesa.isChecked())Variables.paymentOption = Constants.MPESA_OPTION;
+//                else Variables.paymentOption = Constants.BANK_OPTION;
+
+        Variables.paymentOption = Constants.MPESA_OPTION;
+        Intent intent = new Intent("PROCEED_CARD_DETAILS_PART");
+        LocalBroadcastManager.getInstance(mActivity).sendBroadcast(intent);
     }
 
 }

@@ -88,7 +88,7 @@ public class MyAdStatsItem {
         int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen();
         int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
                 (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
-        double vat = (numberOfUsersWhoDidntSeeAd*(mAdvert.getAmountToPayPerTargetedView()))
+        double vat = (numberOfUsersWhoDidntSeeAd*(Variables.getUserCpvFromTotalPayPerUser(mAdvert.getAmountToPayPerTargetedView())))
                 *Constants.VAT_CONSTANT;
 
         double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;

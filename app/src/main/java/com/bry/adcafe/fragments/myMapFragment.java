@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
@@ -237,6 +238,10 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
     @Override
     public void onDestroyView() {
         Log.e(TAG,"onDestroy view called.....");
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("SET_USER_PERSONAL_LOCATIONS"));
+        if(Variables.usersLatLongs.isEmpty()){
+            addMarkerInFirebase();
+        }
         try{
             if (mapFragment != null){
                 Log.d(TAG,"Map fragment is not null, attempting to remove it ....");
@@ -279,7 +284,6 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
         if(!gps_enabled) {
            Toast.makeText(mContext,"Please turn on your GPS-Location.",Toast.LENGTH_SHORT).show();
         }
-
         return false;
     }
 
@@ -308,10 +312,12 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
             Variables.usersLatLongs.add(latLng);
         }
         Toast.makeText(mContext,"Locations set",Toast.LENGTH_SHORT).show();
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("SET_USER_PERSONAL_LOCATIONS"));
         addMarkerInFirebase();
         editor.apply();
         dismiss();
     }
+
 
     private void addMarkerInFirebase(){
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -320,11 +326,13 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
         myRef.setValue(null).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-               for(LatLng latl:Variables.usersLatLongs){
-                   DatabaseReference pushRef = myRef.push();
-                   pushRef.child("lat").setValue(latl.latitude);
-                   pushRef.child("lng").setValue(latl.longitude);
-               }
+                if(!Variables.usersLatLongs.isEmpty()) {
+                    for (LatLng latl : Variables.usersLatLongs) {
+                        DatabaseReference pushRef = myRef.push();
+                        pushRef.child("lat").setValue(latl.latitude);
+                        pushRef.child("lng").setValue(latl.longitude);
+                    }
+                }
             }
         });
     }

@@ -30,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -857,6 +858,12 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private void showMessageBeforeBottomsheet(){
         FragmentSelectPaymentOptionBottomSheet fragmentModalBottomSheet = new FragmentSelectPaymentOptionBottomSheet();
         fragmentModalBottomSheet.setActivity(AdUpload.this);
+        if(Variables.genderTarget.equals("") && Variables.ageGroupTarget==null && Variables.locationTarget.isEmpty()&&
+                clustersToUpLoadTo.size()==1 && UsersInCategory.size() < Constants.NUMBER_OF_USERS_PER_CLUSTER &&
+                getTargetedUsersByCluster(clustersToUpLoadTo.get(0)).size() < Constants.NUMBER_OF_USERS_PER_CLUSTER){
+            int number = getTargetedUsersByCluster(clustersToUpLoadTo.get(0)).size();
+            fragmentModalBottomSheet.setTargetOptionData(true,number,mCategory);
+        }
         fragmentModalBottomSheet.show(getSupportFragmentManager(),"BottomSheet Fragment");
     }
 
@@ -1147,7 +1154,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
     private void createProgressDialog(){
         mAuthProgressDialog = new ProgressDialog(this,R.style.AppCompatAlertDialogStyle);
-        mAuthProgressDialog.setTitle("AdCafe.");
+        mAuthProgressDialog.setTitle(R.string.app_name);
         mAuthProgressDialog.setMessage("Uploading your ad... ");
         mAuthProgressDialog.setCancelable(false);
         mAuthProgressDialog.setProgress(ProgressDialog.STYLE_SPINNER);
@@ -1563,6 +1570,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private BroadcastReceiver mMessageReceiverForSetTargetInfo = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log(TAG,"Broadcast received for show or hide target dot. IsTargeting is: "+Variables.isTargeting);
             if(Variables.isTargeting)findViewById(R.id.smallDot2).setVisibility(View.VISIBLE);
             else findViewById(R.id.smallDot2).setVisibility(View.INVISIBLE);
         }
@@ -1709,11 +1717,13 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         }
         if(Variables.ageGroupTarget!=null){
             for(TargetedUser user:UsersInCategory){
-                if(user.getBirthday()!=0) {
+                if(user.getBirthday()!=0 || user.getBirthYear()!=0) {
                     Integer userAge = getAge(user.getBirthYear(), user.getBirthMonth(), user.getBirthday());
                     if(userAge < Variables.ageGroupTarget.getStartingAge() || userAge > Variables.ageGroupTarget.getFinishAge()){
                         if(usersQualified.contains(user)) usersQualified.remove(user);
                     }
+                }else{
+                    if(usersQualified.contains(user)) usersQualified.remove(user);
                 }
             }
         }
@@ -1756,6 +1766,35 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             }
         }
         return locations;
+    }
+
+
+    private void showDialogForTargetUsersBeforePayment(){
+        if(!Variables.isTargeting && clustersToUpLoadTo.size()==1 && getTargetedUsersByCluster(clustersToUpLoadTo.get(0)).size()<100){
+            int number = getTargetedUsersByCluster(clustersToUpLoadTo.get(0)).size();
+            final Dialog d = new Dialog(AdUpload.this);
+            d.setTitle("Targeted people no.");
+            d.setContentView(R.layout.dialog_only_specific_or_all);
+            TextView message = d.findViewById(R.id.usersInfo);
+            final RadioButton yes = d.findViewById(R.id.radioButtonYes);
+            final RadioButton no = d.findViewById(R.id.radioButtonNo);
+            Button ok = d.findViewById(R.id.okBtn);
+
+            yes.setText("Yes, Pay only for the "+number+" users.");
+            message.setText(String.format("As of now, the users who are interested in %s are %d. You can pay for these users only, however, if they increase, the new users will not see your advert.", mCategory, number));
+
+            ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(yes.isChecked()) Variables.isTargeting = true;
+                    showDialogForPayments();
+                    d.dismiss();
+                }
+            });
+            d.show();
+        }else{
+            showDialogForPayments();
+        }
     }
 
 

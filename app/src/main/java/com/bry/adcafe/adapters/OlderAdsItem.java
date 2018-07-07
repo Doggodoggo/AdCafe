@@ -72,11 +72,13 @@ public class OlderAdsItem {
         }
 
         int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen();
-        int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
+        double ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
                 (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
+
         double vat = (mAdvert.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(
                 mAdvert.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
-        double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
+
+        double totalReimbursalPlusPayout = ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
         String number = Double.toString(totalReimbursalPlusPayout);
 
         mAmountToReimburseView.setText(String.format("Reimbursing amount: %s Ksh", number));

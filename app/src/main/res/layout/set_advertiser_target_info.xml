@@ -142,9 +142,19 @@
             android:text="@string/targetGenderInfo"
             android:layout_height="wrap_content" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:id="@+id/genderUserCount"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="10dp"
+            android:text="Users that will be reached: 75 Users."
+            android:layout_height="wrap_content" />
+
         <RadioGroup
             android:layout_width="match_parent"
-            android:id="@+id/selectPaymentRadioGroup"
+            android:id="@+id/selectGenderRadioGroup"
             android:orientation="vertical"
             android:paddingLeft="20dp"
             android:layout_height="wrap_content">
@@ -191,7 +201,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
                 android:background="@null"
-                android:text="Continue."
+                android:text="Set."
                 android:textColor="@color/colorPrimary" />
 
         </RelativeLayout>
@@ -222,6 +232,16 @@
             android:layout_marginRight="20dp"
             android:layout_marginLeft="20dp"
             android:text="@string/ageGroupInfo"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:id="@+id/ageUserCount"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="10dp"
+            android:text="Users that will be reached: 75 Users."
             android:layout_height="wrap_content" />
 
         <TextView
@@ -292,7 +312,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
                 android:background="@null"
-                android:text="Continue."
+                android:text="Set."
                 android:textColor="@color/colorPrimary" />
 
         </RelativeLayout>
@@ -324,6 +344,26 @@
             android:layout_marginLeft="20dp"
             android:layout_marginBottom="10dp"
             android:text="@string/locationTargeting"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:id="@+id/locationUserCount"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="1dp"
+            android:text="Users that will be reached: 75 Users."
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:id="@+id/locationsNumber"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="10dp"
+            android:text="Locations set: None."
             android:layout_height="wrap_content" />
 
         <LinearLayout

@@ -5,12 +5,16 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +28,7 @@ import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
+import com.bry.adcafe.Variables;
 import com.bry.adcafe.services.TimeManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -59,6 +64,7 @@ public class SetUsersPersonalInfo extends DialogFragment {
     private Button okBtn3;
 
     private LinearLayout locationLayout;
+    private TextView locationNumberText;
     private ImageButton openMapImg;
     private Button openMap;
     private Button skip3;
@@ -98,6 +104,7 @@ public class SetUsersPersonalInfo extends DialogFragment {
         okBtn3 = rootView.findViewById(R.id.okBtn3);
 
         locationLayout = rootView.findViewById(R.id.locationLayout);
+        locationNumberText = rootView.findViewById(R.id.locationNumberText);
         openMapImg = rootView.findViewById(R.id.openMapImg);
         openMap = rootView.findViewById(R.id.openMap);
         skip3 = rootView.findViewById(R.id.skip3);
@@ -108,6 +115,8 @@ public class SetUsersPersonalInfo extends DialogFragment {
 
         loadFirstView();
 
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSetLocations,
+                new IntentFilter("SET_USER_PERSONAL_LOCATIONS"));
         mRootView = rootView;
         return rootView;
     }
@@ -220,6 +229,11 @@ public class SetUsersPersonalInfo extends DialogFragment {
         locationLayout.setVisibility(View.VISIBLE);
         locationLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
                 .setInterpolator(new FastOutSlowInInterpolator());
+        if(Variables.usersLatLongs.isEmpty()){
+            locationNumberText.setText(Html.fromHtml("Locations set:<b> None.</b>"));
+        }else{
+            locationNumberText.setText(Html.fromHtml("Locations set: <b>"+ Variables.usersLatLongs.size()+" Locations.</b>"));
+        }
         openMapImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -246,6 +260,23 @@ public class SetUsersPersonalInfo extends DialogFragment {
                 loadFifthView();
             }
         });
+    }
+
+    private BroadcastReceiver mMessageReceiverForSetLocations = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(Variables.usersLatLongs.isEmpty()){
+                locationNumberText.setText(Html.fromHtml("Locations set:<b> None.</b>"));
+            }else{
+                locationNumberText.setText(Html.fromHtml("Locations set: <b>"+ Variables.usersLatLongs.size()+" Locations.</b>"));
+            }
+        }
+    };
+
+    @Override
+    public void onDismiss(final DialogInterface dialog) {
+        super.onDismiss(dialog);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForSetLocations);
     }
 
 

@@ -801,10 +801,13 @@ public class AdStats extends AppCompatActivity {
         mProgForPayments.show();
         Advert ad = Variables.adToBeReimbursed;
         int numberOfUsersWhoDidntSeeAd = ad.getNumberOfUsersToReach()- ad.getNumberOfTimesSeen();
-        double unneededPayoutAm = ad.getPayoutReimbursalAmount();
-        double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*
-                (ad.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))+unneededPayoutAm;
+        double ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
+                (ad.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
 
+        double vat = (ad.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(
+                ad.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
+
+        double reimbursementTotals = ammountToBeRepaid+ad.getPayoutReimbursalAmount()+vat;
 
 //        Toast.makeText(mContext,"payout!",Toast.LENGTH_SHORT).show();
         String payoutPhoneNumber = Variables.phoneNo;
@@ -974,8 +977,13 @@ public class AdStats extends AppCompatActivity {
     private void showBottomSheetForReimbursement(){
         Advert ad = Variables.adToBeReimbursed;
         int numberOfUsersWhoDidntSeeAd = ad.getNumberOfUsersToReach()- ad.getNumberOfTimesSeen();
-        double unneededPayoutAm = ad.getPayoutReimbursalAmount();
-        double reimbursementTotals = (numberOfUsersWhoDidntSeeAd*(ad.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))+unneededPayoutAm;
+        double ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
+                (ad.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
+
+        double vat = (ad.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(
+                ad.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
+
+        double reimbursementTotals = ammountToBeRepaid+ad.getPayoutReimbursalAmount()+vat;
 
         FragmentAdvertiserPayoutBottomsheet fragmentModalBottomSheet = new FragmentAdvertiserPayoutBottomsheet();
         fragmentModalBottomSheet.setActivity(AdStats.this);

@@ -242,6 +242,8 @@
 
     <string name="confirmDetails">Check that all the details are right before finishing.</string>
 
+    <string name="usersInTheAppNow">As of now blah blah blah</string>
+
     <string name="feedbacktype">Feedback Type</string>
     <string name="feedbacktype1">Suggestion</string>
     <string name="feedbacktype2">Gripe</string>
