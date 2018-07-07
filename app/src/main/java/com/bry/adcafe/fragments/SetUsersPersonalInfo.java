@@ -58,12 +58,14 @@ public class SetUsersPersonalInfo extends DialogFragment {
     private Button okBtn2;
 
     private LinearLayout ageLayout;
+    private ImageButton backBtn1;
     private ImageButton openCalendar;
     private TextView setAgeTextView;
     private Button skip2;
     private Button okBtn3;
 
     private LinearLayout locationLayout;
+    private ImageButton backBtn2;
     private TextView locationNumberText;
     private ImageButton openMapImg;
     private Button openMap;
@@ -72,6 +74,7 @@ public class SetUsersPersonalInfo extends DialogFragment {
 
     private LinearLayout concludeLayout;
     private Button okBtn5;
+    private float NEG = -800f;
 
     public void setfragcontext(Context context) {
         mContext = context;
@@ -98,6 +101,7 @@ public class SetUsersPersonalInfo extends DialogFragment {
         okBtn2 = rootView.findViewById(R.id.okBtn2);
 
         ageLayout = rootView.findViewById(R.id.ageLayout);
+        backBtn1 = rootView.findViewById(R.id.backBtn1);
         openCalendar = rootView.findViewById(R.id.calendar);
         setAgeTextView = rootView.findViewById(R.id.setAgeText);
         skip2 = rootView.findViewById(R.id.skip2);
@@ -105,6 +109,7 @@ public class SetUsersPersonalInfo extends DialogFragment {
 
         locationLayout = rootView.findViewById(R.id.locationLayout);
         locationNumberText = rootView.findViewById(R.id.locationNumberText);
+        backBtn2 = rootView.findViewById(R.id.backBtn2);
         openMapImg = rootView.findViewById(R.id.openMapImg);
         openMap = rootView.findViewById(R.id.openMap);
         skip3 = rootView.findViewById(R.id.skip3);
@@ -139,13 +144,13 @@ public class SetUsersPersonalInfo extends DialogFragment {
             @Override
             public void onClick(View view) {
                 mainLaout2.setVisibility(View.GONE);
-                loadSecondView();
+                loadSetGenderView();
             }
         });
     }
 
 
-    private void loadSecondView() {
+    private void loadSetGenderView() {
         genderLayout.setVisibility(View.VISIBLE);
         genderLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
                 .setInterpolator(new FastOutSlowInInterpolator());
@@ -156,7 +161,8 @@ public class SetUsersPersonalInfo extends DialogFragment {
             @Override
             public void onClick(View view) {
                 genderLayout.setVisibility(View.GONE);
-                loadThirdView();
+                genderLayout.setTranslationX(NEG);
+                loadSetBirthdayView();
             }
         });
         okBtn2.setOnClickListener(new View.OnClickListener() {
@@ -168,7 +174,8 @@ public class SetUsersPersonalInfo extends DialogFragment {
                     setGender(Constants.MALE);
                 }
                 genderLayout.setVisibility(View.GONE);
-                loadThirdView();
+                genderLayout.setTranslationX(NEG);
+                loadSetBirthdayView();
             }
         });
     }
@@ -186,7 +193,7 @@ public class SetUsersPersonalInfo extends DialogFragment {
     }
 
 
-    private void loadThirdView() {
+    private void loadSetBirthdayView() {
         ageLayout.setVisibility(View.VISIBLE);
         ageLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
                 .setInterpolator(new FastOutSlowInInterpolator());
@@ -207,25 +214,36 @@ public class SetUsersPersonalInfo extends DialogFragment {
             }
         });
 
+        backBtn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ageLayout.setVisibility(View.GONE);
+                ageLayout.setTranslationX(800);
+                loadSetGenderView();
+            }
+        });
+
         skip2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ageLayout.setVisibility(View.GONE);
-                loadFouthView();
+                ageLayout.setTranslationX(NEG);
+                loadSetLocationsView();
             }
         });
         okBtn3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ageLayout.setVisibility(View.GONE);
-                loadFouthView();
+                ageLayout.setTranslationX(NEG);
+                loadSetLocationsView();
             }
         });
     }
 
 
 
-    private void loadFouthView() {
+    private void loadSetLocationsView() {
         locationLayout.setVisibility(View.VISIBLE);
         locationLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
                 .setInterpolator(new FastOutSlowInInterpolator());
@@ -246,10 +264,21 @@ public class SetUsersPersonalInfo extends DialogFragment {
                 openMapImg.performClick();
             }
         });
+
+        backBtn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                locationLayout.setVisibility(View.GONE);
+                locationLayout.setTranslationX(800);
+                loadSetBirthdayView();
+            }
+        });
+
         skip3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 locationLayout.setVisibility(View.GONE);
+                locationLayout.setTranslationX(NEG);
                 loadFifthView();
             }
         });
@@ -257,6 +286,7 @@ public class SetUsersPersonalInfo extends DialogFragment {
             @Override
             public void onClick(View view) {
                 locationLayout.setVisibility(View.GONE);
+                locationLayout.setTranslationX(NEG);
                 loadFifthView();
             }
         });

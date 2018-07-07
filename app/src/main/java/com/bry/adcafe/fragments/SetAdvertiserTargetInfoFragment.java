@@ -58,6 +58,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private Button okBtn2;
 
     private LinearLayout ageLayout;
+    private ImageButton backBtn1;
     private NumberPicker numberPicker1;
     private NumberPicker numberPicker2;
     private TextView ageUserCount;
@@ -66,6 +67,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private Button okBtn3;
 
     private LinearLayout locationLayout;
+    private ImageButton backBtn2;
     private TextView locationUserCount;
     private TextView locationsNumber;
     private ImageButton openMapImg;
@@ -74,6 +76,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private Button okBtn4;
 
     private LinearLayout concludeLayout;
+    private ImageButton backBtn3;
     private TextView confirmGender;
     private TextView confirmAge;
     private TextView confirmLocations;
@@ -81,6 +84,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private Button okBtn5;
 
     private List<TargetedUser> targetedUserData;
+    private float NEG = -800f;
 
 
     public void setfragcontext(Context context) {
@@ -115,6 +119,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         okBtn2 = rootView.findViewById(R.id.okBtn2);
 
         ageLayout = rootView.findViewById(R.id.ageLayout);
+        backBtn1 = rootView.findViewById(R.id.backBtn1);
         numberPicker1 = rootView.findViewById(R.id.numberPicker1);
         numberPicker2 = rootView.findViewById(R.id.numberPicker2);
         ageUserCount = rootView.findViewById(R.id.ageUserCount);
@@ -123,6 +128,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         okBtn3 = rootView.findViewById(R.id.okBtn3);
 
         locationLayout = rootView.findViewById(R.id.locationLayout);
+        backBtn2 = rootView.findViewById(R.id.backBtn2);
         locationUserCount = rootView.findViewById(R.id.locationUserCount);
         locationsNumber = rootView.findViewById(R.id.locationsNumber);
         openMapImg = rootView.findViewById(R.id.openMapImg);
@@ -131,6 +137,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         okBtn4 = rootView.findViewById(R.id.okBtn4);
 
         concludeLayout= rootView.findViewById(R.id.concludeLayout);
+        backBtn3 = rootView.findViewById(R.id.backBtn3);
         confirmGender = rootView.findViewById(R.id.confirmGender);
         confirmAge = rootView.findViewById(R.id.confirmAge);
         confirmLocations = rootView.findViewById(R.id.confirmLocations);
@@ -206,16 +213,21 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         okBtn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(radioButtonFemale.isChecked()){
-                    Variables.genderTarget = Constants.FEMALE;
-                    Variables.isTargeting = true;
-                }else if(radioButtonMale.isChecked()){
-                    Variables.genderTarget = Constants.MALE;
-                    Variables.isTargeting = true;
+                if(!radioButtonMale.isChecked() && !radioButtonFemale.isChecked()){
+                    Toast.makeText(mContext,"Pick one!",Toast.LENGTH_SHORT).show();
+                }else{
+                    if(radioButtonFemale.isChecked()){
+                        Variables.genderTarget = Constants.FEMALE;
+                        Variables.isTargeting = true;
+                    }else if(radioButtonMale.isChecked()){
+                        Variables.genderTarget = Constants.MALE;
+                        Variables.isTargeting = true;
+                    }
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
+                    genderLayout.setVisibility(View.GONE);
+                    genderLayout.setTranslationX(NEG);
+                    loadAgeGroupView();
                 }
-                LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
-                genderLayout.setVisibility(View.GONE);
-                loadAgeGroupView();
             }
         });
 
@@ -227,6 +239,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                     Variables.isTargeting = false;
                 }
                 genderLayout.setVisibility(View.GONE);
+                genderLayout.setTranslationX(NEG);
                 loadAgeGroupView();
             }
         });
@@ -272,10 +285,21 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
             numberPicker1.setValue(Variables.ageGroupTarget.getStartingAge());
             numberPicker2.setValue(Variables.ageGroupTarget.getFinishAge());
         }
+
+        backBtn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ageLayout.setTranslationX(600);
+                ageLayout.setVisibility(View.GONE);
+                loadGenderView();
+            }
+        });
+
         skip2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ageLayout.setVisibility(View.GONE);
+                ageLayout.setTranslationX(NEG);
                 Variables.ageGroupTarget = null;
                 loadMapLayout();
             }
@@ -284,6 +308,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
             @Override
             public void onClick(View view) {
                 ageLayout.setVisibility(View.GONE);
+                ageLayout.setTranslationX(NEG);
                 Variables.ageGroupTarget = new AgeGroup(numberPicker1.getValue(),numberPicker2.getValue());
                 Variables.isTargeting = true;
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
@@ -318,10 +343,20 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         }else{
             locationsNumber.setText(Html.fromHtml("Locations set: <b>"+ Variables.locationTarget.size()+" Locations.</b>"));
         }
+
+        backBtn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                locationLayout.setVisibility(View.GONE);
+                locationLayout.setTranslationX(600);
+                loadAgeGroupView();
+            }
+        });
         skip3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 locationLayout.setVisibility(View.GONE);
+                locationLayout.setTranslationX(NEG);
                 loadConfirmDetailsView();
             }
         });
@@ -329,6 +364,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
             @Override
             public void onClick(View view) {
                 locationLayout.setVisibility(View.GONE);
+                locationLayout.setTranslationX(NEG);
                 loadConfirmDetailsView();
             }
         });
@@ -384,6 +420,14 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         long noOfUsersThatWillBeReached = getNumberOfUsersAfterFiltering();
         usersToBeReached.setText("Users that will be reached: "+noOfUsersThatWillBeReached+" Users");
 
+        backBtn3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                concludeLayout.setVisibility(View.GONE);
+                concludeLayout.setTranslationX(600);
+                loadMapLayout();
+            }
+        });
         okBtn5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
