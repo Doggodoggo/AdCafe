@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/colorPrimary"
-            android:text="One more thing."
+            android:text="Pricing cont ..."
             android:textSize="25sp" />
 
         <TextView
@@ -31,7 +31,19 @@
             android:gravity="center"
             android:layout_marginLeft="20dp"
             android:layout_height="wrap_content"
-            android:text="@string/dontuploadsameadtwice"
+            android:text="@string/priceSplittingExp"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/linkToCostSplitExp"
+            android:textColor="@color/colorPrimary"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:layout_marginLeft="20dp"
+            android:layout_height="wrap_content"
+            android:text="@string/linkToCostExpl"
             android:textSize="16sp" />
 
     </LinearLayout>

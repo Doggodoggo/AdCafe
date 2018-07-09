@@ -193,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         setIsAppOnline(true);
         setLastUserOfAppInSharedPreferences(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        setUserDeviceCategoryInFirebaseAndSharedPrefs();
     }
 
     private void setUpTimeIfNeedBe(){
@@ -682,11 +683,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     //this loads the entire top node,with all the categories, then equates it to a local variable, then uses that
-    // as a snapshot. Much faster and efficient than traditional method.
+    // as a snapshot. Faster and more efficient than previous method.
     private void startGetAdsThroughOneSnapShot(){
-//        if(mAdsSnapshot!=null){
-//            getAdsSnapShot();
-//        }
+        if(Variables.Subscriptions.isEmpty()){
+            loadSubsFromSharedPrefs();
+        }
         getAdsSnapShot();
     }
 
@@ -3223,8 +3224,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Gson gson = new Gson();
             java.lang.reflect.Type type = new TypeToken<ArrayList<String>>(){}.getType();
             targetUids = gson.fromJson(targetUserListString,type);
-
             if (targetUids != null && !targetUids.contains(uid)) return false;
+        }if(targetDataSnap.child("devicerange").exists()){
+            String deviceRangeCategory = targetDataSnap.child("devicerange").getValue(String.class);
+            if(!deviceRangeCategory.equals(getUserDeviceCagegory()))return false;
+        }if(targetDataSnap.child("categorylist").exists()){
+            List<String> requiredCategories = new ArrayList<>();
+            for(DataSnapshot catSnap:targetDataSnap.child("categorylist").getChildren()){
+                String cat = catSnap.getValue(String.class);
+                requiredCategories.add(cat);
+            }
+            for(String requiredCategory:requiredCategories){
+                if(!Variables.Subscriptions.keySet().contains(requiredCategory)) return false;
+            }
         }
         return true;
     }
@@ -3361,7 +3373,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-
     public void PerformShutdown(){
         setLastUsedDateInFirebaseDate(User.getUid());
         if (dbRef != null) {
@@ -3383,6 +3394,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else{
             finish();
         }
+
+    }
+
+    public String getUserDeviceCagegory(){
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int density = metrics.densityDpi;
+
+        if(density>Constants.HIGH_DENSITY_THRESHOLD){
+            return Constants.HIGH_END_DEVICE;
+        }else if(density>Constants.MID_DENSITY_THRESHOLD){
+            return Constants.MID_RANGE_DEVICE;
+        }else return Constants.LOW_END_DEVICE;
+    }
+
+    public void setUserDeviceCategoryInFirebaseAndSharedPrefs(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        DatabaseReference fbd = FirebaseDatabase.getInstance().getReference().child(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.DEVICE_CATEGORY);
+        fbd.setValue(getUserDeviceCagegory());
+
+        SharedPreferences pref = getSharedPreferences(Constants.DEVICE_CATEGORY, MODE_PRIVATE);
+        pref.edit().clear().putString(Constants.DEVICE_CATEGORY, getUserDeviceCagegory()).apply();
+        Log(TAG,"Set user device category in shared pref and firebase");
 
     }
 

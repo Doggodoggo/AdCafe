@@ -1,6 +1,7 @@
 package com.bry.adcafe.ui;
 
 import android.app.Dialog;
+import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Layout;
@@ -26,6 +28,8 @@ import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.adapters.SelectCategoryContainer;
 import com.bry.adcafe.adapters.SelectCategoryItem;
+import com.bry.adcafe.fragments.SetSignupUserPersonalInfo;
+import com.bry.adcafe.fragments.SetUsersPersonalInfo;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.DatabaseManager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -63,7 +67,10 @@ public class SelectCategory extends AppCompatActivity implements View.OnClickLis
         ButterKnife.bind(this);
 
         mContext = this.getApplicationContext();
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFinishedCreatingUserSubscriptionList, new IntentFilter(Constants.SET_UP_USERS_SUBSCRIPTION_LIST));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFinishedCreatingUserSubscriptionList,
+                new IntentFilter(Constants.SET_UP_USERS_SUBSCRIPTION_LIST));
+       LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFinishedSettingUserPersonalinfo,
+               new IntentFilter("SETTING_USER_PERSONAL_CONTENT"));
         if (isOnline(mContext)) {
             loadCategoriesFromFirebase();
         }else{
@@ -126,6 +133,7 @@ public class SelectCategory extends AppCompatActivity implements View.OnClickLis
     protected  void onDestroy() {
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedCreatingUserSubscriptionList);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Constants.STOP_LISTENING));
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedSettingUserPersonalinfo);
         super.onDestroy();
     }
 
@@ -155,8 +163,17 @@ public class SelectCategory extends AppCompatActivity implements View.OnClickLis
         final Dialog d = new Dialog(this);
         d.setTitle("Amount to receive.");
         d.setContentView(R.layout.dialog7);
+        final LinearLayout selectCpv = d.findViewById(R.id.selectCpvLayout);
         Button b1 = d.findViewById(R.id.submitButton);
         Button b2 = d.findViewById(R.id.cancelButton);
+
+        final LinearLayout setPersonalContent = d.findViewById(R.id.personalisedContentOption);
+        final Button skip = d.findViewById(R.id.skip);
+        final Button cont = d.findViewById(R.id.okBtn);
+
+        final LinearLayout whyLayout = d.findViewById(R.id.whyLayout);
+        final Button okBtn207 = d.findViewById(R.id.okBtn207);
+
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -171,32 +188,63 @@ public class SelectCategory extends AppCompatActivity implements View.OnClickLis
                 }else{
                     cpv = 6;
                 }
-
-//                switch (selectedId) {
-//                    case R.id.radioButton1:
-//                        cpv = 1;
-//                        break;
-//                    case R.id.radioButton3:
-//                        cpv = 3;
-//                        break;
-//                    default:
-//                        cpv = 6;
-//                        break;
-//                }
                 Variables.constantAmountPerView = cpv;
+
+                selectCpv.setVisibility(View.GONE);
+                setPersonalContent.setVisibility(View.VISIBLE);
+                setPersonalContent.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                        .setInterpolator(new FastOutSlowInInterpolator());
+//                startSetUp();
+//                d.dismiss();
+            }
+        });
+
+        skip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 startSetUp();
                 d.dismiss();
             }
         });
-        b2.setOnClickListener(new View.OnClickListener()
-        {
+
+        cont.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                d.dismiss();
+            public void onClick(View view) {
+                setPersonalContent.setVisibility(View.GONE);
+                whyLayout.setVisibility(View.VISIBLE);
+                whyLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                        .setInterpolator(new FastOutSlowInInterpolator());
             }
         });
+
+        okBtn207.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                d.dismiss();
+                startSetPersonalInfoFragment();
+            }
+        });
+
         d.show();
     }
+
+    private void startSetPersonalInfoFragment() {
+        FragmentManager fm = getFragmentManager();
+        SetSignupUserPersonalInfo cpvFragment = new SetSignupUserPersonalInfo();
+        cpvFragment.setMenuVisibility(false);
+        cpvFragment.setCancelable(false);
+        cpvFragment.show(fm,"Edit User Data.");
+        cpvFragment.setfragcontext(mContext);
+        cpvFragment.setActivity(this);
+    }
+
+    private BroadcastReceiver mMessageReceiverForFinishedSettingUserPersonalinfo = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG,"Finished setting user personal info");
+            startSetUp();
+        }
+    };
 
     private void startSetUp(){
         mainView.setVisibility(View.GONE);

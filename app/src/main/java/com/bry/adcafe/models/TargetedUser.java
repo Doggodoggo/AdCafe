@@ -13,8 +13,11 @@ public class TargetedUser {
     private int mBirthYear;
     private List<LatLng> mUserLocations;
     private int mClusterId;
+    private String mDeviceCategory;
+    private List<String> mSubscriptions;
 
-    public TargetedUser(String uid,String gender,int birthday, int birthMonth, int birthYear, List<LatLng> userLocations, int cluster){
+    public TargetedUser(String uid,String gender,int birthday, int birthMonth, int birthYear,
+                        List<LatLng> userLocations, int cluster, String deviceCategory, List<String> subs){
         this.mUserId = uid;
         this.mGender = gender;
         this.mBirthday = birthday;
@@ -22,6 +25,8 @@ public class TargetedUser {
         this.mBirthYear = birthYear;
         this.mUserLocations = userLocations;
         this.mClusterId = cluster;
+        this.mDeviceCategory = deviceCategory;
+        this.mSubscriptions = subs;
     }
 
 
@@ -88,5 +93,21 @@ public class TargetedUser {
 
     public void setClusterId(int mClusterId) {
         this.mClusterId = mClusterId;
+    }
+
+    public String getDeviceCategory() {
+        return mDeviceCategory;
+    }
+
+    public void setDeviceCategory(String mDeviceCategory) {
+        this.mDeviceCategory = mDeviceCategory;
+    }
+
+    public List<String> getSubscriptions() {
+        return mSubscriptions;
+    }
+
+    public void setSubscriptions(List<String> mSubscriptions) {
+        this.mSubscriptions = mSubscriptions;
     }
 }

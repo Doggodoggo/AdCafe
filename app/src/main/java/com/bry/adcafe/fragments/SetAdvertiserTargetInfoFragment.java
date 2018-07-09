@@ -75,16 +75,43 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private Button skip3;
     private Button okBtn4;
 
+    private LinearLayout deviceCategoryLayout;
+    private ImageButton backBtn4;
+    private TextView deviceCategoryUserCount;
+    private RadioGroup selectDeviceRadioGroup;
+    private RadioButton radioButtonLowEnd;
+    private RadioButton radioButtonMidRange;
+    private RadioButton radioButtonHighEnd;
+    private Button skip4;
+    private Button okBtn6;
+
+    private LinearLayout categoriesLayout;
+    private ImageButton backBtn5;
+    private TextView multiCategoryExplanation;
+    private TextView categoriesUserCount;
+    private TextView categoriesNumber;
+    private ImageButton setCategoryImg;
+    private Button okBtn7;
+    private Button skip5;
+
+
     private LinearLayout concludeLayout;
     private ImageButton backBtn3;
     private TextView confirmGender;
     private TextView confirmAge;
     private TextView confirmLocations;
     private TextView usersToBeReached;
+    private TextView confirmDeviceCategory;
+    private TextView confirmMultiCategory;
     private Button okBtn5;
 
     private List<TargetedUser> targetedUserData;
     private float NEG = -800f;
+    private String mCategory;
+
+    private boolean hasSetSomeInfo = false;
+    private final String skp = "SKIP.";
+    private final String clr = "CLEAR.";
 
 
     public void setfragcontext(Context context) {
@@ -93,6 +120,10 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
 
     public void setActivity(Activity activity) {
         this.mActivity = activity;
+    }
+
+    public void setCategory(String cat){
+        this.mCategory = cat;
     }
 
     public void setUsersThatCanBeReached(List<TargetedUser> users){
@@ -136,23 +167,52 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         skip3 = rootView.findViewById(R.id.skip3);
         okBtn4 = rootView.findViewById(R.id.okBtn4);
 
+        deviceCategoryLayout = rootView.findViewById(R.id.deviceCategoryLayout);
+        backBtn4 = rootView.findViewById(R.id.backBtn4);
+        deviceCategoryUserCount = rootView.findViewById(R.id.deviceCategoryUserCount);
+        selectDeviceRadioGroup = rootView.findViewById(R.id.selectDeviceRadioGroup);
+        radioButtonLowEnd = rootView.findViewById(R.id.radioButtonLowEnd);
+        radioButtonMidRange = rootView.findViewById(R.id.radioButtonMidRange);
+        radioButtonHighEnd = rootView.findViewById(R.id.radioButtonHighEnd);
+        skip4 = rootView.findViewById(R.id.skip4);
+        okBtn6 = rootView.findViewById(R.id.okBtn6);
+
+        categoriesLayout = rootView.findViewById(R.id.categoriesLayout);
+        backBtn5 = rootView.findViewById(R.id.backBtn5);
+        multiCategoryExplanation = rootView.findViewById(R.id.multiCategoryExplanation);
+        categoriesUserCount = rootView.findViewById(R.id.categoriesUserCount);
+        categoriesNumber = rootView.findViewById(R.id.categoriesNumber);
+        setCategoryImg = rootView.findViewById(R.id.setCategoryImg);
+        okBtn7 = rootView.findViewById(R.id.okBtn7);
+        skip5 = rootView.findViewById(R.id.skip5);
+
+
         concludeLayout= rootView.findViewById(R.id.concludeLayout);
         backBtn3 = rootView.findViewById(R.id.backBtn3);
         confirmGender = rootView.findViewById(R.id.confirmGender);
         confirmAge = rootView.findViewById(R.id.confirmAge);
         confirmLocations = rootView.findViewById(R.id.confirmLocations);
+        confirmDeviceCategory = rootView.findViewById(R.id.confirmDeviceCategory);
+        confirmMultiCategory = rootView.findViewById(R.id.confirmMultiCategory);
+        usersToBeReached = rootView.findViewById(R.id.usersToBeReached);
         okBtn5= rootView.findViewById(R.id.okBtn5);
 
-        usersToBeReached = rootView.findViewById(R.id.usersToBeReached);
+
+
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSetLocations
                 ,new IntentFilter(Constants.SET_LOCATION_DATA));
+
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSetCategories,
+                new IntentFilter(Constants.SET_MULTI_CATEGORY_DATA));
 
         loadFirstView();
         return rootView;
     }
 
     private void loadFirstView() {
-        if(!Variables.isTargeting) resetBtn.setAlpha(0.5f);
+        if(Variables.genderTarget.equals("") && Variables.ageGroupTarget == null
+                && Variables.locationTarget.isEmpty()) Variables.isOnlyTargetingKnownUsers = false;
+        if(!Variables.isTargetingDataSet()) resetBtn.setAlpha(0.5f);
         okBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -163,7 +223,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         resetBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(Variables.isTargeting) resetData();
+                if(Variables.isTargetingDataSet()) resetData();
             }
         });
     }
@@ -191,37 +251,52 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
 
 
     private void loadGenderView(){
+        hasSetSomeInfo = false;
         genderLayout.setVisibility(View.VISIBLE);
         genderLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
                 .setInterpolator(new FastOutSlowInInterpolator());
-        if(Variables.genderTarget.equals(Constants.MALE)) radioButtonMale.setChecked(true);
-        else if(Variables.genderTarget.equals(Constants.FEMALE)) radioButtonFemale.setChecked(true);
+        if(Variables.genderTarget.equals(Constants.MALE)){
+            hasSetSomeInfo = true;
+            radioButtonMale.setChecked(true);
+        }
+        else if(Variables.genderTarget.equals(Constants.FEMALE)){
+            hasSetSomeInfo = true;
+            radioButtonFemale.setChecked(true);
+        }
+        else hasSetSomeInfo = false;
         genderUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+getNumberOfUsersAfterFiltering()
                 +" Users.</b>"));
+        if(hasSetSomeInfo){
+            skip.setText(clr);
+        }else{
+            skip.setText(skp);
+        }
         selectGenderRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 if(radioButtonFemale.isChecked()){
+                    hasSetSomeInfo = true;
+                    skip.setText(clr);
                     Variables.genderTarget = Constants.FEMALE;
                 }else if(radioButtonMale.isChecked()){
+                    hasSetSomeInfo = true;
+                    skip.setText(clr);
                     Variables.genderTarget = Constants.MALE;
                 }
                 genderUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+
-                        getNumberOfUsersAfterFiltering()+" Users.</b>"));
+                        getNumberOfUsersAfterFiltering()+" User(s).</b>"));
             }
         });
         okBtn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(!radioButtonMale.isChecked() && !radioButtonFemale.isChecked()){
-                    Toast.makeText(mContext,"Pick one!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext,"Please pick one.",Toast.LENGTH_SHORT).show();
                 }else{
                     if(radioButtonFemale.isChecked()){
                         Variables.genderTarget = Constants.FEMALE;
-                        Variables.isTargeting = true;
                     }else if(radioButtonMale.isChecked()){
                         Variables.genderTarget = Constants.MALE;
-                        Variables.isTargeting = true;
                     }
                     LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
                     genderLayout.setVisibility(View.GONE);
@@ -234,26 +309,39 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         skip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Variables.genderTarget = "";
-                if(Variables.genderTarget.equals("")&&Variables.ageGroupTarget==null&&Variables.locationTarget.isEmpty()){
-                    Variables.isTargeting = false;
+                if(hasSetSomeInfo){
+                    hasSetSomeInfo = false;
+                    Variables.genderTarget = "";
+                    selectGenderRadioGroup.clearCheck();
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
+                    skip.setText(skp);
+                    genderUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+
+                            getNumberOfUsersAfterFiltering()+" User(s).</b>"));
+                }else{
+                    Variables.genderTarget = "";
+                    genderLayout.setVisibility(View.GONE);
+                    genderLayout.setTranslationX(NEG);
+                    loadAgeGroupView();
                 }
-                genderLayout.setVisibility(View.GONE);
-                genderLayout.setTranslationX(NEG);
-                loadAgeGroupView();
+
             }
         });
     }
 
     private void loadAgeGroupView() {
+        hasSetSomeInfo = false;
         ageLayout.setVisibility(View.VISIBLE);
         ageLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
                 .setInterpolator(new FastOutSlowInInterpolator());
         try{
             ageUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+getNumberOfUsersAfterFiltering()
-                    +" Users.</b>"));
-            if(Variables.ageGroupTarget!=null) setAgeTextView.setText(String.format("Age Group set is: from %d to %d",
-                    Variables.ageGroupTarget.getStartingAge(), Variables.ageGroupTarget.getFinishAge()));
+                    +" User(s).</b>"));
+            if(Variables.ageGroupTarget!=null){
+                hasSetSomeInfo = true;
+                setAgeTextView.setText(String.format("Age Group set is: from %d to %d", Variables.ageGroupTarget.getStartingAge(), Variables.ageGroupTarget.getFinishAge()));
+            }else{
+                hasSetSomeInfo = false;
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -267,23 +355,40 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         numberPicker1.setOnScrollListener(new NumberPicker.OnScrollListener() {
             @Override
             public void onScrollStateChange(NumberPicker numberPicker, int i) {
+                if(numberPicker2.getValue()<=numberPicker1.getValue()){
+                    numberPicker2.setValue(numberPicker1.getValue()+1);
+                }
                 Variables.ageGroupTarget = new AgeGroup(numberPicker1.getValue(),numberPicker2.getValue());
                 ageUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+getNumberOfUsersAfterFiltering()
-                        +" Users.</b>"));
+                        +" User(s).</b>"));
+                setAgeTextView.setText(String.format("Age Group set is: from %d to %d", Variables.ageGroupTarget.getStartingAge(), Variables.ageGroupTarget.getFinishAge()));
+                skip2.setText(clr);
+                hasSetSomeInfo = true;
             }
         });
 
         numberPicker2.setOnScrollListener(new NumberPicker.OnScrollListener() {
             @Override
             public void onScrollStateChange(NumberPicker numberPicker, int i) {
+                if(numberPicker2.getValue()<=numberPicker1.getValue()){
+                    numberPicker1.setValue(numberPicker2.getValue()-1);
+                }
                 Variables.ageGroupTarget = new AgeGroup(numberPicker1.getValue(),numberPicker2.getValue());
                 ageUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+getNumberOfUsersAfterFiltering()
-                        +" Users.</b>"));
+                        +" User(s).</b>"));
+                setAgeTextView.setText(String.format("Age Group set is: from %d to %d", Variables.ageGroupTarget.getStartingAge(), Variables.ageGroupTarget.getFinishAge()));
+                skip2.setText(clr);
+                hasSetSomeInfo = true;
             }
         });
         if(Variables.ageGroupTarget!=null){
             numberPicker1.setValue(Variables.ageGroupTarget.getStartingAge());
             numberPicker2.setValue(Variables.ageGroupTarget.getFinishAge());
+            skip2.setText(clr);
+            hasSetSomeInfo = true;
+        }else{
+            skip2.setText(skp);
+            hasSetSomeInfo = false;
         }
 
         backBtn1.setOnClickListener(new View.OnClickListener() {
@@ -298,10 +403,22 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         skip2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ageLayout.setVisibility(View.GONE);
-                ageLayout.setTranslationX(NEG);
-                Variables.ageGroupTarget = null;
-                loadMapLayout();
+                if(hasSetSomeInfo){
+                    hasSetSomeInfo = false;
+                    Variables.ageGroupTarget = null;
+                    numberPicker1.setValue(18);
+                    numberPicker2.setValue(19);
+                    skip2.setText(skp);
+                    setAgeTextView.setText("No age group set.");
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
+                    ageUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+getNumberOfUsersAfterFiltering()
+                            +" User(s).</b>"));
+                }else{
+                    ageLayout.setVisibility(View.GONE);
+                    ageLayout.setTranslationX(NEG);
+                    Variables.ageGroupTarget = null;
+                    loadMapLayout();
+                }
             }
         });
         okBtn3.setOnClickListener(new View.OnClickListener() {
@@ -310,7 +427,6 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                 ageLayout.setVisibility(View.GONE);
                 ageLayout.setTranslationX(NEG);
                 Variables.ageGroupTarget = new AgeGroup(numberPicker1.getValue(),numberPicker2.getValue());
-                Variables.isTargeting = true;
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
                 loadMapLayout();
             }
@@ -321,6 +437,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
 
 
     private void loadMapLayout() {
+        hasSetSomeInfo = false;
         locationLayout.setVisibility(View.VISIBLE);
         locationLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
                 .setInterpolator(new FastOutSlowInInterpolator());
@@ -340,8 +457,12 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                 getNumberOfUsersAfterFiltering()+" Users.</b>"));
         if(Variables.locationTarget.isEmpty()){
             locationsNumber.setText(Html.fromHtml("Locations set:<b> None.</b>"));
+            hasSetSomeInfo = false;
+            skip3.setText(skp);
         }else{
             locationsNumber.setText(Html.fromHtml("Locations set: <b>"+ Variables.locationTarget.size()+" Locations.</b>"));
+            hasSetSomeInfo = true;
+            skip3.setText(clr);
         }
 
         backBtn2.setOnClickListener(new View.OnClickListener() {
@@ -355,9 +476,18 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         skip3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                locationLayout.setVisibility(View.GONE);
-                locationLayout.setTranslationX(NEG);
-                loadConfirmDetailsView();
+                if(hasSetSomeInfo){
+                    hasSetSomeInfo = false;
+                    Variables.locationTarget.clear();
+                    locationsNumber.setText(Html.fromHtml("Locations set:<b> None.</b>"));
+                    locationUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+
+                            getNumberOfUsersAfterFiltering()+" Users.</b>"));
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
+                }else{
+                    locationLayout.setVisibility(View.GONE);
+                    locationLayout.setTranslationX(NEG);
+                    loadDeviceCategoryRangeSelector();
+                }
             }
         });
         okBtn4.setOnClickListener(new View.OnClickListener() {
@@ -365,7 +495,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
             public void onClick(View view) {
                 locationLayout.setVisibility(View.GONE);
                 locationLayout.setTranslationX(NEG);
-                loadConfirmDetailsView();
+                loadDeviceCategoryRangeSelector();
             }
         });
     }
@@ -384,11 +514,208 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             locationUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+
-                    getNumberOfUsersAfterFiltering()+" Users.</b>"));
+                    getNumberOfUsersAfterFiltering()+" User(s).</b>"));
             if(Variables.locationTarget.isEmpty()){
+                hasSetSomeInfo = false;
+                skip3.setText(skp);
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
                 locationsNumber.setText(Html.fromHtml("Locations set:<b> None.</b>"));
             }else{
+                hasSetSomeInfo = true;
+                skip3.setText(clr);
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
                 locationsNumber.setText(Html.fromHtml("Locations set: <b>"+ Variables.locationTarget.size()+" Locations.</b>"));
+            }
+        }
+    };
+
+    private void loadDeviceCategoryRangeSelector(){
+        hasSetSomeInfo = false;
+        deviceCategoryLayout.setVisibility(View.VISIBLE);
+        deviceCategoryLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                .setInterpolator(new FastOutSlowInInterpolator());
+        if(Variables.deviceRangeCategory.equals(Constants.HIGH_END_DEVICE)){
+            hasSetSomeInfo = true;
+            skip4.setText(clr);
+            radioButtonHighEnd.setChecked(true);
+        }
+        else if(Variables.deviceRangeCategory.equals(Constants.MID_RANGE_DEVICE)){
+            hasSetSomeInfo = true;
+            skip4.setText(clr);
+            radioButtonMidRange.setChecked(true);
+        }
+        else if(Variables.deviceRangeCategory.equals(Constants.LOW_END_DEVICE)){
+            hasSetSomeInfo = true;
+            skip4.setText(clr);
+            radioButtonLowEnd.setChecked(true);
+        }else{
+            hasSetSomeInfo = false;
+            skip4.setText(skp);
+        }
+
+        deviceCategoryUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+getNumberOfUsersAfterFiltering()
+                +" User(s).</b>"));
+        selectDeviceRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if(radioButtonHighEnd.isChecked()){
+                    Variables.deviceRangeCategory = Constants.HIGH_END_DEVICE;
+                    hasSetSomeInfo = true;
+                    skip4.setText(clr);
+                }else if(radioButtonMidRange.isChecked()){
+                    Variables.deviceRangeCategory = Constants.MID_RANGE_DEVICE;
+                    hasSetSomeInfo = true;
+                    skip4.setText(clr);
+                }else if(radioButtonLowEnd.isChecked()){
+                    Variables.deviceRangeCategory = Constants.LOW_END_DEVICE;
+                    hasSetSomeInfo = true;
+                    skip4.setText(clr);
+                }
+                deviceCategoryUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+ getNumberOfUsersAfterFiltering()+" Users.</b>"));
+            }
+        });
+
+        backBtn4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deviceCategoryLayout.setVisibility(View.GONE);
+                deviceCategoryLayout.setTranslationX(600);
+                loadMapLayout();
+            }
+        });
+
+        skip4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(hasSetSomeInfo){
+                    hasSetSomeInfo = false;
+                    skip4.setText(skp);
+                    Variables.deviceRangeCategory = "";
+                    deviceCategoryUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+ getNumberOfUsersAfterFiltering()+" Users.</b>"));
+                    selectDeviceRadioGroup.clearCheck();
+                }else{
+                    Variables.deviceRangeCategory = "";
+                    deviceCategoryLayout.setVisibility(View.GONE);
+                    deviceCategoryLayout.setTranslationX(NEG);
+                    loadSelectOtherCategories();
+                }
+            }
+        });
+
+        okBtn6.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!radioButtonHighEnd.isChecked() && !radioButtonMidRange.isChecked()&& !radioButtonLowEnd.isChecked()){
+                    Toast.makeText(mContext,"Please, pick one.",Toast.LENGTH_SHORT).show();
+                }else{
+                    if(radioButtonHighEnd.isChecked()){
+                        Variables.deviceRangeCategory = Constants.HIGH_END_DEVICE;
+                    }else if(radioButtonMidRange.isChecked()){
+                        Variables.deviceRangeCategory = Constants.MID_RANGE_DEVICE;
+                    }else if(radioButtonLowEnd.isChecked()){
+                        Variables.deviceRangeCategory = Constants.LOW_END_DEVICE;
+                    }
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
+                    deviceCategoryLayout.setVisibility(View.GONE);
+                    deviceCategoryLayout.setTranslationX(NEG);
+                    loadSelectOtherCategories();
+                }
+            }
+        });
+    }
+
+    private void loadSelectOtherCategories(){
+        hasSetSomeInfo = false;
+        categoriesLayout.setVisibility(View.VISIBLE);
+        categoriesLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+                .setInterpolator(new FastOutSlowInInterpolator());
+        categoriesUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+
+                getNumberOfUsersAfterFiltering()+" User(s).</b>"));
+        if(Variables.targetCategoryList.isEmpty()){
+            hasSetSomeInfo = false;
+            skip5.setText(skp);
+            categoriesNumber.setText(Html.fromHtml("Extra categories set:<b> None.</b>"));
+        }else{
+            hasSetSomeInfo = true;
+            skip5.setText(clr);
+            categoriesNumber.setText(Html.fromHtml("Extra categories set: <b>"+
+                    Variables.targetCategoryList.size()+" Location(s).</b>"));
+        }
+
+        backBtn5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                categoriesLayout.setVisibility(View.GONE);
+                categoriesLayout.setTranslationX(600);
+                loadDeviceCategoryRangeSelector();
+            }
+        });
+
+        setCategoryImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadCategoryPicker();
+            }
+        });
+
+        skip5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(hasSetSomeInfo){
+                    hasSetSomeInfo = false;
+                    skip5.setText(skp);
+                    Variables.targetCategoryList.clear();
+                    categoriesNumber.setText(Html.fromHtml("Extra categories set:<b> None.</b>"));
+                    categoriesUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+
+                            getNumberOfUsersAfterFiltering()+" User(s).</b>"));
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
+                }else{
+                    categoriesLayout.setVisibility(View.GONE);
+                    categoriesLayout.setTranslationX(NEG);
+                    loadConfirmDetailsView();
+                }
+            }
+        });
+
+        okBtn7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                categoriesLayout.setVisibility(View.GONE);
+                categoriesLayout.setTranslationX(NEG);
+                loadConfirmDetailsView();
+            }
+        });
+    }
+
+    private void loadCategoryPicker(){
+        FragmentManager fm = getFragmentManager();
+        SelectOtherCategoriesAdvertiser cat = new SelectOtherCategoriesAdvertiser();
+        cat.setMenuVisibility(false);
+        cat.show(fm,"Add Other Categories.");
+        cat.setfragcontext(mContext);
+        cat.setCategory(mCategory);
+    }
+
+    private BroadcastReceiver mMessageReceiverForSetCategories = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            categoriesUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+
+                    getNumberOfUsersAfterFiltering()+" User(s).</b>"));
+            if(Variables.targetCategoryList.isEmpty()){
+                hasSetSomeInfo = false;
+                skip5.setText(skp);
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
+                categoriesNumber.setText(Html.fromHtml("Extra categories set:<b> None.</b>"));
+            }else{
+                hasSetSomeInfo = true;
+                skip5.setText(clr);
+                if(Variables.targetCategoryList.size()==1){
+                    categoriesNumber.setText(Html.fromHtml("Extra categories set: <b>"+
+                            Variables.targetCategoryList.size()+" Category.</b>"));
+                }else{
+                    categoriesNumber.setText(Html.fromHtml("Extra categories set: <b>"+
+                            Variables.targetCategoryList.size()+" Categories.</b>"));
+                }
             }
         }
     };
@@ -397,28 +724,52 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
 
     private void loadConfirmDetailsView(){
         concludeLayout.setVisibility(View.VISIBLE);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
         concludeLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
                 .setInterpolator(new FastOutSlowInInterpolator());
         if(Variables.genderTarget!=null){
             if(Variables.genderTarget.equals(""))confirmGender.setText("No preferred Gender/Sex set.");
-            else confirmGender.setText(String.format("Set gender/sex target: %s.", Variables.genderTarget));
+            else confirmGender.setText(Html.fromHtml("Set gender/sex target: <b>"+Variables.genderTarget+".</b>"));
         }else{
             confirmGender.setText("No preferred Gender/Sex set.");
         }
         if(Variables.ageGroupTarget!=null){
-            confirmAge.setText(String.format("Age Group set is: from %d to %d", Variables.ageGroupTarget.getStartingAge(), Variables.ageGroupTarget.getFinishAge()));
+            confirmAge.setText(Html.fromHtml("Age Group set is: from <b>"+Variables.ageGroupTarget.getStartingAge()
+                    +" to "+Variables.ageGroupTarget.getFinishAge()+".</b>"));
         }else{
          confirmAge.setText("No preferred Age Group set.");
         }
         if(!Variables.locationTarget.isEmpty()){
-            if(Variables.locationTarget.size()==1) confirmLocations.setText("Locations set: 1 Location.");
-            else confirmLocations.setText("Locations set: "+Variables.locationTarget.size()+" Locations.");
+            if(Variables.locationTarget.size()==1) confirmLocations.setText(Html.fromHtml("Locations set: <b>1 Location.</b>"));
+            else confirmLocations.setText(Html.fromHtml("Locations set: <b>"+Variables.locationTarget.size()+" Locations.</b>"));
         }else{
             confirmLocations.setText("No preferred Locations set.");
         }
+        if(!Variables.deviceRangeCategory.equals("")){
+            if(Variables.deviceRangeCategory.equals(Constants.HIGH_END_DEVICE))
+                confirmDeviceCategory.setText(Html.fromHtml("<b>High-end</b> device users targeted."));
+            else if(Variables.deviceRangeCategory.equals(Constants.MID_RANGE_DEVICE))
+                confirmDeviceCategory.setText(Html.fromHtml("<b>Mid-range</b> device users targeted."));
+            else if(Variables.deviceRangeCategory.equals(Constants.LOW_END_DEVICE))
+                confirmDeviceCategory.setText(Html.fromHtml("<b>Low-end</b> device users targeted."));
+        }else{
+            confirmDeviceCategory.setText("No preferred device category set.");
+        }
+
+        if(Variables.targetCategoryList.isEmpty()){
+            confirmMultiCategory.setText("No extra categories set.");
+        }else{
+            if(Variables.targetCategoryList.size()==1){
+                confirmMultiCategory.setText(Html.fromHtml("Extra category set: <b>"+
+                        Variables.targetCategoryList.size()+" category.</b>"));
+            }else{
+                confirmMultiCategory.setText(Html.fromHtml("Extra categories set: <b>"+
+                        Variables.targetCategoryList.size()+" categies.</b>"));
+            }
+        }
 
         long noOfUsersThatWillBeReached = getNumberOfUsersAfterFiltering();
-        usersToBeReached.setText("Users that will be reached: "+noOfUsersThatWillBeReached+" Users");
+        usersToBeReached.setText(Html.fromHtml("Users that will be reached: <b>"+noOfUsersThatWillBeReached+" User(s).</b>"));
 
         backBtn3.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -440,6 +791,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     public void dismiss(){
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForSetLocations);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForSetCategories);
         super.dismiss();
     }
 
@@ -487,6 +839,22 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                 }
             }
         }
+        if(!Variables.deviceRangeCategory.equals("")){
+            for(TargetedUser user:targetedUserData){
+                if(!user.getDeviceCategory().equals(Variables.deviceRangeCategory)){
+                    if(usersQualified.contains(user)) usersQualified.remove(user);
+                }
+            }
+        }
+        if(!Variables.targetCategoryList.isEmpty()){
+            for(TargetedUser user: targetedUserData){
+                for(String subscription:Variables.targetCategoryList){
+                    if(!user.getSubscriptions().contains(subscription)){
+                        if(usersQualified.contains(user)) usersQualified.remove(user);
+                    }
+                }
+            }
+        }
         return (long)usersQualified.size();
     }
 
@@ -520,6 +888,23 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                     }
                 }else{
                     if(usersQualified.contains(user)) usersQualified.remove(user);
+                }
+            }
+        }
+        if(!Variables.deviceRangeCategory.equals("")){
+            for(TargetedUser user:targetedUserData){
+                if(!user.getDeviceCategory().equals(Variables.deviceRangeCategory)){
+                    if(usersQualified.contains(user)) usersQualified.remove(user);
+                }
+            }
+        }
+
+        if(!Variables.targetCategoryList.isEmpty()){
+            for(TargetedUser user: targetedUserData){
+                for(String subscription:Variables.targetCategoryList){
+                    if(!user.getSubscriptions().contains(subscription)){
+                        if(usersQualified.contains(user)) usersQualified.remove(user);
+                    }
                 }
             }
         }

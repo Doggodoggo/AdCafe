@@ -59,9 +59,9 @@ public class TutorialAdvertisers extends AppCompatActivity {
                 R.layout.tutorial_advertiser_slider_6_2,
                 R.layout.tutorial_advertiser_slider_6_3,
                 R.layout.tutorial_advertiser_slider_6_4,
+                R.layout.tutorial_advertiser_slider_6,
                 R.layout.tutorial_advertiser_slider_6_5,
                 R.layout.tutorial_advertiser_slider_6_6,
-//                R.layout.tutorial_advertiser_slider_6,
                 R.layout.tutorial_advertiser_slider_7
         };
 
@@ -165,7 +165,30 @@ public class TutorialAdvertisers extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 myBtnSkip.setVisibility(View.GONE);
-            }else {
+            }else if(myLayouts[position]==R.layout.tutorial_advertiser_slider_6){
+                try {
+                    TextView tut = findViewById(R.id.linkToCostSplitExp);
+                    String sourceString = "For more details about how this works, please visit <b>here.</b>";
+                    tut.setText(Html.fromHtml(sourceString));
+                    tut.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Vibrator b = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                            b.vibrate(30);
+                            try {
+                                String url = Constants.ADVERTISING_PROCESS+"#pd";
+                                Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                                startActivity(webIntent);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+            else{
                 myBtnNext.setText(getString(R.string.next));
                 myBtnSkip.setVisibility(View.VISIBLE);
             }

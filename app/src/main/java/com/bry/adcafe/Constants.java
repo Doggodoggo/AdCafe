@@ -206,5 +206,15 @@ public class Constants {
     public static String TARGET_USER_DATA = "TargetUserData";
     public static String SET_LOCATION_DATA = "SET_LOCATION_DATA";
 
+    public static String HIGH_END_DEVICE = "HighEndDevice";
+    public static String MID_RANGE_DEVICE = "MidRangeDevice";
+    public static String LOW_END_DEVICE = "LowEndDevice";
+
+    public static String DEVICE_CATEGORY = "DeviceCategory";
+    public static String SET_MULTI_CATEGORY_DATA = "SET_MULTI_CATEGORY_DATA";
+    public static int HIGH_DENSITY_THRESHOLD = 510;
+    public static int MID_DENSITY_THRESHOLD = 300;
+    public static String RESET_CATEGORIES_SELECTED = "RESET_CATEGORIES_SELECTED";
+    public static String UNREGISTER_LISTENERS = "UNREGISTER_LISTENERS";
 
 }

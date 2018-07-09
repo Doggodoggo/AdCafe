@@ -140,10 +140,17 @@ public class Variables {
     public static List<LatLng> usersLatLongs = new ArrayList<>();
 
     //Advertiser targeting data
-    public static boolean isTargeting = false;
+//    public static boolean isTargeting = false;
     public static String genderTarget = "";
     public static AgeGroup ageGroupTarget;
     public static List<LatLng> locationTarget = new ArrayList<>();
+    public static boolean isOnlyTargetingKnownUsers = false;
+    public static String deviceRangeCategory = "";
+    public static List<String> targetCategoryList = new ArrayList<>();
+    public static List<String> allCategories = new ArrayList<>();
+    public static PlaceHolderView sel;
+
+
     public static PaymentResponse transactionObject;
     public static PayoutResponse payoutObject;
 
@@ -363,10 +370,23 @@ public class Variables {
     }
 
     public static void resetAdvertiserTargetingData(){
-        isTargeting = false;
+        isOnlyTargetingKnownUsers = false;
         genderTarget = "";
         ageGroupTarget = null;
         locationTarget.clear();
+        deviceRangeCategory = "";
+        targetCategoryList.clear();
+    }
+
+    public static boolean isTargetingDataSet(){
+        if(genderTarget.equals("") &&
+                deviceRangeCategory.equals("") &&
+                targetCategoryList.isEmpty()&&
+                ageGroupTarget == null &&
+                locationTarget.isEmpty() &&
+                !isOnlyTargetingKnownUsers){
+            return false;
+        }else return true;
     }
 
 

@@ -239,16 +239,6 @@
 
         </LinearLayout>
 
-        <!--<TextView-->
-            <!--android:layout_width="370dp"-->
-            <!--android:textSize="19sp"-->
-            <!--android:paddingLeft="20dp"-->
-            <!--android:layout_marginBottom="10dp"-->
-            <!--android:textColor="@color/colorPrimary"-->
-            <!--android:layout_marginTop="20dp"-->
-            <!--android:text="Age Group."-->
-            <!--android:layout_height="wrap_content" />-->
-
         <TextView
             android:layout_width="match_parent"
             android:layout_marginTop="5dp"
@@ -373,16 +363,6 @@
 
         </LinearLayout>
 
-        <!--<TextView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:textSize="19sp"-->
-            <!--android:paddingLeft="20dp"-->
-            <!--android:layout_marginBottom="10dp"-->
-            <!--android:textColor="@color/colorPrimary"-->
-            <!--android:layout_marginTop="20dp"-->
-            <!--android:text="Location Targeting."-->
-            <!--android:layout_height="wrap_content" />-->
-
         <TextView
             android:layout_width="match_parent"
             android:layout_marginTop="5dp"
@@ -456,12 +436,234 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
                 android:background="@null"
-                android:visibility="invisible"
+                android:visibility="visible"
                 android:text="Skip."
                 android:textColor="@color/colorPrimary" />
 
             <Button
                 android:id="@+id/okBtn4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:background="@null"
+                android:text="Continue."
+                android:textColor="@color/colorPrimary" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:translationX="400dp"
+        android:id="@+id/deviceCategoryLayout"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:layout_marginTop="20dp"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:layout_width="40dp"
+                android:id="@+id/backBtn4"
+                android:background="@drawable/ic_action_back"
+                android:layout_height="40dp" />
+
+            <TextView
+                android:layout_width="370dp"
+                android:textSize="19sp"
+                android:gravity="center_vertical"
+                android:textColor="@color/colorPrimary"
+                android:text="Target by Device Category."
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/deviceCategoryExplanation"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:id="@+id/deviceCategoryUserCount"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="10dp"
+            android:text="Users that will be reached: 75 Users."
+            android:layout_height="wrap_content" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:id="@+id/selectDeviceRadioGroup"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioButtonLowEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Low End Devices."/>
+
+            <RadioButton
+                android:id="@+id/radioButtonMidRange"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Mid Range Devices."/>
+
+            <RadioButton
+                android:id="@+id/radioButtonHighEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="High End Devices."/>
+
+        </RadioGroup>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:paddingRight="20dp"
+            android:paddingLeft="2dp"
+            android:layout_marginBottom="10dp"
+            android:layout_height="40dp">
+
+            <Button
+                android:id="@+id/skip4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:visibility="visible"
+                android:layout_alignParentLeft="true"
+                android:background="@null"
+                android:text="Skip."
+                android:textColor="@color/colorPrimary" />
+
+            <Button
+                android:id="@+id/okBtn6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:background="@null"
+                android:text="Set."
+                android:textColor="@color/colorPrimary" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:translationX="400dp"
+        android:id="@+id/categoriesLayout"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:layout_marginTop="20dp"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:layout_width="40dp"
+                android:id="@+id/backBtn5"
+                android:background="@drawable/ic_action_back"
+                android:layout_height="40dp" />
+
+            <TextView
+                android:layout_width="370dp"
+                android:textSize="19sp"
+                android:gravity="center_vertical"
+                android:textColor="@color/colorPrimary"
+                android:text="Multi-Category Targeting."
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:id="@+id/multiCategoryExplanation"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/multiCategoryAd"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:id="@+id/categoriesUserCount"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="1dp"
+            android:text="Users that will be reached: 75 Users."
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:id="@+id/categoriesNumber"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="10dp"
+            android:text="Extra categories set: None."
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_marginLeft="20dp"
+                android:id="@+id/setCategoryImg"
+                android:background="@drawable/ic_action_subscriptions"
+                android:layout_height="50dp" />
+
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:paddingRight="20dp"
+            android:paddingLeft="2dp"
+            android:layout_marginBottom="10dp"
+            android:layout_height="40dp">
+
+            <Button
+                android:id="@+id/skip5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:background="@null"
+                android:visibility="visible"
+                android:text="Skip."
+                android:textColor="@color/colorPrimary" />
+
+            <Button
+                android:id="@+id/okBtn7"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
@@ -505,16 +707,6 @@
 
         </LinearLayout>
 
-        <!--<TextView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:textSize="19sp"-->
-            <!--android:paddingLeft="20dp"-->
-            <!--android:layout_marginBottom="10dp"-->
-            <!--android:textColor="@color/colorPrimary"-->
-            <!--android:layout_marginTop="20dp"-->
-            <!--android:text="Confirm All The Details."-->
-            <!--android:layout_height="wrap_content" />-->
-
         <TextView
             android:layout_width="match_parent"
             android:layout_marginTop="5dp"
@@ -555,6 +747,25 @@
             android:layout_width="match_parent"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
+            android:id="@+id/confirmDeviceCategory"
+            android:textSize="12sp"
+            android:text="Set device category: High end."
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:id="@+id/confirmMultiCategory"
+            android:textSize="12sp"
+            android:text="Extra categories set: 1 category."
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
             android:id="@+id/usersToBeReached"
             android:textSize="12sp"
             android:text="Users that will be reached: 3 Users."

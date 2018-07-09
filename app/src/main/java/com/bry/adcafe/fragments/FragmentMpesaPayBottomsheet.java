@@ -87,7 +87,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         this.mUploaderEmail = uploaderEmail;
         this.mName = name;
 
-        if(Variables.isTargeting) this.mTargetedUsers = targetedUserDatas.size();
+        if(Variables.isTargetingDataSet()) this.mTargetedUsers = targetedUserDatas.size();
 
         this.mAmountToBePaid = mTargetedUsers*(mConstantAmountPerUserTargeted+Constants.MPESA_CHARGES);
         this.VATamm = getVATAmmount(mTargetedUsers*(Variables.getUserCpvFromTotalPayPerUser((int)mConstantAmountPerUserTargeted)));
@@ -223,7 +223,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         TextView vatCostView = mContentView.findViewById(R.id.vatCost);
 
         targetingView.setText(Html.fromHtml("Targeting : <b>" + Long.toString(mTargetedUsersBeforeFiltering) + " users.</b>"));
-        if(Variables.isTargeting){
+        if(Variables.isTargetingDataSet()){
             targetingView.setText(Html.fromHtml("Targeting : <b>" +
                     Long.toString(mTargetedUsersBeforeFiltering) + " users.</b> However, <b>"+
                     Long.toString(mTargetedUsers)+"</b> will be reached."));
@@ -239,7 +239,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         mContentView.findViewById(R.id.startButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(Variables.isTargeting && mTargetedUsers==0){
+                if(Variables.isTargetingDataSet() && mTargetedUsers==0){
                     Toast.makeText(mActivity,"You can't target 0 users.",Toast.LENGTH_SHORT).show();
                 }else {
                     if (isOnline(mActivity)) {

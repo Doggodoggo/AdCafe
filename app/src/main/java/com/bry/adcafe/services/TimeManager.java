@@ -162,16 +162,21 @@ public class TimeManager {
     }
 
     public static boolean isAlmostMidNight() {
-        int hours = cal.get(Calendar.HOUR_OF_DAY);
-        int minutes = cal.get(Calendar.MINUTE);
-        int seconds = cal.get(Calendar.SECOND);
+        try{
+            int hours = cal.get(Calendar.HOUR_OF_DAY);
+            int minutes = cal.get(Calendar.MINUTE);
+            int seconds = cal.get(Calendar.SECOND);
 
-        Log(TAG, "Current time is " + hours + ":" + minutes + ":" + seconds);
-        if (hours == 23 && (minutes == 59) && (seconds >= 0)) {
-            Log(TAG, "---Day is approaching midnight,returning true to reset the activity and values. Time is:" + hours + " : " + minutes + " : " + seconds);
-            return true;
-        } else {
-            Log(TAG, "---Day is not approaching midnight,so activity will continue normally.");
+            Log(TAG, "Current time is " + hours + ":" + minutes + ":" + seconds);
+            if (hours == 23 && (minutes == 59) && (seconds >= 0)) {
+                Log(TAG, "---Day is approaching midnight,returning true to reset the activity and values. Time is:" + hours + " : " + minutes + " : " + seconds);
+                return true;
+            } else {
+                Log(TAG, "---Day is not approaching midnight,so activity will continue normally.");
+                return false;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
             return false;
         }
     }

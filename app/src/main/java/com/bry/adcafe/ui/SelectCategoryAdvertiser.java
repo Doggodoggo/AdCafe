@@ -166,6 +166,7 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
                     List<String> subcategories = new ArrayList<>();
                     for(DataSnapshot subSnap: snap.getChildren()){
                         subcategories.add(subSnap.getValue(String.class));
+                        Variables.allCategories.add(subSnap.getValue(String.class));
                     }
                     placeHolderView.addView(new SelectCategoryAdvertiserContainer(mContext,placeHolderView,category,subcategories));
                 }

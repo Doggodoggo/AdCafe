@@ -428,8 +428,18 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                         double lng = location.child("lng").getValue(double.class);
                         userLocations.add(new LatLng(lat,lng));
                     }
+                    String deviceCategory = "";
+                    if(userSnap.child(Constants.DEVICE_CATEGORY).exists()){
+                        deviceCategory = userSnap.child(Constants.DEVICE_CATEGORY).getValue(String.class);
+                    }
+                    List<String> subs = new ArrayList<>();
+                    for(DataSnapshot subSnap:userSnap.child(Constants.SUBSCRIPTION_lIST).getChildren()){
+                        String subKey = subSnap.getKey();
+                        subs.add(subKey);
+                    }
                     int cluster = userSnap.child(Constants.SUBSCRIPTION_lIST).child(mCategory).getValue(int.class);
-                    UsersInCategory.add(new TargetedUser(uid,gender,birthday,birthmonth,birthyear,userLocations,cluster));
+                    UsersInCategory.add(new TargetedUser(uid,gender,birthday,birthmonth,birthyear,
+                            userLocations,cluster,deviceCategory,subs));
                 }
                 setAllOtherViewsToBeVisible();
                 mProgressBarUpload.setVisibility(View.GONE);
@@ -858,8 +868,13 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private void showMessageBeforeBottomsheet(){
         FragmentSelectPaymentOptionBottomSheet fragmentModalBottomSheet = new FragmentSelectPaymentOptionBottomSheet();
         fragmentModalBottomSheet.setActivity(AdUpload.this);
-        if(Variables.genderTarget.equals("") && Variables.ageGroupTarget==null && Variables.locationTarget.isEmpty()&&
-                clustersToUpLoadTo.size()==1 && UsersInCategory.size() < Constants.NUMBER_OF_USERS_PER_CLUSTER &&
+        if(Variables.genderTarget.equals("") &&
+                Variables.ageGroupTarget== null &&
+                Variables.locationTarget.isEmpty()&&
+                Variables.deviceRangeCategory.equals("")&&
+                Variables.targetCategoryList.isEmpty()&&
+                clustersToUpLoadTo.size()==1 &&
+                UsersInCategory.size() < Constants.NUMBER_OF_USERS_PER_CLUSTER &&
                 getTargetedUsersByCluster(clustersToUpLoadTo.get(0)).size() < Constants.NUMBER_OF_USERS_PER_CLUSTER){
             int number = getTargetedUsersByCluster(clustersToUpLoadTo.get(0)).size();
             fragmentModalBottomSheet.setTargetOptionData(true,number,mCategory);
@@ -1103,7 +1118,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         advert.setPaymentMethod(Variables.paymentOption);
         advert.setAdvertiserUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
         advert.setNumberOfUsersToReach(mNumberOfClusters*Constants.NUMBER_OF_USERS_PER_CLUSTER);
-        if(Variables.isTargeting)advert.setNumberOfUsersToReach(knownTargetedUsers.size());
+        if(Variables.isTargetingDataSet())advert.setNumberOfUsersToReach(knownTargetedUsers.size());
         advert.setPushRefInAdminConsole(pushId);
         advert.setUserEmail(FirebaseAuth.getInstance().getCurrentUser().getEmail());
         advert.setWebsiteLink(mLink);
@@ -1142,7 +1157,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         Variables.transactionObject.setUploaderId(FirebaseAuth.getInstance().getCurrentUser().getUid());
         dbrefTrans.setValue(Variables.transactionObject);
 
-        if(Variables.isTargeting) {
+        if(Variables.isTargetingDataSet()) {
             DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child(Constants.TARGET_USER_DATA)
                     .child(getNextDay()).child(pushId);
 
@@ -1251,7 +1266,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                         }
                     }
                 });
-                if(Variables.isTargeting){
+                if(Variables.isTargetingDataSet()){
                     if(Variables.genderTarget!=null){
                         if(!Variables.genderTarget.equals("")) mRef3.child("targetdata").child("gender").setValue(Variables.genderTarget);
                     }
@@ -1263,6 +1278,15 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                             DatabaseReference pushRef = mRef3.child("targetdata").child("locations").push();
                             pushRef.child("lat").setValue(latl.latitude);
                             pushRef.child("lng").setValue(latl.longitude);
+                        }
+                    }
+                    if(!Variables.deviceRangeCategory.equals("")){
+                        mRef3.child("targetdata").child("devicerange").setValue(Variables.deviceRangeCategory);
+                    }
+                    if(!Variables.targetCategoryList.isEmpty()){
+                        for(String category:Variables.targetCategoryList){
+                            DatabaseReference pushRef = mRef3.child("targetdata").child("categorylist").push();
+                            pushRef.setValue(category);
                         }
                     }
                 }
@@ -1337,7 +1361,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                         }
                     }
                 });
-                if(Variables.isTargeting){
+                if(Variables.isTargetingDataSet()){
                     if(Variables.genderTarget!=null){
                         if(!Variables.genderTarget.equals("")) mRef3.child("targetdata").child("gender").setValue(Variables.genderTarget);
                     }
@@ -1349,6 +1373,15 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                             DatabaseReference pushRef = mRef3.child("targetdata").child("locations").push();
                             pushRef.child("lat").setValue(latl.latitude);
                             pushRef.child("lng").setValue(latl.longitude);
+                        }
+                    }
+                    if(!Variables.deviceRangeCategory.equals("")){
+                        mRef3.child("targetdata").child("devicerange").setValue(Variables.deviceRangeCategory);
+                    }
+                    if(!Variables.targetCategoryList.isEmpty()){
+                        for(String category:Variables.targetCategoryList){
+                            DatabaseReference pushRef = mRef3.child("targetdata").child("categorylist").push();
+                            pushRef.setValue(category);
                         }
                     }
                 }
@@ -1564,14 +1597,15 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         List<TargetedUser> usersTargetedForSelectedClusters = new ArrayList<>(getNumberOfUsersAfterFilteringByCategories());
         cpvFragment.setUsersThatCanBeReached(usersTargetedForSelectedClusters);
         cpvFragment.setfragcontext(mContext);
+        cpvFragment.setCategory(mCategory);
         cpvFragment.setActivity(this);
     }
 
     private BroadcastReceiver mMessageReceiverForSetTargetInfo = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log(TAG,"Broadcast received for show or hide target dot. IsTargeting is: "+Variables.isTargeting);
-            if(Variables.isTargeting)findViewById(R.id.smallDot2).setVisibility(View.VISIBLE);
+            Log(TAG,"Broadcast received for show or hide target dot. IsTargeting is: "+Variables.isTargetingDataSet());
+            if(Variables.isTargetingDataSet())findViewById(R.id.smallDot2).setVisibility(View.VISIBLE);
             else findViewById(R.id.smallDot2).setVisibility(View.INVISIBLE);
         }
     };
@@ -1734,6 +1768,22 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 }
             }
         }
+        if(!Variables.deviceRangeCategory.equals("")){
+            for(TargetedUser user:UsersInCategory){
+                if(!user.getDeviceCategory().equals(Variables.deviceRangeCategory)){
+                    if(usersQualified.contains(user)) usersQualified.remove(user);
+                }
+            }
+        }
+        if(!Variables.targetCategoryList.isEmpty()){
+            for(TargetedUser user: UsersInCategory){
+                for(String subscription:Variables.targetCategoryList){
+                    if(!user.getSubscriptions().contains(subscription)){
+                        if(usersQualified.contains(user)) usersQualified.remove(user);
+                    }
+                }
+            }
+        }
         return usersQualified;
     }
 
@@ -1770,7 +1820,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
 
     private void showDialogForTargetUsersBeforePayment(){
-        if(!Variables.isTargeting && clustersToUpLoadTo.size()==1 && getTargetedUsersByCluster(clustersToUpLoadTo.get(0)).size()<100){
+        if(!Variables.isTargetingDataSet() && clustersToUpLoadTo.size()==1 && getTargetedUsersByCluster(clustersToUpLoadTo.get(0)).size()<100){
             int number = getTargetedUsersByCluster(clustersToUpLoadTo.get(0)).size();
             final Dialog d = new Dialog(AdUpload.this);
             d.setTitle("Targeted people no.");
@@ -1786,7 +1836,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             ok.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(yes.isChecked()) Variables.isTargeting = true;
+                    if(yes.isChecked()) Variables.isOnlyTargetingKnownUsers = true;
                     showDialogForPayments();
                     d.dismiss();
                 }

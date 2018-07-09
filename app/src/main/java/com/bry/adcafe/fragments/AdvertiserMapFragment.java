@@ -337,7 +337,6 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
             LatLng selLatLng = new LatLng(m.getPosition().latitude,m.getPosition().longitude);
             Variables.locationTarget.add(selLatLng);
         }
-        Variables.isTargeting = true;
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Constants.SET_LOCATION_DATA));
         Toast.makeText(mContext,"Target Locations set.",Toast.LENGTH_SHORT).show();
@@ -346,9 +345,6 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
 
     private void onMyBackPressed(){
         if(markers.isEmpty()){
-            if(Variables.ageGroupTarget==null && Variables.genderTarget.equals("")){
-                Variables.isTargeting = false;
-            }
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Constants.SET_LOCATION_DATA));
             Toast.makeText(mContext,"No Locations set.",Toast.LENGTH_SHORT).show();

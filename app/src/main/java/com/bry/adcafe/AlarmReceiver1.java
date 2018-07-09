@@ -12,6 +12,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.app.IntentService;
 import android.app.Notification;
@@ -422,6 +423,18 @@ public class AlarmReceiver1 extends BroadcastReceiver {
             targetUids = gson.fromJson(targetUserListString,type);
 
             if (targetUids != null && !targetUids.contains(uid)) return false;
+        }if(targetDataSnap.child("devicerange").exists()){
+            String deviceRangeCategory = targetDataSnap.child("devicerange").getValue(String.class);
+            if(!deviceRangeCategory.equals(getUserDeviceCagegory()))return false;
+        }if(targetDataSnap.child("categorylist").exists()){
+            List<String> requiredCategories = new ArrayList<>();
+            for(DataSnapshot catSnap:targetDataSnap.child("categorylist").getChildren()){
+                String cat = catSnap.getValue(String.class);
+                requiredCategories.add(cat);
+            }
+            for(String requiredCategory:requiredCategories){
+                if(!Variables.Subscriptions.keySet().contains(requiredCategory)) return false;
+            }
         }
         return true;
     }
@@ -465,6 +478,11 @@ public class AlarmReceiver1 extends BroadcastReceiver {
             }
         }
         return locations;
+    }
+
+    public String getUserDeviceCagegory(){
+        SharedPreferences prefs2 = mContext.getSharedPreferences(Constants.DEVICE_CATEGORY, MODE_PRIVATE);
+        return prefs2.getString(Constants.DEVICE_CATEGORY, Constants.MID_RANGE_DEVICE);
     }
 
 }

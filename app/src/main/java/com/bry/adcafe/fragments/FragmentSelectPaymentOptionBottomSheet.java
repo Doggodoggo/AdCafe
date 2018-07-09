@@ -115,7 +115,7 @@ public class FragmentSelectPaymentOptionBottomSheet extends BottomSheetDialogFra
                         paymentMessage.setVisibility(View.GONE);
                         optionImages.setVisibility(View.GONE);
                     }else{
-                        Variables.isTargeting = yes.isChecked();
+                        Variables.isOnlyTargetingKnownUsers = yes.isChecked();
                         setDetailsAndProceed();
                         dismiss();
                     }
