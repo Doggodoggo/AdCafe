@@ -61,7 +61,7 @@
     <string name="failedToLoadTodaysAds">"Failed to load today's ads."</string>
     <string name="noteForPickingMessage">"The number shown is by 100 (*100 users). Select having that in mind."</string>
     <string name="pickBeforePaying">"So make sure you pick before making any payments."</string>
-    <string name="shareText">"Share App for awesomeness."</string>
+    <string name="shareText">"Share The App."</string>
 
 
 
@@ -157,7 +157,7 @@
     <string name="changecpvexplanation">Press continue if you wish to change the amount you charge for each banner you see.</string>
     <string name="noteAboutChoosingAmmount2">Remember: The higher the amount chosen, the lower the number of banners you might see. So we recommend 3 Ksh
         per view.</string>
-    <string name="shareText2">Hey, check out this cool new app called The AdCafé.</string>
+    <string name="shareText2">"Hey, check out this interesting app called AdCafé : https://play.google.com/store/apps/details?id=com.bry.adstudio"</string>
     <string name="changeTimeExplanation">Click continue if you wish to change the time you are notified daily about new ads.</string>
     <string name="needToMakePayments">Next you need to make a payment before the upload.
         We only support Mpesa payments for now.</string>

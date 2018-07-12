@@ -84,7 +84,7 @@ public class ViewImageFragment extends DialogFragment {
         mDeleteButton = rootView.findViewById(R.id.Delete);
         mDownloadButton = rootView.findViewById(R.id.Download);
         mAdvert = Variables.adToBeViewed;
-        if(mAdvert.getWebsiteLink().equals(igsNein)) {
+        if(!mAdvert.didAdvertiserSetContactInfo()) {
             mWebsiteLink.setAlpha(0.4f);
             websiteTextxx.setAlpha(0.4f);
         }
@@ -109,17 +109,18 @@ public class ViewImageFragment extends DialogFragment {
         mWebsiteLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!mAdvert.getWebsiteLink().equals(igsNein)){
-                    try {
-                        String url = mAdvert.getWebsiteLink();
-                        if (!url.startsWith("http://") && !url.startsWith("https://")) url = "http://" + url;
-                        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        startActivity(webIntent);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Toast.makeText(mContext, "There's something wrong with the link", Toast.LENGTH_SHORT).show();
-                    }
-                }
+//                if(!mAdvert.getWebsiteLink().equals(igsNein)){
+//                    try {
+//                        String url = mAdvert.getWebsiteLink();
+//                        if (!url.startsWith("http://") && !url.startsWith("https://")) url = "http://" + url;
+//                        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+//                        startActivity(webIntent);
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                        Toast.makeText(mContext, "There's something wrong with the link", Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("SHOW_CONTACT_OPTIONS"));
             }
         });
         mDeleteButton.setOnClickListener(new View.OnClickListener() {

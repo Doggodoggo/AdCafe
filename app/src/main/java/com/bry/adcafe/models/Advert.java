@@ -2,6 +2,7 @@ package com.bry.adcafe.models;
 
 import android.graphics.Bitmap;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.Exclude;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -42,6 +43,11 @@ public class Advert {
     private String paymentMethod;
     private double payoutReimbursalAmount = 0;
     private String downloadImageName;
+
+    private String advertiserPhoneNo;
+
+    @Exclude
+    private List<AdvertiserLocation> advertiserLocations = new ArrayList<>();
 
     public Advert(String ImageUrl){
         this.imageUrl = ImageUrl;
@@ -132,7 +138,7 @@ public class Advert {
 
     public String getWebsiteLink() {
         if(websiteLink == null){
-            return null;
+            return "none";
         }else{
             return websiteLink;
         }
@@ -223,6 +229,8 @@ public class Advert {
         this.paymentReference = paymentReference;
     }
 
+
+
     public String getPaymentMethod() {
         return paymentMethod;
     }
@@ -246,5 +254,31 @@ public class Advert {
 
     public void setDownloadImageName(String downloadImageName) {
         this.downloadImageName = downloadImageName;
+    }
+
+
+
+    public String getAdvertiserPhoneNo() {
+        if(advertiserPhoneNo==null) return "none";
+        return advertiserPhoneNo;
+    }
+
+    public void setAdvertiserPhoneNo(String advertiserPhoneNo) {
+        this.advertiserPhoneNo = advertiserPhoneNo;
+    }
+
+    public List<AdvertiserLocation> getAdvertiserLocations() {
+        return advertiserLocations;
+    }
+
+    public void setAdvertiserLocations(List<AdvertiserLocation> advertiserLocations) {
+        this.advertiserLocations = advertiserLocations;
+    }
+
+    public boolean didAdvertiserSetContactInfo(){
+        if(!getWebsiteLink().equals("none"))return true;
+        if(!getAdvertiserPhoneNo().equals("none"))return true;
+        if(!advertiserLocations.isEmpty())return true;
+        return false;
     }
 }

@@ -44,9 +44,12 @@ import com.bry.adcafe.adapters.BlankItem;
 import com.bry.adcafe.adapters.DateItem;
 import com.bry.adcafe.adapters.SAContainer;
 import com.bry.adcafe.adapters.SavedAdsCard;
+import com.bry.adcafe.fragments.ContactAdvertiserBottomsheet;
 import com.bry.adcafe.fragments.ViewImageFragment;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.AdvertiserLocation;
 import com.bry.adcafe.models.User;
+import com.bry.adcafe.models.myLatLng;
 import com.bry.adcafe.services.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -279,6 +282,8 @@ public class Bookmarks extends AppCompatActivity {
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForShowNoAdsText,new IntentFilter("SHOW_NO_ADS_TEXT"));
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForShowDeleteIcon,new IntentFilter(Constants.SHOW_DELETE_ICON));
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForShowContact,new IntentFilter("SHOW_CONTACT_OPTIONS"));
     }
 
     private void unregisterAllReceivers() {
@@ -296,6 +301,7 @@ public class Bookmarks extends AppCompatActivity {
 
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForShowNoAdsText);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForShowDeleteIcon);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForShowContact);
 
         sendBroadCastToUnregisterReceivers();
     }
@@ -546,6 +552,23 @@ public class Bookmarks extends AppCompatActivity {
         }
     };
 
+    private BroadcastReceiver mMessageReceiverForShowContact = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("BOOKMARKS--","Received message to show bottom sheet");
+            showBottomSheetForContact();
+        }
+    };
+
+    private void showBottomSheetForContact(){
+        if(Variables.adToBeViewed.didAdvertiserSetContactInfo()) {
+            ContactAdvertiserBottomsheet fragmentModalBottomSheet = new ContactAdvertiserBottomsheet();
+            fragmentModalBottomSheet.setActivity(Bookmarks.this);
+            fragmentModalBottomSheet.setAdvert(Variables.adToBeViewed);
+            fragmentModalBottomSheet.show(getSupportFragmentManager(), "BottomSheet Fragment");
+        }
+    }
+
 
 
 
@@ -687,6 +710,23 @@ public class Bookmarks extends AppCompatActivity {
 
                         for(DataSnapshot adSnap: snap.getChildren()){
                             Advert advert = adSnap.getValue(Advert.class);
+
+                            if(adSnap.child("contactdata").exists()){
+                                advert.setAdvertiserPhoneNo(adSnap.child("contactdata").child(Constants.ADVERTISER_PHONE_NO)
+                                        .getValue(String.class));
+                                if(adSnap.child("contactdata").child(Constants.ADVERTISER_LOCATION).exists()){
+                                    List<AdvertiserLocation> advertisersLoc = new ArrayList<>();
+                                    for(DataSnapshot locSnap:adSnap.child("contactdata").child(Constants.ADVERTISER_LOCATION).getChildren()){
+                                        String name = "";
+                                        if(locSnap.child("name").exists())name = locSnap.child("name").getValue(String.class);
+                                        double lat = locSnap.child("lat").getValue(double.class);
+                                        double lng = locSnap.child("lng").getValue(double.class);
+                                        advertisersLoc.add(new AdvertiserLocation(new myLatLng(lat,lng),name));
+                                    }
+                                    advert.setAdvertiserLocations(advertisersLoc);
+                                }
+                            }
+
                             AdList.add(advert);
                             Log.d("BOOKMARKS"," --Loaded ads from firebase.--"+advert.getPushId());
                         }

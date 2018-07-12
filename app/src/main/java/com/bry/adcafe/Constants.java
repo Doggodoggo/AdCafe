@@ -217,4 +217,7 @@ public class Constants {
     public static String RESET_CATEGORIES_SELECTED = "RESET_CATEGORIES_SELECTED";
     public static String UNREGISTER_LISTENERS = "UNREGISTER_LISTENERS";
 
+    public static String ADVERTISER_PHONE_NO = "PhoneNumber";
+    public static String ADVERTISER_LOCATION = "Advertiserlocation";
+
 }

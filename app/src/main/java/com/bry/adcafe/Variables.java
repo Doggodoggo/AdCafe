@@ -9,6 +9,7 @@ import com.braintreepayments.cardform.view.CardForm;
 import com.bry.adcafe.adapters.AdvertCard;
 import com.bry.adcafe.adapters.SavedAdsCard;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.AdvertiserLocation;
 import com.bry.adcafe.models.AgeGroup;
 import com.bry.adcafe.models.PaymentResponse;
 import com.bry.adcafe.models.PayoutResponse;
@@ -149,6 +150,8 @@ public class Variables {
     public static List<String> targetCategoryList = new ArrayList<>();
     public static List<String> allCategories = new ArrayList<>();
     public static PlaceHolderView sel;
+
+    public static List<AdvertiserLocation> advertiserLocations = new ArrayList<>();
 
 
     public static PaymentResponse transactionObject;

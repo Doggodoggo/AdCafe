@@ -5,6 +5,7 @@ import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -42,8 +43,10 @@ import com.bry.adcafe.fragments.FragmentModalBottomSheet;
 import com.bry.adcafe.fragments.FragmentMpesaPayBottomsheet;
 import com.bry.adcafe.fragments.FragmentMpesaPaymentInitiation;
 import com.bry.adcafe.fragments.FragmentSelectPaymentOptionBottomSheet;
+import com.bry.adcafe.fragments.SetAdvertiserLocation;
 import com.bry.adcafe.fragments.SetAdvertiserTargetInfoFragment;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.AdvertiserLocation;
 import com.bry.adcafe.models.TargetedUser;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.Payments;
@@ -147,6 +150,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private List<TargetedUser> UsersInCategory = new ArrayList<>();
     private List <String> knownTargetedUsers = new ArrayList<>();
 
+    private String mPhoneNumber = "none";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,7 +167,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         mCategoryText.setText(mCategory);
 
         mAmountToPayPerTargetedView = Variables.amountToPayPerTargetedView;
-
+        Variables.advertiserLocations.clear();
         mAmountPlusOurShare = Variables.getTotalPayForOneUserForAdvertiser(Variables.amountToPayPerTargetedView);
         Log(TAG,"Amount to pay per targeted user is : "+ mAmountToPayPerTargetedView);
         Log(TAG,"Amount to pay per targeted user is : "+ mAmountPlusOurShare);
@@ -696,29 +701,94 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         final Dialog d = new Dialog(AdUpload.this);
         d.setTitle("Ad any relevant link.");
         d.setContentView(R.layout.dialog5);
+
         Button b1 = d.findViewById(R.id.cancelBtn);
         Button b2 =  d.findViewById(R.id.buttonOk);
-        final EditText e =  d.findViewById(R.id.editText);
-        if(mLink.equals("none")) e.setText("");
-        else e.setText(mLink);
+
+        final EditText websiteEditText = d.findViewById(R.id.websiteEditText);
+        final EditText phoneNumber = d.findViewById(R.id.phoneNumber);
+        final TextView locationsSet = d.findViewById(R.id.locationsSet);
+        final ImageButton mapIcon = d.findViewById(R.id.mapIcon);
+
+        if(mLink.equals("none")) websiteEditText.setText("");
+        else websiteEditText.setText(mLink);
+
+        if(mPhoneNumber.equals("none")) phoneNumber.setText("");
+        else phoneNumber.setText(mPhoneNumber);
+
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 d.dismiss();
             }
         });
+
+        mapIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentManager fm = getFragmentManager();
+                SetAdvertiserLocation mapFragment = new SetAdvertiserLocation();
+                mapFragment.setMenuVisibility(false);
+                mapFragment.show(fm,"Edit Your Location.");
+                mapFragment.setfragcontext(mContext);
+                mapFragment.setActivity(AdUpload.this);
+
+                LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+                        if(Variables.advertiserLocations.isEmpty())locationsSet.setText("Click the map icon to add your locations.");
+                        else if(Variables.advertiserLocations.size()==1) locationsSet.setText("Your 1 location has been set.");
+                        else locationsSet.setText("Your "+Variables.advertiserLocations.size()+" locations have been set.");
+                    }
+                },new IntentFilter("UPDATE_TEXT_FOR_WHEN_LOCATION_IS_ADDED"));
+            }
+        });
+
         b2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(e.getText().toString().equals("")) {
-                    findViewById(R.id.smallDot).setVisibility(View.INVISIBLE);
+                boolean canDismiss = true;
+                findViewById(R.id.smallDot).setVisibility(View.INVISIBLE);
+                if(!websiteEditText.getText().toString().equals("")||
+                    !phoneNumber.getText().toString().equals("")||
+                    !Variables.advertiserLocations.isEmpty()){
+                    findViewById(R.id.smallDot).setVisibility(View.VISIBLE);
+                }
+                if(websiteEditText.getText().toString().equals("")) {
                     mLink = "none";
                 }else{
-                    mLink = e.getText().toString();
-                    findViewById(R.id.smallDot).setVisibility(View.VISIBLE);
-                    Log(TAG,"Link gotten is :---"+mLink);
+                    mLink = websiteEditText.getText().toString();
                 }
-                d.dismiss();
+                if(phoneNumber.getText().toString().equals("")){
+                    mPhoneNumber = "none";
+                }else{
+                    if(phoneNumber.getText().toString().trim().length()<10){
+                        phoneNumber.setError("Thats not a real phone number");
+                        canDismiss = false;
+                    }else{
+                        mPhoneNumber = phoneNumber.getText().toString();
+                    }
+                }
+                if(canDismiss)d.dismiss();
+            }
+        });
+        d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                findViewById(R.id.smallDot).setVisibility(View.INVISIBLE);
+                if(!websiteEditText.getText().toString().equals("")||
+                        !phoneNumber.getText().toString().equals("")||
+                        !Variables.advertiserLocations.isEmpty()){
+                    findViewById(R.id.smallDot).setVisibility(View.VISIBLE);
+                }
+                if(websiteEditText.getText().toString().equals("")) {
+                    mLink = "none";
+                }
+                if(phoneNumber.getText().toString().equals("")){
+                    mPhoneNumber = "none";
+                }
+
             }
         });
         d.show();
@@ -1219,6 +1289,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 advert.setPushId(pushId);
                 advert.setWebsiteLink(mLink);
                 advert.setCategory(mCategory);
+                advert.setAdvertiserPhoneNo("");
                 advert.setFlagged(false);
                 advert.setAdvertiserUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
                 advert.setDateInDays(getDateInDays());
@@ -1290,6 +1361,20 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                         }
                     }
                 }
+                if(!mPhoneNumber.equals("none") || !Variables.advertiserLocations.isEmpty()){
+                    if(!mPhoneNumber.equals("none")){
+                        mRef3.child("contactdata").child(Constants.ADVERTISER_PHONE_NO)
+                                .setValue(mPhoneNumber);
+                    }
+                    if(!Variables.advertiserLocations.isEmpty()){
+                        for(AdvertiserLocation adLoc: Variables.advertiserLocations){
+                            DatabaseReference pushRef = mRef3.child("contactdata").child(Constants.ADVERTISER_LOCATION).push();
+                            if(!adLoc.getPlaceName().equals(""))pushRef.child("name").setValue(adLoc.getPlaceName());
+                            pushRef.child("lat").setValue(adLoc.getMyLatLng().latitude);
+                            pushRef.child("lng").setValue(adLoc.getMyLatLng().longitude);
+                        }
+                    }
+                }
             }
         }else{
             for(final Integer number : clustersToUpLoadTo){
@@ -1318,6 +1403,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 advert.setPushId(pushId);
                 advert.setWebsiteLink(mLink);
                 advert.setCategory(mCategory);
+                advert.setAdvertiserPhoneNo("");
                 advert.setFlagged(false);
                 advert.setAdvertiserUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
                 advert.setDateInDays(getDateInDays());
@@ -1382,6 +1468,20 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                         for(String category:Variables.targetCategoryList){
                             DatabaseReference pushRef = mRef3.child("targetdata").child("categorylist").push();
                             pushRef.setValue(category);
+                        }
+                    }
+                }
+                if(!mPhoneNumber.equals("none") || !Variables.advertiserLocations.isEmpty()){
+                    if(!mPhoneNumber.equals("none")){
+                        mRef3.child("contactdata").child(Constants.ADVERTISER_PHONE_NO)
+                                .setValue(mPhoneNumber);
+                    }
+                    if(!Variables.advertiserLocations.isEmpty()){
+                        for(AdvertiserLocation adLoc: Variables.advertiserLocations){
+                            DatabaseReference pushRef = mRef3.child("contactdata").child(Constants.ADVERTISER_LOCATION).push();
+                            if(!adLoc.getPlaceName().equals(""))pushRef.child("name").setValue(adLoc.getPlaceName());
+                            pushRef.child("lat").setValue(adLoc.getMyLatLng().latitude);
+                            pushRef.child("lng").setValue(adLoc.getMyLatLng().longitude);
                         }
                     }
                 }

@@ -29,8 +29,8 @@ android {
         applicationId "com.bry.adstudio"
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 19
-        versionName "1.19"
+        versionCode 22
+        versionName "1.22"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

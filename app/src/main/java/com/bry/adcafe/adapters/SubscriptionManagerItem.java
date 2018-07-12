@@ -94,12 +94,12 @@ public class SubscriptionManagerItem {
                                 +" while the categories being removed is "+category);
                         removeSubscription();
                     } else {
-//                        checkBox.setChecked(true);
-                        Toast.makeText(mContext, "You cannot remove that because your currently viewing ads of it.", Toast.LENGTH_SHORT).show();
+                        checkBox.setChecked(true);
+                        Toast.makeText(mContext, "You cannot remove that because your currently viewing content of it.", Toast.LENGTH_SHORT).show();
                     }
                 }else{
                     Toast.makeText(mContext,"You have to have at least one category!",Toast.LENGTH_LONG).show();
-//                    checkBox.setChecked(true);
+                    checkBox.setChecked(true);
                 }
             } else Toast.makeText(mContext, "You might need an internet connection to un-subscribe.", Toast.LENGTH_SHORT).show();
         }else{

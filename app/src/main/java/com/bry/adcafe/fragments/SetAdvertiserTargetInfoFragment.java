@@ -112,6 +112,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private boolean hasSetSomeInfo = false;
     private final String skp = "SKIP.";
     private final String clr = "CLEAR.";
+    private final String set = "SET.";
 
 
     public void setfragcontext(Context context) {
@@ -267,20 +268,24 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         genderUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+getNumberOfUsersAfterFiltering()
                 +" Users.</b>"));
         if(hasSetSomeInfo){
-            skip.setText(clr);
+            skip.setAlpha(1f);
+            okBtn2.setText(set);
         }else{
-            skip.setText(skp);
+            skip.setAlpha(0.5f);
+            okBtn2.setText(skp);
         }
         selectGenderRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 if(radioButtonFemale.isChecked()){
                     hasSetSomeInfo = true;
-                    skip.setText(clr);
+                    skip.setAlpha(1f);
+                    okBtn2.setText(set);
                     Variables.genderTarget = Constants.FEMALE;
                 }else if(radioButtonMale.isChecked()){
                     hasSetSomeInfo = true;
-                    skip.setText(clr);
+                    skip.setAlpha(1f);
+                    okBtn2.setText(set);
                     Variables.genderTarget = Constants.MALE;
                 }
                 genderUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+
@@ -291,7 +296,10 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
             @Override
             public void onClick(View view) {
                 if(!radioButtonMale.isChecked() && !radioButtonFemale.isChecked()){
-                    Toast.makeText(mContext,"Please pick one.",Toast.LENGTH_SHORT).show();
+                    Variables.genderTarget = "";
+                    genderLayout.setVisibility(View.GONE);
+                    genderLayout.setTranslationX(NEG);
+                    loadAgeGroupView();
                 }else{
                     if(radioButtonFemale.isChecked()){
                         Variables.genderTarget = Constants.FEMALE;
@@ -314,16 +322,11 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                     Variables.genderTarget = "";
                     selectGenderRadioGroup.clearCheck();
                     LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
-                    skip.setText(skp);
+                    skip.setAlpha(0.5f);
+                    okBtn2.setText(skp);
                     genderUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+
                             getNumberOfUsersAfterFiltering()+" User(s).</b>"));
-                }else{
-                    Variables.genderTarget = "";
-                    genderLayout.setVisibility(View.GONE);
-                    genderLayout.setTranslationX(NEG);
-                    loadAgeGroupView();
                 }
-
             }
         });
     }
@@ -362,7 +365,8 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                 ageUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+getNumberOfUsersAfterFiltering()
                         +" User(s).</b>"));
                 setAgeTextView.setText(String.format("Age Group set is: from %d to %d", Variables.ageGroupTarget.getStartingAge(), Variables.ageGroupTarget.getFinishAge()));
-                skip2.setText(clr);
+                skip2.setAlpha(1f);
+                okBtn3.setText(set);
                 hasSetSomeInfo = true;
             }
         });
@@ -377,17 +381,20 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                 ageUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+getNumberOfUsersAfterFiltering()
                         +" User(s).</b>"));
                 setAgeTextView.setText(String.format("Age Group set is: from %d to %d", Variables.ageGroupTarget.getStartingAge(), Variables.ageGroupTarget.getFinishAge()));
-                skip2.setText(clr);
+                skip2.setAlpha(1f);
+                okBtn3.setText(set);
                 hasSetSomeInfo = true;
             }
         });
         if(Variables.ageGroupTarget!=null){
             numberPicker1.setValue(Variables.ageGroupTarget.getStartingAge());
             numberPicker2.setValue(Variables.ageGroupTarget.getFinishAge());
-            skip2.setText(clr);
+            skip2.setAlpha(1f);
+            okBtn3.setText(set);
             hasSetSomeInfo = true;
         }else{
-            skip2.setText(skp);
+            skip2.setAlpha(0.5f);
+            okBtn3.setText(skp);
             hasSetSomeInfo = false;
         }
 
@@ -408,27 +415,30 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                     Variables.ageGroupTarget = null;
                     numberPicker1.setValue(18);
                     numberPicker2.setValue(19);
-                    skip2.setText(skp);
+                    skip2.setAlpha(0.5f);
+                    okBtn3.setText(skp);
                     setAgeTextView.setText("No age group set.");
                     LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
                     ageUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+getNumberOfUsersAfterFiltering()
                             +" User(s).</b>"));
-                }else{
-                    ageLayout.setVisibility(View.GONE);
-                    ageLayout.setTranslationX(NEG);
-                    Variables.ageGroupTarget = null;
-                    loadMapLayout();
                 }
             }
         });
         okBtn3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ageLayout.setVisibility(View.GONE);
-                ageLayout.setTranslationX(NEG);
-                Variables.ageGroupTarget = new AgeGroup(numberPicker1.getValue(),numberPicker2.getValue());
-                LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
-                loadMapLayout();
+                if(!hasSetSomeInfo){
+                    ageLayout.setVisibility(View.GONE);
+                    ageLayout.setTranslationX(NEG);
+                    Variables.ageGroupTarget = null;
+                    loadMapLayout();
+                }else{
+                    ageLayout.setVisibility(View.GONE);
+                    ageLayout.setTranslationX(NEG);
+                    Variables.ageGroupTarget = new AgeGroup(numberPicker1.getValue(), numberPicker2.getValue());
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
+                    loadMapLayout();
+                }
             }
         });
 
@@ -458,11 +468,13 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         if(Variables.locationTarget.isEmpty()){
             locationsNumber.setText(Html.fromHtml("Locations set:<b> None.</b>"));
             hasSetSomeInfo = false;
-            skip3.setText(skp);
+            skip3.setAlpha(0.5f);
+            okBtn4.setText(skp);
         }else{
             locationsNumber.setText(Html.fromHtml("Locations set: <b>"+ Variables.locationTarget.size()+" Locations.</b>"));
             hasSetSomeInfo = true;
-            skip3.setText(clr);
+            skip3.setAlpha(1f);
+            okBtn4.setText(set);
         }
 
         backBtn2.setOnClickListener(new View.OnClickListener() {
@@ -479,14 +491,12 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                 if(hasSetSomeInfo){
                     hasSetSomeInfo = false;
                     Variables.locationTarget.clear();
+                    skip3.setAlpha(0.5f);
+                    okBtn4.setText(skp);
                     locationsNumber.setText(Html.fromHtml("Locations set:<b> None.</b>"));
                     locationUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+
                             getNumberOfUsersAfterFiltering()+" Users.</b>"));
                     LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
-                }else{
-                    locationLayout.setVisibility(View.GONE);
-                    locationLayout.setTranslationX(NEG);
-                    loadDeviceCategoryRangeSelector();
                 }
             }
         });
@@ -517,12 +527,14 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                     getNumberOfUsersAfterFiltering()+" User(s).</b>"));
             if(Variables.locationTarget.isEmpty()){
                 hasSetSomeInfo = false;
-                skip3.setText(skp);
+                skip3.setAlpha(0.5f);
+                okBtn4.setText(skp);
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
                 locationsNumber.setText(Html.fromHtml("Locations set:<b> None.</b>"));
             }else{
                 hasSetSomeInfo = true;
-                skip3.setText(clr);
+                skip3.setAlpha(1f);
+                okBtn4.setText(set);
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
                 locationsNumber.setText(Html.fromHtml("Locations set: <b>"+ Variables.locationTarget.size()+" Locations.</b>"));
             }
@@ -536,19 +548,24 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                 .setInterpolator(new FastOutSlowInInterpolator());
         if(Variables.deviceRangeCategory.equals(Constants.HIGH_END_DEVICE)){
             hasSetSomeInfo = true;
-            skip4.setText(clr);
+            skip4.setAlpha(1f);
+            okBtn6.setText(set);
             radioButtonHighEnd.setChecked(true);
         }
         else if(Variables.deviceRangeCategory.equals(Constants.MID_RANGE_DEVICE)){
             hasSetSomeInfo = true;
-            skip4.setText(clr);
+            skip4.setAlpha(1f);
+            okBtn6.setText(set);
             radioButtonMidRange.setChecked(true);
         }
         else if(Variables.deviceRangeCategory.equals(Constants.LOW_END_DEVICE)){
             hasSetSomeInfo = true;
-            skip4.setText(clr);
+            skip4.setAlpha(1f);
+            okBtn6.setText(set);
             radioButtonLowEnd.setChecked(true);
         }else{
+            skip4.setAlpha(0.5f);
+            okBtn6.setText(skp);
             hasSetSomeInfo = false;
             skip4.setText(skp);
         }
@@ -561,15 +578,18 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                 if(radioButtonHighEnd.isChecked()){
                     Variables.deviceRangeCategory = Constants.HIGH_END_DEVICE;
                     hasSetSomeInfo = true;
-                    skip4.setText(clr);
+                    skip4.setAlpha(1f);
+                    okBtn6.setText(set);
                 }else if(radioButtonMidRange.isChecked()){
                     Variables.deviceRangeCategory = Constants.MID_RANGE_DEVICE;
                     hasSetSomeInfo = true;
-                    skip4.setText(clr);
+                    skip4.setAlpha(1f);
+                    okBtn6.setText(set);
                 }else if(radioButtonLowEnd.isChecked()){
                     Variables.deviceRangeCategory = Constants.LOW_END_DEVICE;
                     hasSetSomeInfo = true;
-                    skip4.setText(clr);
+                    skip4.setAlpha(1f);
+                    okBtn6.setText(set);
                 }
                 deviceCategoryUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+ getNumberOfUsersAfterFiltering()+" Users.</b>"));
             }
@@ -589,15 +609,11 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
             public void onClick(View view) {
                 if(hasSetSomeInfo){
                     hasSetSomeInfo = false;
-                    skip4.setText(skp);
+                    skip4.setAlpha(0.5f);
+                    okBtn6.setText(skp);
                     Variables.deviceRangeCategory = "";
                     deviceCategoryUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+ getNumberOfUsersAfterFiltering()+" Users.</b>"));
                     selectDeviceRadioGroup.clearCheck();
-                }else{
-                    Variables.deviceRangeCategory = "";
-                    deviceCategoryLayout.setVisibility(View.GONE);
-                    deviceCategoryLayout.setTranslationX(NEG);
-                    loadSelectOtherCategories();
                 }
             }
         });
@@ -606,7 +622,10 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
             @Override
             public void onClick(View view) {
                 if(!radioButtonHighEnd.isChecked() && !radioButtonMidRange.isChecked()&& !radioButtonLowEnd.isChecked()){
-                    Toast.makeText(mContext,"Please, pick one.",Toast.LENGTH_SHORT).show();
+                    Variables.deviceRangeCategory = "";
+                    deviceCategoryLayout.setVisibility(View.GONE);
+                    deviceCategoryLayout.setTranslationX(NEG);
+                    loadSelectOtherCategories();
                 }else{
                     if(radioButtonHighEnd.isChecked()){
                         Variables.deviceRangeCategory = Constants.HIGH_END_DEVICE;
@@ -633,11 +652,13 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                 getNumberOfUsersAfterFiltering()+" User(s).</b>"));
         if(Variables.targetCategoryList.isEmpty()){
             hasSetSomeInfo = false;
-            skip5.setText(skp);
+            skip5.setAlpha(0.5f);
+            okBtn7.setText(skp);
             categoriesNumber.setText(Html.fromHtml("Extra categories set:<b> None.</b>"));
         }else{
             hasSetSomeInfo = true;
-            skip5.setText(clr);
+            skip5.setAlpha(1f);
+            okBtn7.setText(set);
             categoriesNumber.setText(Html.fromHtml("Extra categories set: <b>"+
                     Variables.targetCategoryList.size()+" Location(s).</b>"));
         }
@@ -663,16 +684,13 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
             public void onClick(View view) {
                 if(hasSetSomeInfo){
                     hasSetSomeInfo = false;
-                    skip5.setText(skp);
+                    skip5.setAlpha(0.5f);
+                    okBtn7.setText(skp);
                     Variables.targetCategoryList.clear();
                     categoriesNumber.setText(Html.fromHtml("Extra categories set:<b> None.</b>"));
                     categoriesUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+
                             getNumberOfUsersAfterFiltering()+" User(s).</b>"));
                     LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
-                }else{
-                    categoriesLayout.setVisibility(View.GONE);
-                    categoriesLayout.setTranslationX(NEG);
-                    loadConfirmDetailsView();
                 }
             }
         });
@@ -703,12 +721,14 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                     getNumberOfUsersAfterFiltering()+" User(s).</b>"));
             if(Variables.targetCategoryList.isEmpty()){
                 hasSetSomeInfo = false;
-                skip5.setText(skp);
+                skip5.setAlpha(0.5f);
+                okBtn7.setText(skp);
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
                 categoriesNumber.setText(Html.fromHtml("Extra categories set:<b> None.</b>"));
             }else{
                 hasSetSomeInfo = true;
-                skip5.setText(clr);
+                skip5.setAlpha(1f);
+                okBtn7.setText(set);
                 if(Variables.targetCategoryList.size()==1){
                     categoriesNumber.setText(Html.fromHtml("Extra categories set: <b>"+
                             Variables.targetCategoryList.size()+" Category.</b>"));
@@ -776,7 +796,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
             public void onClick(View view) {
                 concludeLayout.setVisibility(View.GONE);
                 concludeLayout.setTranslationX(600);
-                loadMapLayout();
+                loadSelectOtherCategories();
             }
         });
         okBtn5.setOnClickListener(new View.OnClickListener() {

@@ -414,15 +414,6 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                 checkLocalList.add(new LatLng(lat,lng));
             }
             if(locationContained(checkLocalList) == 0) return false;
-        }if(mTargetUsersDataList.child(getDate()).child(pushIdInAdminConsole).exists()){
-            List<String> targetUids;
-            String targetUserListString = mTargetUsersDataList.child(getDate()).child(pushIdInAdminConsole).getValue(String.class);
-
-            Gson gson = new Gson();
-            java.lang.reflect.Type type = new TypeToken<ArrayList<String>>(){}.getType();
-            targetUids = gson.fromJson(targetUserListString,type);
-
-            if (targetUids != null && !targetUids.contains(uid)) return false;
         }if(targetDataSnap.child("devicerange").exists()){
             String deviceRangeCategory = targetDataSnap.child("devicerange").getValue(String.class);
             if(!deviceRangeCategory.equals(getUserDeviceCagegory()))return false;
@@ -435,6 +426,17 @@ public class AlarmReceiver1 extends BroadcastReceiver {
             for(String requiredCategory:requiredCategories){
                 if(!Variables.Subscriptions.keySet().contains(requiredCategory)) return false;
             }
+        }
+
+        if(mTargetUsersDataList.child(getDate()).child(pushIdInAdminConsole).exists()){
+            List<String> targetUids;
+            String targetUserListString = mTargetUsersDataList.child(getDate()).child(pushIdInAdminConsole).getValue(String.class);
+
+            Gson gson = new Gson();
+            java.lang.reflect.Type type = new TypeToken<ArrayList<String>>(){}.getType();
+            targetUids = gson.fromJson(targetUserListString,type);
+            if(targetUids != null)Log(TAG,"target uids are "+targetUids.size());
+            if (targetUids != null && !targetUids.contains(uid)) return false;
         }
         return true;
     }

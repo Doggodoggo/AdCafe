@@ -49,11 +49,15 @@ import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.adapters.AdvertCard;
 import com.bry.adcafe.adapters.AdCounterBar;
+import com.bry.adcafe.fragments.ContactAdvertiserBottomsheet;
 import com.bry.adcafe.fragments.FeedbackFragment;
+import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
 import com.bry.adcafe.fragments.ReportDialogFragment;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.AdvertiserLocation;
 import com.bry.adcafe.models.AgeGroup;
 import com.bry.adcafe.models.User;
+import com.bry.adcafe.models.myLatLng;
 import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.services.NetworkStateReceiver;
 import com.bry.adcafe.services.TimeManager;
@@ -768,7 +772,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         handleDbSnapShotList(dbSnaps);
     }
 
-    private void handleDbSnapShotList(List<DataSnapshot> dbSnaps) {
+    private void handleDbSnapShotList(List<DataSnapshot> dbSnaps){
         Log(TAG,"Number of children from firebase is : "+dbSnaps.size());
         boolean canLoad = true;
         if(Variables.constantAmountPerView>3
@@ -781,6 +785,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log(TAG,"Only one ad has loaded.");
                 for (DataSnapshot snap : dbSnaps) {
                     Advert ad = snap.getValue(Advert.class);
+                    if(snap.child("contactdata").exists()){
+                        ad.setAdvertiserPhoneNo(snap.child("contactdata").child(Constants.ADVERTISER_PHONE_NO)
+                                .getValue(String.class));
+                        if(snap.child("contactdata").child(Constants.ADVERTISER_LOCATION).exists()){
+                            List<AdvertiserLocation> advertisersLoc = new ArrayList<>();
+                            for(DataSnapshot locSnap:snap.child("contactdata").child(Constants.ADVERTISER_LOCATION).getChildren()){
+                                String name = "";
+                                if(locSnap.child("name").exists())name = locSnap.child("name").getValue(String.class);
+                                double lat = locSnap.child("lat").getValue(double.class);
+                                double lng = locSnap.child("lng").getValue(double.class);
+                                advertisersLoc.add(new AdvertiserLocation(new myLatLng(lat,lng),name));
+                            }
+                            ad.setAdvertiserLocations(advertisersLoc);
+                        }
+                    }
                     DataSnapshot snpsht = snap.child("pushId");
                     String pushID = snpsht.getValue(String.class);
                     ad.setPushId(pushID);
@@ -836,6 +855,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Advert ad = snap.getValue(Advert.class);
                     DataSnapshot snpsht = snap.child("pushId");
                     String pushID = snpsht.getValue(String.class);
+                    if(snap.child("contactdata").exists()){
+                        ad.setAdvertiserPhoneNo(snap.child("contactdata").child(Constants.ADVERTISER_PHONE_NO)
+                                .getValue(String.class));
+                        if(snap.child("contactdata").child(Constants.ADVERTISER_LOCATION).exists()){
+                            List<AdvertiserLocation> advertisersLoc = new ArrayList<>();
+                            for(DataSnapshot locSnap:snap.child("contactdata").child(Constants.ADVERTISER_LOCATION).getChildren()){
+                                String name = "";
+                                if(locSnap.child("name").exists())name = locSnap.child("name").getValue(String.class);
+                                double lat = locSnap.child("lat").getValue(double.class);
+                                double lng = locSnap.child("lng").getValue(double.class);
+                                advertisersLoc.add(new AdvertiserLocation(new myLatLng(lat,lng),name));
+                            }
+                            ad.setAdvertiserLocations(advertisersLoc);
+                        }
+                    }
                     ad.setPushId(pushID);
                     ad.setPushIdNumber(Integer.parseInt(pushID));
                     if(!ad.isFlagged() && doesUserMeetCriteria(snap.child("targetdata"),ad)){
@@ -1383,7 +1417,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Variables.setCurrentAdInSubscription(lastAdSeen.getPushIdNumber());
                 }
                 if(lastAdSeen.isFlagged())lastAdSeen.setWebsiteLink(igsNein);
-                if(lastAdSeen.getWebsiteLink().equals(igsNein)){
+                if(!lastAdSeen.didAdvertiserSetContactInfo()){
                     findViewById(R.id.smallDot).setVisibility(View.INVISIBLE);
                 }else{
                     findViewById(R.id.smallDot).setVisibility(View.VISIBLE);
@@ -1558,7 +1592,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             findViewById(R.id.reportBtn).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (Variables.mIsLastOrNotLast == Constants.NO_ADS || !isSeingNormalAds) {
+                    if (Variables.mIsLastOrNotLast.equals(Constants.NO_ADS) || !isSeingNormalAds) {
                         Snackbar.make(findViewById(R.id.mainCoordinatorLayout), "You can't report that..",
                                 Snackbar.LENGTH_SHORT).show();
                     } else {
@@ -1657,18 +1691,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             loadAdsFromThread();
         }
         if (v == findViewById(R.id.WebsiteIcon) && Variables.getCurrentAdvert() != null) {
-            if (!Variables.getCurrentAdvert().getWebsiteLink().equals(igsNein) && !Variables.getCurrentAdvert().isFlagged()) {
-                Vibrator b = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                b.vibrate(30);
-                try {
-                    String url = Variables.getCurrentAdvert().getWebsiteLink();
-                    if (!url.startsWith("http://") && !url.startsWith("https://")) url = "http://" + url;
-                    Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    startActivity(webIntent);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(mContext, "There's something wrong with the link", Toast.LENGTH_SHORT).show();
-                }
+//            if (!Variables.getCurrentAdvert().getWebsiteLink().equals(igsNein)) {
+//                Vibrator b = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+//                b.vibrate(30);
+//                try {
+//                    String url = Variables.getCurrentAdvert().getWebsiteLink();
+//                    if (!url.startsWith("http://") && !url.startsWith("https://")) url = "http://" + url;
+//                    Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+//                    startActivity(webIntent);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    Toast.makeText(mContext, "There's something wrong with the link", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+            if(Variables.getCurrentAdvert().didAdvertiserSetContactInfo()) {
+                ContactAdvertiserBottomsheet fragmentModalBottomSheet = new ContactAdvertiserBottomsheet();
+                fragmentModalBottomSheet.setActivity(MainActivity.this);
+                fragmentModalBottomSheet.setAdvert(Variables.getCurrentAdvert());
+                fragmentModalBottomSheet.show(getSupportFragmentManager(), "BottomSheet Fragment");
             }
         }
         if(v==findViewById(R.id.bookmarkBtn)){
@@ -1894,7 +1934,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if (!Variables.getCurrentAdvert().getWebsiteLink().equals(igsNein)) {
+                    if (Variables.getCurrentAdvert().didAdvertiserSetContactInfo()) {
                         mSwipeView.findViewById(R.id.WebsiteIcon).setAlpha(1.0f);
                         mSwipeView.findViewById(R.id.websiteText).setAlpha(1.0f);
                         mSwipeView.findViewById(R.id.smallDot).setVisibility(View.VISIBLE);
@@ -2129,6 +2169,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log(TAG, "---More children in dataSnapshot from firebase exist");
             for (DataSnapshot snap : dbSnaps) {
                 Advert ad = snap.getValue(Advert.class);
+                if(snap.child("contactdata").exists()){
+                    ad.setAdvertiserPhoneNo(snap.child("contactdata").child(Constants.ADVERTISER_PHONE_NO)
+                            .getValue(String.class));
+                    if(snap.child("contactdata").child(Constants.ADVERTISER_LOCATION).exists()){
+                        List<AdvertiserLocation> advertisersLoc = new ArrayList<>();
+                        for(DataSnapshot locSnap:snap.child("contactdata").child(Constants.ADVERTISER_LOCATION).getChildren()){
+                            String name = "";
+                            if(locSnap.child("name").exists())name = locSnap.child("name").getValue(String.class);
+                            double lat = locSnap.child("lat").getValue(double.class);
+                            double lng = locSnap.child("lng").getValue(double.class);
+                            advertisersLoc.add(new AdvertiserLocation(new myLatLng(lat,lng),name));
+                        }
+                        ad.setAdvertiserLocations(advertisersLoc);
+                    }
+                }
                 DataSnapshot snpsht = snap.child("pushId");
                 String pushID = snpsht.getValue(String.class);
                 ad.setPushId(pushID);
@@ -3217,14 +3272,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 checkLocalList.add(new LatLng(lat,lng));
             }
             if(locationContained(checkLocalList) == 0) return false;
-        }if(mTargetUsersDataList.child(getDate()).child(ad.getPushRefInAdminConsole()).exists()){
-            List<String> targetUids;
-            String targetUserListString = mTargetUsersDataList.child(getDate()).child(ad.getPushRefInAdminConsole()).getValue(String.class);
-
-            Gson gson = new Gson();
-            java.lang.reflect.Type type = new TypeToken<ArrayList<String>>(){}.getType();
-            targetUids = gson.fromJson(targetUserListString,type);
-            if (targetUids != null && !targetUids.contains(uid)) return false;
         }if(targetDataSnap.child("devicerange").exists()){
             String deviceRangeCategory = targetDataSnap.child("devicerange").getValue(String.class);
             if(!deviceRangeCategory.equals(getUserDeviceCagegory()))return false;
@@ -3237,6 +3284,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             for(String requiredCategory:requiredCategories){
                 if(!Variables.Subscriptions.keySet().contains(requiredCategory)) return false;
             }
+        }
+
+        if(mTargetUsersDataList.child(getDate()).child(ad.getPushRefInAdminConsole()).exists()){
+            List<String> targetUids;
+            String targetUserListString = mTargetUsersDataList.child(getDate()).child(ad.getPushRefInAdminConsole()).getValue(String.class);
+
+            Gson gson = new Gson();
+            java.lang.reflect.Type type = new TypeToken<ArrayList<String>>(){}.getType();
+            targetUids = gson.fromJson(targetUserListString,type);
+            if (targetUids != null && !targetUids.contains(uid)) return false;
         }
         return true;
     }

@@ -53,9 +53,11 @@ public class AdvertCard{
     @View(R.id.profileImageView) private ImageView profileImageView;
     @View(R.id.errorImageView) private ImageView errorImageView;
     @View(R.id.adCardAvi) private AVLoadingIndicatorView mAvi;
+
     @View(R.id.WebsiteIcon) private ImageView webIcon;
     @View(R.id.websiteText) private TextView webText;
     @View(R.id.smallDot) private android.view.View mDot;
+
     @View(R.id.bookmark2Btn) private ImageView bookmarkBtn;
     @View(R.id.reportBtn) private ImageView reportBtn;
 
@@ -102,7 +104,9 @@ public class AdvertCard{
         if(mLastOrNotLast.equals(Constants.NO_ADS)) loadAdPlaceHolderImage();
         else new LongOperationFI().execute("");
         setListeners();
+        setContactView();
     }
+
 
     private void setListeners(){
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToUnregisterAllReceivers,
@@ -908,6 +912,19 @@ public class AdvertCard{
 
     }
 
+    private void setContactView() {
+        if(mAdvert.didAdvertiserSetContactInfo()){
+            Log("AdvertCard","setting contact views to be visible");
+            webIcon.setAlpha(1.0f);
+            webText.setAlpha(1.0f);
+            mDot.setVisibility(android.view.View.VISIBLE);
+        }else{
+            Log("AdvertCard","setting contact views to be invisible");
+            webIcon.setAlpha(0.4f);
+            webText.setAlpha(0.4f);
+            mDot.setVisibility(android.view.View.INVISIBLE);
+        }
+    }
 
 
 }

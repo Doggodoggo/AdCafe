@@ -191,7 +191,7 @@
                 android:visibility="visible"
                 android:layout_alignParentLeft="true"
                 android:background="@null"
-                android:text="Skip."
+                android:text="Clear."
                 android:textColor="@color/colorPrimary" />
 
             <Button
@@ -315,7 +315,7 @@
                 android:visibility="visible"
                 android:layout_alignParentLeft="true"
                 android:background="@null"
-                android:text="Skip."
+                android:text="Clear."
                 android:textColor="@color/colorPrimary" />
 
             <Button
@@ -437,7 +437,7 @@
                 android:layout_alignParentLeft="true"
                 android:background="@null"
                 android:visibility="visible"
-                android:text="Skip."
+                android:text="Clear."
                 android:textColor="@color/colorPrimary" />
 
             <Button
@@ -447,7 +447,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
                 android:background="@null"
-                android:text="Continue."
+                android:text="Set."
                 android:textColor="@color/colorPrimary" />
 
         </RelativeLayout>
@@ -550,7 +550,7 @@
                 android:visibility="visible"
                 android:layout_alignParentLeft="true"
                 android:background="@null"
-                android:text="Skip."
+                android:text="Clear."
                 android:textColor="@color/colorPrimary" />
 
             <Button
@@ -659,7 +659,7 @@
                 android:layout_alignParentLeft="true"
                 android:background="@null"
                 android:visibility="visible"
-                android:text="Skip."
+                android:text="Clear."
                 android:textColor="@color/colorPrimary" />
 
             <Button
@@ -770,7 +770,6 @@
             android:textSize="12sp"
             android:text="Users that will be reached: 3 Users."
             android:layout_height="wrap_content" />
-
 
         <RelativeLayout
             android:layout_width="match_parent"

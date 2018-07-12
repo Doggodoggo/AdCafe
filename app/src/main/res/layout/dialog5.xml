@@ -7,10 +7,11 @@
 
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="370dp"
         android:textSize="23sp"
         android:layout_marginTop="10dp"
-        android:text="Website Link."
+        android:layout_marginLeft="10dp"
+        android:text="Your Contact Info."
         android:textColor="@color/colorPrimary"
         android:layout_marginBottom="10dp"
         android:layout_height="wrap_content" />
@@ -19,17 +20,77 @@
         android:layout_width="match_parent"
         android:id="@+id/explanation"
         android:layout_marginBottom="10dp"
-        android:text="You can add a link to your website if you wish."
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:text="You can add your contact info for users to reach you."
         android:layout_height="wrap_content" />
 
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="350dp"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:textSize="12sp"
-        android:hint="Paste the link here."
-        android:inputType="textWebEditText" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:id="@+id/phoneIcon"
+            android:background="@drawable/ic_action_call"
+            android:layout_height="40dp" />
+
+        <EditText
+            android:id="@+id/phoneNumber"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:textSize="15sp"
+            android:hint="Your phone number(0712345678)."
+            android:inputType="phone" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:id="@+id/websiteIcon"
+            android:background="@drawable/ic_action_website"
+            android:layout_height="40dp" />
+
+        <EditText
+            android:id="@+id/websiteEditText"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:textSize="15sp"
+            android:hint="Your website.(www.yoursite.com)"
+            android:inputType="textWebEditText" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:id="@+id/mapIcon"
+            android:background="@drawable/ic_action_map"
+            android:layout_height="40dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:gravity="center_vertical"
+            android:layout_marginLeft="4dp"
+            android:id="@+id/locationsSet"
+            android:text="Click the map icon to add your locations."
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -58,8 +119,10 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:background="@null"
-            android:text="Done"
+            android:text="Set."
             android:textColor="@color/colorPrimary" />
 
     </RelativeLayout>
+
+
 </LinearLayout>
