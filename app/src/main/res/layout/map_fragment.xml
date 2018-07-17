@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:id="@+id/mapFragmentContainer"
@@ -40,6 +41,92 @@
         android:background="@color/colorPrimaryDark"
         android:textColor="@color/white"
         android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:orientation="vertical"
+        android:layout_marginTop="130dp"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:background="@color/white"
+            app:cardCornerRadius="3dp"
+            android:alpha="0.8"
+            android:visibility="invisible"
+            android:id="@+id/loc1"
+            android:layout_marginBottom="10dp"
+            app:cardPreventCornerOverlap="false"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:id="@+id/loc1img"
+                android:background="@drawable/ic_action_location1"
+                android:layout_height="wrap_content" />
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:background="@color/white"
+            app:cardCornerRadius="3dp"
+            android:alpha="0.7"
+            android:id="@+id/loc2"
+            android:visibility="invisible"
+            android:layout_marginBottom="10dp"
+            app:cardPreventCornerOverlap="false"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:id="@+id/loc2img"
+                android:background="@drawable/ic_action_location2"
+                android:layout_height="wrap_content" />
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:background="@color/white"
+            app:cardCornerRadius="3dp"
+            android:alpha="0.7"
+            android:id="@+id/loc3"
+            android:visibility="invisible"
+            android:layout_marginBottom="10dp"
+            app:cardPreventCornerOverlap="false"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:id="@+id/loc3img"
+                android:background="@drawable/ic_action_location3"
+                android:layout_height="wrap_content" />
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:background="@color/white"
+            app:cardCornerRadius="3dp"
+            android:alpha="0.7"
+            android:visibility="invisible"
+            android:id="@+id/loc4"
+            app:cardPreventCornerOverlap="false"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:id="@+id/loc4img"
+                android:background="@drawable/ic_action_location4"
+                android:layout_height="wrap_content" />
+
+        </android.support.v7.widget.CardView>
+
+    </LinearLayout>
 
 
 

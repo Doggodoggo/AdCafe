@@ -30,6 +30,15 @@
             android:text="@string/targetingPermission"
             android:layout_height="wrap_content" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginLeft="20dp"
+            android:id="@+id/targetNoteLess"
+            android:visibility="visible"
+            android:layout_marginRight="20dp"
+            android:text="This will result in less content."
+            android:layout_height="wrap_content" />
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:orientation="horizontal"

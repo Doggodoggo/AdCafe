@@ -348,6 +348,7 @@ public class AdCounterBar {
             addToSharedPreferencesViaBroadcast();
             hasTimerStarted = false;
             adCounter.setText(Integer.toString(Variables.getAdTotal(mKey)+1));
+            if(Variables.getAdTotal(mKey)>99) adCounter.setText(":-)");
             textViewTime.setText(Integer.toString(7));
         }
 

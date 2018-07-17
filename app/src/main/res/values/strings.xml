@@ -243,9 +243,7 @@
     <string name="confirmDetails">Check that all the details are right before finishing.</string>
 
     <string name="usersInTheAppNow">As of now blah blah blah</string>
-    <string name="deviceCategoryExplanation">You can also choose to filter users based on the device that they are using. A user can have a high end, mid range or a low end device. The app
-        distinguishes this based the devices screen density. So high end devices typically are above 500 ppi(that is, Pixels Per Inch), mid range is between 300 and 500 ppi, and low end devices
-        are below 300.</string>
+    <string name="deviceCategoryExplanation">You can also choose to filter users based on the device that they are using. A user can have a high end, mid range or a low end device.</string>
 
     <string name="multiCategoryAd">"You can also target users in multiple categories. For instance, you can target users interested in food, restaurants and agriculture. By doing this, the app will show your advert to users who've subscribed to the specific categories you choose."</string>
     <string name="signUpPersonalInfoExpl">In order to show you relevant content, you can provide the app your basic personal information such as your age, locales and sex/gender. This will enable the app to filter its content based on these preferences.</string>

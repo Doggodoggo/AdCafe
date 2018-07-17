@@ -2,25 +2,21 @@ package com.bry.adcafe.fragments;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.DialogFragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
@@ -36,14 +32,12 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -69,12 +63,24 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
     private double CBD_LAT = -1.2805;
     private double CBD_LONG = 36.8163;
     private LatLng CBD = new LatLng(CBD_LAT, CBD_LONG);
+    private int ZOOM = 15;
 
     private List<Marker> markers = new ArrayList<>();
     private Button setButton;
     private View rootView;
     MapFragment mapFragment;
     PlaceAutocompleteFragment autocompleteFragment;
+
+    private int[] myLocationIcons;
+    private final int REQUESTCODE = 3301;
+    private CardView loc1;
+    private CardView loc2;
+    private CardView loc3;
+    private CardView loc4;
+
+
+
+
 
     public void setfragcontext(Context context) {
         mContext = context;
@@ -93,11 +99,32 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
 
             setButton = rootView.findViewById(R.id.setLocations);
             setButton.setOnClickListener(this);
+
+            loc1 = rootView.findViewById(R.id.loc1);
+            loc2 = rootView.findViewById(R.id.loc2);
+            loc3 = rootView.findViewById(R.id.loc3);
+            loc4 = rootView.findViewById(R.id.loc4);
+            rootView.findViewById(R.id.loc1img).setOnClickListener(this);
+            rootView.findViewById(R.id.loc2img).setOnClickListener(this);
+            rootView.findViewById(R.id.loc3img).setOnClickListener(this);
+            rootView.findViewById(R.id.loc4img).setOnClickListener(this);
+
             mapFragment.getMapAsync(this);
         } catch (InflateException e) {
             e.printStackTrace();
         }
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSetThatMyLocationButtonThingy,
+                new IntentFilter("SET_THAT_MY_LOCATION_BUTTON_THINGY"));
+
+        myLocationIcons = new int[]{
+                R.id.loc1,
+                R.id.loc2,
+                R.id.loc3,
+                R.id.loc4
+        };
+
         return rootView;
+
     }
 
     @Override
@@ -110,7 +137,7 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
         googleMap.setIndoorEnabled(false);
         googleMap.setBuildingsEnabled(false);
         googleMap.setOnMarkerClickListener(this);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CBD, 15));
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(CBD, ZOOM));
 
         if(!Variables.usersLatLongs.isEmpty()){
             for(LatLng latLng:Variables.usersLatLongs) {
@@ -128,6 +155,8 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
                     Marker mark = map.addMarker(new MarkerOptions().position(latLng)
                             .draggable(true));
                     markers.add(mark);
+                    int pos = markers.indexOf(mark);
+                    rootView.findViewById(myLocationIcons[pos]).setVisibility(View.VISIBLE);
                 }else{
                     Toast.makeText(mContext,"Only a max of 4 locations are allowed",Toast.LENGTH_SHORT).show();
                 }
@@ -155,18 +184,18 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
 
 
         if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 3301);
+            ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUESTCODE);
         }else{
             map.setMyLocationEnabled(true);
             map.setOnMyLocationButtonClickListener(this);
             map.setOnMyLocationClickListener(this);
         }
 
-        LatLng topBnd = new LatLng(-4.543295, 40.331370);
-        LatLng botBnd = new LatLng(4.259043, 33.959300);
+        LatLng botBnd = new LatLng(-4.716667, 27.433333);
+        LatLng topBnd = new LatLng(4.883333, 41.8583834826426);
         autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-        autocompleteFragment.setBoundsBias(new LatLngBounds(topBnd,botBnd));
+        autocompleteFragment.setBoundsBias(new LatLngBounds(botBnd,topBnd));
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
@@ -175,8 +204,10 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
                 if(markers.size()<4){
                     Marker mark = map.addMarker(new MarkerOptions().position(searchedPlace)
                             .draggable(true));
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(searchedPlace, 14));
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(searchedPlace, ZOOM));
                     markers.add(mark);
+                    int pos = markers.indexOf(mark);
+                    rootView.findViewById(myLocationIcons[pos]).setVisibility(View.VISIBLE);
                 }else{
                     Toast.makeText(mContext,"Only a max of 4 locations are allowed.",Toast.LENGTH_SHORT).show();
                 }
@@ -187,22 +218,12 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
-    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 3301:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    try{
-                        map.setMyLocationEnabled(true);
-                    }catch (SecurityException e){
-                        e.printStackTrace();
-                    }
-                    map.setOnMyLocationButtonClickListener(this);
-                    map.setOnMyLocationClickListener(this);
-                }
-                break;
+        if(!markers.isEmpty()){
+            for(Marker loc:markers){
+                int pos = markers.indexOf(loc);
+                rootView.findViewById(myLocationIcons[pos]).setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -216,6 +237,8 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
                     if(m.equals(marker)){
                         Log.d(TAG,"Removing Marker: "+m.getPosition());
                         m.remove();
+                        int pos = markers.size()-1;
+                        rootView.findViewById(myLocationIcons[pos]).setVisibility(View.INVISIBLE);
                         markers.remove(m);
                     }
                 }
@@ -229,8 +252,27 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
 
     @Override
     public void onClick(View view) {
+        Log.e(TAG,"some btn has been clicked");
         if(view.equals(setButton)){
             setPreferredLocations();
+        }else{
+            if(view.equals(rootView.findViewById(R.id.loc1img))){
+                Log.d(TAG,"loc btn clicked");
+                CameraUpdate location = CameraUpdateFactory.newLatLngZoom(markers.get(0).getPosition(), ZOOM);
+                map.animateCamera(location);
+            }else if(view.equals(rootView.findViewById(R.id.loc2img))){
+                Log.d(TAG,"loc btn clicked");
+                CameraUpdate location = CameraUpdateFactory.newLatLngZoom(markers.get(1).getPosition(), ZOOM);
+                map.animateCamera(location);
+            }else if(view.equals(rootView.findViewById(R.id.loc3img))){
+                Log.d(TAG,"loc btn clicked");
+                CameraUpdate location = CameraUpdateFactory.newLatLngZoom(markers.get(2).getPosition(), ZOOM);
+                map.animateCamera(location);
+            }else if(view.equals(rootView.findViewById(R.id.loc4img))){
+                Log.d(TAG,"loc btn clicked");
+                CameraUpdate location = CameraUpdateFactory.newLatLngZoom(markers.get(3).getPosition(), ZOOM);
+                map.animateCamera(location);
+            }
         }
     }
 
@@ -239,8 +281,9 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
     public void onDestroyView() {
         Log.e(TAG,"onDestroy view called.....");
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("SET_USER_PERSONAL_LOCATIONS"));
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForSetThatMyLocationButtonThingy);
         if(Variables.usersLatLongs.isEmpty()){
-            addMarkerInFirebase();
+            resetUneditedMarkers();
         }
         try{
             if (mapFragment != null){
@@ -268,6 +311,8 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
                     .draggable(true)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
             markers.add(mark);
+            int pos = markers.indexOf(mark);
+            rootView.findViewById(myLocationIcons[pos]).setVisibility(View.VISIBLE);
         }else{
             Toast.makeText(mContext,"Only a max of 4 locations are allowed",Toast.LENGTH_SHORT).show();
         }
@@ -336,5 +381,38 @@ public class myMapFragment extends DialogFragment implements OnMapReadyCallback,
             }
         });
     }
+
+    private void resetUneditedMarkers(){
+        SharedPreferences sharedPreferences = mContext.getSharedPreferences(Constants.USER_MARKERS,MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        Variables.usersLatLongs.clear();
+        editor.putInt(Constants.USER_MARKERS_SIZE, markers.size());
+
+        for(int i = 0; i <markers.size(); i++){
+            editor.putFloat("lat"+i, (float) markers.get(i).getPosition().latitude);
+            editor.putFloat("long"+i, (float) markers.get(i).getPosition().longitude);
+            LatLng latLng = new LatLng(markers.get(i).getPosition().latitude,markers.get(i).getPosition().longitude);
+            Variables.usersLatLongs.add(latLng);
+        }
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("SET_USER_PERSONAL_LOCATIONS"));
+        addMarkerInFirebase();
+        editor.apply();
+    }
+
+
+    private BroadcastReceiver mMessageReceiverForSetThatMyLocationButtonThingy = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("MyMapFragment","Message received for setting my location button thingy to true");
+            try{
+                map.setMyLocationEnabled(true);
+            }catch (SecurityException e){
+                e.printStackTrace();
+            }
+            map.setOnMyLocationButtonClickListener(myMapFragment.this);
+            map.setOnMyLocationClickListener(myMapFragment.this);
+        }
+    };
 
 }

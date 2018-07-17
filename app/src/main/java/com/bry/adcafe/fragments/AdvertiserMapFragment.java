@@ -2,12 +2,14 @@ package com.bry.adcafe.fragments;
 
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
@@ -31,6 +33,7 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -61,6 +64,7 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
     private double CBD_LAT = -1.2805;
     private double CBD_LONG = 36.8163;
     private LatLng CBD = new LatLng(CBD_LAT, CBD_LONG);
+    private int ZOOM = 14;
 
     private List<Marker> markers = new ArrayList<>();
     private HashMap<Marker,Circle> markAndCirc = new HashMap<>();
@@ -72,6 +76,13 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
     PlaceAutocompleteFragment autocompleteFragment;
     private boolean didUserPressSetBtn = false;
     private List<TargetedUser> targetedUserData;
+
+    private int[] myLocationIcons;
+    private final int REQUESTCODE = 3301;
+    private CardView loc1;
+    private CardView loc2;
+    private CardView loc3;
+    private CardView loc4;
 
 
 
@@ -97,11 +108,29 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
             rootView = inflater.inflate(R.layout.map_fragment, container, false);
             mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
             mapFragment.getMapAsync(this);
+
             setButton = rootView.findViewById(R.id.setLocations);
             setButton.setOnClickListener(this);
+
+            loc1 = rootView.findViewById(R.id.loc1);
+            loc2 = rootView.findViewById(R.id.loc2);
+            loc3 = rootView.findViewById(R.id.loc3);
+            loc4 = rootView.findViewById(R.id.loc4);
+            rootView.findViewById(R.id.loc1img).setOnClickListener(this);
+            rootView.findViewById(R.id.loc2img).setOnClickListener(this);
+            rootView.findViewById(R.id.loc3img).setOnClickListener(this);
+            rootView.findViewById(R.id.loc4img).setOnClickListener(this);
+
         } catch (InflateException e) {
             e.printStackTrace();
         }
+
+        myLocationIcons = new int[]{
+                R.id.loc1,
+                R.id.loc2,
+                R.id.loc3,
+                R.id.loc4
+        };
 
         return rootView;
     }
@@ -116,7 +145,7 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
         googleMap.setIndoorEnabled(false);
         googleMap.setBuildingsEnabled(false);
         googleMap.setOnMarkerClickListener(this);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CBD, 14));
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(CBD, ZOOM));
 
         if(!Variables.locationTarget.isEmpty()){
             for(LatLng latLng:Variables.locationTarget) {
@@ -155,6 +184,9 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
                     Circle circle = map.addCircle(circleOptions);
                     markers.add(mark);
                     markAndCirc.put(mark,circle);
+
+                    int pos = markers.indexOf(mark);
+                    rootView.findViewById(myLocationIcons[pos]).setVisibility(View.VISIBLE);
                 }else{
                     Toast.makeText(mContext,"Only a max of 4 locations are allowed.",Toast.LENGTH_SHORT).show();
                 }
@@ -193,11 +225,11 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
             }
         });
 
-        LatLng topBnd = new LatLng(-4.543295, 40.331370);
-        LatLng botBnd = new LatLng(4.259043, 33.959300);
+        LatLng botBnd = new LatLng(-4.716667, 27.433333);
+        LatLng topBnd = new LatLng(4.883333, 41.8583834826426);
         autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-        autocompleteFragment.setBoundsBias(new LatLngBounds(topBnd,botBnd));
+        autocompleteFragment.setBoundsBias(new LatLngBounds(botBnd,topBnd));
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
@@ -209,10 +241,13 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
                     CircleOptions circleOptions = new CircleOptions().center(searchedPlace).radius(Constants.MAX_DISTANCE_IN_METERS);
                     circleOptions.strokeWidth(2).strokeColor(Color.rgb(177, 185, 188))
                             .fillColor(Color.argb(70,128,203,196 ));
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(searchedPlace, 14));
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(searchedPlace, ZOOM));
                     Circle circle = map.addCircle(circleOptions);
                     markers.add(mark);
                     markAndCirc.put(mark,circle);
+
+                    int pos = markers.indexOf(mark);
+                    rootView.findViewById(myLocationIcons[pos]).setVisibility(View.VISIBLE);
                 }else{
                     Toast.makeText(mContext,"Only a max of 4 locations are allowed.",Toast.LENGTH_SHORT).show();
                 }
@@ -224,22 +259,12 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
             }
         });
 
-//        searchBtn.setVisibility(View.VISIBLE);
-//        searchBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                try {
-//                    Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
-//                            .setBoundsBias(new LatLngBounds(new LatLng(4.259043, 33.959300)
-//                                    ,new LatLng(-4.543295, 40.331370))).build(mActivity);
-//                    startActivityForResult(intent, 693301);
-//                } catch (GooglePlayServicesRepairableException e) {
-//                    // TODO: Handle the error.
-//                } catch (GooglePlayServicesNotAvailableException e) {
-//                    // TODO: Handle the error.
-//                }
-//            }
-//        });
+        if(!markers.isEmpty()){
+            for(Marker loc:markers){
+                int pos = markers.indexOf(loc);
+                rootView.findViewById(myLocationIcons[pos]).setVisibility(View.VISIBLE);
+            }
+        }
 
     }
 
@@ -255,7 +280,7 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
                     CircleOptions circleOptions = new CircleOptions().center(searchedPlace).radius(Constants.MAX_DISTANCE_IN_METERS);
                     circleOptions.strokeWidth(2).strokeColor(Color.rgb(177, 185, 188))
                             .fillColor(Color.argb(70,128,203,196 ));
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(searchedPlace, 14));
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(searchedPlace, ZOOM));
                     Circle circle = map.addCircle(circleOptions);
                     markers.add(mark);
                     markAndCirc.put(mark,circle);
@@ -272,6 +297,7 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
         }
     }
 
+
     @Override
     public boolean onMarkerClick(Marker marker) {
         if(!markers.isEmpty()) {
@@ -279,6 +305,8 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
                 for (Marker m: markers){
                     if(m.equals(marker)){
                         Log.d(TAG,"Removing Marker: "+m.getPosition());
+                        int pos = markers.size()-1;
+                        rootView.findViewById(myLocationIcons[pos]).setVisibility(View.INVISIBLE);
                         m.remove();
                         markers.remove(m);
                         Circle c = markAndCirc.get(marker);
@@ -299,8 +327,27 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
     public void onClick(View view) {
         if(view.equals(setButton)){
             setPreferredLocations();
+        }else{
+            if(view.equals(rootView.findViewById(R.id.loc1img))){
+                Log.d(TAG,"loc btn clicked");
+                CameraUpdate location = CameraUpdateFactory.newLatLngZoom(markers.get(0).getPosition(), ZOOM);
+                map.animateCamera(location);
+            }else if(view.equals(rootView.findViewById(R.id.loc2img))){
+                Log.d(TAG,"loc btn clicked");
+                CameraUpdate location = CameraUpdateFactory.newLatLngZoom(markers.get(1).getPosition(), ZOOM);
+                map.animateCamera(location);
+            }else if(view.equals(rootView.findViewById(R.id.loc3img))){
+                Log.d(TAG,"loc btn clicked");
+                CameraUpdate location = CameraUpdateFactory.newLatLngZoom(markers.get(2).getPosition(), ZOOM);
+                map.animateCamera(location);
+            }else if(view.equals(rootView.findViewById(R.id.loc4img))){
+                Log.d(TAG,"loc btn clicked");
+                CameraUpdate location = CameraUpdateFactory.newLatLngZoom(markers.get(3).getPosition(), ZOOM);
+                map.animateCamera(location);
+            }
         }
     }
+
 
     @Override
     public void onDestroyView() {
@@ -331,6 +378,7 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
     }
 
 
+
     private void setMerkerLocationsForTargeting(){
         didUserPressSetBtn = true;
         for(Marker m: markers){
@@ -352,5 +400,6 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
             Toast.makeText(mContext,"Locations edit cancelled.",Toast.LENGTH_SHORT).show();
         }
     }
+
 
 }

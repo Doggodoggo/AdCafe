@@ -109,7 +109,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         (actionId == EditorInfo.IME_ACTION_DONE) ||
                         (actionId == EditorInfo.IME_ACTION_NEXT) ||
                         (actionId == EditorInfo.IME_ACTION_GO)) {
-                    mLoginButton.performClick();
+                    try{
+                        mLoginButton.performClick();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                     Log.i(TAG,"Enter pressed");
                 }
                 return false;

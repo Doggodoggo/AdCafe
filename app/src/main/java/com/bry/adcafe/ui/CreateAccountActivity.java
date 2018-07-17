@@ -123,7 +123,11 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                         (actionId == EditorInfo.IME_ACTION_DONE) ||
                         (actionId == EditorInfo.IME_ACTION_NEXT) ||
                         (actionId == EditorInfo.IME_ACTION_GO)) {
-                    mCreateUserButton.performClick();
+                   try{
+                       mCreateUserButton.performClick();
+                   }catch (Exception e){
+                       e.printStackTrace();
+                   }
                     Log.i(TAG, "Enter pressed");
                 }
                 return false;

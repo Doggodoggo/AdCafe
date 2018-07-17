@@ -167,7 +167,8 @@ public class Constants {
 
     public static String ADMIN_MONEY = "AdminTotal";
     public static String TEXT_ANOUNCEMENTS = "Text_Announcements";
-    public static String ADMIN_ACC = "bryonyoni@gmail.com";
+//    public static String ADMIN_ACC = "bryonyoni@gmail.com";
+    public static String ADMIN_ACC = "bryonyoni456465489416514651ds16f1asdf65a4fs6f1ds6f4aw6f1s6f4s8fa1ew65f1awe84f6ds5f1a65fe8w1f6s5fa84f65sad1f6a8ef165as1fa6sfa6f51s65fse8f16f16s5f1s1df1a65fsfjgoddgohiuhgiuskfaerferfrf8ds4f65sfiuiuewrytiwgkjbfvlcxvui,btrejhfdyvuhljfnmrtef;dsp;fs.ntwrhfdviuhbrntrgfdhvciuxhjbdgtrhdfuvihfdkjgbtrngfdhvcxujkbgdlhidflkjbvkilusehgrkjnfdvkjchifkgsbrluidfvhkjbngrkhldflkhoiguqteproiyt98074398iryhhdslvkjbvilusrehtiuhrjkdfbvkjdznv.kbglihwialhlHLGSHJKERHIUBGLhgiuwhrgkh`bjshgiagfdfbvjlisighreohgahab;va[ga][yr9e8ugdfhvzbvseufhesiuhgebrgliuvdhlreigalbvbvhjlsherluigufdkjbnmcbvselihgjrkf.dbvdiluhklebgsrkdfjvuuuu8";
     public static String CUSTOM_STARTING_POINT_ENABLED = "CUSTOM_STARTING_POINT_ENABLED";
     public static String CUSTOM_STARTING_POINT_VALUE = "CUSTOM_STARTING_POINT_VALUE";
     public static String HISTORY_UPLOADS = "AdminUploadHistory";

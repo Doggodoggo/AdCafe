@@ -42,6 +42,7 @@ public class TimeManager {
     public static boolean isTimeManagerInitialized = false;
 
     private static boolean isBackgroundUpdaterOnline = false;
+    private static int numberOfAttemptedTimes = 0;
 
 
     public static boolean isTimerOnline(){
@@ -54,6 +55,7 @@ public class TimeManager {
     }
 
     private static void getCurrentNetworkTime(final String callbackString, final Context context) {
+        numberOfAttemptedTimes++;
         OkHttpClient client = new OkHttpClient();
         String url1 = "http://api.timezonedb.com/v2/get-time-zone?key=KGGAQAWJNQZS&format=json&by=zone&zone=Africa/Nairobi";
         HttpUrl.Builder urlBuilder = HttpUrl.parse(url1).newBuilder();
@@ -65,6 +67,7 @@ public class TimeManager {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
+                if(numberOfAttemptedTimes<5) setUpTimeManager(callbackString,context);
             }
 
             @Override
@@ -78,6 +81,7 @@ public class TimeManager {
     }
 
     private static void processResponse(Response response,String callbackString, Context context) {
+        numberOfAttemptedTimes = 0;
         try{
             String jsonData = response.body().string();
             if (response.isSuccessful()) {

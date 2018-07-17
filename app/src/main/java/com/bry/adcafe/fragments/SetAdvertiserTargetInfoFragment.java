@@ -567,7 +567,6 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
             skip4.setAlpha(0.5f);
             okBtn6.setText(skp);
             hasSetSomeInfo = false;
-            skip4.setText(skp);
         }
 
         deviceCategoryUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+getNumberOfUsersAfterFiltering()
@@ -613,6 +612,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                     okBtn6.setText(skp);
                     Variables.deviceRangeCategory = "";
                     deviceCategoryUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+ getNumberOfUsersAfterFiltering()+" Users.</b>"));
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
                     selectDeviceRadioGroup.clearCheck();
                 }
             }

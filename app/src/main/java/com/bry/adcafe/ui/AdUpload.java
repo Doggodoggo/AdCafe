@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -151,6 +152,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     private List <String> knownTargetedUsers = new ArrayList<>();
 
     private String mPhoneNumber = "none";
+    private final int REQUESTCODE = 3301;
 
 
     @Override
@@ -1710,6 +1712,14 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         }
     };
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if (hasFocus) {
+            if(Variables.isTargetingDataSet())findViewById(R.id.smallDot2).setVisibility(View.VISIBLE);
+            else findViewById(R.id.smallDot2).setVisibility(View.INVISIBLE);
+        }
+    }
+
 
 
     ChildEventListener chil = new ChildEventListener() {
@@ -1944,6 +1954,17 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             d.show();
         }else{
             showDialogForPayments();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode==REQUESTCODE){
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Log.d(TAG,"Sending message for location button thingy to true");
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("SET_THAT_MY_LOCATION_BUTTON_THINGY"));
+            }
         }
     }
 

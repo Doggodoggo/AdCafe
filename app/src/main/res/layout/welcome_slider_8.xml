@@ -114,14 +114,14 @@
                     android:layout_width="44dp"
                     android:layout_height="44dp"
                     android:layout_marginLeft="10dp"
-                    android:background="@drawable/ic_action_website"/>
+                    android:background="@drawable/ic_action_contact"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:textColor="@color/colorPrimary"
                     android:layout_gravity="center"
                     android:textSize="13sp"
                     android:paddingRight="5dp"
-                    android:text="Website Button : You can also visit the website of the advertisers product. However, not all ads will have a link."
+                    android:text="Contact Button : You can contact the advertiser if you're interested in them. However, not all advertisers may provide their contact info."
                     android:layout_height="wrap_content" />
 
             </LinearLayout>

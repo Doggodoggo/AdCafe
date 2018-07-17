@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -111,6 +112,9 @@ public class Dashboard extends AppCompatActivity {
     private boolean isWindowPaused = false;
     private DatabaseReference SKListener;
     private boolean isNeedToLoadLogin = false;
+
+    private final int REQUESTCODE = 3301;
+
 
 
     @Override
@@ -1071,11 +1075,13 @@ public class Dashboard extends AppCompatActivity {
         d.setContentView(R.layout.targeted_dialog);
         Button setButton = d.findViewById(R.id.stopBtn);
         TextView targetingPermissionText = d.findViewById(R.id.targetingPermissionText);
+        TextView targetNoteLess = d.findViewById(R.id.targetNoteLess);
         SharedPreferences pref = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);
         final boolean canUseData = pref.getBoolean(Constants.CONSENT_TO_TARGET,false);
         if(!canUseData){
             setButton.setText("START.");
             targetingPermissionText.setText(R.string.targetingPermissonOn);
+            targetNoteLess.setText("This will result in more content.");
         }
         setButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1378,6 +1384,19 @@ public class Dashboard extends AppCompatActivity {
 
         java.lang.reflect.Type type = new TypeToken<LinkedHashMap<String,Integer>>(){}.getType();
         Variables.Subscriptions = gson.fromJson(storedHashMapString, type);
+    }
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode==REQUESTCODE){
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Log.d(TAG,"Sending message for location button thingy to true");
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("SET_THAT_MY_LOCATION_BUTTON_THINGY"));
+            }
+        }
     }
 
 
