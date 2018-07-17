@@ -3349,6 +3349,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+
     ChildEventListener chil = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -3380,7 +3381,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
     };
-
 
     public void addListenerForChangeInSessionKey(){
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -3428,6 +3428,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log(TAG, "Loading session key from shared prefs - " + sk);
         return sk;
     }
+
 
 
     public void PerformShutdown(){

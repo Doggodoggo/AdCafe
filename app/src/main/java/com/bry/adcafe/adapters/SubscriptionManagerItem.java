@@ -4,12 +4,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.util.Log;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -21,6 +24,7 @@ import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.services.DatabaseManager;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mindorks.placeholderview.PlaceHolderView;
 import com.mindorks.placeholderview.annotations.Click;
@@ -235,7 +239,19 @@ public class SubscriptionManagerItem {
         String filename;
         filename = category.replaceAll(" ","_");
         Log("SelectCategoryIntem","filename is: "+filename);
-        Glide.with(mContext).load(getImage(filename)).into(categoryImage);
+
+        Glide.with(mContext).load(getImage(filename)).asBitmap().centerCrop().into(new BitmapImageViewTarget(categoryImage) {
+            @Override
+            protected void setResource(Bitmap resource) {
+                RoundedBitmapDrawable circularBitmapDrawable =
+                        RoundedBitmapDrawableFactory.create(mContext.getResources(),resource);
+//                                Bitmap.createScaledBitmap(resource,100,100,false));
+                circularBitmapDrawable.setCircular(true);
+                categoryImage.setImageDrawable(circularBitmapDrawable);
+            }
+        });
+
+//        Glide.with(mContext).load(getImage(filename)).into(categoryImage);
         imageId = getImage(filename);
     }
 

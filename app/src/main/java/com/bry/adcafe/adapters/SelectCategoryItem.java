@@ -4,9 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.widget.CheckBox;
@@ -18,6 +22,9 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.mindorks.placeholderview.PlaceHolderView;
 import com.mindorks.placeholderview.annotations.Click;
 import com.mindorks.placeholderview.annotations.Layout;
@@ -151,7 +158,26 @@ public class SelectCategoryItem {
         String filename;
         filename = category.replaceAll(" ","_");
         Log.d("SelectCategoryIntem","filename is: "+filename);
-        Glide.with(mContext).load(getImage(filename)).override(100, 130).into(categoryImage);
+
+//        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), getImage(filename));
+//        RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(mContext.getResources(), bitmap);
+//        roundedBitmapDrawable.setCircular(true);
+//        categoryImage.setImageDrawable(roundedBitmapDrawable);
+
+//        Glide.with(mContext).load(getImage(filename)).override(100, 130)
+//                .into(categoryImage);
+
+        Glide.with(mContext).load(getImage(filename)).asBitmap().centerCrop().into(new BitmapImageViewTarget(categoryImage) {
+            @Override
+            protected void setResource(Bitmap resource) {
+                RoundedBitmapDrawable circularBitmapDrawable =
+                        RoundedBitmapDrawableFactory.create(mContext.getResources(),resource);
+//                                Bitmap.createScaledBitmap(resource,100,100,false));
+                circularBitmapDrawable.setCircular(true);
+                categoryImage.setImageDrawable(circularBitmapDrawable);
+            }
+        });
+
         imageId = getImage(filename);
     }
 
