@@ -23,10 +23,10 @@
                 android:id="@+id/categoryImage"
                 android:layout_marginRight="5dp"
                 android:layout_marginLeft="5dp"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginBottom="39dp"
+                android:layout_marginBottom="34dp"
                 android:scaleType="fitXY" />
 
             <RelativeLayout
