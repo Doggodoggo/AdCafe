@@ -776,16 +776,17 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void promptUserForUnableToPayout(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Payout");
-        builder.setMessage("You can't make a payout of 0Ksh.")
-                .setCancelable(true)
-                .setPositiveButton("Ok.", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                }).show();
+        final Dialog d = new Dialog(this);
+        d.setTitle("Unable to make payout.");
+        d.setContentView(R.layout.dialog992);
+        Button b1 = d.findViewById(R.id.okBtn);
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+        d.show();
     }
 
 

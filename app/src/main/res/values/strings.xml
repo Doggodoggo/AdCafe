@@ -249,6 +249,7 @@
     <string name="signUpPersonalInfoExpl">In order to show you relevant content, you can provide the app your basic personal information such as your age, locales and sex/gender. This will enable the app to filter its content based on these preferences.</string>
     <string name="priceSplittingExp">The 15Ksh is the cost for making a user payout, a cost you have to incur but is one that can be shared by you and other advertisers targeting the same user. This is called cost splitting and allows the app to give advertisers back unneeded payout amounts initially paid.</string>
     <string name="linkToCostExpl">For more details about how this works, please visit here.</string>
+    <string name="dailyRefreshing">"The app refreshes itself daily, in 24Hr cycles. So every day, you'll get to see new content."</string>
 
 
 

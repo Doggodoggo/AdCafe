@@ -56,6 +56,7 @@ public class TutorialUsers extends AppCompatActivity {
                 R.layout.welcome_slider_8,
                 R.layout.welcome_slider_9,
                 R.layout.welcome_slider_10,
+                R.layout.welcome_slider_10_5,
                 R.layout.welcome_slider_11
         };
         // adding bottom dots

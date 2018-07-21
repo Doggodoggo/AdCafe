@@ -24,7 +24,7 @@
             android:gravity="center"
             android:layout_marginLeft="20dp"
             android:layout_height="wrap_content"
-            android:text="Share This."
+            android:text="Content Refreshing."
             android:textSize="20sp" />
 
         <TextView
@@ -32,24 +32,11 @@
             android:textColor="@color/colorPrimary"
             android:layout_width="wrap_content"
             android:layout_marginRight="20dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="15dp"
             android:gravity="center"
             android:layout_marginLeft="20dp"
             android:layout_height="wrap_content"
-            android:text="@string/slide11text"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/textView33maxboi"
-            android:textColor="@color/colorPrimary"
-            android:layout_width="wrap_content"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:layout_marginLeft="20dp"
-            android:autoLink="web"
-            android:layout_height="wrap_content"
-            android:text="To fully understand how you will use the app, please check out our User tutorial."
+            android:text="@string/dailyRefreshing"
             android:textSize="16sp" />
 
     </LinearLayout>
