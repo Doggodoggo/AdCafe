@@ -13,23 +13,18 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.adapters.SelectCategoryContainer;
-import com.bry.adcafe.adapters.SelectCategoryItem;
 import com.bry.adcafe.fragments.SetSignupUserPersonalInfo;
-import com.bry.adcafe.fragments.SetUsersPersonalInfo;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.DatabaseManager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -96,10 +91,13 @@ public class SelectCategory extends AppCompatActivity implements View.OnClickLis
                     String category = snap.getKey();
                     List<String> subcategories = new ArrayList<>();
                     for(DataSnapshot subSnap: snap.getChildren()){
-                        subcategories.add(subSnap.getValue(String.class));
-                        numberOfSubs++;
+                        String cat = subSnap.getValue(String.class);
+                        if(doesCategoryImageExists(cat)){
+                            subcategories.add(cat);
+                            numberOfSubs++;
+                        }
                     }
-                    placeHolderView.addView(new SelectCategoryContainer(mContext,placeHolderView,category,subcategories));
+                   if(!subcategories.isEmpty()) placeHolderView.addView(new SelectCategoryContainer(mContext,placeHolderView,category,subcategories));
                 }
                 new DatabaseManager().setNumberOfSubscriptionsUserKnowsAbout(numberOfSubs);
                 loadingLayout.setVisibility(View.GONE);
@@ -286,5 +284,13 @@ public class SelectCategory extends AppCompatActivity implements View.OnClickLis
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         //should check null because in airplane mode it will be null
         return (netInfo != null && netInfo.isConnected());
+    }
+
+    private boolean doesCategoryImageExists(String category){
+        String filename;
+        filename = category.replaceAll(" ","_");
+        int res = mContext.getResources().getIdentifier(filename, "drawable", mContext.getPackageName());
+        if(res==0)Log.d(TAG,"Category image for "+category+" does not exist");
+        return res != 0;
     }
 }

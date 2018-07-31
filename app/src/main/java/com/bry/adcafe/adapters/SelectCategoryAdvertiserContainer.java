@@ -38,7 +38,9 @@ public class SelectCategoryAdvertiserContainer {
 
     @Resolve
     private void onResolved() {
-        mainCategoryNameView.setText(mCategoryName);
+        mainCategoryNameView.setText(mCategoryName+".");
+        if(mCategoryName.equals("mens-fasion"))mainCategoryNameView.setText("mens-fashion.");
+        if(mCategoryName.equals("womens-fasion"))mainCategoryNameView.setText("womens-fashion.");
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
         mPHVewForGeneralCategoryView.setLayoutManager(layoutManager);

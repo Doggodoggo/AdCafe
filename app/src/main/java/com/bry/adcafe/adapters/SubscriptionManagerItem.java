@@ -84,6 +84,17 @@ public class SubscriptionManagerItem {
         }catch (Exception e){
             e.printStackTrace();
         }
+
+        categoryImage.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(android.view.View view) {
+                try {
+                    checkBox.performClick();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Click(R.id.cat_select)

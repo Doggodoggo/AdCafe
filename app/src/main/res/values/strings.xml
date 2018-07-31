@@ -92,7 +92,7 @@
         everything is and what everything does.</string>
     <string name="slide7text">The advert banners will be hosted in cards looking like this. The centre to top part is where the banner will
         be.</string>
-    <string name="slide8text">Below the banner are some buttons which should help you to perform some actions on the ad.</string>
+    <string name="slide8text">Below the banner are some buttons which should help you to perform some actions.</string>
     <string name="slide9text">At the top of the page are two items, a timer (to the left) and an AdCounter (to the right).</string>
     <string name="timerExplanation">The timer counts down 7 seconds. During this period you cannot move to the next ad, but only
         after the timer hits 0. Remember that.</string>

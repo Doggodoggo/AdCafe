@@ -560,9 +560,9 @@
                 android:layout_width="match_parent"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:textSize="12sp"
+                android:textSize="8sp"
                 android:layout_marginBottom="5dp"
-                android:text="©Copyright 2017, Jayson Amati and Bry Onyoni."
+                android:text="©Copyright 2018, Jayson Amati and Bry Onyoni."
                 android:layout_height="wrap_content" />
 
         </LinearLayout>

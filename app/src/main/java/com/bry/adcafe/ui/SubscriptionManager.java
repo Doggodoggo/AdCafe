@@ -22,10 +22,7 @@ import android.widget.Toast;
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
-import com.bry.adcafe.adapters.SelectCategoryItem;
 import com.bry.adcafe.adapters.SubscriptionManagerContainer;
-import com.bry.adcafe.adapters.SubscriptionManagerItem;
-import com.bry.adcafe.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -132,9 +129,10 @@ public class SubscriptionManager extends AppCompatActivity implements View.OnCli
                     String category = snap.getKey();
                     List<String> subcategories = new ArrayList<>();
                     for(DataSnapshot subSnap: snap.getChildren()){
-                        subcategories.add(subSnap.getValue(String.class));
+                        String cat = subSnap.getValue(String.class);
+                        if(doesCategoryImageExist(cat)) subcategories.add(cat);
                     }
-                    placeHolderView.addView(new SubscriptionManagerContainer(mContext,placeHolderView,category,subcategories));
+                    if(!subcategories.isEmpty()) placeHolderView.addView(new SubscriptionManagerContainer(mContext,placeHolderView,category,subcategories));
                 }
                 loadingLayout.setVisibility(View.GONE);
                 mainView.setVisibility(View.VISIBLE);
@@ -355,6 +353,14 @@ public class SubscriptionManager extends AppCompatActivity implements View.OnCli
             isNeedToLoadLogin = true;
         }
 
+    }
+
+    private boolean doesCategoryImageExist(String category){
+        String filename;
+        filename = category.replaceAll(" ","_");
+        int res = mContext.getResources().getIdentifier(filename, "drawable", mContext.getPackageName());
+        if(res==0)Log.d(TAG,"Category image for "+category+" does not exist");
+        return res != 0;
     }
 
 }

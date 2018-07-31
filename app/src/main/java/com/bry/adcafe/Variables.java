@@ -157,6 +157,9 @@ public class Variables {
     public static PaymentResponse transactionObject;
     public static PayoutResponse payoutObject;
 
+    public static LinkedHashMap<String,List<String>> newCategories = new LinkedHashMap<>();
+    public static List<String> newCategoryList = new ArrayList<>();
+
 
 
     public static void resetAllValues(){

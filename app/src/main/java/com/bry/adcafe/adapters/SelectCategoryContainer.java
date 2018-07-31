@@ -48,7 +48,11 @@ public class SelectCategoryContainer {
 
     @Resolve
     private void onResolved() {
-        mainCategoryNameView.setText(mCategoryGroup);
+        mainCategoryNameView.setText(mCategoryGroup+".");
+        if(mCategoryGroup.equals("mens-fasion"))mainCategoryNameView.setText("mens-fashion.");
+        if(mCategoryGroup.equals("womens-fasion"))mainCategoryNameView.setText("womens-fashion.");
+
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
         mPHVewForGeneralCategoryView.setLayoutManager(layoutManager);
 

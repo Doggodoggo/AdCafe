@@ -12,6 +12,7 @@ import com.mindorks.placeholderview.annotations.NonReusable;
 import com.mindorks.placeholderview.annotations.Resolve;
 import com.mindorks.placeholderview.annotations.View;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,6 +24,7 @@ import java.util.List;
 public class SubscriptionManagerContainer {
     @View(R.id.MainCategoryTitle) private TextView mainCategoryNameView;
     @View(R.id.PHViewForGeneralCategory) private PlaceHolderView mPHVewForGeneralCategoryView;
+    @View(R.id.newText) private TextView newText;
 
     private Context mContext;
     private PlaceHolderView mPlaceHolderView;
@@ -39,7 +41,22 @@ public class SubscriptionManagerContainer {
 
     @Resolve
     private void onResolved() {
-        mainCategoryNameView.setText(mCategoryName);
+        mainCategoryNameView.setText(mCategoryName+".");
+        if(mCategoryName.equals("mens-fasion"))mainCategoryNameView.setText("mens-fashion.");
+        if(mCategoryName.equals("womens-fasion"))mainCategoryNameView.setText("womens-fashion.");
+
+        List<String> myNewSubCategories = new ArrayList<>();
+        for(String subCategory:mSubCategories){
+            if(Variables.newCategoryList.contains(subCategory)){
+                myNewSubCategories.add(subCategory);
+//                Variables.newCategories.remove(subCategory);
+            }
+        }
+        if(!myNewSubCategories.isEmpty()){
+            newText.setText(myNewSubCategories.size()+" new!");
+            newText.setVisibility(android.view.View.VISIBLE);
+        }
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
         mPHVewForGeneralCategoryView.setLayoutManager(layoutManager);
         for(String subCategory: mSubCategories){

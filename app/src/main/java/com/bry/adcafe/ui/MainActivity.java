@@ -690,10 +690,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // as a snapshot. Faster and more efficient than previous method.
     private void startGetAdsThroughOneSnapShot(){
         if(Variables.Subscriptions.isEmpty()){
-            loadSubsFromSharedPrefs();
+            Log(TAG,"The subscriptions thing is still empty, just gonna load everything from firebase first");
+            DatabaseManager dbMan = new DatabaseManager();
+            dbMan.setContext(mContext);
+            dbMan.loadUserData(mContext);
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFinishedLoadingAllDataOfUserFromFirebase,
+                    new IntentFilter(Constants.LOADED_USER_DATA_SUCCESSFULLY));
+        }else{
+            getAdsSnapShot();
         }
-        getAdsSnapShot();
     }
+
+    BroadcastReceiver mMessageReceiverForFinishedLoadingAllDataOfUserFromFirebase = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            getAdsSnapShot();
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedLoadingAllDataOfUserFromFirebase);
+        }
+    };
 
     private void getAdsSnapShot(){
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS);
@@ -1200,6 +1214,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         try{
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForDoneCheckingIfNeedToReCreateClusters);
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedLoadingAllDataOfUserFromFirebase);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -3056,9 +3071,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void tellUserOfNewSubscription(){
-        String message = "We now support a couple more ad categories you may be interested in.";
+        String message = "We now support "+Variables.newSubs.size()+" more categories you may be interested in.";
         if(Variables.newSubs.size()<3) {
-            message = "We now support a couple more ad categories you may be interested in: ";
+            message = "We now support "+Variables.newSubs.size()+" more categories you may be interested in: ";
             for (String category : Variables.newSubs) {
                 if (Variables.newSubs.indexOf(category) == Variables.newSubs.size() - 1) {
                     if(Variables.newSubs.size()==1){
@@ -3479,5 +3494,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log(TAG,"Set user device category in shared pref and firebase");
 
     }
+
+
 
 }

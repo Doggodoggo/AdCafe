@@ -52,6 +52,13 @@ public class Splash extends AppCompatActivity {
         isClearToMoveToNextActivity = false;
         LSEText = findViewById(R.id.LSEText);
         LogoText = findViewById(R.id.logoText);
+
+        Calendar c = Calendar.getInstance();
+        int hours = c.get(Calendar.HOUR_OF_DAY);
+        int minutes = c.get(Calendar.MINUTE);
+
+        if(hours==19 && minutes==26)LSEText.setText("M.M.M");
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

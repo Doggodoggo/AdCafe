@@ -377,10 +377,16 @@ public class DatabaseManager {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snap : dataSnapshot.getChildren()) {
+                    String generalCategory = snap.getKey();
+                    List<String> categoriesList = new ArrayList<>();
                     for (DataSnapshot snapMini : snap.getChildren()) {
                         String category = snapMini.getValue(String.class);
-                        categoryList.add(category);
+                        if(doesCategoryImageExists(mContext,category)){
+                            categoryList.add(category);
+                            categoriesList.add(category);
+                        }
                     }
+                    if(!categoriesList.isEmpty())Variables.newCategories.put(generalCategory,categoriesList);
                 }
                 loadAnyAnnouncements(mContext);
             }
@@ -491,6 +497,7 @@ public class DatabaseManager {
                     for (String sub : categoryList) {
                         if (!SublistKnown.contains(sub)) {
                             Variables.newSubs.add(sub);
+                            Variables.newCategoryList.add(sub);
                             Log.d(TAG, "New sub detected: " + sub);
                         }
                     }
@@ -521,6 +528,7 @@ public class DatabaseManager {
 
                 //this loads the users seen ads list.
                 DataSnapshot seenAdsListSnap = dataSnapshot.child(Constants.SEEN_AD_IDS);
+                if(!Variables.adsSeenSoFar.isEmpty())Variables.adsSeenSoFar.clear();
                 if (seenAdsListSnap.exists()) {
                     for (DataSnapshot pushIdSnap : seenAdsListSnap.getChildren()) {
                         String advertiserId = pushIdSnap.getValue(String.class);
@@ -531,6 +539,7 @@ public class DatabaseManager {
 
                 //This loads the users Location Markers list.
                 DataSnapshot userLocationMarkersSnap = dataSnapshot.child(Constants.FIREBASE_USERS_LOCATIONS);
+                if(!Variables.usersLatLongs.isEmpty())Variables.usersLatLongs.clear();
                 if (userLocationMarkersSnap.exists()) {
                     for (DataSnapshot userLocationMark : userLocationMarkersSnap.getChildren()) {
                         double lat = userLocationMark.child("lat").getValue(Double.class);
@@ -1514,5 +1523,28 @@ public class DatabaseManager {
 
 
 
+    private boolean doesCategoryImageExists(Context mContext,String category){
+        String filename;
+        filename = category.replaceAll(" ","_");
+        int res = mContext.getResources().getIdentifier(filename, "drawable", mContext.getPackageName());
+        if(res==0)Log.d(TAG,"Category image for "+category+" does not exist");
+        return res != 0;
+    }
+
+
+    private void removeFromNewCategoriesList(String category){
+        Log.d(TAG,"Attempting to remove known category "+category);
+        for(int i = 0; i<Variables.newCategories.size();i++){
+            String generalCategory = (new ArrayList<>(Variables.newCategories.keySet())).get(i);
+            Log.d(TAG,"removing known category "+category);
+            Variables.newCategories.get(generalCategory).remove(category);
+        }
+//        for(List<String>categoryList:Variables.newCategories.values()){
+//            if(categoryList.contains(category)){
+//
+//                break;
+//            }
+//        }
+    }
 
 }
