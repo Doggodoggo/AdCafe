@@ -3070,7 +3070,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
-    private void tellUserOfNewSubscription(){
+    private void tellUserOfNewSubscription2(){
         String message = "We now support "+Variables.newSubs.size()+" more categories you may be interested in.";
         if(Variables.newSubs.size()<3) {
             message = "We now support "+Variables.newSubs.size()+" more categories you may be interested in: ";
@@ -3088,7 +3088,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         }
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message)
                 .setCancelable(true)
@@ -3105,6 +3104,57 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         dialog.cancel();
                     }
                 }).show();
+    }
+
+    private void tellUserOfNewSubscription(){
+        final Dialog d = new Dialog(this);
+        d.setTitle("New Categories.");
+        d.setContentView(R.layout.dialog_new_categories_notifier);
+        Button b1 = d.findViewById(R.id.okBtn);
+        TextView exp = d.findViewById(R.id.newCategoriesExplanation);
+        TextView cat1 = d.findViewById(R.id.cat1);
+        TextView cat2 = d.findViewById(R.id.cat2);
+        TextView cat3 = d.findViewById(R.id.cat3);
+        TextView andText = d.findViewById(R.id.andText);
+
+        String message = "The app now supports "+Variables.newSubs.size()+" more categories you may be interested in.";
+        if(Variables.newSubs.size()==1){
+            message = "The app now supports "+Variables.newSubs.size()+" more category you might be interested in.";
+        }
+        exp.setText(message);
+
+        for(int i = 0;i<Variables.newSubs.size();i++){
+            if(i==0){
+                cat1.setVisibility(View.VISIBLE);
+                cat1.setText(Variables.newSubs.get(i));
+            }else if(i==1){
+                cat2.setVisibility(View.VISIBLE);
+                cat2.setText(Variables.newSubs.get(i));
+            }else if(i==2){
+                cat3.setVisibility(View.VISIBLE);
+                cat3.setText(Variables.newSubs.get(i));
+                if(Variables.newSubs.size()>3){
+                    andText.setVisibility(View.VISIBLE);
+                    int extra = Variables.newSubs.size()-3;
+                    andText.setText("and "+extra+" more!");
+                }
+            }
+        }
+
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.cancel();
+            }
+        });
+        d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                Variables.didAdCafeAddNewCategory = false;
+                Variables.newSubs.clear();
+            }
+        });
+        d.show();
     }
 
     private String getDateFromDays(long days){

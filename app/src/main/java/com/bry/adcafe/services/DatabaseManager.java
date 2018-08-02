@@ -1527,7 +1527,7 @@ public class DatabaseManager {
         String filename;
         filename = category.replaceAll(" ","_");
         int res = mContext.getResources().getIdentifier(filename, "drawable", mContext.getPackageName());
-        if(res==0)Log.d(TAG,"Category image for "+category+" does not exist");
+        if(res==0)Log.e(TAG,"Category image for "+category+" does not exist");
         return res != 0;
     }
 
