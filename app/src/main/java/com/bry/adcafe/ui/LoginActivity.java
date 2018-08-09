@@ -3,11 +3,14 @@ package com.bry.adcafe.ui;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
@@ -86,6 +89,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private boolean hasEverythingLoaded;
     private boolean isActivityVisible;
     private boolean didUserJustLogInManually = false;
+    private boolean isShowingPromptForeula = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,8 +163,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mRetryLoadingButton.setOnClickListener(this);
     }
 
-    private void startMainActivity(){
-        if(hasEverythingLoaded && isActivityVisible){
+    private void startMainActivity2(){
+        if(hasEverythingLoaded && isActivityVisible && !isShowingPromptForeula){
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             String uid = user.getUid();
             User.setUid(uid);
@@ -173,6 +177,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             startActivity(intent);
             finish();
         }
+    }
+
+    private void startMainActivity(){
+        if(hasEverythingLoaded && isActivityVisible) checkIfTheFuckingEULAHasBeenUpdated();
     }
 
     private void startSelectCategory(){
@@ -232,8 +240,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onResume(){
         super.onResume();
         isActivityVisible = true;
-        if(hasEverythingLoaded &&!Variables.Subscriptions.isEmpty()) {
-            startMainActivity();
+        if(!isShowingPromptForeula && hasEverythingLoaded &&!Variables.Subscriptions.isEmpty()) {
+            startMainActivity2();
         }else if(hasEverythingLoaded &&Variables.Subscriptions.isEmpty()){
             startSelectCategory();
         }
@@ -476,6 +484,107 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         DatabaseManager dbMan = new DatabaseManager();
         dbMan.setContext(mContext);
         dbMan.loadUserData(mContext);
+    }
+
+
+
+
+    private void checkIfTheFuckingEULAHasBeenUpdated(){
+        DatabaseReference eulaRef = FirebaseDatabase.getInstance().getReference(Constants.EULA_REFERENCE);
+        eulaRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                try {
+                    int eulaVersion = dataSnapshot.getValue(Integer.class);
+                    if(getEulaVersionInSharedPref()!= 0) {
+                        if (eulaVersion!=getEulaVersionInSharedPref()){
+                            showPromptForChangeInEula();
+                            setEulaVersionInSharedPref(eulaVersion);
+                        }else{
+                            theNextThing();
+                        }
+                    }else{
+                        setEulaVersionInSharedPref(eulaVersion);
+                        theNextThing();
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                    theNextThing();
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private int getEulaVersionInSharedPref(){
+        SharedPreferences prefs2 = getSharedPreferences(Constants.EULA_REFERENCE, MODE_PRIVATE);
+        int sk = prefs2.getInt(Constants.EULA_REFERENCE, 0);
+        Log.d(TAG, "Loading eula version from shared prefs - " + sk);
+        return sk;
+    }
+
+    private void setEulaVersionInSharedPref(int newKey){
+        SharedPreferences pref2 = getApplicationContext().getSharedPreferences(Constants.EULA_REFERENCE, MODE_PRIVATE);
+        SharedPreferences.Editor editor2 = pref2.edit();
+        editor2.clear();
+        editor2.putInt(Constants.EULA_REFERENCE, newKey);
+        editor2.apply();
+    }
+
+    private void showPromptForChangeInEula(){
+        isShowingPromptForeula = true;
+        final Dialog d = new Dialog(this);
+        d.setTitle("Change in Eula.");
+        d.setContentView(R.layout.dialog_change_in_eula);
+
+        Button okBtn = d.findViewById(R.id.okBtn);
+        Button viewBtn = d.findViewById(R.id.viewBtn);
+        TextView explanation = d.findViewById(R.id.explanation);
+
+        String sourceString = "We've updated our terms of service. Please review them by clicking REVIEW. " +
+                "By clicking CONTINUE, you agree to our updated End User License Agreement.";
+        explanation.setText(sourceString);
+
+        viewBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    Vibrator b = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    b.vibrate(30);
+                    String url = Constants.EULA;
+                    Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(webIntent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isShowingPromptForeula = false;
+                d.dismiss();
+                theNextThing();
+            }
+        });
+        d.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                isShowingPromptForeula = false;
+            }
+        });
+        d.setCancelable(false);
+        d.show();
+
+    }
+
+    private void theNextThing(){
+        startMainActivity2();
     }
 
 }

@@ -9,7 +9,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.util.DisplayMetrics;
@@ -76,6 +79,8 @@ public class AlarmReceiver1 extends BroadcastReceiver {
     private boolean doesUserWantNotf;
 
     private DataSnapshot mTargetUsersDataList;
+    Handler h = new Handler();
+    Runnable r;
 
 
     @Override
@@ -84,7 +89,29 @@ public class AlarmReceiver1 extends BroadcastReceiver {
         mContext = context;
         SharedPreferences prefs = context.getSharedPreferences(Constants.PREFERRED_NOTIF, MODE_PRIVATE);
         doesUserWantNotf = prefs.getBoolean(Constants.PREFERRED_NOTIF, true);
-        if(isUserLoggedIn()) loadTimeFirst();
+
+        if(isOnline(mContext)) {
+            if (isUserLoggedIn()) loadTimeFirst();
+        }else{
+            startRecursiveCheckerForWhenOnline();
+        }
+    }
+
+    private void startRecursiveCheckerForWhenOnline() {
+        r = new Runnable() {
+            @Override
+            public void run() {
+                Log(TAG, "Waiting for connection to be established");
+                if (isOnline(mContext)) {
+                    if (isUserLoggedIn()) loadTimeFirst();
+                    h.removeCallbacks(r);
+                }else{
+                    h.postDelayed(r, 30000);
+                }
+
+            }
+        };
+        h.postDelayed(r, 30000);
     }
 
     private void loadTimeFirst(){
@@ -486,5 +513,13 @@ public class AlarmReceiver1 extends BroadcastReceiver {
         SharedPreferences prefs2 = mContext.getSharedPreferences(Constants.DEVICE_CATEGORY, MODE_PRIVATE);
         return prefs2.getString(Constants.DEVICE_CATEGORY, Constants.MID_RANGE_DEVICE);
     }
+
+    private boolean isOnline(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        //should check null because in airplane mode it will be null
+        return (netInfo != null && netInfo.isConnected());
+    }
+
 
 }

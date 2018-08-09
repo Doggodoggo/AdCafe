@@ -133,7 +133,8 @@ public class TutorialActivity extends AppCompatActivity {
                 myBtnSkip.setVisibility(View.GONE);
             }else {
                 myBtnNext.setText(getString(R.string.next));
-                myBtnSkip.setVisibility(View.VISIBLE);
+//                myBtnSkip.setVisibility(View.VISIBLE);
+                myBtnSkip.setVisibility(View.GONE);
             }
 
         }

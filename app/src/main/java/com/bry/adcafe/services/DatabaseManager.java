@@ -134,6 +134,30 @@ public class DatabaseManager {
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
             }
         });
+
+        getAndUpdateUsersKnownEULAversion(mContext);
+    }
+
+    private void getAndUpdateUsersKnownEULAversion(final Context context){
+        DatabaseReference eulaRef = FirebaseDatabase.getInstance().getReference(Constants.EULA_REFERENCE);
+        eulaRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                try{
+                    int eulaVersion = dataSnapshot.getValue(Integer.class);
+                    SharedPreferences pref2 = context.getSharedPreferences(Constants.EULA_REFERENCE, MODE_PRIVATE);
+                    SharedPreferences.Editor editor2 = pref2.edit();
+                    editor2.clear().putInt(Constants.EULA_REFERENCE, eulaVersion).apply();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void setContext(Context context) {

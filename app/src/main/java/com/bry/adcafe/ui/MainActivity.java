@@ -689,7 +689,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //this loads the entire top node,with all the categories, then equates it to a local variable, then uses that
     // as a snapshot. Faster and more efficient than previous method.
     private void startGetAdsThroughOneSnapShot(){
-        if(Variables.Subscriptions.isEmpty()){
+        if(Variables.Subscriptions.size()==0){
             Log(TAG,"The subscriptions thing is still empty, just gonna load everything from firebase first");
             DatabaseManager dbMan = new DatabaseManager();
             dbMan.setContext(mContext);
