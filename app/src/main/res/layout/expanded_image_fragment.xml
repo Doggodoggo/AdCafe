@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:id="@+id/imageRel"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/theAdImage"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:layout_gravity="center"
+            android:layout_margin="0.3dp"
+            android:scaleType="fitXY" />
+
+        <ProgressBar
+            android:id="@+id/progressBarViewImage"
+            style="?android:attr/progressBarStyle"
+            android:visibility="invisible"
+            android:layout_centerInParent="true"
+            android:layout_width="40dp"
+            android:layout_height="40dp"/>
+
+    </RelativeLayout>
+
+
+
+</LinearLayout>

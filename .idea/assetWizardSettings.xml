@@ -96,7 +96,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="color" value="455a64" />
+                                                <entry key="color" value="064e46" />
                                                 <entry key="paddingPercent" value="40" />
                                               </map>
                                             </option>
@@ -120,10 +120,10 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="backgroundColor" value="455a64" />
+                                      <entry key="backgroundColor" value="064e46" />
                                       <entry key="iconShape" value="CIRCLE" />
-                                      <entry key="imageAsset" value="C:\Users\bryon\AndroidStudioProjects\AdCafe\app\src\main\ic_web_icon3-web.png" />
-                                      <entry key="outputName" value="ic_web_icon4" />
+                                      <entry key="imageAsset" value="C:\Users\bryon\AndroidStudioProjects\AdCafe\app\src\main\ic_web_text-web.png" />
+                                      <entry key="outputName" value="ic_web_icon5" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -133,7 +133,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputIconType" value="ACTIONBAR" />
+                            <entry key="outputIconType" value="LAUNCHER_LEGACY" />
                           </map>
                         </option>
                       </PersistentState>

@@ -448,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String hashMapString = gson.toJson(Variables.Subscriptions);
 
         SharedPreferences prefs = getSharedPreferences("Subscriptions", MODE_PRIVATE);
-        prefs.edit().putString("hashString", hashMapString).apply();
+        prefs.edit().clear().putString("hashString", hashMapString).apply();
     }
 
     private void setMarkersInSharedPrefs(){
@@ -469,7 +469,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String hashMapString = gson.toJson(Variables.adsSeenSoFar);
 
         SharedPreferences prefs = getSharedPreferences("AdsSeenSoFar", MODE_PRIVATE);
-        prefs.edit().putString("AdsSeenSoFarHashString", hashMapString).apply();
+        prefs.edit().clear().putString("AdsSeenSoFarHashString", hashMapString).apply();
     }
 
 
@@ -2533,7 +2533,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void resetAdTotalsInFirebase() {
-        String uid = User.getUid();
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS).child(uid).child(Constants.TOTAL_NO_OF_ADS_SEEN_TODAY);
         adRef.setValue(0).addOnFailureListener(new OnFailureListener() {
             @Override

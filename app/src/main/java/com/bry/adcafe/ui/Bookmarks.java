@@ -1,5 +1,7 @@
 package com.bry.adcafe.ui;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -23,7 +25,10 @@ import android.support.annotation.DimenRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,6 +37,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -45,6 +51,8 @@ import com.bry.adcafe.adapters.DateItem;
 import com.bry.adcafe.adapters.SAContainer;
 import com.bry.adcafe.adapters.SavedAdsCard;
 import com.bry.adcafe.fragments.ContactAdvertiserBottomsheet;
+import com.bry.adcafe.fragments.ExpandedImageFragment;
+import com.bry.adcafe.fragments.SmartFragmentStatePagerAdapter;
 import com.bry.adcafe.fragments.ViewImageFragment;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.AdvertiserLocation;
@@ -71,6 +79,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Random;
 
 import com.wang.avi.AVLoadingIndicatorView;
 
@@ -110,6 +119,12 @@ public class Bookmarks extends AppCompatActivity {
     private boolean isWindowPaused = false;
     private DatabaseReference SKListener;
     private boolean isNeedToLoadLogin = false;
+
+    private MyPagerAdapter adapterViewPager;
+    private boolean isViewPagerShowing = false;
+    private List<Advert> mAllAdsList = new ArrayList<>();
+
+    private int currentPagePosition = 0;
 
 
     @Override
@@ -224,6 +239,7 @@ public class Bookmarks extends AppCompatActivity {
                 @Override
                 public void onSuccess(Void aVoid) {
                     Variables.UnpinAdsList.remove(ad);
+                    mAllAdsList.remove(ad);
                     LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("CHECK_IF_HAS_CHILDREN"+ad.getDateInDays()));
                     if(Variables.UnpinAdsList.isEmpty()){
                         mAuthProgressDialog.hide();
@@ -524,7 +540,8 @@ public class Bookmarks extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("BOOKMARKS--","Received message to view ad.");
-            loadAdFragment();
+//            loadAdFragment();
+            showExpandedImage(mAllAdsList.indexOf(Variables.adToBeViewed));
         }
     };
 
@@ -604,6 +621,7 @@ public class Bookmarks extends AppCompatActivity {
 //                        Intent intent = new Intent("DELETE_PINNED_AD");
 //                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
                         Intent intent2 = new Intent(Variables.adToBeViewed.getPushRefInAdminConsole());
+                        mAllAdsList.remove(Variables.adToBeViewed);
                         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent2);
                         Variables.placeHolderView = mPlaceHolderView;
                         mAuthProgressDialog.show();
@@ -659,8 +677,12 @@ public class Bookmarks extends AppCompatActivity {
                 TextView topText = findViewById(R.id.topText);
                 topText.animate().setDuration(140).translationX(0);
                 findViewById(R.id.deleteAllicon).setVisibility(View.GONE);
-            }else {
-                super.onBackPressed();
+            }else{
+                if(isViewPagerShowing) {
+                    hideExpandedImage();
+                }else{
+                    super.onBackPressed();
+                }
             }
         }
     }
@@ -728,6 +750,7 @@ public class Bookmarks extends AppCompatActivity {
                             }
 
                             AdList.add(advert);
+                            mAllAdsList.add(advert);
                             Log.d("BOOKMARKS"," --Loaded ads from firebase.--"+advert.getPushId());
                         }
                         HashOfAds.put(noOfDays,AdList);
@@ -893,7 +916,7 @@ public class Bookmarks extends AppCompatActivity {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
                 Log.v(TAG,"Permission is granted");
-                shareImage(Variables.adToBeShared.getImageBitmap());
+                shareImage(Variables.loadedSavedAdsList.get(Variables.adToBeShared.getPushRefInAdminConsole()));
                 return true;
             } else {
 
@@ -904,7 +927,7 @@ public class Bookmarks extends AppCompatActivity {
         }
         else { //permission is automatically granted on sdk<23 upon installation
             Log.v(TAG,"Permission is granted");
-            shareImage(Variables.adToBeShared.getImageBitmap());
+            shareImage(Variables.loadedSavedAdsList.get(Variables.adToBeShared.getPushRefInAdminConsole()));
             return true;
         }
     }
@@ -916,13 +939,14 @@ public class Bookmarks extends AppCompatActivity {
             if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
                 Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
                 //resume tasks needing this permission
-                shareImage(Variables.adToBeShared.getImageBitmap());
+                shareImage(Variables.loadedSavedAdsList.get(Variables.adToBeShared.getPushRefInAdminConsole()));
             }
         }else if(requestCode == 11){
             if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
                 Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
                 //resume tasks needing this permission
-                imageF.saveImageToDevice();
+//                imageF.saveImageToDevice();
+                saveImageToDevice();
             }
         }
     }
@@ -1109,8 +1133,6 @@ public class Bookmarks extends AppCompatActivity {
         return sk;
     }
 
-
-
     public void PerformShutdown(){
         if (FirebaseAuth.getInstance() != null) {
             FirebaseAuth.getInstance().signOut();
@@ -1126,5 +1148,241 @@ public class Bookmarks extends AppCompatActivity {
         }
 
     }
+
+
+
+    private void showExpandedImage(int positionToStart){
+        ViewPager vpPager =  findViewById(R.id.viewPager);
+        vpPager.setVisibility(View.VISIBLE);
+        setBackViewsToBeInvisible();
+        isViewPagerShowing = true;
+        adapterViewPager = new MyPagerAdapter(getSupportFragmentManager());
+        adapterViewPager.setfragcontext(mContext);
+        adapterViewPager.setActivity(Bookmarks.this);
+        adapterViewPager.setViewingAdsList(mAllAdsList);
+        vpPager.setAdapter(adapterViewPager);
+        vpPager.setCurrentItem(positionToStart);
+        setBottomActionListeners();
+        currentPagePosition = positionToStart;
+        vpPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            // This method will be invoked when a new page becomes selected.
+            @Override
+            public void onPageSelected(int position) {
+                currentPagePosition = position;
+                try{
+                    Variables.adToBeViewed = mAllAdsList.get(currentPagePosition);
+                    if(!Variables.adToBeViewed.didAdvertiserSetContactInfo()) {
+                        findViewById(R.id.Website).setAlpha(0.4f);
+                        findViewById(R.id.websiteTextxx).setAlpha(0.4f);
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+//                Toast.makeText(Bookmarks.this, "Selected page position: " + position, Toast.LENGTH_SHORT).show();
+            }
+
+            // This method will be invoked when the current page is scrolled
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                // Code goes here
+            }
+
+            // Called when the scroll state changes:
+            // SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                // Code goes here
+            }
+        });
+    }
+
+    private void hideExpandedImage(){
+        isViewPagerShowing = false;
+        adapterViewPager = null;
+        ViewPager vpPager =  findViewById(R.id.viewPager);
+        vpPager.setVisibility(View.GONE);
+        vpPager.removeAllViews();
+        setBackViewsToBeNormal();
+    }
+
+    private void setBackViewsToBeInvisible() {
+        mPlaceHolderView.setAlpha(0.1f);
+        mPlaceHolderView2.setAlpha(0.1f);
+        findViewById(R.id.AdArchivesLayout).setAlpha(0f);
+    }
+
+    private void setBackViewsToBeNormal(){
+        mPlaceHolderView.setAlpha(1f);
+        mPlaceHolderView2.setAlpha(1f);
+        findViewById(R.id.AdArchivesLayout).setAlpha(1f);
+        findViewById(R.id.bottomNavButtons).setVisibility(View.GONE);
+    }
+
+    public class MyPagerAdapter extends FragmentPagerAdapter {
+        private List<Advert> viewingList;
+        private Activity mActivity;
+        private Context mContext;
+
+        public MyPagerAdapter(android.support.v4.app.FragmentManager fm) {
+            super(fm);
+        }
+
+
+        public void setfragcontext(Context context){
+            mContext = context;
+        }
+
+        public void setActivity(Activity activity){
+            this.mActivity = activity;
+        }
+
+        public void setViewingAdsList(List<Advert> adsLists){
+            viewingList = adsLists;
+        }
+
+        // Returns total number of pages
+        @Override
+        public int getCount() {
+            return viewingList.size();
+        }
+
+        // Returns the fragment to display for that page
+        @Override
+        public Fragment getItem(int position) {
+            ExpandedImageFragment frag = new ExpandedImageFragment();
+            frag.setActivity(mActivity);
+            frag.setfragcontext(mContext);
+            frag.setAdvert(viewingList.get(position));
+            frag.setPosition(position);
+            return frag;
+        }
+
+        // Returns the page title for the top indicator
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return "Page " + position;
+        }
+
+    }
+
+    public void setBottomActionListeners(){
+        findViewById(R.id.bottomNavButtons).setVisibility(View.VISIBLE);
+
+        findViewById(R.id.backBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+        findViewById(R.id.shareBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Variables.adToBeShared = mAllAdsList.get(currentPagePosition);
+                if(Variables.loadedSavedAdsList.get(Variables.adToBeShared.getPushRefInAdminConsole())!=null) {
+                    isStoragePermissionGranted();
+                }
+            }
+        });
+        findViewById(R.id.Website).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showBottomSheetForContact();
+            }
+        });
+        findViewById(R.id.Delete).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Variables.adToBeViewed = mAllAdsList.get(currentPagePosition);
+                hideExpandedImage();
+                promptUserIfTheyAreSureIfTheyWantToDeleteAd();
+            }
+        });
+        findViewById(R.id.Download).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(Variables.loadedSavedAdsList.get(Variables.adToBeViewed.getPushRefInAdminConsole())!=null){
+                    saveImageDialog();
+                }
+            }
+        });
+
+    }
+
+    private void saveImageDialog() {
+        final Dialog d = new Dialog(Bookmarks.this);
+        d.setTitle("Save to Device.");
+        d.setContentView(R.layout.dialog991);
+        Button b1 = d.findViewById(R.id.okBtn);
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+                checkZePermission();
+            }
+        });
+        d.show();
+
+    }
+
+    private void checkZePermission(){
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (mContext.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Log.v(TAG, "Permission is granted");
+                saveImageToDevice();
+            } else {
+                Log.v(TAG, "Permission is revoked");
+                ActivityCompat.requestPermissions(Bookmarks.this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 11);
+            }
+        } else { //permission is automatically granted on sdk<23 upon installation
+            Log.v(TAG, "Permission is granted");
+            saveImageToDevice();
+        }
+    }
+
+    public void saveImageToDevice(){
+        Bitmap imageToSave = Variables.loadedSavedAdsList.get(Variables.adToBeViewed.getPushRefInAdminConsole());
+        String fileName = randomInt()+".jpg";
+        File direct = new File(Environment.getExternalStorageDirectory() + "/AdCafePins");
+
+        if (!direct.exists()) {
+            File wallpaperDirectory = new File("/sdcard/AdCafePins/");
+            wallpaperDirectory.mkdirs();
+        }
+
+        File file = new File(new File("/sdcard/AdCafePins/"), fileName);
+        if (file.exists()) {
+            file.delete();
+        }
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            imageToSave.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+            Toast.makeText(mContext,"Image saved.",Toast.LENGTH_SHORT).show();
+            setSavingImageName(fileName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(mContext,"Image save unsuccessful.",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public String randomInt(){
+        Random rand = new Random();
+        int max = 1000000000;
+        int min = 1;
+        int n = rand.nextInt(max) + min;
+        return Integer.toString(n);
+    }
+
+    private void setSavingImageName(String image){
+        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String dateInDays = Long.toString(Variables.adToBeViewed.getDateInDays());
+        DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(user).child(Constants.PINNED_AD_LIST).child(dateInDays).child(Variables.adToBeViewed.getPushId())
+                .child("downloadImageName");
+        mref.setValue(image);
+    }
+
 
 }

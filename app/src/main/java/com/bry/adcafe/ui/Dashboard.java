@@ -25,6 +25,7 @@ import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -114,6 +115,8 @@ public class Dashboard extends AppCompatActivity {
     private boolean isNeedToLoadLogin = false;
 
     private final int REQUESTCODE = 3301;
+    private static final int SWIPE_THRESHOLD = 100;
+    private float _downX;
 
 
 
@@ -1399,6 +1402,7 @@ public class Dashboard extends AppCompatActivity {
             }
         }
     }
+
 
 
 }
