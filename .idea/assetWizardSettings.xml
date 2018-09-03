@@ -23,7 +23,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="paddingPercent" value="40" />
+                                                <entry key="paddingPercent" value="45" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -34,18 +34,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/maps/ic_pin_drop_black_24dp.xml" />
-                                              </map>
-                                            </option>
-                                          </PersistentState>
-                                        </value>
-                                      </entry>
-                                      <entry key="image">
-                                        <value>
-                                          <PersistentState>
-                                            <option name="values">
-                                              <map>
-                                                <entry key="paddingPercent" value="5" />
+                                                <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_help_outline_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -55,10 +44,10 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="imageAsset" value="C:\Users\bryon\Desktop\frostbite\images\targetspecific.png" />
-                                      <entry key="outputName" value="ic_action_location4" />
+                                      <entry key="imageAsset" value="C:\Users\bryon\Desktop\frostbite\images\edit.png" />
+                                      <entry key="outputName" value="ic_action_helpp2" />
                                       <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="b400e5" />
+                                      <entry key="themeColor" value="064644" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -133,7 +122,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputIconType" value="LAUNCHER_LEGACY" />
+                            <entry key="outputIconType" value="ACTIONBAR" />
                           </map>
                         </option>
                       </PersistentState>

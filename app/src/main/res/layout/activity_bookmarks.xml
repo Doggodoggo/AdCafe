@@ -37,6 +37,7 @@
             android:layout_marginTop="10dp"
             android:textAlignment="center"
             android:textSize="25dp"
+            android:textColor="@color/colorPrimaryDark"
             android:padding="10dp"
             android:text="Ad Archives." />
         <View

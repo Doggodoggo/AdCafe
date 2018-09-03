@@ -31,8 +31,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="40dp"
-                    android:layout_marginTop="15dp"
-                    android:background="@drawable/ic_action_helpp"
+                    android:layout_marginTop="13dp"
+                    android:background="@drawable/ic_action_helpp2"
                     android:visibility="visible" />
 
                 <TextView
@@ -40,6 +40,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
+                    android:textColor="@color/colorPrimaryDark"
                     android:text="Dashboard."
                     android:textAlignment="center"
                     android:textSize="25dp" />
@@ -353,7 +354,7 @@
                             android:layout_marginLeft="10dp"
                             android:layout_marginRight="10dp"
                             android:layout_marginTop="5dp"
-                            android:text="Change the type of ads I see."
+                            android:text="Change the type of content I see."
                             android:textAlignment="center"
                             android:textSize="12sp" />
 
@@ -419,7 +420,7 @@
                                 android:id="@+id/NotificationBtn"
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/notificat" />
+                                android:background="@drawable/ic_action_notification" />
 
                             <View
                                 android:id="@+id/dotForNotification"
@@ -507,7 +508,7 @@
                                 android:id="@+id/ChangeCPVBtn"
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/changecpvhd" />
+                                android:background="@drawable/ic_action_changecpvx" />
 
                         </android.support.v7.widget.CardView>
 
@@ -541,7 +542,7 @@
                         android:layout_gravity="center"
                         android:layout_marginTop="10dp"
                         android:layout_height="50dp"
-                        android:background="@drawable/money6" />
+                        android:background="@drawable/money7" />
 
                     <TextView
                         android:layout_width="match_parent"

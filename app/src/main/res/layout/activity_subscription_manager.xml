@@ -19,6 +19,7 @@
             android:layout_width="match_parent"
             android:text="Ad Categories."
             android:textSize="25sp"
+            android:textColor="@color/colorPrimaryDark"
             android:gravity="center"
             android:layout_marginTop="10dp"
             android:layout_height="wrap_content" />

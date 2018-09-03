@@ -3010,7 +3010,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private String getSubscriptionValue(int index) {
         LinkedHashMap map = Variables.Subscriptions;
-        String Sub = (new ArrayList<String>(map.keySet())).get(index);
+        String Sub;
+        try{
+            Sub = (new ArrayList<String>(map.keySet())).get(index);
+        }catch (Exception e){
+            e.printStackTrace();
+            loadSubsFromSharedPrefs();
+            LinkedHashMap map2 = Variables.Subscriptions;
+            Sub = (new ArrayList<String>(map2.keySet())).get(index);
+        }
+
         Log(TAG, "Subscription gotten from getCurrent Subscription method is :" + Sub);
         return Sub;
     }

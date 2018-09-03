@@ -141,17 +141,21 @@ public class TimeManager {
     }
 
     private static void updateTimer2(Context context){
-        final Intent i = new Intent(context, MyTestService.class);
-        context.startService(i);
-        LocalBroadcastManager.getInstance(context).registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                h.removeCallbacks(r);
-                Log("Time-Service","Received broadcast to stop timer service");
-                context.stopService(i);
-                LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
-            }
-        },new IntentFilter("TimerService"));
+        try{
+            final Intent i = new Intent(context, MyTestService.class);
+            context.startService(i);
+            LocalBroadcastManager.getInstance(context).registerReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    h.removeCallbacks(r);
+                    Log("Time-Service","Received broadcast to stop timer service");
+                    context.stopService(i);
+                    LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
+                }
+            },new IntentFilter("TimerService"));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 
