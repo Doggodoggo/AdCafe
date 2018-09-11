@@ -164,10 +164,13 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
         if(!targetedUserData.isEmpty()){
             for(TargetedUser user: targetedUserData){
                 for(LatLng loc:user.getUserLocations()){
-                    CircleOptions myOptions = new CircleOptions().center(loc).radius(10);
-                    myOptions.strokeWidth(1).strokeColor(Color.rgb(0, 137, 48))
-                            .fillColor(Color.argb(80,0,137,48 ));
-                    Circle circle = map.addCircle(myOptions);
+//                    CircleOptions myOptions = new CircleOptions().center(loc).radius(10);
+//                    myOptions.strokeWidth(1).strokeColor(Color.rgb(0, 137, 48))
+//                            .fillColor(Color.argb(80,0,137,48 ));
+//                    map.addCircle(myOptions);
+
+                    map.addMarker(new MarkerOptions().position(loc)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_person))).setTitle("User");
                 }
             }
         }
