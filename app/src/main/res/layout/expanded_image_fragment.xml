@@ -8,16 +8,17 @@
 
     <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_marginBottom="20dp"
         android:id="@+id/imageRel"
         android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/theAdImage"
             android:layout_width="match_parent"
-            android:layout_height="500dp"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
             android:layout_margin="0.3dp"
+            android:paddingBottom="60dp"
+            android:paddingTop="50dp"
             android:scaleType="fitXY" />
 
         <ProgressBar

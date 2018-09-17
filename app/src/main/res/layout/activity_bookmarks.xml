@@ -141,9 +141,71 @@
 
     </android.support.v4.view.ViewPager>
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:visibility="gone"
+        android:gravity="center"
+        android:paddingTop="5dp"
+        android:id="@+id/topNavButtons"
+        android:layout_gravity="top">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:visibility="visible"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="1dp"
+            android:layout_height="match_parent">
+            <ImageButton
+                android:id="@+id/backBtn"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/ic_action_back"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:visibility="visible"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="1dp"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:id="@+id/dateView"
+                android:typeface="monospace"
+                android:gravity="center"
+                android:layout_marginLeft="80dp"
+                android:textStyle="normal|bold"
+                android:text="Pinned On: 24 Jan"
+                android:layout_marginBottom="5dp"
+                android:textSize="15sp"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:visibility="visible"
+            android:layout_marginRight="10dp"
+            android:layout_alignParentRight="true"
+            android:layout_height="match_parent">
+            <ImageButton
+                android:id="@+id/shareBtn"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginLeft="7dp"
+                android:background="@drawable/ic_action_share"/>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="60dp"
         android:gravity="center"
         android:layout_marginRight="20dp"
         android:paddingBottom="7dp"
@@ -152,52 +214,12 @@
         android:orientation="horizontal"
         android:layout_gravity="bottom">
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:visibility="visible"
-            android:layout_marginRight="1dp"
-            android:layout_height="wrap_content">
-            <ImageButton
-                android:id="@+id/backBtn"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:layout_marginLeft="10dp"
-                android:background="@drawable/ic_action_back"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:id="@+id/backText"
-                android:text="Back."
-                android:textSize="8dp"
-                android:paddingTop="40dp"
-                android:paddingLeft="23dp"
-                android:layout_height="wrap_content" />
-        </RelativeLayout>
+
 
         <RelativeLayout
             android:layout_width="wrap_content"
             android:visibility="visible"
-            android:layout_marginRight="10dp"
-            android:layout_height="wrap_content">
-            <ImageButton
-                android:id="@+id/shareBtn"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginLeft="7dp"
-                android:background="@drawable/ic_action_share"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:id="@+id/shareText"
-                android:text="Share."
-                android:textSize="8dp"
-                android:paddingTop="40dp"
-                android:paddingLeft="19dp"
-                android:layout_height="wrap_content" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:visibility="visible"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="20dp"
             android:layout_height="wrap_content">
             <ImageButton
                 android:id="@+id/Website"
@@ -217,7 +239,7 @@
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="20dp"
             android:layout_height="wrap_content"
             android:visibility="visible">
 

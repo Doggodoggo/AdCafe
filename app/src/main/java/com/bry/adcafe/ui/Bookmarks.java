@@ -58,6 +58,7 @@ import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.AdvertiserLocation;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.models.myLatLng;
+import com.bry.adcafe.services.TimeManager;
 import com.bry.adcafe.services.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -1176,6 +1177,8 @@ public class Bookmarks extends AppCompatActivity {
                         findViewById(R.id.Website).setAlpha(0.4f);
                         findViewById(R.id.websiteTextxx).setAlpha(0.4f);
                     }
+                    TextView tv = findViewById(R.id.dateView);
+                    tv.setText(getDateFromDays(Variables.adToBeViewed.getDateInDays()));
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -1195,6 +1198,17 @@ public class Bookmarks extends AppCompatActivity {
                 // Code goes here
             }
         });
+        try{
+            Variables.adToBeViewed = mAllAdsList.get(positionToStart);
+            if(!Variables.adToBeViewed.didAdvertiserSetContactInfo()) {
+                findViewById(R.id.Website).setAlpha(0.4f);
+                findViewById(R.id.websiteTextxx).setAlpha(0.4f);
+            }
+            TextView tv = findViewById(R.id.dateView);
+            tv.setText(getDateFromDays(Variables.adToBeViewed.getDateInDays()));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void hideExpandedImage(){
@@ -1210,6 +1224,7 @@ public class Bookmarks extends AppCompatActivity {
         mPlaceHolderView.setAlpha(0.1f);
         mPlaceHolderView2.setAlpha(0.1f);
         findViewById(R.id.AdArchivesLayout).setAlpha(0f);
+        findViewById(R.id.topNavButtons).setVisibility(View.VISIBLE);
     }
 
     private void setBackViewsToBeNormal(){
@@ -1217,6 +1232,7 @@ public class Bookmarks extends AppCompatActivity {
         mPlaceHolderView2.setAlpha(1f);
         findViewById(R.id.AdArchivesLayout).setAlpha(1f);
         findViewById(R.id.bottomNavButtons).setVisibility(View.GONE);
+        findViewById(R.id.topNavButtons).setVisibility(View.GONE);
     }
 
     public class MyPagerAdapter extends FragmentPagerAdapter {
@@ -1308,6 +1324,7 @@ public class Bookmarks extends AppCompatActivity {
         });
 
     }
+
 
     private void saveImageDialog() {
         final Dialog d = new Dialog(Bookmarks.this);
