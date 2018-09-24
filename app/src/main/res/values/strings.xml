@@ -252,6 +252,9 @@
     <string name="dailyRefreshing">"The app refreshes itself daily, in 24Hr cycles. So every day, you'll get to see new content."</string>
 
 
+    <string name="discardInfoWarning">If you leave now, all the information you\'ve set will be discarded.</string>
+
+
 
     <string name="feedbacktype">Feedback Type</string>
     <string name="feedbacktype1">Suggestion</string>

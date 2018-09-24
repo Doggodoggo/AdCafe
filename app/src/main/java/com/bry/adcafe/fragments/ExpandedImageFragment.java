@@ -199,4 +199,7 @@ public class ExpandedImageFragment extends Fragment {
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
+
+
+
 }

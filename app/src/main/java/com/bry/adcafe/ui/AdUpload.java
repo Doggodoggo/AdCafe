@@ -153,6 +153,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
     private String mPhoneNumber = "none";
     private final int REQUESTCODE = 3301;
+    private boolean canShowDiscardMessageWhenLeaving = true;
 
 
     @Override
@@ -691,6 +692,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
     //////This method will start the upload process.Call it when your done with the payments....
     private void startProcessForUpload(){
+        canShowDiscardMessageWhenLeaving = false;
         mAuthProgressDialog.show();
         uploading = true;
         setNewValueToStartFrom();
@@ -1653,7 +1655,9 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             d.show();
         }else{
 //            super.onBackPressed();
-            finish();
+            if(canShowDiscardMessageWhenLeaving){
+                showDialogForDiscardingData();
+            }else finish();
         }
 
     }
@@ -1966,6 +1970,24 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("SET_THAT_MY_LOCATION_BUTTON_THINGY"));
             }
         }
+    }
+
+
+    private void showDialogForDiscardingData(){
+        final Dialog d = new Dialog(AdUpload.this);
+        d.setTitle("Discard Info");
+        d.setContentView(R.layout.dialog_discard_changes_in_adupload);
+        Button ok = d.findViewById(R.id.okBtn);
+
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                d.dismiss();
+                finish();
+            }
+        });
+
+        d.show();
     }
 
 
