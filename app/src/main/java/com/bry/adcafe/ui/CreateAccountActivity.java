@@ -423,10 +423,14 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         }
 
         int counter2 = 0;
-        while(email.charAt(counter)!='@'){
-            counter2++;
+        boolean continueIncrement = true;
+        for( int i=0; i<email.length(); i++ ) {
+            if(email.charAt(i) == '@' ) {
+                continueIncrement = false;
+            }
+            if(continueIncrement)counter2++;
         }
-        if(counter2<4){
+        if(counter2<=3){
             mEmailEditText.setError("That's not a real email address");
             return false;
         }
