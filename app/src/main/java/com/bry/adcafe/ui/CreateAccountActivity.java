@@ -57,6 +57,7 @@ import com.wang.avi.AVLoadingIndicatorView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -103,6 +104,11 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
     private DatabaseReference mRef1;
     private DatabaseReference mRef2;
     private int mClusterID;
+
+    private List<String> easyPasswords = new ArrayList<>
+            (Arrays.asList("123456789", "987654321","qwertyuio","asdfghjkl","zxcvbnm12","123456abc","123456qwe","987654qwe",
+                    "987654asd",""));
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -376,11 +382,17 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
     }
 
     private boolean isValidPassword(String password, String confirmPassword) {
-        if (password.length() < 6) {
+        if(password.equals("")){
+            mPasswordEditText.setError("We need a password.");
+            return false;
+        }else if (password.length() < 9) {
             mPasswordEditText.setError("Please create a password containing at least 6 characters");
             return false;
         } else if (!password.equals(confirmPassword)) {
             mPasswordEditText.setError("Passwords do not match");
+            return false;
+        }else if(easyPasswords.contains(password)){
+            mPasswordEditText.setError("Please, put a strong password!");
             return false;
         }
         return true;
@@ -392,7 +404,33 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
             return false;
         }
 
-        boolean isGoodEmail = (email!=null && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches());
+        boolean isGoodEmail = (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches());
+
+        if(!email.contains("@")){
+            mEmailEditText.setError("That's not an email address.");
+            return false;
+        }
+
+        int counter = 0;
+        for( int i=0; i<email.length(); i++ ) {
+            if(email.charAt(i) == '.' ) {
+                counter++;
+            }
+        }
+        if(counter!=1){
+            mEmailEditText.setError("We need your actual email address.");
+            return false;
+        }
+
+        int counter2 = 0;
+        while(email.charAt(counter)!='@'){
+            counter2++;
+        }
+        if(counter2<4){
+            mEmailEditText.setError("That's not a real email address");
+            return false;
+        }
+
         if(!isGoodEmail){
             mEmailEditText.setError("We need your actual email address please");
             return false;
@@ -406,7 +444,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
             return false;
         }
         if(name.length()>16){
-            mNameEditText.setError("Your name is too long");
+            mNameEditText.setError("That name is too long");
             return false;
         }
         return true;
