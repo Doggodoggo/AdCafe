@@ -221,5 +221,5 @@ public class Constants {
     public static String ADVERTISER_PHONE_NO = "PhoneNumber";
     public static String ADVERTISER_LOCATION = "Advertiserlocation";
     public static String EULA_REFERENCE = "eula";
-
+    public static String IS_PASSWORD_ENCRYPTED = "IsPasswordEncypted";
 }

@@ -79,7 +79,7 @@ public class OlderAdsItem {
                 mAdvert.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
 
         double totalReimbursalPlusPayout = ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
-        String number = Double.toString(totalReimbursalPlusPayout);
+        String number = Double.toString(round(totalReimbursalPlusPayout));
 
         mAmountToReimburseView.setText(String.format("Reimbursing amount: %s Ksh", number));
 
@@ -300,6 +300,16 @@ public class OlderAdsItem {
     private void showPayoutButtons(){
         mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.colorPrimaryDark));
         isClickable = true;
+    }
+
+    public static double round(double value) {
+        int places = 2;
+        if (places < 0) throw new IllegalArgumentException();
+
+        long factor = (long) Math.pow(10, places);
+        value = value * factor;
+        long tmp = Math.round(value);
+        return (double) tmp / factor;
     }
 
 }

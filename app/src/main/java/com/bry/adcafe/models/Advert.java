@@ -277,7 +277,7 @@ public class Advert {
 
     public boolean didAdvertiserSetContactInfo(){
         if(!getWebsiteLink().equals("none"))return true;
-        if(!getAdvertiserPhoneNo().equals("none"))return true;
+        if(!getAdvertiserPhoneNo().equals("none") && !getAdvertiserPhoneNo().equals(""))return true;
         if(!advertiserLocations.isEmpty())return true;
         return false;
     }

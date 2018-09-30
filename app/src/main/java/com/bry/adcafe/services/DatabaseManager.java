@@ -98,7 +98,10 @@ public class DatabaseManager {
 
         DatabaseReference adRef15 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(uid).child(Constants.USER_PASSCODE);
-        adRef15.setValue(Variables.getPassword());
+        DatabaseReference adRef16 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.IS_PASSWORD_ENCRYPTED);
+        adRef15.setValue(Variables.encryptPassword(Variables.getPassword()));
+        adRef16.setValue(true);
 
 
         //Creates node for indicating users email.
@@ -479,9 +482,25 @@ public class DatabaseManager {
 
                 //loads users password for payouts.
                 DataSnapshot passwordSnap = dataSnapshot.child(Constants.USER_PASSCODE);
-                if (!Variables.isGottenNewPasswordFromLogInOrSignUp) {
-                    Variables.setPassword(passwordSnap.getValue(String.class));
-                    Variables.isGottenNewPasswordFromLogInOrSignUp = false;
+                DataSnapshot isEncryptedSnap = dataSnapshot.child(Constants.IS_PASSWORD_ENCRYPTED);
+                if(isEncryptedSnap.exists()){
+                    boolean isEncrypted = isEncryptedSnap.getValue(Boolean.class);
+                    if(isEncrypted){
+                        if (!Variables.isGottenNewPasswordFromLogInOrSignUp) {
+                            Variables.setPassword(Variables.decryptPassword(passwordSnap.getValue(String.class)));
+                            Variables.isGottenNewPasswordFromLogInOrSignUp = false;
+                        }
+                    }else{
+                        if (!Variables.isGottenNewPasswordFromLogInOrSignUp) {
+                            Variables.setPassword(passwordSnap.getValue(String.class));
+                            Variables.isGottenNewPasswordFromLogInOrSignUp = false;
+                        }
+                    }
+                }else{
+                    if (!Variables.isGottenNewPasswordFromLogInOrSignUp) {
+                        Variables.setPassword(passwordSnap.getValue(String.class));
+                        Variables.isGottenNewPasswordFromLogInOrSignUp = false;
+                    }
                 }
 
                 DataSnapshot notPrefSnap = dataSnapshot.child(Constants.PREFERRED_NOTIF);
@@ -1346,6 +1365,9 @@ public class DatabaseManager {
 
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(uid).child(Constants.USER_PASSCODE);
+        DatabaseReference adRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.IS_PASSWORD_ENCRYPTED);
+        adRef2.setValue(true);
         adRef.setValue(password);
     }
 
@@ -1391,11 +1413,14 @@ public class DatabaseManager {
         String year = isAlmostMidNight() ? TimeManager.getNextDayYear() : TimeManager.getYear();
         String datte = isAlmostMidNight() ? TimeManager.getNextDay() : getDate();
 
+        long theDateInDays = ((ad.getDateInDays()+1)*-1);
+        String dateInDays2 = Long.toString(theDateInDays);
+
         for (final String pushRef : Variables.adsSeenSoFar.keySet()) {
             String advertiserUid = Variables.adsSeenSoFar.get(pushRef);
 
             final DatabaseReference mref2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
-                    .child(advertiserUid).child(Constants.UPLOAD_HISTORY).child(dateInDays)
+                    .child(advertiserUid).child(Constants.UPLOAD_HISTORY).child(dateInDays2)
                     .child(pushRef).child(Constants.UNNEEDED_REIMBURSAL_AMM);
 
             final DatabaseReference adminRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)

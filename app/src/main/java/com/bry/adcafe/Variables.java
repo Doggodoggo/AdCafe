@@ -3,6 +3,7 @@ package com.bry.adcafe;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.location.Location;
+import android.util.Base64;
 import android.util.Log;
 
 import com.braintreepayments.cardform.view.CardForm;
@@ -19,10 +20,22 @@ import com.mindorks.placeholderview.PlaceHolderView;
 
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.Cipher;
+import java.security.Key;
 
 /**
  * Created by bryon on 26/08/2017.
@@ -414,6 +427,34 @@ public class Variables {
         }else if(amount==8){
             return 6;
         }else return 6;
+    }
+
+
+    public static SecretKey generateKey(String key) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        return new SecretKeySpec(key.getBytes(), "AES");
+    }
+
+    public static String encryptPassword(String s){
+        byte[] data = new byte[0];
+        try {
+            data = s.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        String base64Encoded = Base64.encodeToString(data, Base64.DEFAULT);
+        return base64Encoded;
+
+    }
+
+    public static String decryptPassword(String encryptedDatas){
+        byte[] dataDec = Base64.decode(encryptedDatas, Base64.DEFAULT);
+        String decodedString = "";
+        try {
+            decodedString = new String(dataDec, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return decodedString;
     }
 
 

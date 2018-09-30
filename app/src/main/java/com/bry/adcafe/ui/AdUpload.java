@@ -703,7 +703,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
     private void addWebsiteLinkPrompt() {
         final Dialog d = new Dialog(AdUpload.this);
-        d.setTitle("Ad any relevant link.");
+        d.setTitle("Add your contact info.");
         d.setContentView(R.layout.dialog5);
 
         Button b1 = d.findViewById(R.id.cancelBtn);
@@ -768,10 +768,19 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                     mPhoneNumber = "none";
                 }else{
                     if(phoneNumber.getText().toString().trim().length()<10){
-                        phoneNumber.setError("Thats not a real phone number");
+                        phoneNumber.setError("That's not a real phone number");
+                        mPhoneNumber = "none";
                         canDismiss = false;
                     }else{
-                        mPhoneNumber = phoneNumber.getText().toString();
+                        try{
+                            int vz = Integer.parseInt(phoneNumber.getText().toString().trim());
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            mPhoneNumber = "none";
+                            phoneNumber.setError("That's not a real phone number");
+                            canDismiss = false;
+                        }
+                        mPhoneNumber = phoneNumber.getText().toString().trim();
                     }
                 }
                 if(canDismiss)d.dismiss();
@@ -1366,7 +1375,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                     }
                 }
                 if(!mPhoneNumber.equals("none") || !Variables.advertiserLocations.isEmpty()){
-                    if(!mPhoneNumber.equals("none")){
+                    if(!mPhoneNumber.equals("none") || !mPhoneNumber.equals("")){
                         mRef3.child("contactdata").child(Constants.ADVERTISER_PHONE_NO)
                                 .setValue(mPhoneNumber);
                     }
@@ -1476,7 +1485,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                     }
                 }
                 if(!mPhoneNumber.equals("none") || !Variables.advertiserLocations.isEmpty()){
-                    if(!mPhoneNumber.equals("none")){
+                    if(!mPhoneNumber.equals("none") || !mPhoneNumber.equals("")){
                         mRef3.child("contactdata").child(Constants.ADVERTISER_PHONE_NO)
                                 .setValue(mPhoneNumber);
                     }
@@ -1540,6 +1549,12 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             @Override
             public void onClick(View v) {
                 d.dismiss();
+                finish();
+            }
+        });
+        d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
                 finish();
             }
         });

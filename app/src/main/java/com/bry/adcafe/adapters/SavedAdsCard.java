@@ -189,7 +189,11 @@ public class SavedAdsCard {
                         String image = dataSnapshot.getValue(String.class);
                         if (image != null)
                             Log.d("SavedAdsCard", "String of image has been loaded from firebase");
-                        mAdvert.setImageUrl(image);
+                        try {
+                            mAdvert.setImageUrl(image);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
                         Log.d("SavedAdsCard", "Now running the setImage method");
                         setImage();
                     } else {

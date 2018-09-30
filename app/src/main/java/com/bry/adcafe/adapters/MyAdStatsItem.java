@@ -92,7 +92,7 @@ public class MyAdStatsItem {
                 *Constants.VAT_CONSTANT;
 
         double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
-        String number = Double.toString(totalReimbursalPlusPayout);
+        String number = Double.toString(round(totalReimbursalPlusPayout));
 
         mAmountToReimburse.setText("Reimbursing amount: "+number+" Ksh");
         try{
@@ -192,7 +192,7 @@ public class MyAdStatsItem {
                         mAdvert.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
 
                 double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
-                String number = Double.toString(totalReimbursalPlusPayout);
+                String number = Double.toString(round(totalReimbursalPlusPayout));
 
                 mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
                 if(totalReimbursalPlusPayout==0){
@@ -214,7 +214,7 @@ public class MyAdStatsItem {
                     double vat = (mAdvert.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(
                             mAdvert.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
                     double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
-                    String number = Double.toString(totalReimbursalPlusPayout);
+                    String number = Double.toString(round(totalReimbursalPlusPayout));
 
                     mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
                     if(totalReimbursalPlusPayout==0){
@@ -248,7 +248,7 @@ public class MyAdStatsItem {
                             double vat = (mAdvert.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(
                                     mAdvert.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
                             double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
-                            String number = Double.toString(totalReimbursalPlusPayout);
+                            String number = Double.toString(round(totalReimbursalPlusPayout));
 
                             mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
                             if(totalReimbursalPlusPayout==0){
@@ -431,7 +431,7 @@ public class MyAdStatsItem {
     private void Log(String tag,String message){
         try{
             String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+            if(user.equals(Constants.ADMIN_ACC)) Log.d(tag,message);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -447,6 +447,16 @@ public class MyAdStatsItem {
     private void showPayoutButtons(){
         mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.colorPrimaryDark));
         isClickable = true;
+    }
+
+    public static double round(double value) {
+        int places = 2;
+        if (places < 0) throw new IllegalArgumentException();
+
+        long factor = (long) Math.pow(10, places);
+        value = value * factor;
+        long tmp = Math.round(value);
+        return (double) tmp / factor;
     }
 
 

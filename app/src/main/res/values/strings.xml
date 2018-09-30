@@ -254,6 +254,10 @@
 
     <string name="discardInfoWarning">If you leave now, all the information you\'ve set will be discarded.</string>
 
+    <string name="confirmEmail">"We've sent you an email for verification. The app will automatically detect that you're verified and you will be able to access and use the app."</string>
+    <string name="reconfirmEmail">"To continue, you need to first verify your email address. The app will automatically detect that you're verified and you'll be able to use the app."</string>
+
+
 
 
     <string name="feedbacktype">Feedback Type</string>

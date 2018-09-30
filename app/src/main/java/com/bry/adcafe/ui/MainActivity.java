@@ -2762,16 +2762,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    //its here
     private void setNewNumberOfTimesSeen(int number, String date, Advert advert) {
         Log(TAG, "Setting the new number of times seen in firebase.");
 
-        final Advert ad = Variables.getCurrentAdvert();
-        String dateInDays = isAlmostMidNight()? Long.toString(-(TimeManager.getDateInDays()+1)) : Long.toString(-TimeManager.getDateInDays());
+        long theDateInDays = ((advert.getDateInDays()+1)*-1);
+        String dateInDays = Long.toString(theDateInDays);
 
         Query query2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
-                .child(ad.getAdvertiserUid()).child(Constants.UPLOAD_HISTORY)
+                .child(advert.getAdvertiserUid()).child(Constants.UPLOAD_HISTORY)
                 .child(dateInDays)
-                .child(ad.getPushRefInAdminConsole()).child("numberOfTimesSeen");
+                .child(advert.getPushRefInAdminConsole()).child("numberOfTimesSeen");
         DatabaseReference dbref2 = query2.getRef();
         dbref2.setValue(number);
 
@@ -2780,13 +2781,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String year = isAlmostMidNight() ? TimeManager.getNextDayYear() : TimeManager.getYear();
 
         DatabaseReference adminRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
-                .child(year).child(month).child(day).child(ad.getPushRefInAdminConsole()).child("numberOfTimesSeen");
+                .child(year).child(month).child(day).child(advert.getPushRefInAdminConsole()).child("numberOfTimesSeen");
         adminRef.setValue(number);
 
 
 
         Query query = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
-                .child(date).child(Variables.getCurrentAdvert().getPushRefInAdminConsole()).child("numberOfTimesSeen");
+                .child(date).child(advert.getPushRefInAdminConsole()).child("numberOfTimesSeen");
 
         Log(TAG, "Query set up is :" + Constants.ADS_FOR_CONSOLE + " : " + date + " : " + advert.getPushRefInAdminConsole() + " : numberOfTimesSeen");
         DatabaseReference dbRef = query.getRef();

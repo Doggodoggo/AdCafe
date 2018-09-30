@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -75,12 +76,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private DatabaseReference mRef;
-    private DatabaseReference mRef2;
-    private DatabaseReference mRef3;
-    private DatabaseReference mRef4;
-    private DatabaseReference adRef;
-    private DatabaseReference mRef5;
 
     private Context mContext;
     private String mKey = "";
@@ -90,6 +85,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private boolean isActivityVisible;
     private boolean didUserJustLogInManually = false;
     private boolean isShowingPromptForeula = false;
+
+    Handler h = new Handler();
+    Runnable r;
+    private boolean isValidatePromptShowing = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -202,8 +202,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG,"Finished loading user data");
             hasEverythingLoaded = true;
-            if(Variables.Subscriptions.isEmpty())startSelectCategory();
-            else startMainActivity();
+            if(isActivityVisible)checkIfTheFuckingEULAHasBeenUpdated();
         }
     };
 
@@ -240,11 +239,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onResume(){
         super.onResume();
         isActivityVisible = true;
-        if(!isShowingPromptForeula && hasEverythingLoaded &&!Variables.Subscriptions.isEmpty()) {
-            startMainActivity2();
-        }else if(hasEverythingLoaded &&Variables.Subscriptions.isEmpty()){
-            startSelectCategory();
-        }
+        if(hasEverythingLoaded) checkIfTheFuckingEULAHasBeenUpdated();
     }
 
     @Override
@@ -252,15 +247,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onStop();
         if(mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
-        }
-        if(mRef!=null){
-//            mRef.removeEventListener(val);
-        }
-        if(mRef2!=null){
-//            mRef2.removeEventListener(val2);
-        }
-        if(mRef3!=null){
-//            mRef3.removeEventListener(val3);
         }
     }
 
@@ -320,7 +306,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         final String email = mEmail.getText().toString().trim();
         final String password = mPassword.getText().toString().trim();
         if(email.equals("")){
-//            mEmail.setText("Please enter your email");
             mEmail.setError("Please enter your email");
             return;
         }
@@ -386,7 +371,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void setUserPasswordInFireBase(String password){
-        new DatabaseManager().setUsersNewPassword(password);
+        new DatabaseManager().setUsersNewPassword(Variables.encryptPassword(password));
     }
 
 
@@ -584,7 +569,79 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void theNextThing(){
-        startMainActivity2();
+        checkIfUserIsAuthentic();
     }
+
+
+
+    private void checkIfUserIsAuthentic(){
+        if(checkIfEmailIsVerified()){
+            if(!isValidatePromptShowing)startNextActivity();
+        }else{
+            if(!isValidatePromptShowing)openNotVerifiedPrompt();
+        }
+    }
+
+    private void openNotVerifiedPrompt() {
+        if(!checkIfEmailIsVerified())sendVerificationEmail();
+        final Dialog d = new Dialog(this);
+        d.setTitle("Email Verification.");
+        isValidatePromptShowing = true;
+        d.setContentView(R.layout.dialog_reverify_email);
+        Button b1 = d.findViewById(R.id.okBtn);
+        final TextView hasVerifiedText = d.findViewById(R.id.hasVerifiedText);
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendVerificationEmail();
+            }
+        });
+
+        d.setCancelable(false);
+        d.show();
+
+        r = new Runnable() {
+            @Override
+            public void run() {
+                if(checkIfEmailIsVerified()){
+                    hasVerifiedText.setText("Email verified.");
+                    h.removeCallbacks(r);
+                    isValidatePromptShowing = false;
+                    d.dismiss();
+
+                    startNextActivity();
+                }else{
+                    hasVerifiedText.setText("Email not verified.");
+                }
+                if(Variables.isLoginOnline)h.postDelayed(r, 1000);
+            }
+        };
+        h.postDelayed(r, 1000);
+
+    }
+
+    private void startNextActivity() {
+        if(!Variables.Subscriptions.isEmpty())startMainActivity2();
+        else if(Variables.Subscriptions.isEmpty()) startSelectCategory();
+    }
+
+    private boolean checkIfEmailIsVerified() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user.reload();
+        return user.isEmailVerified();
+    }
+
+    private void sendVerificationEmail() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(mContext,"Email sent.",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
 
 }

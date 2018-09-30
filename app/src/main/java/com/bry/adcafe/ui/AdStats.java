@@ -807,7 +807,7 @@ public class AdStats extends AppCompatActivity {
         double vat = (ad.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(
                 ad.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
 
-        double reimbursementTotals = ammountToBeRepaid+ad.getPayoutReimbursalAmount()+vat;
+        double reimbursementTotals = (round(ammountToBeRepaid+ad.getPayoutReimbursalAmount()+vat));
 
 //        Toast.makeText(mContext,"payout!",Toast.LENGTH_SHORT).show();
         String payoutPhoneNumber = Variables.phoneNo;
@@ -1236,6 +1236,16 @@ public class AdStats extends AppCompatActivity {
             isNeedToLoadLogin = true;
         }
 
+    }
+
+    public static double round(double value) {
+        int places = 2;
+        if (places < 0) throw new IllegalArgumentException();
+
+        long factor = (long) Math.pow(10, places);
+        value = value * factor;
+        long tmp = Math.round(value);
+        return (double) tmp / factor;
     }
 
 }

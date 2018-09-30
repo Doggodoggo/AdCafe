@@ -17,6 +17,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.bry.adcafe.R;
+import com.bry.adcafe.Variables;
 import com.bry.adcafe.services.SliderPrefManager;
 import com.bry.adcafe.services.TimeManager;
 import com.crashlytics.android.Crashlytics;
@@ -24,6 +25,8 @@ import com.crashlytics.android.Crashlytics;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Random;
+import java.util.UUID;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -56,7 +59,6 @@ public class Splash extends AppCompatActivity {
         try{
             int hours = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
             int minutes = Calendar.getInstance().get(Calendar.MINUTE);
-
 //            if(hours==19 && minutes==26)LSEText.setText("M..M");
         }catch (Exception e){
             e.printStackTrace();
@@ -213,6 +215,7 @@ public class Splash extends AppCompatActivity {
     private String getDateInDays(){
         return Long.toString(-TimeManager.getDateInDays());
     }
+
 
 
 }

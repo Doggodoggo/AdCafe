@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -13,6 +14,7 @@ import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -108,6 +110,9 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
     private List<String> easyPasswords = new ArrayList<>
             (Arrays.asList("123456789", "987654321","qwertyuio","asdfghjkl","zxcvbnm12","123456abc","123456qwe","987654qwe",
                     "987654asd",""));
+
+    Handler h = new Handler();
+    Runnable r;
 
 
     @Override
@@ -223,7 +228,6 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                         mProgressBarSignUp.setVisibility(View.GONE);
                         mLoadingText.setVisibility(View.GONE);
                         showFailedSignUp();
-//                        Toast.makeText(CreateAccountActivity.this, "Sign Up has failed.Another user with your info may exist.", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -283,7 +287,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG,"Finished creating user space");
-            startSelectCategory();
+            beforeOpeningTheNextActivity();
         }
     };
 
@@ -308,49 +312,6 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                 }
             }
         };
-    }
-
-    private void sendVerificationEmail() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    Variables.isVerifyingEmail = true;
-//                    mAvi.setVisibility(View.GONE);
-                    mProgressBarSignUp.setVisibility(View.GONE);
-                    mLoadingText.setVisibility(View.GONE);
-                    mConfirmEmailLayout.setVisibility(View.VISIBLE);
-                    findViewById(R.id.confirmedEmailButton).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            checkIfEmailIsVerified();
-                        }
-                    });
-                    findViewById(R.id.recreateAccount).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            mConfirmEmailLayout.setVisibility(View.GONE);
-                            mRelative.setVisibility(View.VISIBLE);
-                            mRelative.setAlpha(1.0f);
-                            FirebaseAuth.getInstance().signOut();
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    private void checkIfEmailIsVerified() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user.isEmailVerified()){
-//            mAvi.setVisibility(View.VISIBLE);
-            mProgressBarSignUp.setVisibility(View.VISIBLE);
-            mLoadingText.setVisibility(View.VISIBLE);
-            mConfirmEmailLayout.setVisibility(View.GONE);
-        }else {
-            Toast.makeText(mContext,"Your email is not verified!",Toast.LENGTH_SHORT).show();
-        }
     }
 
 
@@ -417,7 +378,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                 counter++;
             }
         }
-        if(counter!=1){
+        if(counter!=1 && counter!=2){
             mEmailEditText.setError("We need your actual email address.");
             return false;
         }
@@ -513,6 +474,82 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
     private void nowReallySetUpUserSpace(){
         DatabaseManager dbManager = new DatabaseManager();
         dbManager.createUserSpace(mContext);
+    }
+
+
+
+
+    private void beforeOpeningTheNextActivity(){
+        verifyUser();
+    }
+
+    private void verifyUser(){
+        if(!checkIfEmailIsVerified())sendVerificationEmail();
+        final Dialog d = new Dialog(this);
+        d.setTitle("Email.");
+        d.setContentView(R.layout.dialog_verify_email);
+        Button b1 = d.findViewById(R.id.okBtn);
+        final TextView hasVerifiedText = d.findViewById(R.id.hasVerifiedText);
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendVerificationEmail();
+            }
+        });
+        d.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                Log.d(TAG,"On dismiss for dialog");
+                h.removeCallbacks(r);
+            }
+        });
+        d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                Log.d(TAG,"On dismiss for dialog");
+                h.removeCallbacks(r);
+            }
+        });
+        d.setCancelable(false);
+        d.show();
+
+        r = new Runnable() {
+            @Override
+            public void run() {
+                if(checkIfEmailIsVerified()){
+                    hasVerifiedText.setText("Email verified.");
+                    h.removeCallbacks(r);
+                    d.dismiss();
+                    startNextActivity();
+                }else{
+                    hasVerifiedText.setText("Email not verified.");
+                }
+                h.postDelayed(r, 1000);
+            }
+        };
+        h.postDelayed(r, 1000);
+    }
+
+    private boolean checkIfEmailIsVerified() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user.reload();
+        return user.isEmailVerified();
+    }
+
+    private void sendVerificationEmail() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(mContext,"Email sent.",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void startNextActivity(){
+        startSelectCategory();
     }
 
 
