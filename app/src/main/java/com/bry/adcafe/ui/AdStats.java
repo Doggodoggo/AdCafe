@@ -429,10 +429,12 @@ public class AdStats extends AppCompatActivity {
 
 
     private void loadPreviousDaysAds() {
-        Log(TAG,"Loading ads uploaded by user.");
-        Query query = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
-                .child(User.getUid()).child(Constants.UPLOADED_AD_LIST).child(getPreviousDay());
-        DatabaseReference dbref = query.getRef();
+        Log.e(TAG,"Loading previous day ads uploaded by user.");
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference dbref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.UPLOADED_AD_LIST).child(getPreviousDay());
+        Log.d(TAG,"Query sent is: "+Constants.FIREBASE_CHILD_USERS+" : "+uid+" : "+Constants.UPLOADED_AD_LIST+" : "+getPreviousDay());
+//        DatabaseReference dbref = query.getRef();
         dbref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -447,6 +449,7 @@ public class AdStats extends AppCompatActivity {
                     findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
                     loadAdsUploadedByUser2();
                 }else{
+                    Log.e(TAG,"No previous day ads were found");
                     loadUploadHistory();
                 }
             }
@@ -1080,13 +1083,13 @@ public class AdStats extends AppCompatActivity {
 
 
     private void Log(String tag,String message){
-        try{
-            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
+//        try{
+//            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+//            if(user.equals("bryonyoni@gmail.com")) Log.d(tag,message);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+        Log.d(tag,message);
     }
 
 
