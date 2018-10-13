@@ -222,4 +222,16 @@ public class Constants {
     public static String ADVERTISER_LOCATION = "Advertiserlocation";
     public static String EULA_REFERENCE = "eula";
     public static String IS_PASSWORD_ENCRYPTED = "IsPasswordEncypted";
+
+    public static String TEXT_MESSAGE = "TEXT_MESSAGE";
+    public static String IMAGE_MESSAGE = "IMAGE_MESSAGE";
+    public static String FIREBASE_MESSAGES = "Messages";
+    public static String MESSAGES_LIST = "MessagesList";
+    public static String NEW_MESSAGE_NOTIFIER_INTENT = "NEW_MESSAGE_NOTIFIER_INTENT";
+
+    public static String FIREBASE_IMAGE_MESSAGES = "ImageMessages";
+
+
+
+
 }

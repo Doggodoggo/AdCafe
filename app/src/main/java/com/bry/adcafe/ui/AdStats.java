@@ -264,12 +264,47 @@ public class AdStats extends AppCompatActivity {
         }
     };
 
+    private void loadPassData(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS).child(uid);
+        mref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                DataSnapshot passwordSnap = dataSnapshot.child(Constants.USER_PASSCODE);
+                DataSnapshot isEncryptedSnap = dataSnapshot.child(Constants.IS_PASSWORD_ENCRYPTED);
+                if(isEncryptedSnap.exists()){
+                    boolean isEncrypted = isEncryptedSnap.getValue(Boolean.class);
+                    if(isEncrypted){
+                        if (!Variables.isGottenNewPasswordFromLogInOrSignUp) {
+                            Variables.setPassword(Variables.decryptPassword(passwordSnap.getValue(String.class)));
+                        }
+                    }else{
+                        if (!Variables.isGottenNewPasswordFromLogInOrSignUp) {
+                            Variables.setPassword(passwordSnap.getValue(String.class));
+                        }
+                    }
+                }else{
+                    if (!Variables.isGottenNewPasswordFromLogInOrSignUp) {
+                        Variables.setPassword(passwordSnap.getValue(String.class));
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 
     private void loadTomorrowsUploadedAds() {
+        loadPassData();
         if(DataListsView.getChildCount()!=0)DataListsView.removeAllViews();
         Log(TAG,"Loading ads uploaded by user for tomorrow.");
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Query query = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
-                .child(User.getUid()).child(Constants.UPLOADED_AD_LIST).child(getNextDay());
+                .child(uid).child(Constants.UPLOADED_AD_LIST).child(getNextDay());
         DatabaseReference dbref = query.getRef();
         dbref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

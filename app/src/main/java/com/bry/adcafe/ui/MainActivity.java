@@ -1,5 +1,6 @@
 package com.bry.adcafe.ui;
 
+import android.animation.Animator;
 import android.app.AlarmManager;
 import android.app.Dialog;
 import android.app.FragmentManager;
@@ -24,9 +25,11 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -39,6 +42,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +63,7 @@ import com.bry.adcafe.models.AgeGroup;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.models.myLatLng;
 import com.bry.adcafe.services.DatabaseManager;
+import com.bry.adcafe.services.MessagesService;
 import com.bry.adcafe.services.NetworkStateReceiver;
 import com.bry.adcafe.services.TimeManager;
 import com.bry.adcafe.services.Utils;
@@ -96,6 +101,8 @@ import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,NetworkStateReceiver.NetworkStateReceiverListener {
@@ -164,12 +171,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DataSnapshot mTargetUsersDataList;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContext = getApplicationContext();
 
+        ButterKnife.bind(this);
         Variables.isMainActivityOnline = true;
         stage = "LOADING_ADS";
         registerReceivers();
@@ -198,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setIsAppOnline(true);
         setLastUserOfAppInSharedPreferences(FirebaseAuth.getInstance().getCurrentUser().getUid());
         setUserDeviceCategoryInFirebaseAndSharedPrefs();
+        listenForMessages();
     }
 
     private void setUpTimeIfNeedBe(){
@@ -3553,6 +3563,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pref.edit().clear().putString(Constants.DEVICE_CATEGORY, getUserDeviceCagegory()).apply();
         Log(TAG,"Set user device category in shared pref and firebase");
 
+    }
+
+
+
+    public void listenForMessages(){
+        Intent i = new Intent(mContext, MessagesService.class);
+        mContext.startService(i);
     }
 
 

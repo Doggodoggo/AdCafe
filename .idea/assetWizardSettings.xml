@@ -23,7 +23,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="paddingPercent" value="45" />
+                                                <entry key="paddingPercent" value="5" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -34,7 +34,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_help_outline_black_24dp.xml" />
+                                                <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/navigation/ic_check_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -55,10 +55,10 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="assetType" value="IMAGE" />
                                       <entry key="imageAsset" value="C:\Users\bryon\Desktop\frostbite\images\person.png" />
-                                      <entry key="outputName" value="ic_action_person" />
-                                      <entry key="themeColor" value="064644" />
+                                      <entry key="outputName" value="ic_action_sent" />
+                                      <entry key="theme" value="HOLO_DARK" />
+                                      <entry key="themeColor" value="064e46" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -120,8 +120,6 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="backgroundColor" value="064e46" />
-                                      <entry key="iconShape" value="CIRCLE" />
                                       <entry key="imageAsset" value="C:\Users\bryon\AndroidStudioProjects\AdCafe\app\src\main\ic_web_text-web.png" />
                                       <entry key="outputName" value="ic_web_icon5" />
                                     </map>

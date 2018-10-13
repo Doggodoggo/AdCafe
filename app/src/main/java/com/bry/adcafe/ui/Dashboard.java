@@ -1,5 +1,7 @@
 package com.bry.adcafe.ui;
 
+import android.Manifest;
+import android.animation.Animator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.FragmentManager;
@@ -13,24 +15,41 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.text.Html;
 import android.text.format.DateFormat;
+import android.util.AttributeSet;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -39,19 +58,27 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.Payment.mpesaApi.Mpesaservice;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
+import com.bry.adcafe.adapters.MessageItem;
 import com.bry.adcafe.fragments.ChangeCPVFragment;
 import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
 import com.bry.adcafe.fragments.SetUsersPersonalInfo;
 import com.bry.adcafe.fragments.myMapFragment;
+import com.bry.adcafe.models.Message;
 import com.bry.adcafe.models.PayoutResponse;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.SliderPrefManager;
 import com.bry.adcafe.services.TimeManager;
+import com.bry.adcafe.services.Utils;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.Dash;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -62,14 +89,20 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.mindorks.placeholderview.PlaceHolderView;
 
+import org.bouncycastle.crypto.util.Pack;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 
 import butterknife.Bind;
@@ -115,8 +148,34 @@ public class Dashboard extends AppCompatActivity {
     private boolean isNeedToLoadLogin = false;
 
     private final int REQUESTCODE = 3301;
-    private static final int SWIPE_THRESHOLD = 100;
-    private float _downX;
+    private static final int PICK_IMAGE_REQUEST = 234;
+    private final int BOI = 35;
+    private final int BOI2 = 37;
+
+
+    @Bind(R.id.feedChatView) RelativeLayout mFeedChatView;
+    @Bind(R.id.collapseFeedChatButton) ImageButton mCollapseFeedChatButton;
+    private final int collapsedMargin = Utils.dpToPx(700);
+    private final int unCollapsedMargin = Utils.dpToPx(1);
+    private boolean isCardCollapsed = true;
+    private boolean mIsScrolling = false;
+    private int _yDelta;
+    private boolean isInTransition = false;
+    private final int normalDuration = 320;
+    private List<Integer> RawList = new ArrayList<>();
+
+    @Bind(R.id.ScrollView) ScrollView mScrollView;
+    @Bind(R.id.feedChatEditText) EditText mFeedChatEditText;
+    @Bind(R.id.addImageBtn) ImageButton mAddImageBtn;
+    @Bind(R.id.sendBtn) ImageButton mSendBtn;
+    @Bind(R.id.chatsPlaceHolderView) PlaceHolderView mChatsPlaceHolderView;
+
+    private int numberOfItemsAdded = 0;
+    private Uri mFilepath;
+    private String mPath;
+    private Bitmap imageBitmap;
+
+    private int numberOfNewMessages = 0;
 
 
 
@@ -144,6 +203,8 @@ public class Dashboard extends AppCompatActivity {
         setGestureListener();
         addListenerForPaymentSession();
         addListenerForChangeInPayoutTotals();
+
+        fastCollapseTheFeedChatView();
     }
 
     @Override
@@ -185,6 +246,9 @@ public class Dashboard extends AppCompatActivity {
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForShowMap,
                 new IntentFilter("SHOW_MAP"));
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForListeningForNewMessages,
+                new IntentFilter(Constants.NEW_MESSAGE_NOTIFIER_INTENT));
     }
 
     private void removeListeners(){
@@ -193,6 +257,7 @@ public class Dashboard extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForSuccessfulPayout);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFailedPayout);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForShowMap);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForListeningForNewMessages);
     }
 
     private BroadcastReceiver mMessageReceiverForShowingPrompt = new BroadcastReceiver() {
@@ -253,12 +318,14 @@ public class Dashboard extends AppCompatActivity {
         findViewById(R.id.FeedbackBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentManager fm = getFragmentManager();
-                Log("DASHBOARD","Setting up fragment");
-                FeedbackFragment reportDialogFragment = new FeedbackFragment();
-                reportDialogFragment.setMenuVisibility(false);
-                reportDialogFragment.show(fm, "Feedback.");
-                reportDialogFragment.setfragContext(mContext);
+//                FragmentManager fm = getFragmentManager();
+//                Log("DASHBOARD","Setting up fragment");
+//                FeedbackFragment reportDialogFragment = new FeedbackFragment();
+//                reportDialogFragment.setMenuVisibility(false);
+//                reportDialogFragment.show(fm, "Feedback.");
+//                reportDialogFragment.setfragContext(mContext);
+
+                  showFeedChatView();
             }
         });
 
@@ -394,7 +461,9 @@ public class Dashboard extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        if(!Variables.isMainActivityOnline){
+        if(!isCardCollapsed){
+            mCollapseFeedChatButton.performClick();
+        }else if(!Variables.isMainActivityOnline){
             Intent intent = new Intent(Dashboard.this,MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
@@ -1401,8 +1470,317 @@ public class Dashboard extends AppCompatActivity {
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("SET_THAT_MY_LOCATION_BUTTON_THINGY"));
             }
         }
+        if(requestCode==BOI){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                selectImage();
+            }
+        }
+        if(requestCode==BOI2){
+            if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                showFeedChatView();
+            }
+        }
     }
 
+    public void fastCollapseTheFeedChatView(){
+        isCardCollapsed = true;
+        updateUpPosition(collapsedMargin,0);
+    }
+
+    public void showFeedChatView(){
+        if(checkPermissionForLoadMessages()){
+            isCardCollapsed = false;
+            mScrollView.setVisibility(View.GONE);
+            updateUpPosition(unCollapsedMargin,normalDuration);
+            loadMessages();
+            setFeedChatClickListeners();
+        }
+    }
+
+    private void setFeedChatClickListeners(){
+        mAddImageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectImage();
+            }
+        });
+        mSendBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendMessage();
+            }
+        });
+        mCollapseFeedChatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hideFeedChatView();
+            }
+        });
+
+        mCollapseFeedChatButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                mCollapseFeedChatButton.performClick();
+                SharedPreferences prefs = mContext.getSharedPreferences(Constants.FIREBASE_MESSAGES, MODE_PRIVATE);
+                prefs.edit().clear().apply();
+
+                return false;
+            }
+        });
+    }
+
+    private void loadMessages() {
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(Dashboard.this);
+        linearLayoutManager.setReverseLayout(true);
+        mChatsPlaceHolderView.setLayoutManager(linearLayoutManager);
+
+        List<Message> myMessages = loadSavedMessages();
+        for(Message message:myMessages){
+            addMessageToList(message);
+        }
+        mChatsPlaceHolderView.setItemViewCacheSize(myMessages.size());
+        removeNewMessageBubble();
+    }
+
+    private void sendMessage() {
+        String messageText = mFeedChatEditText.getText().toString().trim();
+        if(messageText.equals("")){
+            mFeedChatEditText.setError("You can't send nothing!");
+        }else if(!isOnline(mContext)){
+            Toast.makeText(mContext,"You need an internet connection to send that.",Toast.LENGTH_SHORT).show();
+        }else{
+            mFeedChatEditText.setText("");
+            View view = this.getCurrentFocus();
+            if (view != null) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+            final Message message = new Message();
+            message.setMessageString(messageText);
+            message.setMessageType(Constants.TEXT_MESSAGE);
+            message.setSenderId(uid);
+            message.setIsUsersMessage(true);
+            message.setHasBeenSent(false);
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    addMessageToList(message);
+                }
+            }, 400);
+
+        }
+    }
+
+
+
+
+
+
+    private void selectImage() {
+        if(checkPermissionsForSendImage()){
+            Log.d(TAG,"Starting intent for picking an image.");
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent,"Select Picture"),PICK_IMAGE_REQUEST);
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Log.d(TAG, "---Data gotten from activity is ok.");
+            if (data.getData() != null) {
+                mFilepath = data.getData();
+                mPath = mFilepath.getPath();
+                Log.e(TAG,"mPath - "+mPath);
+                Log.e(TAG,"mFilePath - "+mFilepath.toString());
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mFilepath);
+                    imageBitmap = getResizedBitmap(bitmap,1000);
+                    sendImageMessage(bitmap);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "---Unable to get and set image. " + e.getMessage());
+                }
+            } else {
+                Log.e(TAG, "---Unable to work on the result code for some reason.");
+                Toast.makeText(mContext,"the data.getData method returns null for some reason...", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+    }
+
+    private static Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float) width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+
+        return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
+    private void sendImageMessage(Bitmap image){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        final Message message = new Message();
+        message.setMessageType(Constants.IMAGE_MESSAGE);
+        message.setSenderId(uid);
+        message.setImageBitmap(image);
+        message.setMessageUri(mPath);
+        message.setIsUsersMessage(true);
+        message.setHasBeenSent(false);
+
+        addMessageToList(message);
+    }
+
+    private boolean checkPermissionsForSendImage(){
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (mContext.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Log.v(TAG, "Permission is granted");
+                return true;
+            } else {
+                Log.v(TAG, "Permission is revoked");
+                ActivityCompat.requestPermissions(Dashboard.this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, BOI);
+            }
+        } else { //permission is automatically granted on sdk<23 upon installation
+            Log.v(TAG, "Permission is granted");
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean checkPermissionForLoadMessages(){
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (mContext.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Log.v(TAG, "Permission is granted");
+                return true;
+            } else {
+                Log.v(TAG, "Permission is revoked");
+                ActivityCompat.requestPermissions(Dashboard.this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, BOI2);
+            }
+        } else { //permission is automatically granted on sdk<23 upon installation
+            Log.v(TAG, "Permission is granted");
+            return true;
+        }
+
+        return false;
+    }
+
+
+
+
+    private void addMessageToList(Message message){
+        mChatsPlaceHolderView.addView(0,new MessageItem(mContext,mChatsPlaceHolderView,message));
+        mChatsPlaceHolderView.scrollToPosition(0);
+        numberOfItemsAdded++;
+    }
+
+    private void hideFeedChatView(){
+        isCardCollapsed = true;
+        numberOfItemsAdded = 0;
+        mChatsPlaceHolderView.removeAllViews();
+        mScrollView.setVisibility(View.VISIBLE);
+        updateUpPosition(collapsedMargin,normalDuration);
+    }
+
+    private void updateUpPosition(int y_pos,int duration){
+        if(!isInTransition){
+            CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) mFeedChatView.getLayoutParams();
+            layoutParams.bottomMargin = -(unCollapsedMargin);
+            layoutParams.topMargin = (unCollapsedMargin);
+            mFeedChatView.setLayoutParams(layoutParams);
+            mFeedChatView.setTranslationY(200);
+            isInTransition = true;
+        }
+
+        Log.d("TAG","updateUpPosition y_pos: "+y_pos);
+
+        mFeedChatView.animate().setDuration(duration).translationY(y_pos)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                if(mFeedChatView.getTranslationY()==collapsedMargin){
+                    CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) mFeedChatView.getLayoutParams();
+                    layoutParams.bottomMargin = -collapsedMargin;
+                    layoutParams.topMargin = collapsedMargin;
+                    mFeedChatView.setLayoutParams(layoutParams);
+                    mFeedChatView.setTranslationY(unCollapsedMargin);
+                    isInTransition = false;
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+
+        int rounded = (((y_pos/1100) + 99) / 100 );
+        Log.d("TAG","rounded: "+rounded);
+
+    }
+
+    private List<Message> loadSavedMessages(){
+        List<Message> myLocalMessages = new ArrayList<>();
+
+        Gson gson = new Gson();
+        SharedPreferences prefs = mContext.getSharedPreferences(Constants.FIREBASE_MESSAGES, MODE_PRIVATE);
+        String storedHashMapString = prefs.getString(Constants.FIREBASE_MESSAGES, "nil");
+
+        if(!storedHashMapString.equals("nil")) {
+            java.lang.reflect.Type type = new TypeToken<List<Message>>() {}.getType();
+            myLocalMessages = gson.fromJson(storedHashMapString, type);
+        }
+
+        Log.d(TAG,"Loaded "+myLocalMessages.size()+" stored messages from shared preferences");
+        return myLocalMessages;
+    }
+
+    BroadcastReceiver mMessageReceiverForListeningForNewMessages = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(!isCardCollapsed){
+                mChatsPlaceHolderView.removeAllViews();
+                loadMessages();
+                numberOfNewMessages++;
+            }else{
+                setNewMessageBubble();
+            }
+        }
+    };
+
+    private void setNewMessageBubble() {
+        findViewById(R.id.newMessagesView).setVisibility(View.VISIBLE);
+    }
+
+    private void removeNewMessageBubble(){
+        findViewById(R.id.newMessagesView).setVisibility(View.INVISIBLE);
+    }
 
 
 }

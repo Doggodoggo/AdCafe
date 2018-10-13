@@ -118,6 +118,7 @@
 
         <service android:name=".services.TimeManager$MyTestService"
             android:exported="false"/>
+        <service android:name=".services.MessagesService" />
     </application>
 
 </manifest>

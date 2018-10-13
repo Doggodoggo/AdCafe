@@ -10,6 +10,7 @@
 
 
     <ScrollView
+        android:id="@+id/ScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:overScrollMode="never"
@@ -310,9 +311,19 @@
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="20dp"
                         android:layout_marginTop="5dp"
-                        android:text="Help us improve on the app."
+                        android:text="Chat with the apps' developers."
                         android:textAlignment="center"
                         android:textSize="13sp" />
+
+                    <View
+                        android:id="@+id/newMessagesView"
+                        android:layout_width="3dp"
+                        android:visibility="invisible"
+                        android:layout_marginTop="40dp"
+                        android:layout_marginLeft="115dp"
+                        android:background="@color/colorPrimary"
+                        android:alpha="0.9"
+                        android:layout_height="3dp"/>
 
                     <ImageButton
                         android:id="@+id/FeedbackBtn"
@@ -326,7 +337,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
-                        android:text="FEEDBACK"
+                        android:text="FEEDCHAT"
                         android:layout_gravity="bottom"
                         android:textAlignment="center"
                         android:textSize="10sp" />
@@ -569,6 +580,209 @@
         </LinearLayout>
 
     </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/feedChatView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.CardView
+            android:orientation="vertical"
+            app:cardBackgroundColor="@color/grey"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            app:cardCornerRadius="14dp"
+            app:cardPreventCornerOverlap="false"
+            app:cardElevation="1dp">
+
+            <LinearLayout
+                android:id="@+id/topFeedChatBarView"
+                android:layout_width="match_parent"
+                android:paddingTop="20dp"
+                android:paddingLeft="20dp"
+                android:orientation="horizontal"
+                android:background="@drawable/boxtingy_xs"
+                android:layout_height="100dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:text="@string/appSupport"
+                        android:typeface="monospace"
+                        android:textColor="@color/grey"
+                        android:textStyle="normal|bold"
+                        android:textSize="22sp"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:id="@+id/youreSpeakingWithText"
+                        android:layout_width="wrap_content"
+                        android:text="@string/yourSpeakingText"
+                        android:typeface="sans"
+                        android:textColor="@color/grey"
+                        android:textStyle="normal|bold"
+                        android:textSize="13sp"
+                        android:layout_marginTop="10dp"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/collapseFeedChatButton"
+                android:layout_width="30dp"
+                android:layout_gravity="right"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/ic_action_close"
+                android:layout_marginRight="10dp"
+                android:layout_height="30dp" />
+
+            <RelativeLayout
+                android:id="@+id/chatLayout"
+                android:layout_width="match_parent"
+                android:layout_marginTop="100dp"
+                android:layout_marginBottom="50dp"
+                android:layout_height="match_parent">
+
+                <com.mindorks.placeholderview.PlaceHolderView
+                    android:layout_width="match_parent"
+                    android:id="@+id/chatsPlaceHolderView"
+                    android:layout_height="match_parent">
+
+                </com.mindorks.placeholderview.PlaceHolderView>
+
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_gravity="bottom"
+                android:background="@color/white"
+                android:layout_height="wrap_content">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:background="@color/accent"
+                    android:alpha="0.9"
+                    android:layout_height="1dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingRight="10dp"
+                    android:paddingLeft="10dp"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:id="@+id/feedChatEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/white"
+                        android:layout_marginRight="90dp"
+                        android:maxHeight="50dp"
+                        android:scrollbars="vertical"
+                        android:layout_gravity="center_vertical"
+                        android:hint="Send a message."
+                        android:cursorVisible="true"
+                        android:textColor="@color/secondary_text"
+                        android:textColorHint="@color/colorPrimaryLight"
+                        android:textSize="15sp"/>
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="5dp"
+                        android:visibility="invisible"
+                        android:layout_marginBottom="5dp"
+                        android:layout_height="wrap_content">
+
+                        <ImageButton
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginLeft="5dp"
+                            android:background="@drawable/ic_action_attach"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_marginTop="30dp"
+                            android:textSize="8dp"
+                            android:layout_marginLeft="1dp"
+                            android:text="Add Image."
+                            android:layout_height="wrap_content" />
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="right"
+                    android:paddingRight="10dp"
+                    android:paddingLeft="10dp"
+                    android:layout_height="wrap_content">
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:layout_height="wrap_content">
+
+                        <ImageButton
+                            android:id="@+id/addImageBtn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginLeft="6dp"
+                            android:background="@drawable/ic_action_send_image"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_marginTop="30dp"
+                            android:textSize="8dp"
+                            android:layout_marginLeft="1dp"
+                            android:text="Send Image."
+                            android:layout_height="wrap_content" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:layout_height="wrap_content">
+
+                        <ImageButton
+                            android:id="@+id/sendBtn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:background="@drawable/ic_action_send"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_marginTop="30dp"
+                            android:textSize="8dp"
+                            android:layout_marginLeft="5dp"
+                            android:text="Send."
+                            android:layout_height="wrap_content" />
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </android.support.v7.widget.CardView>
+
+
+    </RelativeLayout>
 
 
 </android.support.design.widget.CoordinatorLayout>

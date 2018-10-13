@@ -257,6 +257,8 @@
     <string name="confirmEmail">"We've sent you an email for verification. The app will automatically detect that you're verified and you will be able to access and use the app."</string>
     <string name="reconfirmEmail">"To continue, you need to first verify your email address. The app will automatically detect that you're verified and you'll be able to use the app."</string>
 
+    <string name="appSupport">AdCafé Support.</string>
+    <string name="yourSpeakingText">"You're speaking to Bry."</string>
 
 
 
