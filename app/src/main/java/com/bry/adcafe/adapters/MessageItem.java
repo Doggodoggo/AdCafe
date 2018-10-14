@@ -22,6 +22,8 @@ import android.widget.Toast;
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.models.Message;
+import com.bry.adcafe.models.MyTime;
+import com.bry.adcafe.services.TimeManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -212,6 +214,7 @@ public class MessageItem {
         mMessage.setImage(dbRef.getKey());
         mMessage.setImageBitmap(null);
         mMessage.setIsUsersMessage(true);
+        mMessage.setTimeStamp(new MyTime(TimeManager.getCal()));
 
         dbRef.setValue(mMessage).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -277,7 +280,7 @@ public class MessageItem {
         DatabaseReference dbRef = mRef.push();
         mMessage.setPushId(dbRef.getKey());
         mMessage.setIsUsersMessage(true);
-
+        mMessage.setTimeStamp(new MyTime(TimeManager.getCal()));
 
         mSendingText.setVisibility(android.view.View.VISIBLE);
         dbRef.setValue(mMessage).addOnCompleteListener(new OnCompleteListener<Void>() {

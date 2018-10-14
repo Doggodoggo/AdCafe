@@ -16,6 +16,8 @@ public class Message {
     private Bitmap imageBitmap;
     private String messageUri;
 
+    private MyTime timeStamp;
+
 
     public Message(String message, String pushId, String senderId, boolean mIsUsersMessage,String messageType){
         this.mMessageString = message;
@@ -97,6 +99,7 @@ public class Message {
         this.mIsUsersMessage = mIsUsersMessage;
     }
 
+
     public String getMessageType() {
         return mMessageType;
     }
@@ -104,6 +107,7 @@ public class Message {
     public void setMessageType(String mMessageType) {
         this.mMessageType = mMessageType;
     }
+
 
     public Bitmap getImageBitmap() {
         return imageBitmap;
@@ -113,11 +117,21 @@ public class Message {
         this.imageBitmap = imageBitmap;
     }
 
+
     public String getMessageUri() {
         return messageUri;
     }
 
     public void setMessageUri(String messageUri) {
         this.messageUri = messageUri;
+    }
+
+
+    public MyTime getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(MyTime timeStamp) {
+        this.timeStamp = timeStamp;
     }
 }

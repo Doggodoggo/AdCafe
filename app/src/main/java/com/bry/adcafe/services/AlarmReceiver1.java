@@ -1,4 +1,4 @@
-package com.bry.adcafe;
+package com.bry.adcafe.services;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -31,6 +31,9 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.bry.adcafe.Constants;
+import com.bry.adcafe.R;
+import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.AgeGroup;
 import com.bry.adcafe.models.User;

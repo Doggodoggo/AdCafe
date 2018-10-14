@@ -56,8 +56,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\bryon\Desktop\frostbite\Icons\target.png" />
-                                      <entry key="outputName" value="ic_action_targeted2" />
+                                      <entry key="imageAsset" value="C:\Users\bryon\Desktop\frostbite\Icons\number_of_users.png" />
+                                      <entry key="outputName" value="ic_action_number_of_users" />
                                       <entry key="theme" value="CUSTOM" />
                                       <entry key="themeColor" value="064e46" />
                                     </map>
@@ -121,8 +121,9 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\bryon\AndroidStudioProjects\AdCafe\app\src\main\ic_web_text-web.png" />
-                                      <entry key="outputName" value="ic_web_icon5" />
+                                      <entry key="iconShape" value="NONE" />
+                                      <entry key="imageAsset" value="C:\Users\bryon\Desktop\my files\Work\Inks\Logos\app_logo.png" />
+                                      <entry key="outputName" value="ic_launcher_7" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -132,7 +133,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputIconType" value="ACTIONBAR" />
+                            <entry key="outputIconType" value="LAUNCHER_LEGACY" />
                           </map>
                         </option>
                       </PersistentState>

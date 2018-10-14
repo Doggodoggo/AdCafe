@@ -1,6 +1,5 @@
 package com.bry.adcafe.ui;
 
-import android.animation.Animator;
 import android.app.AlarmManager;
 import android.app.Dialog;
 import android.app.FragmentManager;
@@ -25,11 +24,9 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -42,12 +39,11 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.bry.adcafe.AlarmReceiver1;
+import com.bry.adcafe.services.AlarmReceiver1;
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
@@ -55,7 +51,6 @@ import com.bry.adcafe.adapters.AdvertCard;
 import com.bry.adcafe.adapters.AdCounterBar;
 import com.bry.adcafe.fragments.ContactAdvertiserBottomsheet;
 import com.bry.adcafe.fragments.FeedbackFragment;
-import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
 import com.bry.adcafe.fragments.ReportDialogFragment;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.AdvertiserLocation;
@@ -69,13 +64,11 @@ import com.bry.adcafe.services.TimeManager;
 import com.bry.adcafe.services.Utils;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -88,7 +81,6 @@ import com.google.gson.reflect.TypeToken;
 import com.mindorks.placeholderview.PlaceHolderView;
 import com.mindorks.placeholderview.SwipeDecor;
 import com.mindorks.placeholderview.SwipeDirectionalView;
-import com.mindorks.placeholderview.SwipePlaceHolderView;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.ByteArrayOutputStream;
@@ -101,7 +93,6 @@ import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.fabric.sdk.android.Fabric;
 

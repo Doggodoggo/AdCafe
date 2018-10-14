@@ -105,7 +105,7 @@ public class MessagesService extends IntentService {
                         }
                     }else{
                         if(!checkIfMessageIsContained(item)){
-                            addMessageToSavedMessagesList(item);
+//                            addMessageToSavedMessagesList(item);
                         }
                     }
                 }catch (Exception e){

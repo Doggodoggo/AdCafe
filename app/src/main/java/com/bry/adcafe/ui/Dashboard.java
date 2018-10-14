@@ -65,6 +65,7 @@ import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
 import com.bry.adcafe.fragments.SetUsersPersonalInfo;
 import com.bry.adcafe.fragments.myMapFragment;
 import com.bry.adcafe.models.Message;
+import com.bry.adcafe.models.MyTime;
 import com.bry.adcafe.models.PayoutResponse;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.DatabaseManager;
@@ -1521,10 +1522,18 @@ public class Dashboard extends AppCompatActivity {
         mCollapseFeedChatButton.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                mCollapseFeedChatButton.performClick();
-                SharedPreferences prefs = mContext.getSharedPreferences(Constants.FIREBASE_MESSAGES, MODE_PRIVATE);
-                prefs.edit().clear().apply();
+                String uid = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+                if(uid.equals("bryonyoni@gmail.com")){
+                    mCollapseFeedChatButton.performClick();
+                    SharedPreferences prefs = mContext.getSharedPreferences(Constants.FIREBASE_MESSAGES, MODE_PRIVATE);
+                    prefs.edit().clear().apply();
+                }
 
+                try{
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
                 return false;
             }
         });
