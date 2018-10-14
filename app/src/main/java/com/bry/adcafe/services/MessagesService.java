@@ -1,20 +1,32 @@
 package com.bry.adcafe.services;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Base64;
 import android.util.Log;
 
 import com.bry.adcafe.Constants;
+import com.bry.adcafe.R;
+import com.bry.adcafe.Variables;
 import com.bry.adcafe.adapters.MessageItem;
 import com.bry.adcafe.models.Message;
+import com.bry.adcafe.ui.MainActivity;
+import com.bry.adcafe.ui.Splash;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -36,6 +48,11 @@ public class MessagesService extends IntentService {
     DatabaseReference mRef;
     private String uid;
     private final String TAG = "MessageService";
+
+    private NotificationManager notificationManager;
+    private PendingIntent pendingIntent;
+    private static int NOTIFICATION_ID = 1888;
+    Notification notification;
 
 
     public MessagesService(String name) {
@@ -217,6 +234,7 @@ public class MessagesService extends IntentService {
 
     private void notifyListenersOfNewMessages(){
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Constants.NEW_MESSAGE_NOTIFIER_INTENT));
+        showNotificationForNewMessage();
     }
 
     private boolean checkIfMessageIsContained(Message message){
@@ -224,6 +242,47 @@ public class MessagesService extends IntentService {
             if(message.getPushId().equals(msg.getPushId()))return true;
         }
         return false;
+    }
+
+
+    private void showNotificationForNewMessage(){
+        if(!Variables.isDashboardActivityOnline){
+            try{
+                String message = "You've got a reply from the dev team.";
+                Context context = mContext;
+                notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+                Intent mIntent = new Intent(context, Splash.class);
+                mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                Bundle bundle = new Bundle();
+                bundle.putString("Test","test");
+                mIntent.putExtras(bundle);
+                pendingIntent = PendingIntent.getActivity(context,0,mIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+
+                Resources res = context.getResources();
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+                Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                notification = new NotificationCompat.Builder(context)
+//                    .setContentIntent(pendingIntent)
+                        .setSmallIcon(R.drawable.ic_stat_notification2)
+                        .setTicker("ticker value")
+                        .setColor(mContext.getResources().getColor(R.color.colorPrimaryDark))
+                        .setAutoCancel(true)
+                        .setPriority(8)
+                        .setContentTitle("AdCafé.")
+                        .setContentText(message).build();
+                notification.flags|= Notification.FLAG_AUTO_CANCEL|Notification.FLAG_SHOW_LIGHTS;
+                notification.defaults|=Notification.DEFAULT_VIBRATE;
+//        notification.defaults|=Notification.DEFAULT_SOUND|Notification.DEFAULT_VIBRATE;
+                notification.ledARGB = 0xFFFFA500;
+                notification.ledOnMS = 800;
+                notification.ledOffMS = 1000;
+                notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+                notificationManager.notify(NOTIFICATION_ID,notification);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
     }
 
 

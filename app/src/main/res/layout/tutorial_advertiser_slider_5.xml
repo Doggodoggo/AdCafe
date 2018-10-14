@@ -21,10 +21,10 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="270dp"
                 android:layout_marginTop="50dp"
-                android:background="@drawable/bottomadvertisebuttonsfocus"
-                android:layout_height="190dp" />
+                android:background="@drawable/ad_upload_navigation_renders"
+                android:layout_height="270dp" />
 
             <TextView
                 android:id="@+id/textView1"
@@ -64,7 +64,7 @@
                     android:layout_width="42dp"
                     android:layout_height="42dp"
                     android:layout_marginLeft="10dp"
-                    android:background="@drawable/ic_action_pick_image"/>
+                    android:background="@drawable/ic_action_select_image"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:textColor="@color/colorPrimary"
@@ -89,7 +89,7 @@
                     android:layout_width="44dp"
                     android:layout_height="44dp"
                     android:layout_marginLeft="10dp"
-                    android:background="@drawable/ic_action_number"/>
+                    android:background="@drawable/ic_action_number_of_users"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:textColor="@color/colorPrimary"
@@ -114,7 +114,7 @@
                     android:layout_width="44dp"
                     android:layout_height="44dp"
                     android:layout_marginLeft="10dp"
-                    android:background="@drawable/ic_action_target_user"/>
+                    android:background="@drawable/ic_action_filter_users"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:textColor="@color/colorPrimary"
@@ -139,7 +139,7 @@
                     android:layout_width="44dp"
                     android:layout_height="44dp"
                     android:layout_marginLeft="10dp"
-                    android:background="@drawable/ic_action_website"/>
+                    android:background="@drawable/ic_action_contact2"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:textColor="@color/colorPrimary"
@@ -164,7 +164,7 @@
                     android:layout_width="44dp"
                     android:layout_height="44dp"
                     android:layout_marginLeft="10dp"
-                    android:background="@drawable/ic_action_fimage_upload"/>
+                    android:background="@drawable/ic_action_upload"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:textColor="@color/colorPrimary"

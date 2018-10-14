@@ -59,14 +59,15 @@
                     android:layout_width="140dp"
                     android:layout_height="160dp"
                     android:layout_margin="10dp"
-                    app:cardCornerRadius="4dp"
-                    app:cardElevation="2dp">
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="1dp">
 
                     <TextView
                         android:id="@+id/AdsSeenTodayNumber"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:textColor="@color/colorPrimaryLight"
                         android:text="94"
                         android:textSize="50dp" />
 
@@ -94,14 +95,15 @@
                     android:layout_width="140dp"
                     android:layout_height="160dp"
                     android:layout_margin="10dp"
-                    app:cardCornerRadius="3dp"
-                    app:cardElevation="2dp">
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="1dp">
 
                     <TextView
                         android:id="@+id/AdsSeenAllTimeNumber"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:textColor="@color/colorPrimaryLight"
                         android:text="9,990"
                         android:textSize="50sp" />
 
@@ -136,8 +138,8 @@
                 <android.support.v7.widget.CardView
                     android:layout_width="295dp"
                     android:layout_height="170dp"
-                    app:cardCornerRadius="4dp"
-                    app:cardElevation="2dp">
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -145,11 +147,10 @@
                         android:orientation="horizontal">
 
                         <ImageView
-                            android:layout_width="99dp"
-                            android:layout_height="91dp"
-                            android:layout_marginLeft="5dp"
-                            android:layout_marginTop="7dp"
-                            android:alpha="0.6"
+                            android:layout_width="82dp"
+                            android:layout_height="71dp"
+                            android:layout_marginLeft="25dp"
+                            android:layout_marginTop="25dp"
                             android:background="@drawable/stats"
                             android:scaleType="center" />
 
@@ -163,27 +164,51 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp"
-                                android:gravity="center"
-                                android:text="My uploaded ad stats."
+                                android:text="@string/adStats"
                                 android:textSize="15sp" />
 
                             <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="50dp"
-                                android:layout_marginTop="10dp"
-                                android:gravity="center"
-                                android:text="Find out how your uploaded ad is doing so far out there."
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:layout_marginRight="10dp"
+                                android:text="@string/adStatsExplanatoin"
                                 android:textSize="13sp" />
 
                         </LinearLayout>
 
                     </LinearLayout>
 
+                    <android.support.v7.widget.CardView
+                        android:id="@+id/findOutCard"
+                        android:layout_width="match_parent"
+                        android:layout_gravity="bottom"
+                        app:cardBackgroundColor="@color/colorPrimaryDark"
+                        app:cardCornerRadius="5dp"
+                        app:cardElevation="0dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginBottom="14dp"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:layout_marginTop="13dp"
+                            android:layout_marginBottom="13dp"
+                            android:text="FIND OUT."
+                            android:textSize="11sp"
+                            android:layout_height="wrap_content" />
+
+                    </android.support.v7.widget.CardView>
+
                     <Button
                         android:id="@+id/uploadedAdsStats"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
+                        android:visibility="gone"
                         android:layout_marginBottom="14dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
@@ -211,8 +236,8 @@
                     android:layout_width="115dp"
                     android:layout_height="110dp"
                     android:layout_margin="10dp"
-                    app:cardCornerRadius="4dp"
-                    app:cardElevation="2dp">
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="1dp">
 
                     <TextView
                         android:id="@+id/ammountNumber"
@@ -220,6 +245,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginTop="5dp"
+                        android:textColor="@color/colorPrimaryLight"
                         android:text="1626"
                         android:textSize="30sp" />
 
@@ -250,15 +276,15 @@
                     android:layout_width="160dp"
                     android:layout_height="110dp"
                     android:layout_margin="10dp"
-                    app:cardCornerRadius="4dp"
-                    app:cardElevation="2dp">
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="1dp">
 
                     <ImageView
                         android:layout_width="45dp"
                         android:layout_height="45dp"
                         android:layout_gravity="center"
-                        android:layout_marginTop="7dp"
-                        android:background="@drawable/editedadvertiseicon" />
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/publish" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -302,8 +328,8 @@
                     android:layout_marginLeft="0dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginTop="5dp"
-                    app:cardCornerRadius="4dp"
-                    app:cardElevation="2dp">
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="1dp">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -319,19 +345,19 @@
                         android:id="@+id/newMessagesView"
                         android:layout_width="3dp"
                         android:visibility="invisible"
-                        android:layout_marginTop="40dp"
-                        android:layout_marginLeft="115dp"
+                        android:layout_marginTop="45dp"
+                        android:layout_marginLeft="110dp"
                         android:background="@color/colorPrimary"
                         android:alpha="0.9"
                         android:layout_height="3dp"/>
 
                     <ImageButton
                         android:id="@+id/FeedbackBtn"
-                        android:layout_width="66dp"
+                        android:layout_width="55dp"
                         android:layout_marginTop="8dp"
                         android:layout_gravity="center"
-                        android:layout_height="70dp"
-                        android:background="@drawable/ic_action_feedback3" />
+                        android:layout_height="45dp"
+                        android:background="@drawable/feedchat" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -350,8 +376,8 @@
                     android:layout_height="110dp"
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="5dp"
-                    app:cardCornerRadius="4dp"
-                    app:cardElevation="2dp">
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -371,9 +397,11 @@
 
                         <ImageView
                             android:id="@+id/subscriptionsImage"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:background="@drawable/ic_action_subscriptions" />
+                            android:layout_marginTop="8dp"
+                            android:layout_width="37dp"
+                            android:layout_height="40dp"
+                            android:layout_marginBottom="8dp"
+                            android:background="@drawable/subscriptions" />
 
                         <TextView
                             android:layout_width="match_parent"
@@ -424,14 +452,14 @@
                             android:layout_marginLeft="2dp"
                             android:layout_marginRight="2dp"
                             android:layout_marginTop="2dp"
-                            app:cardCornerRadius="4dp"
-                            app:cardElevation="2dp">
+                            app:cardCornerRadius="10dp"
+                            app:cardElevation="1dp">
 
                             <ImageButton
                                 android:id="@+id/NotificationBtn"
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/ic_action_notification" />
+                                android:background="@drawable/ic_action_notification3" />
 
                             <View
                                 android:id="@+id/dotForNotification"
@@ -439,7 +467,7 @@
                                 android:layout_height="2dp"
                                 android:layout_marginLeft="40dp"
                                 android:layout_marginTop="15dp"
-                                android:background="@color/fuchsia"
+                                android:background="@color/colorPrimaryLight"
                                 android:visibility="invisible" />
 
                         </android.support.v7.widget.CardView>
@@ -451,14 +479,14 @@
                             android:layout_marginRight="2dp"
                             android:layout_marginLeft="2dp"
                             android:layout_marginTop="2dp"
-                            app:cardCornerRadius="4dp"
-                            app:cardElevation="2dp">
+                            app:cardCornerRadius="10dp"
+                            app:cardElevation="1dp">
 
                             <ImageButton
                                 android:id="@+id/UserDataBtn"
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/ic_action_userinfo" />
+                                android:background="@drawable/ic_action_user_info" />
 
                             <View
                                 android:id="@+id/dotForUserData"
@@ -466,7 +494,7 @@
                                 android:layout_height="2dp"
                                 android:layout_marginLeft="40dp"
                                 android:layout_marginTop="15dp"
-                                android:background="@color/fuchsia"
+                                android:background="@color/colorPrimaryLight"
                                 android:visibility="invisible" />
 
                         </android.support.v7.widget.CardView>
@@ -486,14 +514,14 @@
                             android:layout_marginBottom="2dp"
                             android:layout_marginLeft="2dp"
                             android:layout_marginRight="2dp"
-                            app:cardCornerRadius="4dp"
-                            app:cardElevation="2dp">
+                            app:cardCornerRadius="10dp"
+                            app:cardElevation="1dp">
 
                             <ImageButton
                                 android:id="@+id/targetedBtn"
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/ic_action_targeted" />
+                                android:background="@drawable/ic_action_targeted2" />
 
                             <View
                                 android:id="@+id/dotForTargeted"
@@ -501,7 +529,7 @@
                                 android:layout_height="2dp"
                                 android:layout_marginLeft="40dp"
                                 android:layout_marginTop="15dp"
-                                android:background="@color/fuchsia"
+                                android:background="@color/colorPrimaryLight"
                                 android:visibility="visible" />
 
                         </android.support.v7.widget.CardView>
@@ -512,14 +540,14 @@
                             android:layout_marginBottom="2dp"
                             android:layout_marginLeft="2dp"
                             android:layout_marginRight="2dp"
-                            app:cardCornerRadius="4dp"
-                            app:cardElevation="2dp">
+                            app:cardCornerRadius="10dp"
+                            app:cardElevation="1dp">
 
                             <ImageButton
                                 android:id="@+id/ChangeCPVBtn"
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/ic_action_changecpvx" />
+                                android:background="@drawable/ic_action_changecpv2" />
 
                         </android.support.v7.widget.CardView>
 
@@ -528,14 +556,14 @@
                 </LinearLayout>
 
                 <android.support.v7.widget.CardView
+                    android:id="@+id/payoutCard"
                     android:layout_width="175dp"
                     android:layout_height="106dp"
-                    android:id="@+id/payoutCard"
+                    android:layout_marginBottom="5dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="2dp"
-                    android:layout_marginBottom="5dp"
-                    app:cardCornerRadius="4dp"
-                    app:cardElevation="2dp">
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="1dp">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -549,18 +577,18 @@
 
                     <ImageButton
                         android:id="@+id/payoutBtn"
-                        android:layout_width="60dp"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
                         android:layout_gravity="center"
                         android:layout_marginTop="10dp"
-                        android:layout_height="50dp"
-                        android:background="@drawable/money7" />
+                        android:background="@drawable/payout" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
                         android:layout_marginBottom="5dp"
                         android:text="PAYOUT."
-                        android:layout_gravity="bottom"
                         android:textAlignment="center"
                         android:textSize="10sp" />
 
@@ -582,6 +610,7 @@
     </ScrollView>
 
     <RelativeLayout
+        android:visibility="gone"
         android:id="@+id/feedChatView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -650,7 +679,7 @@
                 android:id="@+id/chatLayout"
                 android:layout_width="match_parent"
                 android:layout_marginTop="100dp"
-                android:layout_marginBottom="50dp"
+                android:layout_marginBottom="60dp"
                 android:layout_height="match_parent">
 
                 <com.mindorks.placeholderview.PlaceHolderView
@@ -672,7 +701,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:background="@color/accent"
-                    android:alpha="0.9"
+                    android:alpha="0.5"
                     android:layout_height="1dp" />
 
                 <LinearLayout
@@ -706,8 +735,8 @@
                         android:layout_height="wrap_content">
 
                         <ImageButton
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="40dp"
+                            android:layout_height="50dp"
                             android:layout_marginLeft="5dp"
                             android:background="@drawable/ic_action_attach"/>
 
@@ -733,7 +762,7 @@
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_marginLeft="20dp"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="10dp"
                         android:layout_marginBottom="5dp"
                         android:layout_height="wrap_content">
 
@@ -756,7 +785,7 @@
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_marginLeft="10dp"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="10dp"
                         android:layout_marginBottom="5dp"
                         android:layout_height="wrap_content">
 

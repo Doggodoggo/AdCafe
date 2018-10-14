@@ -42,15 +42,15 @@
 
             <ImageButton
                 android:id="@+id/chooseImageIcon"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:background="@drawable/ic_action_pick_image"/>
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:background="@drawable/ic_action_select_image"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:id="@+id/selectText"
                 android:layout_marginTop="40dp"
                 android:textSize="8dp"
-                android:layout_marginLeft="1dp"
+                android:layout_marginLeft="3dp"
                 android:text="Select image."
                 android:layout_height="wrap_content" />
         </RelativeLayout>
@@ -60,14 +60,14 @@
             android:layout_height="wrap_content">
             <ImageButton
                 android:id="@+id/chooseNumberButton"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_marginLeft="55dp"
-                android:background="@drawable/ic_action_number"/>
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:layout_marginLeft="50dp"
+                android:background="@drawable/ic_action_number_of_users"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:id="@+id/chooseNumberText"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="41dp"
                 android:layout_marginLeft="44dp"
                 android:textSize="8dp"
                 android:text="Number of people."
@@ -105,7 +105,7 @@
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:layout_marginLeft="35dp"
-                android:background="@drawable/ic_action_fimage_upload"/>
+                android:background="@drawable/ic_action_upload"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:id="@+id/uploadText"
@@ -130,9 +130,9 @@
         android:layout_marginRight="10dp"
         android:layout_marginBottom="70dp"
         android:layout_marginTop="46dp"
-        app:cardCornerRadius="4dp"
+        app:cardCornerRadius="14dp"
         app:cardPreventCornerOverlap="false"
-        app:cardElevation="4dp">
+        app:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -151,7 +151,7 @@
                     android:layout_width="42dp"
                     android:layout_height="42dp"
                     android:layout_marginLeft="18dp"
-                    android:background="@drawable/ic_action_target_user"/>
+                    android:background="@drawable/ic_action_filter_users"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:id="@+id/Report"
@@ -171,7 +171,7 @@
                     android:layout_width="44dp"
                     android:layout_height="44dp"
                     android:layout_marginLeft="21dp"
-                    android:background="@drawable/ic_action_contact"/>
+                    android:background="@drawable/ic_action_contact2"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:id="@+id/websiteText"
@@ -200,20 +200,20 @@
             android:layout_width="2dp"
             android:visibility="invisible"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="122dp"
+            android:layout_marginLeft="125dp"
             android:layout_marginBottom="35dp"
             android:id="@+id/smallDot"
-            android:background="@color/fuchsia"
+            android:background="@color/colorPrimaryLight"
             android:layout_height="2dp"/>
 
         <View
             android:layout_width="2dp"
             android:visibility="invisible"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="59dp"
+            android:layout_marginLeft="65dp"
             android:layout_marginBottom="35dp"
             android:id="@+id/smallDot2"
-            android:background="@color/fuchsia"
+            android:background="@color/colorPrimaryLight"
             android:layout_height="2dp"/>
 
     </android.support.v7.widget.CardView>

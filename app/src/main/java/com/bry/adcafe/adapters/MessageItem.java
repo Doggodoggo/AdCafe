@@ -219,7 +219,7 @@ public class MessageItem {
                 mMessage.setHasBeenSent(true);
                 addMessageToSavedMessagesList(mMessage);
                 mSendingText.setVisibility(android.view.View.GONE);
-                mSentImage.setVisibility(android.view.View.VISIBLE);
+                if(mMessage.getMessageType().equals(Constants.TEXT_MESSAGE)) mSentImage.setVisibility(android.view.View.VISIBLE);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

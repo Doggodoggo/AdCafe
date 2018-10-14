@@ -38,7 +38,7 @@
                 android:gravity="center"
                 android:text="7"
                 android:background="@drawable/circle_design_timer_file"
-                android:textColor="@color/primary_text"
+                android:textColor="@color/colorPrimaryDark"
                 android:textSize="12sp" />
 
         </RelativeLayout>
@@ -46,7 +46,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:id="@+id/adCounter"
-            android:textColor="@color/lightyellow"
+            android:textColor="@color/white"
             android:textSize="11sp"
             android:layout_margin="11dp"
             android:gravity="center"

@@ -62,6 +62,8 @@
     <string name="noteForPickingMessage">"The number shown is by 100 (*100 users). Select having that in mind."</string>
     <string name="pickBeforePaying">"So make sure you pick before making any payments."</string>
     <string name="shareText">"Share The App."</string>
+    <string name="adStats">My Ad Stats.</string>
+    <string name="adStatsExplanatoin">Monitor and find out how your uploaded ad is doing out there.</string>
 
 
 
@@ -83,17 +85,17 @@
 
     <string name="slide3text21">We want to make advertising cool; We believe that the AdCafé can do just that, and do it in a way that is
         effective, interesting and maybe, just maybe, entertaining.</string>
-    <string name="slide3text2">Your attention has value to advertisers. Here you can charge them for it, making money in the process.</string>
+    <string name="slide3text2">Your time and attention has value to advertisers. Here you can charge them for it, making money in the process.</string>
     <string name="slide4text">Even better! Among many other benefits, the AdCafé gives you the ability to
         target many of its users in a very short period of time.</string>
     <string name="slide5text">Not quite yet. First you\'ll need to know how to use the app and for that we\'ve prepared
         a short tutorial on how you will interact with it.</string>
-    <string name="slide6text">Now the main page will look something like this. We will go over what
-        everything is and what everything does.</string>
+    <string name="slide6text">Now the main page will look a little like this. We\'ll go over what
+        everything is and what does what.</string>
     <string name="slide7text">The advert banners will be hosted in cards looking like this. The centre to top part is where the banner will
         be.</string>
     <string name="slide8text">Below the banner are some buttons which should help you to perform some actions.</string>
-    <string name="slide9text">At the top of the page are two items, a timer (to the left) and an AdCounter (to the right).</string>
+    <string name="slide9text">At the top of the page are two items, a timer (left) and an AdCounter (right).</string>
     <string name="timerExplanation">The timer counts down 7 seconds. During this period you cannot move to the next ad, but only
         after the timer hits 0. Remember that.</string>
     <string name="adcounterExplanation">The AdCounter simply shows you the number of adverts you\'ve seen in the day.</string>
@@ -102,7 +104,7 @@
 
 
 
-    <string name="slide10text">Below the AdCards are buttons which can help you do more cool stuff.</string>
+    <string name="slide10text">Below the AdCards are buttons for navigation within the app.</string>
     <string name="feedbacktbuttonexplanation">Feedback Button : This button helps you pass suggestions or opinions about the app.</string>
     <string name="pinlisticon">Ad Archive Button : This will open a window where you can view all your pinned ads.</string>
     <string name="dashboardexplanation">Dashboard Button : This window is where all the stats concerning the number of ads you\'ve
@@ -146,7 +148,7 @@
     <string name="selectnumber">Select Number of People button : This is for choosing the number of people you want to reach.</string>
     <string name="addlinkbutton">Website link button : (Optional) You can ad a link to a relevant website for your advert.</string>
     <string name="filterUsersBtn">Filter Users button: (Optional) You can further filter your audience based on criteria such as age, location and gender/sex.</string>
-    <string name="uploadbutton">Upload button : After setting everything, clicking this button will prompt you for your payment
+    <string name="uploadbutton">Upload button : After setting everything, this button will apprear. Clicking this button will prompt you for your payment
         details then after making the payment, the upload will be done.</string>
     <string name="dontuploadsameadtwice">We have a strict policy concerning re-uploading ads. Uploading the same ad more than once is not
         allowed here.</string>

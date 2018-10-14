@@ -17,6 +17,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -62,7 +63,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public static final String TAG = LoginActivity.class.getSimpleName();
     @Bind(R.id.emailEditText)  EditText mEmail;
     @Bind(R.id.passwordEditText) EditText mPassword;
-    @Bind(R.id.LoginButton)  Button mLoginButton;
+    @Bind(R.id.LogInCard) CardView mLoginButton;
     @Bind(R.id.registerLink) TextView mRegisterLink;
     @Bind(R.id.LoginAvi) AVLoadingIndicatorView mAvi;
     @Bind(R.id.progressBarlogin) ProgressBar mProgressBarLogin;

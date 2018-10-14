@@ -34,6 +34,7 @@
             android:layout_marginRight="20dp"
             android:layout_marginTop="20dp"
             android:gravity="center"
+            android:width="270dp"
             android:layout_marginLeft="20dp"
             android:layout_height="wrap_content"
             android:text="@string/slide11text"
@@ -44,12 +45,13 @@
             android:textColor="@color/colorPrimary"
             android:layout_width="wrap_content"
             android:layout_marginRight="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:gravity="center"
+            android:width="230dp"
             android:layout_marginLeft="20dp"
             android:autoLink="web"
             android:layout_height="wrap_content"
-            android:text="To fully understand how you will use the app, please check out our User tutorial."
+            android:text="For more, our User tutorial can be found Here."
             android:textSize="16sp" />
 
     </LinearLayout>

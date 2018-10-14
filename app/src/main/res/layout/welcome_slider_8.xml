@@ -21,10 +21,10 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="200dp"
                 android:layout_marginTop="50dp"
-                android:background="@drawable/bottomcardbuttonsfocus"
-                android:layout_height="140dp" />
+                android:background="@drawable/advert_card_button_render"
+                android:layout_height="170dp" />
 
             <TextView
                 android:id="@+id/textView1"
@@ -46,6 +46,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="15dp"
                 android:gravity="center"
+                android:width="310dp"
                 android:layout_marginLeft="20dp"
                 android:layout_height="wrap_content"
                 android:text="@string/slide8text"
@@ -64,7 +65,7 @@
                     android:layout_width="42dp"
                     android:layout_height="42dp"
                     android:layout_marginLeft="10dp"
-                    android:background="@drawable/ic_action_flag"/>
+                    android:background="@drawable/ic_action_report"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:textColor="@color/colorPrimary"
@@ -89,7 +90,7 @@
                     android:layout_width="44dp"
                     android:layout_height="44dp"
                     android:layout_marginLeft="10dp"
-                    android:background="@drawable/ic_action_pin"/>
+                    android:background="@drawable/ic_action_pin3"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:textColor="@color/colorPrimary"
@@ -114,7 +115,7 @@
                     android:layout_width="44dp"
                     android:layout_height="44dp"
                     android:layout_marginLeft="10dp"
-                    android:background="@drawable/ic_action_contact"/>
+                    android:background="@drawable/ic_action_contact2"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:textColor="@color/colorPrimary"
@@ -139,7 +140,7 @@
                     android:layout_width="44dp"
                     android:layout_height="44dp"
                     android:layout_marginLeft="10dp"
-                    android:background="@drawable/ic_action_share2"/>
+                    android:background="@drawable/ic_action_share4"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:textColor="@color/colorPrimary"

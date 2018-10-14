@@ -142,7 +142,7 @@ public class TutorialUsers extends AppCompatActivity {
                 myBtnNext.setText(getString(R.string.start));
                 myBtnSkip.setVisibility(View.GONE);
                 TextView tut = findViewById(R.id.textView33maxboi);
-                String sourceString = "To fully understand how you will use the app, please check out our <b>User tutorial.</b>";
+                String sourceString = "For more, our <b>User tutorial.</b> can be found here.";
                 tut.setText(Html.fromHtml(sourceString));
                 tut.setOnClickListener(new View.OnClickListener() {
                     @Override

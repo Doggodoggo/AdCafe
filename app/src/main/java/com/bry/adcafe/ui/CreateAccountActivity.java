@@ -22,6 +22,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.util.Log;
@@ -74,8 +75,8 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
     private Context mContext;
     private String mKey = "";
 
-    @Bind(R.id.createUserButton)
-    Button mCreateUserButton;
+    @Bind(R.id.SignUpCard)
+    CardView mCreateUserButton;
     @Bind(R.id.nameEditText)
     EditText mNameEditText;
     @Bind(R.id.emailEditText)

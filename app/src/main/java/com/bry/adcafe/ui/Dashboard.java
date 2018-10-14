@@ -132,7 +132,7 @@ public class Dashboard extends AppCompatActivity {
     @Bind(R.id.ChangeCPVBtn) public ImageButton mCPVBtn;
     @Bind(R.id.targetedBtn) public ImageButton targetedBtn;
     @Bind(R.id.payoutBtn) public ImageButton payoutBtn;
-//    @Bind(R.id.shareAppBtn) public ImageButton shareAppBtn;
+    @Bind(R.id.findOutCard) public CardView findOutCard;
 
     public Context miniContext;
     private ProgressDialog mProgForPayments;
@@ -294,7 +294,7 @@ public class Dashboard extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.uploadedAdsStats).setOnClickListener(new View.OnClickListener() {
+        findOutCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Dashboard.this, AdStats.class);
@@ -1483,6 +1483,7 @@ public class Dashboard extends AppCompatActivity {
     }
 
     public void fastCollapseTheFeedChatView(){
+        mFeedChatView.setVisibility(View.VISIBLE);
         isCardCollapsed = true;
         updateUpPosition(collapsedMargin,0);
     }
