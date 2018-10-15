@@ -1,5 +1,6 @@
 package com.bry.adcafe.ui;
 
+import android.animation.Animator;
 import android.app.AlarmManager;
 import android.app.Dialog;
 import android.app.FragmentManager;
@@ -27,6 +28,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -1811,13 +1813,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(areViewsHidden){
             areViewsHidden = false;
             Log(TAG,"Unhiding views");
-            mAdCounterView.setVisibility(View.VISIBLE);
+//            mAdCounterView.setVisibility(View.VISIBLE);
 //            mAvi.setVisibility(View.GONE);
-            mLoadingProgressBar.setVisibility(View.GONE);
-            mLoadingText.setVisibility(View.GONE);
-            mBottomNavButtons.setVisibility(View.VISIBLE);
+//            mLoadingProgressBar.setVisibility(View.GONE);
+//            mLoadingText.setVisibility(View.GONE);
+//            mBottomNavButtons.setVisibility(View.VISIBLE);
             findViewById(R.id.easterText).setVisibility(View.VISIBLE);
-            mSwipeView.setVisibility(View.VISIBLE);
+//            mSwipeView.setVisibility(View.VISIBLE);
+            animateShowAdCards();
             if(isLastAd){
                 Toast.makeText(mContext, "There's nothing else for you today.", Toast.LENGTH_SHORT).show();
             }
@@ -3561,6 +3564,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void listenForMessages(){
         Intent i = new Intent(mContext, MessagesService.class);
         mContext.startService(i);
+    }
+
+    public void animateShowAdCards(){
+        mSwipeView.setVisibility(View.VISIBLE);
+        mSwipeView.setTranslationY(Utils.dpToPx(100));
+        mSwipeView.setRotationY(3);
+        mSwipeView.animate().setDuration(300).translationY(0).rotationY(0).setInterpolator(new LinearOutSlowInInterpolator());
+
+        mBottomNavButtons.setVisibility(View.VISIBLE);
+        mBottomNavButtons.setTranslationY(Utils.dpToPx(100));
+        mSwipeView.setRotationY(3);
+        mBottomNavButtons.animate().setDuration(300).translationY(0).rotationY(0).setInterpolator(new LinearOutSlowInInterpolator());
+
+        mAdCounterView.setVisibility(View.VISIBLE);
+        mAdCounterView.setTranslationY(Utils.dpToPx(100));
+        mSwipeView.setRotationY(3);
+        mAdCounterView.animate().setDuration(300).translationY(0).rotationY(0).setInterpolator(new LinearOutSlowInInterpolator());
+
+
+        mLoadingProgressBar.animate().setDuration(300).translationY(-Utils.dpToPx(100)).alpha(0f).setInterpolator(new LinearOutSlowInInterpolator());
+        mLoadingText.animate().setDuration(300).translationY(-Utils.dpToPx(100)).alpha(0f).setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                mLoadingProgressBar.setVisibility(View.GONE);
+                mLoadingText.setVisibility(View.GONE);
+
+                mLoadingProgressBar.setTranslationY(0);
+                mLoadingProgressBar.setAlpha(1f);
+                mLoadingText.setTranslationY(0);
+                mLoadingText.setAlpha(1f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+
     }
 
 

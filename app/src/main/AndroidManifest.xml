@@ -80,6 +80,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.Dashboard"
+            android:windowSoftInputMode="stateHidden|adjustResize"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.Splash"

@@ -1709,6 +1709,10 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void updateUpPosition(int y_pos,int duration){
+        mChatsPlaceHolderView.setVisibility(View.INVISIBLE);
+        findViewById(R.id.theBottomView).setVisibility(View.INVISIBLE);
+
+
         if(!isInTransition){
             CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) mFeedChatView.getLayoutParams();
             layoutParams.bottomMargin = -(unCollapsedMargin);
@@ -1718,7 +1722,34 @@ public class Dashboard extends AppCompatActivity {
             isInTransition = true;
         }
 
+
         Log.d("TAG","updateUpPosition y_pos: "+y_pos);
+        if(y_pos==collapsedMargin){
+            mFeedChatView.setRotationY(0);
+            mFeedChatView.animate().setDuration(300).rotationY(4).setInterpolator(new LinearOutSlowInInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animator) {
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animator) {
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animator) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animator) {
+
+                }
+            });
+        }else{
+            mFeedChatView.setRotationY(4);
+            mFeedChatView.animate().setDuration(300).rotationY(0).setInterpolator(new LinearOutSlowInInterpolator());
+        }
 
         mFeedChatView.animate().setDuration(duration).translationY(y_pos)
                 .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
@@ -1737,6 +1768,16 @@ public class Dashboard extends AppCompatActivity {
                     mFeedChatView.setTranslationY(unCollapsedMargin);
                     isInTransition = false;
                 }
+                mChatsPlaceHolderView.setVisibility(View.VISIBLE);
+                findViewById(R.id.theBottomView).setVisibility(View.VISIBLE);
+
+
+                mChatsPlaceHolderView.setTranslationY(50);
+                mChatsPlaceHolderView.animate().setDuration(100).translationY(0).setInterpolator(new LinearOutSlowInInterpolator());
+
+                findViewById(R.id.theBottomView).setTranslationY(50);
+                findViewById(R.id.theBottomView).animate().setDuration(100).translationY(0).setInterpolator(new LinearOutSlowInInterpolator());
+
             }
 
             @Override

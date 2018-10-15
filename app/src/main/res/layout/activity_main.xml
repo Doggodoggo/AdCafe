@@ -26,13 +26,14 @@
 
             <ImageButton
                 android:id="@+id/logoutBtn"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="29dp"
+                android:layout_marginLeft="3dp"
+                android:layout_height="29dp"
                 android:background="@drawable/ic_action_feedback6"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:id="@+id/settingsText"
-                android:layout_marginTop="35dp"
+                android:layout_marginTop="30dp"
                 android:textSize="8dp"
                 android:layout_marginLeft="0dp"
                 android:text="Feedback."

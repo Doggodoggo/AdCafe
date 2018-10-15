@@ -59,7 +59,7 @@
                     android:layout_width="140dp"
                     android:layout_height="160dp"
                     android:layout_margin="10dp"
-                    app:cardCornerRadius="10dp"
+                    app:cardCornerRadius="12dp"
                     app:cardElevation="1dp">
 
                     <TextView
@@ -95,7 +95,7 @@
                     android:layout_width="140dp"
                     android:layout_height="160dp"
                     android:layout_margin="10dp"
-                    app:cardCornerRadius="10dp"
+                    app:cardCornerRadius="12dp"
                     app:cardElevation="1dp">
 
                     <TextView
@@ -138,7 +138,7 @@
                 <android.support.v7.widget.CardView
                     android:layout_width="295dp"
                     android:layout_height="170dp"
-                    app:cardCornerRadius="10dp"
+                    app:cardCornerRadius="12dp"
                     app:cardElevation="1dp">
 
                     <LinearLayout
@@ -236,7 +236,7 @@
                     android:layout_width="115dp"
                     android:layout_height="110dp"
                     android:layout_margin="10dp"
-                    app:cardCornerRadius="10dp"
+                    app:cardCornerRadius="12dp"
                     app:cardElevation="1dp">
 
                     <TextView
@@ -276,7 +276,7 @@
                     android:layout_width="160dp"
                     android:layout_height="110dp"
                     android:layout_margin="10dp"
-                    app:cardCornerRadius="10dp"
+                    app:cardCornerRadius="12dp"
                     app:cardElevation="1dp">
 
                     <ImageView
@@ -328,7 +328,7 @@
                     android:layout_marginLeft="0dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginTop="5dp"
-                    app:cardCornerRadius="10dp"
+                    app:cardCornerRadius="12dp"
                     app:cardElevation="1dp">
 
                     <TextView
@@ -376,7 +376,7 @@
                     android:layout_height="110dp"
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="5dp"
-                    app:cardCornerRadius="10dp"
+                    app:cardCornerRadius="12dp"
                     app:cardElevation="1dp">
 
                     <LinearLayout
@@ -452,13 +452,14 @@
                             android:layout_marginLeft="2dp"
                             android:layout_marginRight="2dp"
                             android:layout_marginTop="2dp"
-                            app:cardCornerRadius="10dp"
+                            app:cardCornerRadius="12dp"
                             app:cardElevation="1dp">
 
                             <ImageButton
                                 android:id="@+id/NotificationBtn"
-                                android:layout_width="50dp"
-                                android:layout_height="50dp"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_margin="5dp"
                                 android:background="@drawable/ic_action_notification3" />
 
                             <View
@@ -479,13 +480,14 @@
                             android:layout_marginRight="2dp"
                             android:layout_marginLeft="2dp"
                             android:layout_marginTop="2dp"
-                            app:cardCornerRadius="10dp"
+                            app:cardCornerRadius="12dp"
                             app:cardElevation="1dp">
 
                             <ImageButton
                                 android:id="@+id/UserDataBtn"
-                                android:layout_width="50dp"
-                                android:layout_height="50dp"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_margin="5dp"
                                 android:background="@drawable/ic_action_user_info" />
 
                             <View
@@ -514,13 +516,14 @@
                             android:layout_marginBottom="2dp"
                             android:layout_marginLeft="2dp"
                             android:layout_marginRight="2dp"
-                            app:cardCornerRadius="10dp"
+                            app:cardCornerRadius="12dp"
                             app:cardElevation="1dp">
 
                             <ImageButton
                                 android:id="@+id/targetedBtn"
-                                android:layout_width="50dp"
-                                android:layout_height="50dp"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_margin="5dp"
                                 android:background="@drawable/ic_action_targeted2" />
 
                             <View
@@ -540,13 +543,14 @@
                             android:layout_marginBottom="2dp"
                             android:layout_marginLeft="2dp"
                             android:layout_marginRight="2dp"
-                            app:cardCornerRadius="10dp"
+                            app:cardCornerRadius="12dp"
                             app:cardElevation="1dp">
 
                             <ImageButton
                                 android:id="@+id/ChangeCPVBtn"
-                                android:layout_width="50dp"
-                                android:layout_height="50dp"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_margin="5dp"
                                 android:background="@drawable/ic_action_changecpv2" />
 
                         </android.support.v7.widget.CardView>
@@ -562,7 +566,7 @@
                     android:layout_marginBottom="5dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="2dp"
-                    app:cardCornerRadius="10dp"
+                    app:cardCornerRadius="12dp"
                     app:cardElevation="1dp">
 
                     <TextView
@@ -624,7 +628,7 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
-            app:cardCornerRadius="14dp"
+            app:cardCornerRadius="12dp"
             app:cardPreventCornerOverlap="false"
             app:cardElevation="1dp">
 
@@ -693,6 +697,7 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/theBottomView"
                 android:layout_width="match_parent"
                 android:layout_gravity="bottom"
                 android:background="@color/white"
@@ -705,6 +710,7 @@
                     android:layout_height="1dp" />
 
                 <LinearLayout
+                    android:id="@+id/editTextView"
                     android:layout_width="match_parent"
                     android:orientation="horizontal"
                     android:paddingRight="10dp"
@@ -755,6 +761,7 @@
                     android:layout_width="match_parent"
                     android:orientation="horizontal"
                     android:gravity="right"
+                    android:id="@+id/sendButtonsView"
                     android:paddingRight="10dp"
                     android:paddingLeft="10dp"
                     android:layout_height="wrap_content">
