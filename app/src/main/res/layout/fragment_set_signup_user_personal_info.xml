@@ -8,6 +8,7 @@
         android:orientation="vertical"
         android:visibility="visible"
         android:id="@+id/genderLayout"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <TextView
@@ -92,6 +93,7 @@
         android:visibility="gone"
         android:translationX="400dp"
         android:id="@+id/ageLayout"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <LinearLayout
@@ -198,6 +200,7 @@
         android:visibility="gone"
         android:translationX="400dp"
         android:id="@+id/locationLayout"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <LinearLayout
@@ -309,6 +312,7 @@
         android:orientation="vertical"
         android:visibility="gone"
         android:translationX="400dp"
+        android:background="@drawable/dialog_bg"
         android:id="@+id/concludeLayout"
         android:layout_height="wrap_content">
 

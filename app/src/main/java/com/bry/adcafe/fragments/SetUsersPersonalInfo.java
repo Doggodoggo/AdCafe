@@ -11,15 +11,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -123,6 +127,10 @@ public class SetUsersPersonalInfo extends DialogFragment {
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSetLocations,
                 new IntentFilter("SET_USER_PERSONAL_LOCATIONS"));
         mRootView = rootView;
+
+        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+
         return rootView;
     }
 
@@ -139,7 +147,7 @@ public class SetUsersPersonalInfo extends DialogFragment {
     private void loadFirstView2(){
         mainLaout2.setVisibility(View.VISIBLE);
         mainLaout2.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
         okBtn1point5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -153,7 +161,7 @@ public class SetUsersPersonalInfo extends DialogFragment {
     private void loadSetGenderView() {
         genderLayout.setVisibility(View.VISIBLE);
         genderLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
         SharedPreferences prefs2 = mContext.getSharedPreferences(Constants.GENDER, MODE_PRIVATE);
         String gender = prefs2.getString(Constants.GENDER, "NULL");
         if(!gender.equals("NULL")&&gender.equals(Constants.MALE)) radioButtonMale.setChecked(true);
@@ -196,7 +204,7 @@ public class SetUsersPersonalInfo extends DialogFragment {
     private void loadSetBirthdayView() {
         ageLayout.setVisibility(View.VISIBLE);
         ageLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
         SharedPreferences pref = mContext.getSharedPreferences(Constants.DATE_OF_BIRTH, MODE_PRIVATE);
         if(pref.getInt("year",0)!=0) {
             int day = pref.getInt("day", 0);
@@ -246,7 +254,7 @@ public class SetUsersPersonalInfo extends DialogFragment {
     private void loadSetLocationsView() {
         locationLayout.setVisibility(View.VISIBLE);
         locationLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
         if(Variables.usersLatLongs.isEmpty()){
             locationNumberText.setText(Html.fromHtml("Locations set:<b> None.</b>"));
         }else{
@@ -323,7 +331,7 @@ public class SetUsersPersonalInfo extends DialogFragment {
     private void loadFifthView() {
         concludeLayout.setVisibility(View.VISIBLE);
         concludeLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
         okBtn5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

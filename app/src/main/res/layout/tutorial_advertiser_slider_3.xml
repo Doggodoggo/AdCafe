@@ -40,13 +40,14 @@
                     android:layout_marginLeft="15dp"
                     android:layout_height="wrap_content"
                     android:text="Reachability."
-                    android:textSize="18sp" />
+                    android:textStyle="normal|bold"
+                    android:textSize="15sp" />
                 <TextView
                     android:id="@+id/textView2"
                     android:textColor="@color/colorPrimary"
                     android:layout_width="wrap_content"
-                    android:layout_marginRight="15dp"
-                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
                     android:layout_height="wrap_content"
                     android:text="@string/reachabilityexplanation"
                     android:textSize="15sp" />
@@ -64,13 +65,14 @@
                     android:layout_marginLeft="15dp"
                     android:layout_height="wrap_content"
                     android:text="Targeting."
-                    android:textSize="18sp" />
+                    android:textStyle="normal|bold"
+                    android:textSize="15sp" />
                 <TextView
                     android:id="@+id/textView2.5"
                     android:textColor="@color/colorPrimary"
                     android:layout_width="wrap_content"
-                    android:layout_marginRight="15dp"
-                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
                     android:layout_height="wrap_content"
                     android:text="@string/targetingExplanation"
                     android:textSize="15sp" />
@@ -88,13 +90,14 @@
                     android:layout_marginLeft="15dp"
                     android:layout_height="wrap_content"
                     android:text="Affordability."
-                    android:textSize="18sp" />
+                    android:textStyle="normal|bold"
+                    android:textSize="15sp" />
                 <TextView
                     android:id="@+id/textView3"
                     android:textColor="@color/colorPrimary"
                     android:layout_width="wrap_content"
-                    android:layout_marginRight="15dp"
-                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
                     android:layout_height="wrap_content"
                     android:text="@string/affordablilityexplanation"
                     android:textSize="15sp" />
@@ -112,13 +115,14 @@
                     android:layout_marginLeft="15dp"
                     android:layout_height="wrap_content"
                     android:text="Reimbursability."
-                    android:textSize="18sp" />
+                    android:textStyle="normal|bold"
+                    android:textSize="15sp" />
                 <TextView
                     android:id="@+id/textView4"
                     android:textColor="@color/colorPrimary"
                     android:layout_width="wrap_content"
-                    android:layout_marginRight="15dp"
-                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
                     android:layout_height="wrap_content"
                     android:text="@string/reimbursabilityexplanation"
                     android:textSize="15sp" />
@@ -136,13 +140,14 @@
                     android:layout_marginLeft="15dp"
                     android:layout_height="wrap_content"
                     android:text="Monitor ad progress."
-                    android:textSize="18sp" />
+                    android:textStyle="normal|bold"
+                    android:textSize="15sp" />
                 <TextView
                     android:id="@+id/textView5"
                     android:textColor="@color/colorPrimary"
                     android:layout_width="wrap_content"
-                    android:layout_marginRight="15dp"
-                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
                     android:layout_marginBottom="10dp"
                     android:layout_height="wrap_content"
                     android:text="@string/monitorableexplanation"

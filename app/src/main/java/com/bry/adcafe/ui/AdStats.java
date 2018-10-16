@@ -1034,6 +1034,8 @@ public class AdStats extends AppCompatActivity {
         d.setTitle("Cannot Put Up.");
         d.setContentView(R.layout.dialog91);
         Button b2 =  d.findViewById(R.id.okBtn);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
         b2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1070,6 +1072,8 @@ public class AdStats extends AppCompatActivity {
         d.setTitle("Failed Payout.");
         d.setContentView(R.layout.dialog94);
         Button b1 = d.findViewById(R.id.okBtn);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1083,6 +1087,8 @@ public class AdStats extends AppCompatActivity {
         final Dialog d = new Dialog(this);
         d.setTitle("Successful Payout.");
         d.setContentView(R.layout.dialog95);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
         Button b1 = d.findViewById(R.id.okBtn);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override

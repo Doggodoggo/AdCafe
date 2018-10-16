@@ -8,6 +8,7 @@
         android:orientation="vertical"
         android:visibility="visible"
         android:id="@+id/mainLayout"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <TextView

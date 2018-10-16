@@ -179,7 +179,7 @@ public class Constants {
     public static int MAX_AMMOUNT_FOR_SHARING_PAYOUT_AMOUNT = 1500000000;
     public static String UNNEEDED_REIMBURSAL_AMM = "payoutReimbursalAmount";
 
-    public static int ANIMATION_DURATION = 200;
+    public static int ANIMATION_DURATION = 250;
     public static float MAX_DISTANCE_IN_METERS = 1000f;
     public static String USER_MARKERS = "USER_MARKERS";
     public static String USER_MARKERS_SIZE = "USER_MARKERS_SIZE";

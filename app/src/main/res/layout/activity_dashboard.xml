@@ -337,7 +337,7 @@
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="20dp"
                         android:layout_marginTop="5dp"
-                        android:text="Chat with the apps' developers."
+                        android:text="Chat with the app's developers."
                         android:textAlignment="center"
                         android:textSize="13sp" />
 
@@ -393,7 +393,7 @@
                             android:layout_marginTop="5dp"
                             android:text="Change the type of content I see."
                             android:textAlignment="center"
-                            android:textSize="12sp" />
+                            android:textSize="13sp" />
 
                         <ImageView
                             android:id="@+id/subscriptionsImage"

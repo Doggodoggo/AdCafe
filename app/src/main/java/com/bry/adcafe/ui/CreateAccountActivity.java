@@ -242,6 +242,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         d.setTitle("Failed Sign Up.");
         d.setContentView(R.layout.dialog98);
         Button b1 = d.findViewById(R.id.okBtn);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -490,6 +491,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         d.setTitle("Email.");
         d.setContentView(R.layout.dialog_verify_email);
         Button b1 = d.findViewById(R.id.okBtn);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         final TextView hasVerifiedText = d.findViewById(R.id.hasVerifiedText);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -510,6 +510,7 @@ public class Dashboard extends AppCompatActivity {
         d.setContentView(R.layout.dialog8);
         Button b1 = d.findViewById(R.id.continueBtn);
         Button b2 = d.findViewById(R.id.cancelBtn);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         if(Variables.doesUserWantNotifications)b1.setText("PUT OFF.");
         else b1.setText("PUT ON.");
         TextView t = d.findViewById(R.id.explanation);
@@ -838,6 +839,7 @@ public class Dashboard extends AppCompatActivity {
         final Dialog d = new Dialog(this);
         d.setTitle("Failed Payout.");
         d.setContentView(R.layout.dialog94);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         Button b1 = d.findViewById(R.id.okBtn);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -852,6 +854,7 @@ public class Dashboard extends AppCompatActivity {
         final Dialog d = new Dialog(this);
         d.setTitle("Unable to make payout.");
         d.setContentView(R.layout.dialog992);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         Button b1 = d.findViewById(R.id.okBtn);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -897,6 +900,7 @@ public class Dashboard extends AppCompatActivity {
         d.setTitle("Successful Payout.");
         d.setContentView(R.layout.dialog95);
         Button b1 = d.findViewById(R.id.okBtn);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1148,6 +1152,7 @@ public class Dashboard extends AppCompatActivity {
         d.setTitle("Targeting.");
         d.setContentView(R.layout.targeted_dialog);
         Button setButton = d.findViewById(R.id.stopBtn);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         TextView targetingPermissionText = d.findViewById(R.id.targetingPermissionText);
         TextView targetNoteLess = d.findViewById(R.id.targetNoteLess);
         SharedPreferences pref = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);

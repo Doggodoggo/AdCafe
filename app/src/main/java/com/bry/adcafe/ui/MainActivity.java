@@ -2386,6 +2386,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             d.setContentView(R.layout.dialog99);
             Button b1 = d.findViewById(R.id.okBtn);
             TextView t = d.findViewById(R.id.annText);
+            d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             t.setText(Variables.announcements);
             b1.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -3130,6 +3131,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TextView cat2 = d.findViewById(R.id.cat2);
         TextView cat3 = d.findViewById(R.id.cat3);
         TextView andText = d.findViewById(R.id.andText);
+
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
 
         String message = "The app now supports "+Variables.newSubs.size()+" more categories you may be interested in.";
         if(Variables.newSubs.size()==1){

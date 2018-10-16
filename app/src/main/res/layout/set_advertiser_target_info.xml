@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_marginRight="10dp"
+    android:layout_marginLeft="10dp"
     android:layout_height="match_parent">
 
     <LinearLayout
@@ -8,6 +11,7 @@
         android:orientation="vertical"
         android:visibility="visible"
         android:id="@+id/mainLayout"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <TextView
@@ -70,6 +74,7 @@
         android:visibility="gone"
         android:translationX="400dp"
         android:id="@+id/mainLayout2"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <TextView
@@ -121,6 +126,7 @@
         android:visibility="gone"
         android:translationX="400dp"
         android:id="@+id/genderLayout"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <TextView
@@ -214,6 +220,7 @@
         android:visibility="gone"
         android:translationX="400dp"
         android:id="@+id/ageLayout"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <LinearLayout
@@ -230,7 +237,7 @@
                 android:layout_height="40dp" />
 
             <TextView
-                android:layout_width="370dp"
+                android:layout_width="260dp"
                 android:textSize="19sp"
                 android:gravity="center_vertical"
                 android:textColor="@color/colorPrimary"
@@ -338,6 +345,7 @@
         android:visibility="gone"
         android:translationX="400dp"
         android:id="@+id/locationLayout"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <LinearLayout
@@ -354,7 +362,7 @@
                 android:layout_height="40dp" />
 
             <TextView
-                android:layout_width="370dp"
+                android:layout_width="260dp"
                 android:textSize="19sp"
                 android:gravity="center_vertical"
                 android:textColor="@color/colorPrimary"
@@ -460,6 +468,7 @@
         android:visibility="gone"
         android:translationX="400dp"
         android:id="@+id/deviceCategoryLayout"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <LinearLayout
@@ -476,7 +485,7 @@
                 android:layout_height="40dp" />
 
             <TextView
-                android:layout_width="370dp"
+                android:layout_width="260dp"
                 android:textSize="19sp"
                 android:gravity="center_vertical"
                 android:textColor="@color/colorPrimary"
@@ -573,6 +582,7 @@
         android:visibility="gone"
         android:translationX="400dp"
         android:id="@+id/categoriesLayout"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <LinearLayout
@@ -589,7 +599,7 @@
                 android:layout_height="40dp" />
 
             <TextView
-                android:layout_width="370dp"
+                android:layout_width="260dp"
                 android:textSize="19sp"
                 android:gravity="center_vertical"
                 android:textColor="@color/colorPrimary"
@@ -682,6 +692,7 @@
         android:visibility="gone"
         android:translationX="400dp"
         android:id="@+id/concludeLayout"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <LinearLayout
@@ -698,7 +709,7 @@
                 android:layout_height="40dp" />
 
             <TextView
-                android:layout_width="370dp"
+                android:layout_width="260dp"
                 android:textSize="19sp"
                 android:gravity="center_vertical"
                 android:textColor="@color/colorPrimary"

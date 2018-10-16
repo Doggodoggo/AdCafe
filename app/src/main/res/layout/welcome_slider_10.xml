@@ -72,7 +72,8 @@
                     android:textColor="@color/colorPrimary"
                     android:layout_gravity="center"
                     android:textSize="13sp"
-                    android:paddingRight="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
                     android:text="@string/feedbacktbuttonexplanation"
                     android:layout_height="wrap_content" />
 
@@ -98,7 +99,8 @@
                     android:textColor="@color/colorPrimary"
                     android:layout_gravity="center"
                     android:textSize="13sp"
-                    android:paddingRight="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
                     android:text="@string/pinlisticon"
                     android:layout_height="wrap_content" />
 
@@ -124,7 +126,8 @@
                     android:textColor="@color/colorPrimary"
                     android:layout_gravity="center"
                     android:textSize="13sp"
-                    android:paddingRight="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
                     android:text="@string/dashboardexplanation"
                     android:layout_height="wrap_content" />
 
@@ -149,7 +152,8 @@
                     android:textColor="@color/colorPrimary"
                     android:layout_gravity="center"
                     android:textSize="13sp"
-                    android:paddingRight="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
                     android:text="@string/shareappexplanation"
                     android:layout_height="wrap_content" />
 

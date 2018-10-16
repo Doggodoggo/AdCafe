@@ -8,6 +8,7 @@
         android:orientation="vertical"
         android:visibility="visible"
         android:id="@+id/mainLayout"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <TextView
@@ -67,6 +68,7 @@
         android:orientation="vertical"
         android:visibility="gone"
         android:translationX="400dp"
+        android:background="@drawable/dialog_bg"
         android:id="@+id/mainLayout2"
         android:layout_height="wrap_content">
 
@@ -119,6 +121,7 @@
         android:visibility="gone"
         android:translationX="400dp"
         android:id="@+id/genderLayout"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <TextView
@@ -203,6 +206,7 @@
         android:visibility="gone"
         android:translationX="400dp"
         android:id="@+id/ageLayout"
+        android:background="@drawable/dialog_bg"
         android:layout_height="wrap_content">
 
         <LinearLayout
@@ -308,6 +312,7 @@
         android:orientation="vertical"
         android:visibility="gone"
         android:translationX="400dp"
+        android:background="@drawable/dialog_bg"
         android:id="@+id/locationLayout"
         android:layout_height="wrap_content">
 
@@ -325,7 +330,7 @@
                 android:layout_height="40dp" />
 
             <TextView
-                android:layout_width="370dp"
+                android:layout_width="260dp"
                 android:textSize="19sp"
                 android:gravity="center_vertical"
                 android:textColor="@color/colorPrimary"
@@ -430,6 +435,7 @@
         android:orientation="vertical"
         android:visibility="gone"
         android:translationX="400dp"
+        android:background="@drawable/dialog_bg"
         android:id="@+id/concludeLayout"
         android:layout_height="wrap_content">
 

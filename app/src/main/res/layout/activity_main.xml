@@ -26,9 +26,10 @@
 
             <ImageButton
                 android:id="@+id/logoutBtn"
-                android:layout_width="29dp"
+                android:layout_width="28dp"
                 android:layout_marginLeft="3dp"
-                android:layout_height="29dp"
+                android:layout_marginTop="3dp"
+                android:layout_height="28dp"
                 android:background="@drawable/ic_action_feedback6"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -45,15 +46,15 @@
             android:layout_height="wrap_content">
             <ImageButton
                 android:id="@+id/bookmarkBtn"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_marginLeft="40dp"
                 android:background="@drawable/ic_action_ad_archives"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:id="@+id/bookmarkText"
-                android:layout_marginTop="35dp"
-                android:layout_marginLeft="37dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="32dp"
                 android:textSize="8dp"
                 android:text="Ad Archives."
                 android:layout_height="wrap_content" />
@@ -64,15 +65,15 @@
             android:layout_height="wrap_content">
             <ImageButton
                 android:id="@+id/dashboard"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginTop="2dp"
-                android:layout_marginLeft="38dp"
+                android:layout_width="28dp"
+                android:layout_height="29dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginLeft="39dp"
                 android:background="@drawable/ic_action_dashboard2"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:id="@+id/nextAdText"
-                android:layout_marginTop="35dp"
+                android:layout_marginTop="32dp"
                 android:layout_marginLeft="35dp"
                 android:textSize="8dp"
                 android:text="Dashboard."
@@ -84,14 +85,15 @@
             android:layout_height="wrap_content">
             <ImageButton
                 android:id="@+id/shareBtn"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginLeft="35dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginLeft="37dp"
                 android:background="@drawable/ic_action_share_app"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:id="@+id/shareText"
-                android:layout_marginTop="35dp"
+                android:layout_marginTop="32dp"
                 android:layout_marginLeft="35dp"
                 android:textSize="8dp"
                 android:text="Share App."

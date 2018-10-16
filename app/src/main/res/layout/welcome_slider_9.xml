@@ -23,7 +23,7 @@
                 android:layout_width="200dp"
                 android:layout_marginTop="50dp"
                 android:background="@drawable/advert_timer_render"
-                android:layout_height="190dp" />
+                android:layout_height="200dp" />
 
             <TextView
                 android:id="@+id/textView1"

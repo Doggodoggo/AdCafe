@@ -7,11 +7,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -74,6 +77,9 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
             newCPV.setText(String.format("New set charge : %dKsh.", hasChangedPrevValue));
         }
 
+        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+
         onclicks();
         return rootView;
     }
@@ -88,7 +94,7 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
         } else if(v == continueBtn){
             mainLayout.setVisibility(View.GONE);
             chooseAmountLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                    .setInterpolator(new FastOutSlowInInterpolator())
+                    .setInterpolator(new LinearOutSlowInInterpolator())
                     .setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
@@ -131,7 +137,7 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
                 mainLayout.setVisibility(View.GONE);
                 chooseAmountLayout.setVisibility(View.VISIBLE);
                 chooseAmountLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                        .setInterpolator(new FastOutSlowInInterpolator())
+                        .setInterpolator(new LinearOutSlowInInterpolator())
                         .setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {

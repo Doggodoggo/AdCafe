@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -83,6 +85,10 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         });
         fmi = this;
         prog.setVisibility(View.VISIBLE);
+
+        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+
         startPaymentProcess();
         return rootView;
     }

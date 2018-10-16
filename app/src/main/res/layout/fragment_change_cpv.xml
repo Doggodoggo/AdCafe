@@ -14,6 +14,7 @@
             android:orientation="vertical"
             android:visibility="visible"
             android:id="@+id/mainLayout"
+            android:background="@drawable/dialog_bg"
             android:layout_height="wrap_content">
 
             <TextView
@@ -74,6 +75,7 @@
             android:id="@+id/chooseAmountLayout"
             android:translationX="350dp"
             android:visibility="gone"
+            android:background="@drawable/dialog_bg"
             android:layout_height="wrap_content">
 
             <TextView

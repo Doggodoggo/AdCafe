@@ -17,6 +17,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.util.Log;
@@ -147,7 +148,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         mConfirmLayout = contentView.findViewById(R.id.confirmLayout);
         loadEnterDetailsPart();
         FrameLayout bottomSheet = dialog.getWindow().findViewById(android.support.design.R.id.design_bottom_sheet);
-        bottomSheet.setBackgroundResource(R.drawable.dialog_bg);
+        bottomSheet.setBackgroundResource(R.drawable.dialog_bg_trans);
     }
 
     private void loadEnterDetailsPart() {
@@ -197,7 +198,6 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
                         mPhoneNo = phoneNo;
                         mUploaderEmail = email;
                         updatePhoneNumber(mPhoneNo);
-                        mEnterPaymentDetailsPart.setVisibility(View.GONE);
                         loadConfirmDetailsPart();
                     }catch (Exception e){
                         e.printStackTrace();
@@ -210,8 +210,9 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
 
     private void loadConfirmDetailsPart() {
         mConfirmLayout.setVisibility(View.VISIBLE);
+        mEnterPaymentDetailsPart.animate().setDuration(Constants.ANIMATION_DURATION).alpha(0f);
         mConfirmLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
 
         TextView targetingView = mContentView.findViewById(R.id.targetingNumber);
         TextView dateView = mContentView.findViewById(R.id.date);

@@ -1,5 +1,6 @@
 package com.bry.adcafe.ui;
 
+import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.app.NotificationManager;
@@ -8,12 +9,15 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bry.adcafe.R;
@@ -42,6 +46,9 @@ public class Splash extends AppCompatActivity {
     private TextView LogoText;
     private static int NOTIFICATION_ID2 = 1880;
 
+    private LinearLayout logoPart;
+    private int duration = 300;
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +62,7 @@ public class Splash extends AppCompatActivity {
         isClearToMoveToNextActivity = false;
         LSEText = findViewById(R.id.LSEText);
         LogoText = findViewById(R.id.logoText);
+        logoPart = findViewById(R.id.logoPart);
 
         try{
             int hours = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -93,7 +101,7 @@ public class Splash extends AppCompatActivity {
         super.onResume();
     }
 
-    private void goToNextActivity(){
+    private void goToNextActivity2(){
         //for background window
         ObjectAnimator colorFade = ObjectAnimator.ofObject(findViewById(R.id.pageID)
                 , "backgroundColor" /*view attribute name*/,
@@ -198,24 +206,51 @@ public class Splash extends AppCompatActivity {
         decorView.setSystemUiVisibility(uiOptions);
     }
 
-    private void getDateFromDays(long days){
-        long currentTimeInMills = days*(1000*60*60*24);
 
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(currentTimeInMills);
-        int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
-        int monthOfYear = cal.get(Calendar.MONTH);
-        int year = cal.get(Calendar.YEAR);
+    private void goToNextActivity(){
+        logoPart.setRotationY(0);
+        logoPart.animate().setDuration(duration).translationY(-100)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+            }
 
-        String monthName = new DateFormatSymbols().getMonths()[monthOfYear];
+            @Override
+            public void onAnimationEnd(Animator animator) {
+               doTheThingAfterTheThing();
+            }
 
-        Log.d("Splash","Date is : "+dayOfMonth+" "+monthName+" "+year);
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+        ObjectAnimator colorFade = ObjectAnimator.ofObject(findViewById(R.id.pageID)
+                , "backgroundColor" /*view attribute name*/,
+                new ArgbEvaluator(),
+                getApplicationContext().getResources().getColor(R.color.colorPrimaryDark2) /*from color*/
+                , getApplicationContext().getResources().getColor(R.color.white) /*to color*/);
+        colorFade.setDuration(duration-10);
+        colorFade.start();
     }
 
-    private String getDateInDays(){
-        return Long.toString(-TimeManager.getDateInDays());
+    private void doTheThingAfterTheThing() {
+        myPrefManager = new SliderPrefManager(getApplicationContext());
+        if (myPrefManager.isFirstTimeLaunch()){
+            Intent intent = new Intent(Splash.this,TutorialActivity.class);
+            startActivity(intent);
+            finish();
+        }else{
+            Intent intent = new Intent(Splash.this,LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
-
 
 
 }

@@ -165,6 +165,9 @@ public class SelectCategory extends AppCompatActivity implements View.OnClickLis
         Button b1 = d.findViewById(R.id.submitButton);
         Button b2 = d.findViewById(R.id.cancelButton);
 
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+
         final LinearLayout setPersonalContent = d.findViewById(R.id.personalisedContentOption);
         final Button skip = d.findViewById(R.id.skip);
         final Button cont = d.findViewById(R.id.okBtn);

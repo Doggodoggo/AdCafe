@@ -42,15 +42,15 @@
 
             <ImageButton
                 android:id="@+id/chooseImageIcon"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:background="@drawable/ic_action_select_image"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:id="@+id/selectText"
                 android:layout_marginTop="40dp"
                 android:textSize="8dp"
-                android:layout_marginLeft="3dp"
+                android:layout_marginLeft="0dp"
                 android:text="Select image."
                 android:layout_height="wrap_content" />
         </RelativeLayout>
@@ -60,15 +60,15 @@
             android:layout_height="wrap_content">
             <ImageButton
                 android:id="@+id/chooseNumberButton"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginLeft="50dp"
                 android:background="@drawable/ic_action_number_of_users"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:id="@+id/chooseNumberText"
                 android:layout_marginTop="41dp"
-                android:layout_marginLeft="44dp"
+                android:layout_marginLeft="40dp"
                 android:textSize="8dp"
                 android:text="Number of people."
                 android:layout_height="wrap_content" />
@@ -102,14 +102,15 @@
             android:layout_height="wrap_content">
             <ImageButton
                 android:id="@+id/uploadIcon"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_marginLeft="35dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginLeft="41dp"
                 android:background="@drawable/ic_action_upload"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:id="@+id/uploadText"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="42dp"
                 android:layout_marginLeft="44dp"
                 android:textSize="8dp"
                 android:text="Upload."

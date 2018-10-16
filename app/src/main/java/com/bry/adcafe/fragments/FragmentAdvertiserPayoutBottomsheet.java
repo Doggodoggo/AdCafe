@@ -15,6 +15,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -98,7 +99,7 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
         mContentView = contentView;
 
         mPayoutOptionsLayout = contentView.findViewById(R.id.payoutOptions);
-        mEnterPayoutDetailsPart = contentView.findViewById(R.id.enterPayoutDetailsPart);
+        mEnterPayoutDetailsPart = contentView.findViewById(R.id.enterAdvertiserPayoutDetailsPart);
         mConfirmLayout = contentView.findViewById(R.id.confirmLayout);
 
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) ((View) contentView.getParent()).getLayoutParams();
@@ -120,7 +121,6 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
         contentView.findViewById(R.id.continueButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mPayoutOptionsLayout.setVisibility(View.GONE);
                 showPayoutDetailsPart();
             }
         });
@@ -133,14 +133,15 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
         });
 
         FrameLayout bottomSheet = dialog.getWindow().findViewById(android.support.design.R.id.design_bottom_sheet);
-        bottomSheet.setBackgroundResource(R.drawable.dialog_bg);
+        bottomSheet.setBackgroundResource(R.drawable.dialog_bg_trans);
 
     }
 
     private void showPayoutDetailsPart() {
         mEnterPayoutDetailsPart.setVisibility(View.VISIBLE);
+        mPayoutOptionsLayout.animate().setDuration(Constants.ANIMATION_DURATION).alpha(0f);
         mEnterPayoutDetailsPart.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
         final EditText phoneEdit = mContentView.findViewById(R.id.phoneEditText);
 //        final EditText emailEdit = mContentView.findViewById(R.id.emailEditText);
         final EditText passwordEdit = mContentView.findViewById(R.id.passwordEditText);
@@ -165,7 +166,6 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
                         if (!password.equals(mPassword)) {
                             passwordEdit.setError("That's not your password!");
                         } else {
-                            mEnterPayoutDetailsPart.setVisibility(View.GONE);
                             mPhoneNo = phoneNo;
                             updatePhoneNumber(mPhoneNo);
                             showConfirmDetailsPart();
@@ -195,8 +195,9 @@ public class FragmentAdvertiserPayoutBottomsheet extends BottomSheetDialogFragme
 
     private void showConfirmDetailsPart() {
         mConfirmLayout.setVisibility(View.VISIBLE);
+        mEnterPayoutDetailsPart.animate().setDuration(Constants.ANIMATION_DURATION).alpha(0f);
         mConfirmLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
 
         TextView amountToBeSentView = mContentView.findViewById(R.id.amountToBeSent);
         TextView phoneNumberView = mContentView.findViewById(R.id.phoneNumber);

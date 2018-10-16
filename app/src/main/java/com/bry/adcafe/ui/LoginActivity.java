@@ -149,6 +149,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private  void setNoInternetView(){
         Log.d(TAG,"There is no internet connection,showing no internet dialog");
         mRelative.setVisibility(View.GONE);
+        mProgressBarLogin.setVisibility(View.GONE);
+        mLoadingMessage.setVisibility(View.GONE);
         mNoConnectionLayout.setVisibility(View.VISIBLE);
         mRetryButton.setOnClickListener(this);
     }
@@ -352,6 +354,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         d.setTitle("Failed Login.");
         d.setContentView(R.layout.dialog97);
         Button b1 = d.findViewById(R.id.okBtn);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -528,6 +531,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         d.setTitle("Change in Eula.");
         d.setContentView(R.layout.dialog_change_in_eula);
 
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
         Button okBtn = d.findViewById(R.id.okBtn);
         Button viewBtn = d.findViewById(R.id.viewBtn);
         TextView explanation = d.findViewById(R.id.explanation);
@@ -589,6 +594,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         d.setTitle("Email Verification.");
         isValidatePromptShowing = true;
         d.setContentView(R.layout.dialog_reverify_email);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         Button b1 = d.findViewById(R.id.okBtn);
         final TextView hasVerifiedText = d.findViewById(R.id.hasVerifiedText);
         b1.setOnClickListener(new View.OnClickListener() {

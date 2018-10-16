@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -116,6 +118,9 @@ public class SetAdvertiserLocation extends DialogFragment implements OnMapReadyC
 
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSetThatMyLocationButtonThingy,
                 new IntentFilter("SET_THAT_MY_LOCATION_BUTTON_THINGY"));
+
+        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
 
         return rootView;
     }

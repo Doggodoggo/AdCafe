@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -131,6 +132,9 @@ public class AdvertiserMapFragment extends DialogFragment implements OnMapReadyC
                 R.id.loc3,
                 R.id.loc4
         };
+
+        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
 
         return rootView;
     }

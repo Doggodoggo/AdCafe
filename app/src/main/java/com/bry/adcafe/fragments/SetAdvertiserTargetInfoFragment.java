@@ -7,10 +7,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -206,6 +209,9 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSetCategories,
                 new IntentFilter(Constants.SET_MULTI_CATEGORY_DATA));
 
+        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+
         loadFirstView();
         return rootView;
     }
@@ -239,7 +245,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private void loadFirstView2(){
         mainLaout2.setVisibility(View.VISIBLE);
         mainLaout2.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
         okBtn1point5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -255,7 +261,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         hasSetSomeInfo = false;
         genderLayout.setVisibility(View.VISIBLE);
         genderLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
         if(Variables.genderTarget.equals(Constants.MALE)){
             hasSetSomeInfo = true;
             radioButtonMale.setChecked(true);
@@ -335,7 +341,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         hasSetSomeInfo = false;
         ageLayout.setVisibility(View.VISIBLE);
         ageLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
         try{
             ageUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+getNumberOfUsersAfterFiltering()
                     +" User(s).</b>"));
@@ -450,7 +456,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         hasSetSomeInfo = false;
         locationLayout.setVisibility(View.VISIBLE);
         locationLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
         openMapImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -545,7 +551,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         hasSetSomeInfo = false;
         deviceCategoryLayout.setVisibility(View.VISIBLE);
         deviceCategoryLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
         if(Variables.deviceRangeCategory.equals(Constants.HIGH_END_DEVICE)){
             hasSetSomeInfo = true;
             skip4.setAlpha(1f);
@@ -647,7 +653,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         hasSetSomeInfo = false;
         categoriesLayout.setVisibility(View.VISIBLE);
         categoriesLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
         categoriesUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+
                 getNumberOfUsersAfterFiltering()+" User(s).</b>"));
         if(Variables.targetCategoryList.isEmpty()){
@@ -746,7 +752,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         concludeLayout.setVisibility(View.VISIBLE);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
         concludeLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
         if(Variables.genderTarget!=null){
             if(Variables.genderTarget.equals(""))confirmGender.setText("No preferred Gender/Sex set.");
             else confirmGender.setText(Html.fromHtml("Set gender/sex target: <b>"+Variables.genderTarget+".</b>"));

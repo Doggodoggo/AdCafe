@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:orientation="vertical"
         android:id="@+id/payoutOptions"
+        android:background="@drawable/dialog_bg"
         android:padding="15dp"
         android:layout_height="wrap_content">
 

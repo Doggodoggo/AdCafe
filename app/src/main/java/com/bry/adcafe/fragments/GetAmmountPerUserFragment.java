@@ -3,6 +3,8 @@ package com.bry.adcafe.fragments;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
@@ -97,6 +99,9 @@ public class GetAmmountPerUserFragment extends DialogFragment {
                 dismiss();
             }
         });
+
+        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
         return rootView;
     }
 

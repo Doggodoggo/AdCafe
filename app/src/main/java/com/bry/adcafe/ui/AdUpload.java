@@ -709,6 +709,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         Button b1 = d.findViewById(R.id.cancelBtn);
         Button b2 =  d.findViewById(R.id.buttonOk);
 
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
         final EditText websiteEditText = d.findViewById(R.id.websiteEditText);
         final EditText phoneNumber = d.findViewById(R.id.phoneNumber);
         final TextView locationsSet = d.findViewById(R.id.locationsSet);
@@ -1024,6 +1026,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         d.setContentView(R.layout.dialog);
         Button b1 = d.findViewById(R.id.chooseNumberButton);
         Button b2 = d.findViewById(R.id.cancelChooseNumberButton);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
         final NumberPicker np = d.findViewById(R.id.numberPicker1);
         np.setMaxValue(mClusterTotal);
         np.setMinValue(1);
@@ -1545,6 +1549,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         d.setTitle("Upload complete");
         d.setContentView(R.layout.dialog4);
         Button b2 =  d.findViewById(R.id.buttonOk);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
         b2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1993,6 +1999,9 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         d.setTitle("Discard Info");
         d.setContentView(R.layout.dialog_discard_changes_in_adupload);
         Button ok = d.findViewById(R.id.okBtn);
+
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
 
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
