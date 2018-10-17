@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
@@ -8,58 +8,68 @@
         android:orientation="vertical"
         android:visibility="visible"
         android:id="@+id/mainLayout"
-        android:background="@drawable/dialog_bg"
-        android:layout_height="wrap_content">
+        android:gravity="center"
+        android:layout_height="match_parent">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:textSize="19sp"
-            android:paddingLeft="20dp"
-            android:layout_marginBottom="10dp"
-            android:textColor="@color/colorPrimary"
-            android:layout_marginTop="20dp"
-            android:text="Personalised Content."
-            android:layout_height="wrap_content" />
+            android:orientation="vertical"
+            android:background="@drawable/dialog_bg"
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="20dp"
-            android:id="@+id/explanation"
-            android:layout_marginLeft="20dp"
-            android:layout_marginBottom="1dp"
-            android:text="@string/personalInfoIntro"
-            android:layout_height="wrap_content" />
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="19sp"
+                android:paddingLeft="20dp"
+                android:layout_marginBottom="10dp"
+                android:textColor="@color/colorPrimary"
+                android:layout_marginTop="20dp"
+                android:text="Personalised Content."
+                android:layout_height="wrap_content" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_marginRight="20dp"
-            android:visibility="gone"
-            android:layout_marginLeft="20dp"
-            android:layout_marginBottom="10dp"
-            android:text="@string/personalInfoIntroNote"
-            android:layout_height="wrap_content" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:id="@+id/explanation"
+                android:layout_marginLeft="20dp"
+                android:layout_marginBottom="1dp"
+                android:text="@string/personalInfoIntro"
+                android:layout_height="wrap_content" />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:orientation="horizontal"
-            android:paddingRight="20dp"
-            android:paddingLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="10dp"
-            android:layout_height="40dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_marginRight="20dp"
+                android:visibility="gone"
+                android:layout_marginLeft="20dp"
+                android:layout_marginBottom="10dp"
+                android:text="@string/personalInfoIntroNote"
+                android:layout_height="wrap_content" />
 
-            <Button
-                android:id="@+id/okBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:background="@null"
-                android:text="Continue."
-                android:textColor="@color/colorPrimary" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:paddingRight="20dp"
+                android:paddingLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_height="40dp">
 
-        </RelativeLayout>
+                <Button
+                    android:id="@+id/okBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:background="@null"
+                    android:text="Continue."
+                    android:textColor="@color/colorPrimary" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+
 
     </LinearLayout>
 
@@ -68,9 +78,15 @@
         android:orientation="vertical"
         android:visibility="gone"
         android:translationX="400dp"
-        android:background="@drawable/dialog_bg"
+        android:gravity="center"
         android:id="@+id/mainLayout2"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:background="@drawable/dialog_bg"
+            android:layout_height="wrap_content">
 
         <TextView
             android:layout_width="match_parent"
@@ -115,14 +131,22 @@
 
     </LinearLayout>
 
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:orientation="vertical"
         android:visibility="gone"
         android:translationX="400dp"
         android:id="@+id/genderLayout"
-        android:background="@drawable/dialog_bg"
-        android:layout_height="wrap_content">
+        android:gravity="center"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:background="@drawable/dialog_bg"
+            android:layout_height="wrap_content">
 
         <TextView
             android:layout_width="match_parent"
@@ -198,6 +222,7 @@
 
         </RelativeLayout>
 
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -206,8 +231,14 @@
         android:visibility="gone"
         android:translationX="400dp"
         android:id="@+id/ageLayout"
-        android:background="@drawable/dialog_bg"
-        android:layout_height="wrap_content">
+        android:gravity="center"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:background="@drawable/dialog_bg"
+            android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -305,6 +336,8 @@
 
         </RelativeLayout>
 
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout
@@ -312,9 +345,15 @@
         android:orientation="vertical"
         android:visibility="gone"
         android:translationX="400dp"
-        android:background="@drawable/dialog_bg"
+        android:gravity="center"
         android:id="@+id/locationLayout"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:background="@drawable/dialog_bg"
+            android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -428,6 +467,8 @@
 
         </RelativeLayout>
 
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout
@@ -435,9 +476,15 @@
         android:orientation="vertical"
         android:visibility="gone"
         android:translationX="400dp"
-        android:background="@drawable/dialog_bg"
+        android:gravity="center"
         android:id="@+id/concludeLayout"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:background="@drawable/dialog_bg"
+            android:layout_height="wrap_content">
 
         <TextView
             android:layout_width="match_parent"
@@ -480,6 +527,7 @@
 
         </RelativeLayout>
 
+        </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>

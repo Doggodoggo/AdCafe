@@ -1,5 +1,6 @@
 package com.bry.adcafe.fragments;
 
+import android.animation.Animator;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -16,10 +17,12 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
@@ -32,6 +35,7 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.services.TimeManager;
+import com.bry.adcafe.services.Utils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -70,7 +74,7 @@ public class SetSignupUserPersonalInfo extends DialogFragment {
 
     private LinearLayout concludeLayout;
     private Button okBtn5;
-    private float NEG = -800f;
+    private float NEG = -50;
 
     public void setfragcontext(Context context) {
         mContext = context;
@@ -122,8 +126,30 @@ public class SetSignupUserPersonalInfo extends DialogFragment {
 
     private void loadSetGenderView() {
         genderLayout.setVisibility(View.VISIBLE);
-        genderLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+        genderLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                genderLayout.setVisibility(View.VISIBLE);
+                genderLayout.setAlpha(1f);
+                genderLayout.setTranslationX(0);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
         SharedPreferences prefs2 = mContext.getSharedPreferences(Constants.GENDER, MODE_PRIVATE);
         String gender = prefs2.getString(Constants.GENDER, "NULL");
         if(!gender.equals("NULL")&&gender.equals(Constants.MALE)) radioButtonMale.setChecked(true);
@@ -143,8 +169,29 @@ public class SetSignupUserPersonalInfo extends DialogFragment {
                 }else{
                     setGender(Constants.MALE);
                 }
-                genderLayout.setVisibility(View.GONE);
-                genderLayout.setTranslationX(NEG);
+
+                genderLayout.animate().translationX(NEG).alpha(0f).setDuration(Constants.ANIMATION_DURATION)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+//                        genderLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadSetBirthdayView();
             }
         });
@@ -164,8 +211,30 @@ public class SetSignupUserPersonalInfo extends DialogFragment {
 
     private void loadSetBirthdayView() {
         ageLayout.setVisibility(View.VISIBLE);
-        ageLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+        ageLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                ageLayout.setVisibility(View.VISIBLE);
+                ageLayout.setTranslationX(0);
+                ageLayout.setAlpha(1f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
         SharedPreferences pref = mContext.getSharedPreferences(Constants.DATE_OF_BIRTH, MODE_PRIVATE);
         if(pref.getInt("year",0)!=0) {
             int day = pref.getInt("day", 0);
@@ -186,8 +255,30 @@ public class SetSignupUserPersonalInfo extends DialogFragment {
         backBtn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ageLayout.setVisibility(View.GONE);
-                ageLayout.setTranslationX(800);
+                ageLayout.animate().translationX(Utils.dpToPx(400)).alpha(0f).setDuration(Constants.ANIMATION_DURATION)
+                        .setInterpolator(new LinearOutSlowInInterpolator())
+                        .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        ageLayout.setVisibility(View.GONE);
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadSetGenderView();
             }
         });
@@ -195,16 +286,58 @@ public class SetSignupUserPersonalInfo extends DialogFragment {
         skip2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ageLayout.setVisibility(View.GONE);
-                ageLayout.setTranslationX(NEG);
+                ageLayout.animate().translationX(NEG).setDuration(Constants.ANIMATION_DURATION).alpha(0f)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        ageLayout.setVisibility(View.GONE);
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadSetLocationsView();
             }
         });
         okBtn3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ageLayout.setVisibility(View.GONE);
-                ageLayout.setTranslationX(NEG);
+                ageLayout.animate().translationX(NEG).setDuration(Constants.ANIMATION_DURATION).alpha(0f)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        ageLayout.setVisibility(View.GONE);
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadSetLocationsView();
             }
         });
@@ -212,8 +345,30 @@ public class SetSignupUserPersonalInfo extends DialogFragment {
 
     private void loadSetLocationsView() {
         locationLayout.setVisibility(View.VISIBLE);
-        locationLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+        locationLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new FastOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                locationLayout.setVisibility(View.VISIBLE);
+                locationLayout.setTranslationX(0);
+                locationLayout.setAlpha(1f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
         if(Variables.usersLatLongs.isEmpty()){
             okBtn4.setText("SKIP");
             locationNumberText.setText(Html.fromHtml("Locations set:<b> None.</b>"));
@@ -237,8 +392,28 @@ public class SetSignupUserPersonalInfo extends DialogFragment {
         backBtn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                locationLayout.setVisibility(View.GONE);
-                locationLayout.setTranslationX(800);
+                locationLayout.animate().translationX(Utils.dpToPx(400)).alpha(0f).setInterpolator(new LinearOutSlowInInterpolator())
+                        .setDuration(Constants.ANIMATION_DURATION).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        locationLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadSetBirthdayView();
             }
         });
@@ -246,16 +421,58 @@ public class SetSignupUserPersonalInfo extends DialogFragment {
         skip3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                locationLayout.setVisibility(View.GONE);
-                locationLayout.setTranslationX(NEG);
+                locationLayout.animate().translationX(NEG).setDuration(Constants.ANIMATION_DURATION).alpha(0f)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        locationLayout.setVisibility(View.GONE);
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadFifthView();
             }
         });
         okBtn4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                locationLayout.setVisibility(View.GONE);
-                locationLayout.setTranslationX(NEG);
+                locationLayout.animate().translationX(NEG).setDuration(Constants.ANIMATION_DURATION).alpha(0f)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        locationLayout.setVisibility(View.GONE);
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadFifthView();
             }
         });
@@ -294,7 +511,7 @@ public class SetSignupUserPersonalInfo extends DialogFragment {
     private void loadFifthView() {
         concludeLayout.setVisibility(View.VISIBLE);
         concludeLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new FastOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator());
         okBtn5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

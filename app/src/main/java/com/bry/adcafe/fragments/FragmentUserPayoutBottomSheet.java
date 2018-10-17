@@ -151,7 +151,7 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
 
     private void showPayoutDetailsPart(){
         mEnterPayoutDetailsPart.setVisibility(View.VISIBLE);
-        mPayoutOptionsLayout.animate().setDuration(Constants.ANIMATION_DURATION).alpha(0f);
+        mPayoutOptionsLayout.animate().translationX(-100).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(Constants.ANIMATION_DURATION).alpha(0f);
         mEnterPayoutDetailsPart.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).setInterpolator(new LinearOutSlowInInterpolator());
         final EditText phoneEdit = mContentView.findViewById(R.id.phoneEditText);
         final EditText passwordEdit = mContentView.findViewById(R.id.passwordEditText);
@@ -176,7 +176,7 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
                         if(!password.equals(mPassword)){
                             passwordEdit.setError("That's not your password!");
                         }else{
-                            mEnterPayoutDetailsPart.setVisibility(View.GONE);
+//                            mEnterPayoutDetailsPart.setVisibility(View.GONE);
                             mPhoneNo = phoneNo;
                             updatePhoneNumber(mPhoneNo);
                             showConfirmDetailsPart();
@@ -207,7 +207,8 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
 
     private void showConfirmDetailsPart(){
         mConfirmLayout.setVisibility(View.VISIBLE);
-        mEnterPayoutDetailsPart.animate().setDuration(Constants.ANIMATION_DURATION).alpha(0f);
+        mEnterPayoutDetailsPart.animate().translationX(-50).setInterpolator(new LinearOutSlowInInterpolator())
+                .setDuration(Constants.ANIMATION_DURATION).alpha(0f);
         mConfirmLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
                 .setInterpolator(new LinearOutSlowInInterpolator());
 

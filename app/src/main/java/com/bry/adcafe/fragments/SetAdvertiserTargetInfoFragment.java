@@ -1,5 +1,6 @@
 package com.bry.adcafe.fragments;
 
+import android.animation.Animator;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
@@ -12,7 +13,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.text.Html;
 import android.util.Log;
@@ -34,6 +34,7 @@ import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.AgeGroup;
 import com.bry.adcafe.models.TargetedUser;
 import com.bry.adcafe.services.TimeManager;
+import com.bry.adcafe.services.Utils;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private Button resetBtn;
     private Button okBtn;
 
-    private LinearLayout mainLaout2;
+    private LinearLayout mainLayout2;
     private Button okBtn1point5;
 
     private LinearLayout genderLayout;
@@ -109,7 +110,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private Button okBtn5;
 
     private List<TargetedUser> targetedUserData;
-    private float NEG = -800f;
+    private float NEG = -50;
     private String mCategory;
 
     private boolean hasSetSomeInfo = false;
@@ -142,7 +143,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         resetBtn = rootView.findViewById(R.id.resetBtn);
         okBtn = rootView.findViewById(R.id.okBtn);
 
-        mainLaout2 = rootView.findViewById(R.id.mainLayout2);
+        mainLayout2 = rootView.findViewById(R.id.mainLayout2);
         okBtn1point5 = rootView.findViewById(R.id.okBtn1point5);
 
         genderLayout = rootView.findViewById(R.id.genderLayout);
@@ -223,7 +224,28 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         okBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainLayout.setVisibility(View.GONE);
+                mainLayout.animate().translationX(NEG).alpha(0f).setDuration(Constants.ANIMATION_DURATION)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        mainLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadFirstView2();
             }
         });
@@ -243,13 +265,34 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     }
 
     private void loadFirstView2(){
-        mainLaout2.setVisibility(View.VISIBLE);
-        mainLaout2.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+        mainLayout2.setVisibility(View.VISIBLE);
+        mainLayout2.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
                 .setInterpolator(new LinearOutSlowInInterpolator());
         okBtn1point5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainLaout2.setVisibility(View.GONE);
+                mainLayout2.animate().translationX(NEG).alpha(0f).setDuration(Constants.ANIMATION_DURATION)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        mainLayout2.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadGenderView();
             }
         });
@@ -260,7 +303,7 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private void loadGenderView(){
         hasSetSomeInfo = false;
         genderLayout.setVisibility(View.VISIBLE);
-        genderLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+        genderLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
                 .setInterpolator(new LinearOutSlowInInterpolator());
         if(Variables.genderTarget.equals(Constants.MALE)){
             hasSetSomeInfo = true;
@@ -313,8 +356,28 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                         Variables.genderTarget = Constants.MALE;
                     }
                     LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
-                    genderLayout.setVisibility(View.GONE);
-                    genderLayout.setTranslationX(NEG);
+                    genderLayout.animate().translationX(NEG).alpha(0f).setDuration(Constants.ANIMATION_DURATION)
+                            .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            genderLayout.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
                     loadAgeGroupView();
                 }
             }
@@ -340,8 +403,30 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private void loadAgeGroupView() {
         hasSetSomeInfo = false;
         ageLayout.setVisibility(View.VISIBLE);
-        ageLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new LinearOutSlowInInterpolator());
+        ageLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                ageLayout.setVisibility(View.VISIBLE);
+                ageLayout.setTranslationX(0);
+                ageLayout.setAlpha(1f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
         try{
             ageUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+getNumberOfUsersAfterFiltering()
                     +" User(s).</b>"));
@@ -407,8 +492,28 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         backBtn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ageLayout.setTranslationX(600);
-                ageLayout.setVisibility(View.GONE);
+                ageLayout.animate().translationX(Utils.dpToPx(400)).setDuration(Constants.ANIMATION_DURATION)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        ageLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadGenderView();
             }
         });
@@ -434,13 +539,53 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
             @Override
             public void onClick(View view) {
                 if(!hasSetSomeInfo){
-                    ageLayout.setVisibility(View.GONE);
-                    ageLayout.setTranslationX(NEG);
+                    ageLayout.animate().translationX(NEG).alpha(0f).setDuration(Constants.ANIMATION_DURATION)
+                            .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            ageLayout.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
                     Variables.ageGroupTarget = null;
                     loadMapLayout();
                 }else{
-                    ageLayout.setVisibility(View.GONE);
-                    ageLayout.setTranslationX(NEG);
+                    ageLayout.animate().translationX(NEG).alpha(0f).setDuration(Constants.ANIMATION_DURATION)
+                            .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            ageLayout.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
                     Variables.ageGroupTarget = new AgeGroup(numberPicker1.getValue(), numberPicker2.getValue());
                     LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
                     loadMapLayout();
@@ -455,8 +600,30 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private void loadMapLayout() {
         hasSetSomeInfo = false;
         locationLayout.setVisibility(View.VISIBLE);
-        locationLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new LinearOutSlowInInterpolator());
+        locationLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                locationLayout.setVisibility(View.VISIBLE);
+                locationLayout.setTranslationX(0);
+                locationLayout.setAlpha(1f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
         openMapImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -486,8 +653,28 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         backBtn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                locationLayout.setVisibility(View.GONE);
-                locationLayout.setTranslationX(600);
+                locationLayout.animate().translationX(Utils.dpToPx(400)).setDuration(Constants.ANIMATION_DURATION)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        locationLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadAgeGroupView();
             }
         });
@@ -509,8 +696,28 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         okBtn4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                locationLayout.setVisibility(View.GONE);
-                locationLayout.setTranslationX(NEG);
+                locationLayout.animate().translationX(NEG).alpha(0f).setDuration(Constants.ANIMATION_DURATION)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        locationLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadDeviceCategoryRangeSelector();
             }
         });
@@ -550,8 +757,30 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private void loadDeviceCategoryRangeSelector(){
         hasSetSomeInfo = false;
         deviceCategoryLayout.setVisibility(View.VISIBLE);
-        deviceCategoryLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new LinearOutSlowInInterpolator());
+        deviceCategoryLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                deviceCategoryLayout.setAlpha(1f);
+                deviceCategoryLayout.setTranslationX(0);
+                deviceCategoryLayout.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
         if(Variables.deviceRangeCategory.equals(Constants.HIGH_END_DEVICE)){
             hasSetSomeInfo = true;
             skip4.setAlpha(1f);
@@ -603,8 +832,28 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         backBtn4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deviceCategoryLayout.setVisibility(View.GONE);
-                deviceCategoryLayout.setTranslationX(600);
+                deviceCategoryLayout.animate().translationX(Utils.dpToPx(400)).setDuration(Constants.ANIMATION_DURATION)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        deviceCategoryLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadMapLayout();
             }
         });
@@ -629,8 +878,28 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
             public void onClick(View view) {
                 if(!radioButtonHighEnd.isChecked() && !radioButtonMidRange.isChecked()&& !radioButtonLowEnd.isChecked()){
                     Variables.deviceRangeCategory = "";
-                    deviceCategoryLayout.setVisibility(View.GONE);
-                    deviceCategoryLayout.setTranslationX(NEG);
+                    deviceCategoryLayout.animate().translationX(NEG).alpha(0f).setDuration(Constants.ANIMATION_DURATION)
+                            .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            deviceCategoryLayout.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
                     loadSelectOtherCategories();
                 }else{
                     if(radioButtonHighEnd.isChecked()){
@@ -641,8 +910,28 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
                         Variables.deviceRangeCategory = Constants.LOW_END_DEVICE;
                     }
                     LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
-                    deviceCategoryLayout.setVisibility(View.GONE);
-                    deviceCategoryLayout.setTranslationX(NEG);
+                    deviceCategoryLayout.animate().translationX(NEG).alpha(0f).setDuration(Constants.ANIMATION_DURATION)
+                            .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            deviceCategoryLayout.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
                     loadSelectOtherCategories();
                 }
             }
@@ -652,8 +941,30 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private void loadSelectOtherCategories(){
         hasSetSomeInfo = false;
         categoriesLayout.setVisibility(View.VISIBLE);
-        categoriesLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new LinearOutSlowInInterpolator());
+        categoriesLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                categoriesLayout.setVisibility(View.VISIBLE);
+                categoriesLayout.setAlpha(1f);
+                categoriesLayout.setTranslationX(0);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
         categoriesUserCount.setText(Html.fromHtml("Users that will be reached: <b>"+
                 getNumberOfUsersAfterFiltering()+" User(s).</b>"));
         if(Variables.targetCategoryList.isEmpty()){
@@ -704,8 +1015,28 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         okBtn7.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                categoriesLayout.setVisibility(View.GONE);
-                categoriesLayout.setTranslationX(NEG);
+                categoriesLayout.animate().translationX(NEG).alpha(0f).setDuration(Constants.ANIMATION_DURATION)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        categoriesLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadConfirmDetailsView();
             }
         });
@@ -751,8 +1082,30 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
     private void loadConfirmDetailsView(){
         concludeLayout.setVisibility(View.VISIBLE);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("IS_ADVERTISER_FILTERING"));
-        concludeLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new LinearOutSlowInInterpolator());
+        concludeLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+                concludeLayout.setAlpha(1f);
+                concludeLayout.setTranslationX(0);
+                concludeLayout.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
         if(Variables.genderTarget!=null){
             if(Variables.genderTarget.equals(""))confirmGender.setText("No preferred Gender/Sex set.");
             else confirmGender.setText(Html.fromHtml("Set gender/sex target: <b>"+Variables.genderTarget+".</b>"));
@@ -800,8 +1153,28 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         backBtn3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                concludeLayout.setVisibility(View.GONE);
-                concludeLayout.setTranslationX(600);
+                concludeLayout.animate().translationX(Utils.dpToPx(400)).setDuration(Constants.ANIMATION_DURATION)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        concludeLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadSelectOtherCategories();
             }
         });

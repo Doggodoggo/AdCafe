@@ -92,7 +92,7 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
         } else if(v == cancelBtn2){
             dismiss();
         } else if(v == continueBtn){
-            mainLayout.setVisibility(View.GONE);
+//            mainLayout.setVisibility(View.GONE);
             chooseAmountLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
                     .setInterpolator(new LinearOutSlowInInterpolator())
                     .setListener(new AnimatorListenerAdapter() {
@@ -134,7 +134,8 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
         continueBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainLayout.setVisibility(View.GONE);
+                mainLayout.animate().setDuration(1000).translationX(-200).alpha(0f)
+                        .setInterpolator(new LinearOutSlowInInterpolator());
                 chooseAmountLayout.setVisibility(View.VISIBLE);
                 chooseAmountLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
                         .setInterpolator(new LinearOutSlowInInterpolator())

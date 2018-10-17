@@ -24,7 +24,7 @@
                 android:layout_width="220dp"
                 android:layout_marginTop="50dp"
                 android:background="@drawable/activity_navigation_renders"
-                android:layout_height="200dp" />
+                android:layout_height="230dp" />
 
             <TextView
                 android:id="@+id/textView1"
@@ -63,8 +63,9 @@
                 android:paddingStart="10dp">
 
                 <ImageButton
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                    android:layout_width="30dp"
+                    android:layout_height="31dp"
+                    android:layout_gravity="center_vertical"
                     android:layout_marginLeft="10dp"
                     android:background="@drawable/ic_action_feedback6"/>
                 <TextView
@@ -90,8 +91,9 @@
                 android:paddingStart="10dp">
 
                 <ImageButton
-                    android:layout_width="34dp"
-                    android:layout_height="34dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
                     android:layout_marginLeft="10dp"
                     android:background="@drawable/ic_action_ad_archives"/>
                 <TextView
@@ -117,8 +119,9 @@
                 android:paddingStart="10dp">
 
                 <ImageButton
-                    android:layout_width="34dp"
-                    android:layout_height="34dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
                     android:layout_marginLeft="10dp"
                     android:background="@drawable/ic_action_dashboard2"/>
                 <TextView
@@ -143,8 +146,9 @@
                 android:paddingStart="10dp">
 
                 <ImageButton
-                    android:layout_width="34dp"
-                    android:layout_height="34dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
                     android:layout_marginLeft="10dp"
                     android:background="@drawable/ic_action_share_app"/>
                 <TextView

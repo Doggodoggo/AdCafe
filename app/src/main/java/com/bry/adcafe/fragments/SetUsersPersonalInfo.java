@@ -1,5 +1,6 @@
 package com.bry.adcafe.fragments;
 
+import android.animation.Animator;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -34,6 +35,7 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.services.TimeManager;
+import com.bry.adcafe.services.Utils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -78,7 +80,9 @@ public class SetUsersPersonalInfo extends DialogFragment {
 
     private LinearLayout concludeLayout;
     private Button okBtn5;
-    private float NEG = -800f;
+    private float NEG = -50;
+
+    private int durat = Constants.ANIMATION_DURATION;
 
     public void setfragcontext(Context context) {
         mContext = context;
@@ -138,7 +142,8 @@ public class SetUsersPersonalInfo extends DialogFragment {
         okBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainLayout.setVisibility(View.GONE);
+                mainLayout.animate().setDuration(durat).translationX(-200).alpha(0f)
+                        .setInterpolator(new LinearOutSlowInInterpolator());
                 loadFirstView2();
             }
         });
@@ -151,7 +156,8 @@ public class SetUsersPersonalInfo extends DialogFragment {
         okBtn1point5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainLaout2.setVisibility(View.GONE);
+                mainLaout2.animate().setDuration(durat).translationX(-200).alpha(0f)
+                        .setInterpolator(new LinearOutSlowInInterpolator());
                 loadSetGenderView();
             }
         });
@@ -160,7 +166,7 @@ public class SetUsersPersonalInfo extends DialogFragment {
 
     private void loadSetGenderView() {
         genderLayout.setVisibility(View.VISIBLE);
-        genderLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+        genderLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
                 .setInterpolator(new LinearOutSlowInInterpolator());
         SharedPreferences prefs2 = mContext.getSharedPreferences(Constants.GENDER, MODE_PRIVATE);
         String gender = prefs2.getString(Constants.GENDER, "NULL");
@@ -168,8 +174,9 @@ public class SetUsersPersonalInfo extends DialogFragment {
         skip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                genderLayout.setVisibility(View.GONE);
-                genderLayout.setTranslationX(NEG);
+//                genderLayout.setVisibility(View.GONE);
+                genderLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
+                        .setInterpolator(new LinearOutSlowInInterpolator());
                 loadSetBirthdayView();
             }
         });
@@ -181,8 +188,9 @@ public class SetUsersPersonalInfo extends DialogFragment {
                 }else{
                     setGender(Constants.MALE);
                 }
-                genderLayout.setVisibility(View.GONE);
-                genderLayout.setTranslationX(NEG);
+//                genderLayout.setVisibility(View.GONE);
+                genderLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
+                        .setInterpolator(new LinearOutSlowInInterpolator());
                 loadSetBirthdayView();
             }
         });
@@ -203,8 +211,29 @@ public class SetUsersPersonalInfo extends DialogFragment {
 
     private void loadSetBirthdayView() {
         ageLayout.setVisibility(View.VISIBLE);
-        ageLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new LinearOutSlowInInterpolator());
+        ageLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                ageLayout.setTranslationX(0);
+                ageLayout.setAlpha(1f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
         SharedPreferences pref = mContext.getSharedPreferences(Constants.DATE_OF_BIRTH, MODE_PRIVATE);
         if(pref.getInt("year",0)!=0) {
             int day = pref.getInt("day", 0);
@@ -225,8 +254,29 @@ public class SetUsersPersonalInfo extends DialogFragment {
         backBtn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ageLayout.setVisibility(View.GONE);
-                ageLayout.setTranslationX(800);
+//                ageLayout.setVisibility(View.GONE);
+                ageLayout.animate().translationX(Utils.dpToPx(400)).setDuration(Constants.ANIMATION_DURATION)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        ageLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadSetGenderView();
             }
         });
@@ -234,16 +284,38 @@ public class SetUsersPersonalInfo extends DialogFragment {
         skip2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ageLayout.setVisibility(View.GONE);
-                ageLayout.setTranslationX(NEG);
+//                ageLayout.setVisibility(View.GONE);
+                ageLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
+                        .setInterpolator(new LinearOutSlowInInterpolator());;
                 loadSetLocationsView();
             }
         });
         okBtn3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ageLayout.setVisibility(View.GONE);
-                ageLayout.setTranslationX(NEG);
+//                ageLayout.setVisibility(View.GONE);
+                ageLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        ageLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadSetLocationsView();
             }
         });
@@ -253,8 +325,29 @@ public class SetUsersPersonalInfo extends DialogFragment {
 
     private void loadSetLocationsView() {
         locationLayout.setVisibility(View.VISIBLE);
-        locationLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
-                .setInterpolator(new LinearOutSlowInInterpolator());
+        locationLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                locationLayout.setAlpha(1f);
+                locationLayout.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
         if(Variables.usersLatLongs.isEmpty()){
             locationNumberText.setText(Html.fromHtml("Locations set:<b> None.</b>"));
         }else{
@@ -276,8 +369,29 @@ public class SetUsersPersonalInfo extends DialogFragment {
         backBtn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                locationLayout.setVisibility(View.GONE);
-                locationLayout.setTranslationX(800);
+//                locationLayout.setVisibility(View.GONE);
+                locationLayout.animate().translationX(800).setDuration(durat)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        locationLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadSetBirthdayView();
             }
         });
@@ -285,16 +399,18 @@ public class SetUsersPersonalInfo extends DialogFragment {
         skip3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                locationLayout.setVisibility(View.GONE);
-                locationLayout.setTranslationX(NEG);
+//                locationLayout.setVisibility(View.GONE);
+                locationLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
+                        .setInterpolator(new LinearOutSlowInInterpolator());;
                 loadFifthView();
             }
         });
         okBtn4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                locationLayout.setVisibility(View.GONE);
-                locationLayout.setTranslationX(NEG);
+//                locationLayout.setVisibility(View.GONE);
+                locationLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
+                        .setInterpolator(new LinearOutSlowInInterpolator());;
                 loadFifthView();
             }
         });
@@ -330,7 +446,7 @@ public class SetUsersPersonalInfo extends DialogFragment {
 
     private void loadFifthView() {
         concludeLayout.setVisibility(View.VISIBLE);
-        concludeLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0)
+        concludeLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
                 .setInterpolator(new LinearOutSlowInInterpolator());
         okBtn5.setOnClickListener(new View.OnClickListener() {
             @Override
