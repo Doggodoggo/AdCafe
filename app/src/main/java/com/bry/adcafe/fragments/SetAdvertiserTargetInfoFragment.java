@@ -346,8 +346,28 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
             public void onClick(View view) {
                 if(!radioButtonMale.isChecked() && !radioButtonFemale.isChecked()){
                     Variables.genderTarget = "";
-                    genderLayout.setVisibility(View.GONE);
-                    genderLayout.setTranslationX(NEG);
+                    genderLayout.animate().translationX(NEG).alpha(0f).setDuration(Constants.ANIMATION_DURATION)
+                            .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            genderLayout.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
                     loadAgeGroupView();
                 }else{
                     if(radioButtonFemale.isChecked()){

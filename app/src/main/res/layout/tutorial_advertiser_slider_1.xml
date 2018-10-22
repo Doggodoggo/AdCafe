@@ -26,11 +26,11 @@
             android:id="@+id/textView2"
             android:textColor="@color/colorPrimary"
             android:layout_width="wrap_content"
-            android:layout_marginRight="20dp"
+            android:layout_marginRight="40dp"
             android:layout_marginTop="20dp"
             android:gravity="center"
             android:width="370dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="40dp"
             android:layout_height="wrap_content"
             android:text="@string/Advertiserslide1text"
             android:textSize="16sp" />

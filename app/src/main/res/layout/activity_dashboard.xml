@@ -606,7 +606,7 @@
                 android:gravity="center"
                 android:textSize="8sp"
                 android:layout_marginBottom="5dp"
-                android:text="©Copyright 2018, Jayson Amati and Bry Onyoni."
+                android:text="©Copyright 2018, Color Technologies."
                 android:layout_height="wrap_content" />
 
         </LinearLayout>

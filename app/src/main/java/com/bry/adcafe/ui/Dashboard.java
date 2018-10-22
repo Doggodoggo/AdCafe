@@ -58,6 +58,7 @@ import com.bry.adcafe.Constants;
 import com.bry.adcafe.Payment.mpesaApi.Mpesaservice;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
+import com.bry.adcafe.adapters.FirstMessageItem;
 import com.bry.adcafe.adapters.MessageItem;
 import com.bry.adcafe.fragments.ChangeCPVFragment;
 import com.bry.adcafe.fragments.FeedbackFragment;
@@ -1550,6 +1551,7 @@ public class Dashboard extends AppCompatActivity {
         mChatsPlaceHolderView.setLayoutManager(linearLayoutManager);
 
         List<Message> myMessages = loadSavedMessages();
+        addFirstMessageIfEmpty();
         for(Message message:myMessages){
             addMessageToList(message);
         }
@@ -1703,6 +1705,13 @@ public class Dashboard extends AppCompatActivity {
         mChatsPlaceHolderView.addView(0,new MessageItem(mContext,mChatsPlaceHolderView,message));
         mChatsPlaceHolderView.scrollToPosition(0);
         numberOfItemsAdded++;
+    }
+
+    private void addFirstMessageIfEmpty(){
+        if(loadSavedMessages().isEmpty()){
+            mChatsPlaceHolderView.addView(0,new FirstMessageItem(mContext,mChatsPlaceHolderView));
+            mChatsPlaceHolderView.scrollToPosition(0);
+        }
     }
 
     private void hideFeedChatView(){

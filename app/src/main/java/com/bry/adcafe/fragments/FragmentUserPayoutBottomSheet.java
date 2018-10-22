@@ -116,7 +116,7 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
         mConfirmLayout = contentView.findViewById(R.id.confirmLayout);
 
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) ((View) contentView.getParent()).getLayoutParams();
-        params.setMargins(15,-15,15,15);
+//        params.setMargins(15,-15,15,15);
         CoordinatorLayout.Behavior behavior = params.getBehavior();
 
         if( behavior != null && behavior instanceof BottomSheetBehavior) {
