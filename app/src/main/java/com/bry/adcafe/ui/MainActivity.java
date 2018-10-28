@@ -119,6 +119,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.fabric.sdk.android.Fabric;
+import okhttp3.internal.Util;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,NetworkStateReceiver.NetworkStateReceiverListener {
     private static final String TAG = "MainActivity";
@@ -5231,7 +5232,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //Adds incentive to users money total
     private void addToUsersIncentiveCount() {
-        Toast.makeText(mContext,"Incentive received.",Toast.LENGTH_SHORT).show();
+        final RelativeLayout incentiveAddedMessage = findViewById(R.id.incentiveAddedMessage);
+        incentiveAddedMessage.setVisibility(View.VISIBLE);
+        incentiveAddedMessage.animate().alpha(1f).translationY(0).setDuration(animationTime)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                removeMessage();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+
         Advert ad = Variables.getCurrentAdvert();
         final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         double incentiveAmount = ad.getWebClickIncentive();
@@ -5254,6 +5279,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         updateUsersTotalReimbursalAmountAfterWebClick();
         updateAdvertisersWebClickAmount();
 
+    }
+
+    private void removeMessage(){
+        final RelativeLayout incentiveAddedMessage = findViewById(R.id.incentiveAddedMessage);
+        incentiveAddedMessage.animate().alpha(0f).translationY(Utils.dpToPx(50)).setDuration(animationTime).setStartDelay(1900)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                incentiveAddedMessage.setVisibility(View.GONE);
+                incentiveAddedMessage.setAlpha(0f);
+                incentiveAddedMessage.setTranslationY(Utils.dpToPx(50));
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
     }
 
     private List<AdCoin> loadUsersCoins(){

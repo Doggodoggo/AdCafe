@@ -34,8 +34,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\bryon\Desktop\frostbite\Icons\number_of_users.png" />
-                                      <entry key="outputName" value="ic_action_number_of_users" />
+                                      <entry key="imageAsset" value="C:\Users\bryon\Desktop\frostbite\Icons\changecpv.png" />
+                                      <entry key="outputName" value="ic_action_incentive" />
                                       <entry key="theme" value="CUSTOM" />
                                       <entry key="themeColor" value="064644" />
                                     </map>
