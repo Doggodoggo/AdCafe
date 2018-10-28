@@ -231,6 +231,11 @@ public class Constants {
 
     public static String FIREBASE_IMAGE_MESSAGES = "ImageMessages";
 
+    public static String COIN_TYPE_IMPRESSION = "CoinTypeImpression";
+    public static String COIN_TYPE_WEBCLICK = "CoinTypeWebClick";
+    public static String USERS_COIN_LIST = "UsersCoinList";
+
+    public static String COIN_VALUE_SYSTEM = "IsUsingCoinSystem12399";
 
 
 

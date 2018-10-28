@@ -69,6 +69,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
     private double VATamm;
 
     private List<TargetedUser> targetedUserData;
+    private double mTotalIncentiveAmount = 0;
 
 
 
@@ -89,10 +90,11 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         this.mName = name;
 
         if(Variables.isTargetingDataSet()) this.mTargetedUsers = targetedUserDatas.size();
+        if(Variables.incentiveForClick!=0) this.mTotalIncentiveAmount = (Variables.incentiveForClick*targetedUsers);
 
         this.mAmountToBePaid = mTargetedUsers*(mConstantAmountPerUserTargeted+Constants.MPESA_CHARGES);
         this.VATamm = getVATAmmount(mTargetedUsers*(Variables.getUserCpvFromTotalPayPerUser((int)mConstantAmountPerUserTargeted)));
-        this.paymentTotals = mAmountToBePaid+VATamm;
+        this.paymentTotals = mAmountToBePaid+VATamm+mTotalIncentiveAmount;
         this.chargeForPayment = getChargeForTransaction(paymentTotals);
         paymentTotals+=chargeForPayment;
     }
@@ -222,6 +224,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         TextView phoneToPayVew = mContentView.findViewById(R.id.payingPhoneNumber);
         TextView transactionCostView = mContentView.findViewById(R.id.transationCost);
         TextView vatCostView = mContentView.findViewById(R.id.vatCost);
+        TextView incentiveAmount = mContentView.findViewById(R.id.incentiveAmount);
 
         targetingView.setText(Html.fromHtml("Targeting : <b>" + Long.toString(mTargetedUsersBeforeFiltering) + " users.</b>"));
         if(Variables.isTargetingDataSet()){
@@ -236,6 +239,11 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         phoneToPayVew.setText(Html.fromHtml("Paying phone number : <b>" + mPhoneNo + "</b>"));
         transactionCostView.setText(Html.fromHtml("Transaction cost amount : <b>" + chargeForPayment + "Ksh.</b>"));
         vatCostView.setText(Html.fromHtml("VAT amount : <b>" + VATamm + "Ksh.</b>"));
+
+        if(mTotalIncentiveAmount!=0){
+            incentiveAmount.setText(Html.fromHtml("Total incentive amount: <b>"+mTotalIncentiveAmount+"Ksh.</b>"));
+            incentiveAmount.setVisibility(View.GONE);
+        }
 
         mContentView.findViewById(R.id.startButton).setOnClickListener(new View.OnClickListener() {
             @Override

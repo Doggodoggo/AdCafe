@@ -75,7 +75,11 @@ public class TomorrowsAdStatItem {
 
         mTargetedNumber.setText(String.format("No. of users targeted : %d", mAdvert.getNumberOfUsersToReach()));
         mCategory.setText("Category : "+mAdvert.getCategory());
-        double am = (mAdvert.getNumberOfUsersToReach()*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))+vat;
+        double incentiveAmm = 0;
+        if(mAdvert.didAdvertiserAddIncentive()){
+            incentiveAmm = (mAdvert.getWebClickIncentive()* (mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
+        }
+        double am = (mAdvert.getNumberOfUsersToReach()*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))+vat+incentiveAmm;
 
         String amount = Double.toString(am);
         mAmountToReimburse.setText(String.format("Paid amount : %s Ksh.", amount));

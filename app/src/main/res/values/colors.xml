@@ -36,7 +36,8 @@
     <color name="violet">#EE82EE</color>
     <color name="fuchsia">#FF00FF</color>
     <color name="darkViolet">#9400D3</color>
-    <color name="whiteish">#fdfdfd</color>
+    <color name="whiteish">#f9f9f9</color>
+    <color name="black">#000000</color>
 
     <!-- dots inactive colors -->
 

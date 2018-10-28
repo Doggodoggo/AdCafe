@@ -78,7 +78,12 @@ public class OlderAdsItem {
         double vat = (mAdvert.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(
                 mAdvert.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
 
-        double totalReimbursalPlusPayout = ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
+        double incentiveAmm = 0;
+        if(mAdvert.didAdvertiserAddIncentive()){
+            incentiveAmm = (mAdvert.getWebClickIncentive()* (mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
+        }
+
+        double totalReimbursalPlusPayout = ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat+incentiveAmm;
         String number = Double.toString(round(totalReimbursalPlusPayout));
 
         mAmountToReimburseView.setText(String.format("Reimbursing amount: %s Ksh", number));
@@ -214,7 +219,13 @@ public class OlderAdsItem {
                 int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView();
                 double vat = (numberOfUsersWhoDidntSeeAd*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))
                         *Constants.VAT_CONSTANT;
-                String number = Integer.toString(ammountToBeRepaid+(int)vat);
+
+                double incentiveAmm = 0;
+                if(mAdvert.didAdvertiserAddIncentive()){
+                    incentiveAmm = (mAdvert.getWebClickIncentive()* (mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
+                }
+
+                String number = Integer.toString(ammountToBeRepaid+((int)vat)+((int)incentiveAmm));
                 mAmountToReimburseView.setText("Reimbursing amount : "+number+" Ksh");
             }catch (Exception e){
                 e.printStackTrace();
@@ -237,7 +248,13 @@ public class OlderAdsItem {
                         int ammountToBeRepaid = (numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView());
                         double vat = (numberOfUsersWhoDidntSeeAd*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))
                                 *Constants.VAT_CONSTANT;
-                        String number = Integer.toString(ammountToBeRepaid+(int) vat);
+
+                        double incentiveAmm = 0;
+                        if(mAdvert.didAdvertiserAddIncentive()){
+                            incentiveAmm = (mAdvert.getWebClickIncentive()* (mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
+                        }
+
+                        String number = Integer.toString(ammountToBeRepaid+((int) vat)+ ((int) incentiveAmm));
                         mAmountToReimburseView.setText("Reimbursing amount : "+number+" Ksh");
                     }
                 }catch (Exception e){

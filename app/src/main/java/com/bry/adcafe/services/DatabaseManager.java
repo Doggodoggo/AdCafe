@@ -13,7 +13,9 @@ import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.Variables;
+import com.bry.adcafe.models.AdCoin;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.Message;
 import com.bry.adcafe.models.User;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -27,6 +29,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,6 +58,12 @@ public class DatabaseManager {
     private int iterationsForResettingCPV = 0;
     private int cyclecount = 0;
     private int currentCyclenumber = 0;
+
+
+
+    public void setContext(Context context) {
+        this.DBContext = context;
+    }
 
 
     ////Create user methods//////
@@ -161,10 +170,6 @@ public class DatabaseManager {
 
             }
         });
-    }
-
-    public void setContext(Context context) {
-        this.DBContext = context;
     }
 
     public void unSubscribeUserFormAdvertCategory(String AdvertCategory, int clusterIDInCategory) {
@@ -471,6 +476,13 @@ public class DatabaseManager {
                 int reimbursementAmount = reimbursementAmountSnap.getValue(int.class);
                 Variables.setTotalReimbursementAmount(reimbursementAmount);
                 Log(TAG, "Setting reimbursement total to : " + reimbursementAmount);
+
+                //this loads and sets users AdCoins in shared preferences;
+                DataSnapshot myCoinsSnap = dataSnapshot.child(Constants.USERS_COIN_LIST);
+                if(myCoinsSnap.exists()){
+                    String myCoinsString = myCoinsSnap.getValue(String.class);
+                    setUsersCoinsListInSharedPrefs(myCoinsString,mContext);
+                }
 
                 //this loads the users preferred amount per ad view.
                 DataSnapshot amountPerViewSnap = dataSnapshot.child(Constants.CONSTANT_AMMOUNT_PER_VIEW);
@@ -1580,7 +1592,6 @@ public class DatabaseManager {
         return res != 0;
     }
 
-
     private void removeFromNewCategoriesList(String category){
         Log.d(TAG,"Attempting to remove known category "+category);
         for(int i = 0; i<Variables.newCategories.size();i++){
@@ -1594,6 +1605,47 @@ public class DatabaseManager {
 //                break;
 //            }
 //        }
+    }
+
+
+    public void addCoinToUsersCoinList(final AdCoin coin){
+        final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.USERS_COIN_LIST);
+        mref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<AdCoin> usersAddCoin = new ArrayList<>();
+                try {
+                    if (dataSnapshot.exists()) {
+                        Gson gson = new Gson();
+                        String coinListString = dataSnapshot.getValue(String.class);
+                        java.lang.reflect.Type type = new TypeToken<List<AdCoin>>() {}.getType();
+                        usersAddCoin = gson.fromJson(coinListString, type);
+                    }
+                    usersAddCoin.add(coin);
+
+                    DatabaseReference mRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                            .child(uid).child(Constants.USERS_COIN_LIST);
+                    Gson gson = new Gson();
+                    String userListString = gson.toJson(usersAddCoin);
+                    mRef2.setValue(userListString);
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void setUsersCoinsListInSharedPrefs(String coinsString,Context mContext){
+        SharedPreferences prefs = mContext.getSharedPreferences(Constants.USERS_COIN_LIST, MODE_PRIVATE);
+        prefs.edit().clear().putString(Constants.USERS_COIN_LIST, coinsString).apply();
     }
 
 }

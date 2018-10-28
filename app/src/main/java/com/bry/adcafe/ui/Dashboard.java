@@ -1,6 +1,5 @@
 package com.bry.adcafe.ui;
 
-import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
 import android.app.Dialog;
@@ -24,11 +23,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
@@ -37,10 +34,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.Html;
 import android.text.format.DateFormat;
-import android.util.AttributeSet;
-import android.util.Base64;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -55,18 +49,16 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
-import com.bry.adcafe.Payment.mpesaApi.Mpesaservice;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.adapters.FirstMessageItem;
 import com.bry.adcafe.adapters.MessageItem;
 import com.bry.adcafe.fragments.ChangeCPVFragment;
-import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
 import com.bry.adcafe.fragments.SetUsersPersonalInfo;
 import com.bry.adcafe.fragments.myMapFragment;
+import com.bry.adcafe.models.AdCoin;
 import com.bry.adcafe.models.Message;
-import com.bry.adcafe.models.MyTime;
 import com.bry.adcafe.models.PayoutResponse;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.DatabaseManager;
@@ -74,13 +66,7 @@ import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.SliderPrefManager;
 import com.bry.adcafe.services.TimeManager;
 import com.bry.adcafe.services.Utils;
-import com.bumptech.glide.Glide;
-import com.google.android.gms.maps.model.Dash;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -93,12 +79,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mindorks.placeholderview.PlaceHolderView;
 
-import org.bouncycastle.crypto.util.Pack;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -788,6 +771,14 @@ public class Dashboard extends AppCompatActivity {
 
         }else reimbursementTotals = Variables.getTotalReimbursementAmount();
 
+        if(Variables.isUsingNewCoinValueSystem){
+            if(Variables.legitCoins!=null){
+                if(!Variables.legitCoins.isEmpty()){
+                    reimbursementTotals = getTotalValueFromEachCoin(Variables.legitCoins);
+                }
+            }
+        }
+
         String payoutPhoneNumber = Variables.phoneNo;
         int payoutAmount = reimbursementTotals;
         String PAYOUT_SUCCESSFUL = "PAYOUT_SUCCESSFUL";
@@ -893,6 +884,28 @@ public class Dashboard extends AppCompatActivity {
         setValues();
         mProgForPayments.dismiss();
         showSuccessfulPayoutPrompt();
+        clearUsersCoinList();
+    }
+
+    private void clearUsersCoinList() {
+        SharedPreferences prefs = mContext.getSharedPreferences(Constants.USERS_COIN_LIST, MODE_PRIVATE);
+        prefs.edit().clear().apply();
+
+        final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.USERS_COIN_LIST);
+        mref.setValue(null);
+
+        Variables.isUsingNewCoinValueSystem = true;
+        Variables.legitCoins = null;
+        setUserAsUsingNewValueSystem();
+    }
+
+    private void setUserAsUsingNewValueSystem(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS).child(uid)
+                .child(Constants.COIN_VALUE_SYSTEM);
+        userRef.setValue(true);
     }
 
     private void showSuccessfulPayoutPrompt() {
@@ -1845,6 +1858,15 @@ public class Dashboard extends AppCompatActivity {
 
     private void removeNewMessageBubble(){
         findViewById(R.id.newMessagesView).setVisibility(View.INVISIBLE);
+    }
+
+
+    private int getTotalValueFromEachCoin(List<AdCoin> legitCoinsList){
+        int amount = 0;
+        for(AdCoin coin: legitCoinsList){
+            amount+=coin.getValue();
+        }
+        return amount;
     }
 
 

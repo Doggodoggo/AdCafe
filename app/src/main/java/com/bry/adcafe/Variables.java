@@ -9,6 +9,7 @@ import android.util.Log;
 import com.braintreepayments.cardform.view.CardForm;
 import com.bry.adcafe.adapters.AdvertCard;
 import com.bry.adcafe.adapters.SavedAdsCard;
+import com.bry.adcafe.models.AdCoin;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.AdvertiserLocation;
 import com.bry.adcafe.models.AgeGroup;
@@ -172,6 +173,11 @@ public class Variables {
 
     public static LinkedHashMap<String,List<String>> newCategories = new LinkedHashMap<>();
     public static List<String> newCategoryList = new ArrayList<>();
+
+    public static double incentiveForClick = 0;
+    public static boolean hasReachedBottomOfPage = false;
+    public static boolean isUsingNewCoinValueSystem = false;
+    public static List<AdCoin> legitCoins;
 
 
 
@@ -374,6 +380,13 @@ public class Variables {
     public static void addOneToTotalReimbursementAmount(String k) {
         if(k.equals(mKey)) mTotalReimbursementAmount+=(constantAmountPerView);
     }
+
+    public static void incrementReimbursalAmountBy(int amount){
+        mTotalReimbursementAmount+=amount;
+    }
+
+
+
 
     public static String getPassword() {
         return password;

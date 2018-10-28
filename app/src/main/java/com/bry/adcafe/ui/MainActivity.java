@@ -1,6 +1,9 @@
 package com.bry.adcafe.ui;
 
 import android.animation.Animator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.Dialog;
 import android.app.FragmentManager;
@@ -16,6 +19,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -25,6 +29,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -32,19 +37,35 @@ import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.bry.adcafe.models.AdCoin;
+import com.bry.adcafe.models.MyTime;
+import com.bry.adcafe.models.ObservableWebView;
 import com.bry.adcafe.services.AlarmReceiver1;
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
@@ -95,6 +116,7 @@ import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.fabric.sdk.android.Fabric;
 
@@ -163,6 +185,84 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DataSnapshot mAdsSnapshot;
     private DataSnapshot mTargetUsersDataList;
 
+    private boolean isEnabled = true;
+    private ObservableWebView myWebView;
+    private ImageButton mReloadButton;
+    private ImageButton backButton;
+    private ProgressBar progressBar;
+//    private ProgressBar progressBar2;
+
+    private TextView websiteText;
+    private ImageButton closeBtn;
+    private CardView cardContainer;
+    private ImageView collapseIcon;
+
+    private TextView minifiedTextView;
+    private LinearLayout rightButtonLayout;
+    private LinearLayout backBtnLayout;
+
+    private View swipeBackView;
+    private View swipeBackViewBig;
+
+    private boolean isProgressShowing = false;
+    private int animationTime = 150;
+
+    private RelativeLayout WebViewContainer;
+    private int mAnimationTime = 350;
+    private boolean isCardMinimized = true;
+
+    private String PAGE = "https://www.oneplus.com/";
+    private boolean isMinified = false;
+
+
+    private final int collapsedMargin = 1100;
+    private final int unCollapsedMargin = 1;
+    private boolean mIsScrolling = false;
+
+    private GestureDetector mDetector;
+    private int _yDelta;
+    private boolean isInTransition = false;
+    private final int normalDuration = 350;
+    private List<Integer> RawList = new ArrayList<>();
+
+    private boolean isSwipingForBack = false;
+    private GestureDetector mSwipeBackDetector;
+    private int maxSideSwipeLength = 200;
+    private int x_delta;
+    private List<Integer> SideSwipeRawList = new ArrayList<>();
+    private boolean isSideScrolling = false;
+
+    private ProgressBar scrollProgress;
+    private int currentScrollProgress = 0;
+    private int SCROLL_AMOUNT_THRESHOLD = 180;
+
+    private int pageHeight = 0;
+    private int scrollSoFar = 0;
+
+    private LinearLayout ContactSelectorContainer;
+    private LinearLayout CallLayout;
+    private LinearLayout websiteLayout;
+    private LinearLayout LocationLayout;
+
+    private boolean isConfirmOpenWebsiteLayout = false;
+    private boolean isConfirmDialLayout = false;
+
+
+    @Bind(R.id.blackBackgroundLayout) RelativeLayout blackBackgroundLayout;
+    private boolean isBottomPartOpen = false;
+    @Bind(R.id.scrollProgressLayout) RelativeLayout scrollProgressLayout;
+    private boolean isUpdating = false;
+    private boolean hasPageBeenOpened = false;
+
+    @Bind(R.id.pageIconLayout) RelativeLayout pageIconLayout;
+    @Bind(R.id.pageIcon) ImageView pageIcon;
+
+    private int noOfStrikes = 0;
+
+    private boolean scrollConfirmBoolean = false;
+    private boolean didScrollChangeListenerSetScrollConfirmBoolean = false;
+
+
 
 
     @Override
@@ -201,6 +301,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setLastUserOfAppInSharedPreferences(FirebaseAuth.getInstance().getCurrentUser().getUid());
         setUserDeviceCategoryInFirebaseAndSharedPrefs();
         listenForMessages();
+
+        setViews();
+        collapseCard();
+        isCardMinimized = true;
+        addTouchListener();
     }
 
     private void setUpTimeIfNeedBe(){
@@ -1537,35 +1642,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             findViewById(R.id.bookmark2Btn).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (Variables.mIsLastOrNotLast.equals(Constants.NOT_LAST) ||
-                            Variables.mIsLastOrNotLast.equals(Constants.LAST) && Variables.isNormalAdsBeingSeen) {
-                        if (!Variables.hasBeenPinned) {
-                            final Snackbar snackBar = Snackbar.make(findViewById(R.id.mainCoordinatorLayout), R.string.pinning,
-                                    Snackbar.LENGTH_SHORT);
+                    if(isEnabled) {
+                        if (Variables.mIsLastOrNotLast.equals(Constants.NOT_LAST) ||
+                                Variables.mIsLastOrNotLast.equals(Constants.LAST) && Variables.isNormalAdsBeingSeen) {
+                            if (!Variables.hasBeenPinned) {
+                                final Snackbar snackBar = Snackbar.make(findViewById(R.id.mainCoordinatorLayout), R.string.pinning,
+                                        Snackbar.LENGTH_SHORT);
 //                            snackBar.setAction("", new View.OnClickListener() {
 //                                @Override
 //                                public void onClick(View v) {
 //                                    snackBar.dismiss();
 //                                }
 //                            });
-                            snackBar.show();
-                            pinAd();
+                                snackBar.show();
+                                pinAd();
+                            } else {
+                                final Snackbar snackBar = Snackbar.make(findViewById(R.id.mainCoordinatorLayout), R.string.hasBeenPinned,
+                                        Snackbar.LENGTH_SHORT);
+//                            snackBar.setAction("", new View.OnClickListener() {
+//                                @Override
+//                                public void onClick(View v) {
+//                                    snackBar.dismiss();
+//                                }
+//                            });
+                                snackBar.show();
+                            }
                         } else {
-                            final Snackbar snackBar = Snackbar.make(findViewById(R.id.mainCoordinatorLayout), R.string.hasBeenPinned,
-                                    Snackbar.LENGTH_SHORT);
-//                            snackBar.setAction("", new View.OnClickListener() {
-//                                @Override
-//                                public void onClick(View v) {
-//                                    snackBar.dismiss();
-//                                }
-//                            });
-                            snackBar.show();
+                            Snackbar.make(findViewById(R.id.mainCoordinatorLayout), "You can't pin that..",
+                                    Snackbar.LENGTH_SHORT).show();
                         }
-                    } else {
-                        Snackbar.make(findViewById(R.id.mainCoordinatorLayout), "You can't pin that..",
-                                Snackbar.LENGTH_SHORT).show();
                     }
-
                 }
             });
         }
@@ -1577,8 +1683,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             findViewById(R.id.profileImageView).setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    findViewById(R.id.reportBtn).callOnClick();
+                    if(isEnabled) {
+                        findViewById(R.id.reportBtn).callOnClick();
+                    }
                     return false;
+
                 }
             });
         }
@@ -1587,8 +1696,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.dashboard).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, Dashboard.class);
-                startActivity(intent);
+                if(isEnabled) {
+                    Intent intent = new Intent(MainActivity.this, Dashboard.class);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -1596,13 +1707,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.shareBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Vibrator s = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                s.vibrate(50);
-                Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, getResources().getText(R.string.shareText2));
-                sendIntent.setType("text/plain");
-                startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.shareText)));
+                if(isEnabled) {
+                    Vibrator s = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    s.vibrate(50);
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, getResources().getText(R.string.shareText2));
+                    sendIntent.setType("text/plain");
+                    startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.shareText)));
+                }
             }
         });
 
@@ -1610,16 +1723,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             findViewById(R.id.reportBtn).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (Variables.mIsLastOrNotLast.equals(Constants.NO_ADS) || !isSeingNormalAds) {
-                        Snackbar.make(findViewById(R.id.mainCoordinatorLayout), "You can't report that..",
-                                Snackbar.LENGTH_SHORT).show();
-                    } else {
-                        FragmentManager fm = getFragmentManager();
-                        ReportDialogFragment reportDialogFragment = new ReportDialogFragment();
-                        reportDialogFragment.setMenuVisibility(false);
-                        reportDialogFragment.show(fm, "Report dialog fragment.");
-                        reportDialogFragment.setfragcontext(mContext);
-                        setBooleanForPausingTimer();
+                    if(isEnabled) {
+                        if (Variables.mIsLastOrNotLast.equals(Constants.NO_ADS) || !isSeingNormalAds) {
+                            Snackbar.make(findViewById(R.id.mainCoordinatorLayout), "You can't report that..",
+                                    Snackbar.LENGTH_SHORT).show();
+                        } else {
+                            FragmentManager fm = getFragmentManager();
+                            ReportDialogFragment reportDialogFragment = new ReportDialogFragment();
+                            reportDialogFragment.setMenuVisibility(false);
+                            reportDialogFragment.show(fm, "Report dialog fragment.");
+                            reportDialogFragment.setfragcontext(mContext);
+                            setBooleanForPausingTimer();
+                        }
                     }
 
                 }
@@ -1630,17 +1745,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             findViewById(R.id.shareImageIcon).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (Variables.mIsLastOrNotLast.equals(Constants.NO_ADS) || !isSeingNormalAds) {
-                        Snackbar.make(findViewById(R.id.mainCoordinatorLayout), "You can't share that..",
-                                Snackbar.LENGTH_SHORT).show();
-                    } else {
-                        Variables.adToBeShared = Variables.getCurrentAdvert();
-                        try{
-                            isStoragePermissionGranted();
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
+                   if(isEnabled) {
+                       if (Variables.mIsLastOrNotLast.equals(Constants.NO_ADS) || !isSeingNormalAds) {
+                           Snackbar.make(findViewById(R.id.mainCoordinatorLayout), "You can't share that..",
+                                   Snackbar.LENGTH_SHORT).show();
+                       } else {
+                           Variables.adToBeShared = Variables.getCurrentAdvert();
+                           try {
+                               isStoragePermissionGranted();
+                           } catch (Exception e) {
+                               e.printStackTrace();
+                           }
+                       }
+                   }
                 }
             });
         }
@@ -1649,7 +1766,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override public void onClick(View v) {
-        if(v==findViewById(R.id.profileImageView)){
+        if(isEnabled && v.equals(findViewById(R.id.profileImageView))){
             if(mDoublePressedToPin) {
 //                findViewById(R.id.bookmark2Btn).callOnClick();
             }else{
@@ -1665,7 +1782,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }, 1000);
         }
 
-        if(v == retryLoadingFromCannotLoad){
+        if(isEnabled && v.equals(retryLoadingFromCannotLoad)){
             if(isOnline()){
                 cannotLoadLayout.setVisibility(View.GONE);
                 loadAdsFromThread();
@@ -1674,7 +1791,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        if (v == mLogoutButton) {
+        if (isEnabled&& v.equals(mLogoutButton)) {
 //            AlertDialog.Builder builder = new AlertDialog.Builder(this);
 //            builder.setTitle("AdCafé");
 //            builder.setMessage("Are you sure you want to log out?")
@@ -1699,7 +1816,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             reportDialogFragment.setfragContext(mContext);
             setBooleanForPausingTimer();
         }
-        if (v == mRetryButton) {
+        if (isEnabled&& v.equals(mRetryButton)) {
             Log(TAG, "Retrying to load ads...");
 //            mAvi.setVisibility(View.VISIBLE);
             mLoadingProgressBar.setVisibility(View.VISIBLE);
@@ -1708,28 +1825,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(mContext, "Retrying...", Toast.LENGTH_SHORT).show();
             loadAdsFromThread();
         }
-        if (v == findViewById(R.id.WebsiteIcon) && Variables.getCurrentAdvert() != null) {
-//            if (!Variables.getCurrentAdvert().getWebsiteLink().equals(igsNein)) {
-//                Vibrator b = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-//                b.vibrate(30);
-//                try {
-//                    String url = Variables.getCurrentAdvert().getWebsiteLink();
-//                    if (!url.startsWith("http://") && !url.startsWith("https://")) url = "http://" + url;
-//                    Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-//                    startActivity(webIntent);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                    Toast.makeText(mContext, "There's something wrong with the link", Toast.LENGTH_SHORT).show();
-//                }
+
+//        if(isEnabled&&v.equals(findViewById(R.id.WebsiteIcon))){
+//            disableAllViews();
+//            openBottomPart();
+//        }
+
+        if (isEnabled&& v.equals(findViewById(R.id.WebsiteIcon)) && Variables.getCurrentAdvert() != null) {
+//            if(Variables.getCurrentAdvert().didAdvertiserSetContactInfo()) {
+//                ContactAdvertiserBottomsheet fragmentModalBottomSheet = new ContactAdvertiserBottomsheet();
+//                fragmentModalBottomSheet.setActivity(MainActivity.this);
+//                fragmentModalBottomSheet.setAdvert(Variables.getCurrentAdvert());
+//                fragmentModalBottomSheet.show(getSupportFragmentManager(), "BottomSheet Fragment");
 //            }
             if(Variables.getCurrentAdvert().didAdvertiserSetContactInfo()) {
-                ContactAdvertiserBottomsheet fragmentModalBottomSheet = new ContactAdvertiserBottomsheet();
-                fragmentModalBottomSheet.setActivity(MainActivity.this);
-                fragmentModalBottomSheet.setAdvert(Variables.getCurrentAdvert());
-                fragmentModalBottomSheet.show(getSupportFragmentManager(), "BottomSheet Fragment");
+                disableAllViews();
+                openBottomPart();
             }
+
         }
-        if(v==findViewById(R.id.bookmarkBtn)){
+
+        if(isEnabled&& v.equals(findViewById(R.id.bookmarkBtn))){
             Intent intent = new Intent(MainActivity.this, Bookmarks.class);
             startActivity(intent);
         }
@@ -2480,17 +2596,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void adDayAndMonthTotalsToFirebase() {
-        String uid = User.getUid();
-        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS).child(uid).child(Constants.TOTAL_NO_OF_ADS_SEEN_TODAY);
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.TOTAL_NO_OF_ADS_SEEN_TODAY);
         adRef.setValue(Variables.getAdTotal(mKey));
 
-        DatabaseReference adRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS).child(uid).child(Constants.TOTAL_NO_OF_ADS_SEEN_All_MONTH);
+        DatabaseReference adRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.TOTAL_NO_OF_ADS_SEEN_All_MONTH);
         adRef2.setValue(Variables.getMonthAdTotals(mKey));
 
         DatabaseReference adRef3 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(uid).child(Constants.REIMBURSEMENT_TOTALS);
         adRef3.setValue(Variables.getTotalReimbursementAmount());
 
+        addCoinToUsersCoinsList();
+    }
+
+    private void addCoinToUsersCoinsList(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Advert ad = Variables.getCurrentAdvert();
+        double amount = Variables.constantAmountPerView;
+
+        AdCoin coin = new AdCoin(ad.getPushRefInAdminConsole(),amount,ad.getAdvertiserUid(),
+                new MyTime(TimeManager.getCal()),Constants.COIN_TYPE_IMPRESSION,uid);
+
+        new DatabaseManager().addCoinToUsersCoinList(coin);
     }
 
     private void setCurrentAdInSubscriptionAndCurrentSubscriptionIndexInFireBase() {
@@ -2650,21 +2780,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            super.onBackPressed();
-            return;
-        }
-
-        this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, "Press BACK again to exit", Toast.LENGTH_SHORT).show();
-
-        new Handler().postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce = false;
+        if(!isCardMinimized){
+            updatePosition();
+            expandContactSelector();
+        }else if(isConfirmOpenWebsiteLayout){
+            closeConfirmWebsiteLayout();
+        }else if(isConfirmDialLayout){
+            closeConfirmDialLayout();
+        }else if(isBottomPartOpen){
+            closeBottomPart();
+        } else {
+            if (doubleBackToExitPressedOnce) {
+                super.onBackPressed();
+                return;
             }
-        }, 2000);
+
+            this.doubleBackToExitPressedOnce = true;
+            Toast.makeText(this, "Press BACK again to exit", Toast.LENGTH_SHORT).show();
+
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    doubleBackToExitPressedOnce = false;
+                }
+            }, 2000);
+        }
     }
 
 
@@ -3616,6 +3757,2145 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+    }
+
+    public void disableAllViews(){
+        isEnabled = false;
+        mSwipeView.lockViews();
+    }
+
+    public void enableAllViews(){
+        isEnabled = true;
+        mSwipeView.unlockViews();
+    }
+
+
+
+
+    private void setViews(){
+        WebViewContainer = findViewById(R.id.WebViewContainer);
+        cardContainer = findViewById(R.id.cardContainer);
+        myWebView = findViewById(R.id.webview);
+        progressBar = findViewById(R.id.progressBar);
+        mReloadButton = findViewById(R.id.reloadBtn);
+        backButton = findViewById(R.id.backBtn);
+        websiteText = findViewById(R.id.websiteText);
+        closeBtn = findViewById(R.id.closeBtn);
+        collapseIcon = findViewById(R.id.collapseIcon);
+        minifiedTextView = findViewById(R.id.minifiedTextView);
+        rightButtonLayout = findViewById(R.id.rightButtonLayout);
+        backBtnLayout = findViewById(R.id.backBtnLayout);
+        swipeBackView = findViewById(R.id.swipeBackView);
+        scrollProgress = findViewById(R.id.scrollProgress);
+
+        ContactSelectorContainer = findViewById(R.id.ContactSelectorContainer);
+        CallLayout = findViewById(R.id.CallLayout);
+        websiteLayout = findViewById(R.id.websiteLayout);
+        LocationLayout = findViewById(R.id.LocationLayout);
+    }
+
+    private void updatePosition(){
+        if(isCardMinimized){
+            expandCard();
+            isCardMinimized = false;
+        }else{
+            collapseCard();
+            isCardMinimized = true;
+        }
+    }
+
+    private void expandCard(){
+        showWebViews();
+        WebViewContainer.setVisibility(View.VISIBLE);
+        final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) WebViewContainer.getLayoutParams();
+
+        ValueAnimator animatorRight;
+        ValueAnimator animatorLeft;
+        ValueAnimator animatorBot;
+        ValueAnimator animatorTop;
+
+        animatorRight = ValueAnimator.ofInt(150,50,0);
+        animatorLeft = ValueAnimator.ofInt(150,50,0);
+
+        animatorTop = ValueAnimator.ofInt(500,350,0);
+        animatorBot = ValueAnimator.ofInt(500,350,0);
+
+
+        animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorLeft.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+
+        animatorRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.rightMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+        animatorLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.leftMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+        animatorBot.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.bottomMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+
+        animatorBot.setDuration(mAnimationTime);
+        animatorTop.setDuration(mAnimationTime);
+        animatorLeft.setDuration(mAnimationTime);
+        animatorRight.setDuration(mAnimationTime);
+
+        animatorBot.start();
+        animatorTop.start();
+        animatorLeft.start();
+        animatorRight.start();
+
+        animatorRight.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                RunAnimationEndListeners();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+
+    }
+
+    private void collapseCard(){
+        hideWebViews();
+        final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) WebViewContainer.getLayoutParams();
+
+        ValueAnimator animatorRight;
+        ValueAnimator animatorLeft;
+        ValueAnimator animatorBot;
+        ValueAnimator animatorTop;
+
+        animatorRight = ValueAnimator.ofInt(0,250,250);
+        animatorLeft = ValueAnimator.ofInt(0,250,250);
+        animatorTop = ValueAnimator.ofInt(0,350,450);
+        animatorBot = ValueAnimator.ofInt(0,350,350);
+
+        animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorLeft.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+
+        animatorRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.rightMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+        animatorLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.leftMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+        animatorBot.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.bottomMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+
+        animatorBot.setDuration(mAnimationTime);
+        animatorTop.setDuration(mAnimationTime);
+        animatorLeft.setDuration(mAnimationTime+100);
+        animatorRight.setDuration(mAnimationTime+100);
+
+        animatorBot.start();
+        animatorTop.start();
+        animatorLeft.start();
+        animatorRight.start();
+
+        WebViewContainer.animate().alpha(0f).setDuration(mAnimationTime).start();
+        animatorTop.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                OnCollapseCard();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+
+    }
+
+    private void OnCollapseCard(){
+        WebViewContainer.setVisibility(View.GONE);
+        WebViewContainer.setAlpha(1f);
+        if(hasPageBeenOpened){
+            hasPageBeenOpened = false;
+            if (Build.VERSION.SDK_INT < 18) {
+                myWebView.clearView();
+                myWebView.clearHistory();
+            } else {
+                myWebView.loadUrl("about:blank");
+                myWebView.clearHistory();
+            }
+        }
+    }
+
+    private void RunAnimationEndListeners() {
+        setUpWebView();
+        setUpScrollProgress();
+    }
+
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private void setUpWebView(){
+        WebSettings webSettings = myWebView.getSettings();
+
+        webSettings.setJavaScriptEnabled(true);
+        myWebView.loadUrl(PAGE);
+        hasPageBeenOpened = true;
+        Variables.hasReachedBottomOfPage = false;
+        noOfStrikes = 0;
+        scrollConfirmBoolean = false;
+
+        myWebView.setWebViewClient(new WebViewClient(){
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                try {
+                    updateToSpecificUrl(url);
+                    UpdateButtonsAndAll();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return false;
+            }
+
+        });
+        myWebView.setWebChromeClient(new WebChromeClient(){
+            @Override
+            public void onProgressChanged(WebView view, int progress) {
+                if(!isProgressShowing) showProgressBar();
+                updateProgress(progress);
+
+                // Return the app name after finish loading
+                if(progress == 100){
+                    hideProgress();
+                    UpdateButtonsAndAll();
+                    updateUrl();
+                }
+            }
+
+            @Override
+            public void onReceivedIcon(WebView view, Bitmap icon) {
+                super.onReceivedIcon(view, icon);
+                pageIcon.setImageBitmap(icon);
+            }
+        });
+
+        addClickListeners();
+        updateUrl();
+        UpdateButtonsAndAll();
+        setPapeHeight();
+    }
+
+    private void addClickListeners(){
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(myWebView.canGoBack()){
+                    String url = myWebView.copyBackForwardList().getItemAtIndex(myWebView.copyBackForwardList().getSize()-1).getUrl();
+                    updateToSpecificUrl(url);
+                    UpdateButtonsAndAll();
+                    myWebView.goBack();
+
+                    Animation pulse = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.pulse);
+                    backButton.startAnimation(pulse);
+
+                }
+
+            }
+        });
+
+        mReloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                myWebView.reload();
+                UpdateButtonsAndAll();
+                updateUrl();
+            }
+        });
+
+
+        websiteText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!isMinified)minifyTheTopPart();
+            }
+        });
+
+        minifiedTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                unMinifyTheTopPart();
+            }
+        });
+
+        addTouchListenerForSwipeBack();
+    }
+
+    private void updateUrl(){
+        websiteText.setText(getMyVersionOfTheUrl());
+        minifiedTextView.setText(getMyVersionOfTheUrl());
+    }
+
+
+
+    private String getMyVersionOfTheUrl(){
+        String newUrl;
+        if(myWebView.getUrl().length()>50){
+            String s = myWebView.getUrl().substring(0, Math.min(99, myWebView.getUrl().length() - 1));
+            newUrl = getTrimmedUrl(s) +"...";
+        }else{
+            String url = myWebView.getUrl();
+            newUrl = getTrimmedUrl(url);
+        }
+        return newUrl;
+    }
+
+    private void updateToSpecificUrl(String url){
+        String newUrl;
+        if(url.length()>50){
+            String s = url.substring(0, Math.min(99, url.length() - 1));
+            newUrl = getTrimmedUrl(s) +"...";
+        }else{
+            newUrl = getTrimmedUrl(url);
+        }
+        websiteText.setText(newUrl);
+        minifiedTextView.setText(newUrl);
+    }
+
+    private String getTrimmedUrl(String s){
+        String newUrl = s;
+        if(s.contains("https://www.")) {
+            newUrl = s.replace("https://www.", "");
+        }else if(s.contains("http://www.")){
+            newUrl = s.replace("http://www.", "");
+        }else if(s.contains("https://")){
+            newUrl = s.replace("https://", "");
+        }else if(s.contains("http://")){
+            newUrl = s.replace("http://", "");
+        }
+        if(newUrl.charAt(newUrl.length() - 1) == '/'){
+            newUrl = newUrl.substring(0, newUrl.length() - 1);
+        }
+        return newUrl;
+    }
+
+    private void UpdateButtonsAndAll(){
+        if(myWebView.canGoBack()){
+            backButton.setAlpha(1f);
+        }else{
+            backButton.setAlpha(0.3f);
+        }
+    }
+
+    private void showProgressBar(){
+        isProgressShowing = true;
+        progressBar.setVisibility(View.VISIBLE);
+
+        Drawable progressDrawable = progressBar.getProgressDrawable().mutate();
+        progressDrawable.setColorFilter(getResources().getColor(R.color.colorPrimary), android.graphics.PorterDuff.Mode.SRC_IN);
+        progressBar.setProgressDrawable(progressDrawable);
+        progressBar.setProgress(1);
+
+    }
+
+
+
+
+    private void hideProgress(){
+        isProgressShowing = false;
+        progressBar.setVisibility(View.INVISIBLE);
+        progressBar.setProgress(0);
+
+    }
+
+    private void updateProgress(int prog){
+        ObjectAnimator progressAnimator = ObjectAnimator.ofInt(progressBar, "progress", prog);
+        progressAnimator.setDuration(animationTime);
+        progressAnimator.setInterpolator(new LinearInterpolator());
+        progressAnimator.start();
+
+    }
+
+    private void hideWebViews(){
+        websiteText.setText("");
+        minifiedTextView.setText("");
+
+        myWebView.setVisibility(View.INVISIBLE);
+        backButton.setVisibility(View.INVISIBLE);
+        mReloadButton.setVisibility(View.INVISIBLE);
+//        closeBtn.setVisibility(View.INVISIBLE);
+        collapseIcon.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.INVISIBLE);
+//        progressBar2.setVisibility(View.INVISIBLE);
+        swipeBackView.setVisibility(View.GONE);
+        scrollProgressLayout.setVisibility(View.GONE);
+    }
+
+    private void showWebViews(){
+        myWebView.setVisibility(View.VISIBLE);
+        backButton.setVisibility(View.VISIBLE);
+        mReloadButton.setVisibility(View.VISIBLE);
+//        closeBtn.setVisibility(View.VISIBLE);
+        collapseIcon.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+        swipeBackView.setVisibility(View.VISIBLE);
+
+        scrollProgressLayout.setVisibility(View.VISIBLE);
+    }
+
+
+
+
+    private void minifyTheTopPart(){
+        isMinified = true;
+        minifiedTextView.setVisibility(View.VISIBLE);
+        rightButtonLayout.setVisibility(View.GONE);
+
+        backBtnLayout.animate().translationY(-100).setDuration(normalDuration).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                backBtnLayout.setVisibility(View.GONE);
+                backBtnLayout.setTranslationY(0);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+
+        final CardView.LayoutParams params = (CardView.LayoutParams) minifiedTextView.getLayoutParams();
+
+        ValueAnimator animatorTop;
+        animatorTop = ValueAnimator.ofInt(Utils.dpToPx(58),Utils.dpToPx(45),Utils.dpToPx(29));
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.height = (Integer) valueAnimator.getAnimatedValue();
+                minifiedTextView.requestLayout();
+            }
+        });
+        animatorTop.setDuration(normalDuration).start();
+        minifiedTextView.setTranslationX(-Utils.dpToPx(60));
+        minifiedTextView.animate().setDuration(normalDuration).translationX(0).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        minifiedTextView.setTranslationX(0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+
+
+        final CardView.LayoutParams params2 = (CardView.LayoutParams) progressBar.getLayoutParams();
+
+        ValueAnimator animatorTop2;
+        animatorTop2 = ValueAnimator.ofInt(Utils.dpToPx(58),Utils.dpToPx(45),Utils.dpToPx(29));
+        animatorTop2.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params2.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                progressBar.requestLayout();
+            }
+        });
+        animatorTop2.setDuration(normalDuration).start();
+
+
+        final CardView.LayoutParams params3 = (CardView.LayoutParams) scrollProgressLayout.getLayoutParams();
+
+        ValueAnimator animatorTop3;
+        animatorTop3 = ValueAnimator.ofInt(Utils.dpToPx(19),Utils.dpToPx(16),Utils.dpToPx(14),Utils.dpToPx(5));
+        animatorTop3.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop3.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params3.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                scrollProgressLayout.requestLayout();
+            }
+        });
+        animatorTop3.setDuration(normalDuration).start();
+
+        ValueAnimator animator4;
+        animator4 = ValueAnimator.ofInt(Utils.dpToPx(60),Utils.dpToPx(40),Utils.dpToPx(20),Utils.dpToPx(10));
+        animator4.setInterpolator(new LinearOutSlowInInterpolator());
+        animator4.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params3.rightMargin = (Integer) valueAnimator.getAnimatedValue();
+                scrollProgressLayout.requestLayout();
+            }
+        });
+        animator4.setStartDelay(20);
+        animator4.setDuration(normalDuration+100).start();
+
+        myWebView.animate().translationY(Utils.dpToPx(29)).setDuration(normalDuration).start();
+
+        pageIconLayout.setVisibility(View.VISIBLE);
+        final CardView.LayoutParams params4 = (CardView.LayoutParams) pageIconLayout.getLayoutParams();
+        ValueAnimator animator5;
+        animator5 = ValueAnimator.ofInt(Utils.dpToPx(19),Utils.dpToPx(14),Utils.dpToPx(9),Utils.dpToPx(3));
+        animator5.setInterpolator(new LinearOutSlowInInterpolator());
+        animator5.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params4.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                pageIconLayout.requestLayout();
+            }
+        });
+        animator5.setDuration(normalDuration).start();
+        pageIconLayout.animate().alpha(1f).setInterpolator(new LinearInterpolator()).setDuration(normalDuration)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        pageIconLayout.setAlpha(1f);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+    }
+
+    private void unMinifyTheTopPart(){
+        isMinified = false;
+        minifiedTextView.setVisibility(View.INVISIBLE);
+        rightButtonLayout.setVisibility(View.VISIBLE);
+        backBtnLayout.setVisibility(View.VISIBLE);
+//        progressBar2.setVisibility(View.INVISIBLE);
+//        if(isProgressShowing)progressBar.setVisibility(View.VISIBLE);
+        final CardView.LayoutParams params = (CardView.LayoutParams) backBtnLayout.getLayoutParams();
+
+        ValueAnimator animatorTop;
+        animatorTop = ValueAnimator.ofInt(Utils.dpToPx(29),Utils.dpToPx(40),Utils.dpToPx(50),Utils.dpToPx(58));
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.height = (Integer) valueAnimator.getAnimatedValue();
+                backBtnLayout.requestLayout();
+            }
+        });
+        websiteText.setTranslationX(Utils.dpToPx(70));
+        websiteText.animate().setDuration(normalDuration).translationX(0).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        websiteLayout.setTranslationX(0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+
+
+        final CardView.LayoutParams params2 = (CardView.LayoutParams) rightButtonLayout.getLayoutParams();
+        ValueAnimator animatorTop2;
+        animatorTop2 = ValueAnimator.ofInt(Utils.dpToPx(29),Utils.dpToPx(40),Utils.dpToPx(50),Utils.dpToPx(58));
+        animatorTop2.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params2.height = (Integer) valueAnimator.getAnimatedValue();
+                rightButtonLayout.requestLayout();
+            }
+        });
+
+//        Runnable r = new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        };
+
+        animatorTop.setDuration(normalDuration).start();
+        animatorTop2.setDuration(normalDuration).start();
+
+        final CardView.LayoutParams params3 = (CardView.LayoutParams) progressBar.getLayoutParams();
+
+        ValueAnimator animatorTop3;
+        animatorTop3 = ValueAnimator.ofInt(Utils.dpToPx(29),Utils.dpToPx(40),Utils.dpToPx(50),Utils.dpToPx(58));
+        animatorTop3.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop3.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params3.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                progressBar.requestLayout();
+            }
+        });
+        animatorTop3.setDuration(normalDuration).start();
+
+//        new Handler().postDelayed(r, normalDuration);
+
+
+        final CardView.LayoutParams params4 = (CardView.LayoutParams) scrollProgressLayout.getLayoutParams();
+
+        ValueAnimator animatorTop4;
+        animatorTop4 = ValueAnimator.ofInt(Utils.dpToPx(10),Utils.dpToPx(14),Utils.dpToPx(18),Utils.dpToPx(19));
+        animatorTop4.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop4.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params4.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                scrollProgressLayout.requestLayout();
+            }
+        });
+
+        animatorTop4.setDuration(normalDuration+100).start();
+
+        ValueAnimator animator4;
+        animator4 = ValueAnimator.ofInt(Utils.dpToPx(20),Utils.dpToPx(40),Utils.dpToPx(60),Utils.dpToPx(80));
+        animator4.setInterpolator(new LinearOutSlowInInterpolator());
+        animator4.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params4.rightMargin = (Integer) valueAnimator.getAnimatedValue();
+                scrollProgressLayout.requestLayout();
+            }
+        });
+        animator4.setDuration(normalDuration).start();
+
+        myWebView.animate().translationY(Utils.dpToPx(58)).setDuration(normalDuration).start();
+
+        final CardView.LayoutParams params5 = (CardView.LayoutParams) pageIconLayout.getLayoutParams();
+        ValueAnimator animator5;
+        animator5 = ValueAnimator.ofInt(Utils.dpToPx(5),Utils.dpToPx(14),Utils.dpToPx(16),Utils.dpToPx(20));
+        animator5.setInterpolator(new LinearOutSlowInInterpolator());
+        animator5.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params5.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                pageIconLayout.requestLayout();
+            }
+        });
+        animator5.setDuration(normalDuration).start();
+        pageIconLayout.animate().alpha(0f).setInterpolator(new LinearInterpolator()).setDuration(normalDuration-100)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        pageIconLayout.setAlpha(0f);
+                        pageIconLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+
+        mReloadButton.setTranslationX(Utils.dpToPx(40));
+        mReloadButton.animate().translationX(0).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(normalDuration)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        mReloadButton.setTranslationX(0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void addTouchListener() {
+        mDetector = new GestureDetector(this, new MyGestureListener());
+        myWebView.setOnTouchEvent(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (mDetector.onTouchEvent(motionEvent)) {
+                    return true;
+                }
+                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if(mIsScrolling) {
+                        Log.d("touchListener"," onTouch ACTION_UP");
+                        mIsScrolling  = false;
+
+                        int UpScore = 0;
+                        int DownScore = 0;
+                        if(RawList.size()>15){
+                            for(int i= RawList.size()-1 ;i>15;i--){
+                                int num1 = RawList.get(i);
+                                int numBefore1 = RawList.get(i - 1);
+
+                                if(numBefore1>num1) DownScore++;
+                                else UpScore++;
+                            }
+                        }else{
+                            for(int i= RawList.size()-1 ;i>0;i--){
+                                int num1 = RawList.get(i);
+                                int numBefore1 = RawList.get(i - 1);
+
+                                if(numBefore1>num1) DownScore++;
+                                else UpScore++;
+                            }
+                        }
+
+                        if(RawList.size()>0) {
+                            int scrollAmm = Math.abs((RawList.get(RawList.size() - 1)) - (RawList.get(0)));
+                            Log.d("MainAct", "scrollAmm: " + scrollAmm);
+                            if(scrollAmm>SCROLL_AMOUNT_THRESHOLD && !isProgressShowing){
+                                if(DownScore>UpScore){
+                                    if(scrollConfirmBoolean){
+                                        if(didScrollChangeListenerSetScrollConfirmBoolean){
+                                            updateScrollProgress();
+                                        }else{
+                                            scrollConfirmBoolean = false;
+                                        }
+                                    }else{
+                                        scrollConfirmBoolean = true;
+                                        didScrollChangeListenerSetScrollConfirmBoolean = false;
+                                    }
+                                }
+                                else if(UpScore>DownScore){
+                                    if(Variables.hasReachedBottomOfPage){
+                                        if(scrollConfirmBoolean){
+                                            if(didScrollChangeListenerSetScrollConfirmBoolean){
+                                                updateScrollProgress();
+                                            }else{
+                                                scrollConfirmBoolean = false;
+                                            }
+                                        }else{
+                                            scrollConfirmBoolean = true;
+                                            didScrollChangeListenerSetScrollConfirmBoolean = false;
+                                        }
+                                    }else{
+                                        TellUserToScrollDown();
+                                    }
+                                }
+                            }
+                        }
+                        RawList.clear();
+                    };
+                }
+                return false;
+            }
+        });
+
+        myWebView.setOnScrollChangedCallback(new ObservableWebView.OnScrollChangedCallback(){
+            public void onScroll(int l, int t, int oldl, int oldt){
+                if(t> oldt){
+                    if(scrollConfirmBoolean){
+                        if(!didScrollChangeListenerSetScrollConfirmBoolean){
+                            updateScrollProgress();
+                        }else{
+                            scrollConfirmBoolean = false;
+                        }
+                    }else{
+                        scrollConfirmBoolean = true;
+                        didScrollChangeListenerSetScrollConfirmBoolean = true;
+                    }
+                } else if(t< oldt){
+                    if(scrollConfirmBoolean){
+                        if(!didScrollChangeListenerSetScrollConfirmBoolean){
+                            updateScrollProgress();
+                        }else{
+                            scrollConfirmBoolean = false;
+                        }
+                    }else{
+                        scrollConfirmBoolean = true;
+                        didScrollChangeListenerSetScrollConfirmBoolean = true;
+                    }
+                }
+                scrollSoFar = t;
+            }
+        });
+
+    }
+
+
+
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            Log.d("TAG","onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            Log.d("TAG","onDown: event.getRawX(): "+event.getRawX()+" event.getRawY()"+event.getRawY());
+            CardView.LayoutParams lParams = (CardView.LayoutParams) myWebView.getLayoutParams();
+            _yDelta = Y - lParams.topMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Log.i("TAG", "onSingleTapConfirmed: ");
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            Log.i("TAG", "onLongPress: ");
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            Log.i("TAG", "onDoubleTap: ");
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            if((Y-_yDelta)<unCollapsedMargin){
+//                updateUpPosition(unCollapsedMargin,0);
+            }else if((Y-_yDelta)>collapsedMargin){
+//                updateUpPosition(collapsedMargin,0);
+            }else{
+//                updateUpPosition((Y - _yDelta),0);
+            }
+            Log.d("TAG","the e2.getAction()= "+e2.getAction()+" and the MotionEvent.ACTION_CANCEL= " +MotionEvent.ACTION_CANCEL);
+            RawList.add(Y);
+            if(RawList.size()==5)calculateGeneralDirectionThenUpdateTopView();
+
+            mIsScrolling = true;
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            int UpScore = 0;
+            int DownScore = 0;
+            if(RawList.size()>15){
+                for(int i= RawList.size()-1 ;i>15;i--){
+                    int num1 = RawList.get(i);
+                    int numBefore1 = RawList.get(i - 1);
+
+                    if(numBefore1>num1) DownScore++;
+                    else UpScore++;
+                }
+            }else{
+                for(int i= RawList.size()-1 ;i>0;i--){
+                    int num1 = RawList.get(i);
+                    int numBefore1 = RawList.get(i - 1);
+
+                    if(numBefore1>num1) DownScore++;
+                    else UpScore++;
+                }
+            }
+            if(UpScore>DownScore){
+                if(isMinified)unMinifyTheTopPart();
+            }else{
+                if(!isMinified)minifyTheTopPart();
+            }
+            if(RawList.size()>0) {
+                int scrollAmm = Math.abs(RawList.get(RawList.size() - 1) - RawList.get(0));
+                Log.d("MainAct", "scrollAmm: " + scrollAmm);
+                Log.d("mainacc","velocityY: "+ velocityY);
+                if (scrollAmm > SCROLL_AMOUNT_THRESHOLD && !isProgressShowing && Math.abs(velocityY)<2600){
+                    if(DownScore>UpScore){
+                        if(scrollConfirmBoolean){
+                            if(didScrollChangeListenerSetScrollConfirmBoolean){
+                                updateScrollProgress();
+                            }else{
+                                scrollConfirmBoolean = false;
+                            }
+                        }else{
+                            scrollConfirmBoolean = true;
+                            didScrollChangeListenerSetScrollConfirmBoolean = false;
+                        }
+                    }
+                    else if(UpScore>DownScore){
+                        if(Variables.hasReachedBottomOfPage){
+                            if(scrollConfirmBoolean){
+                                if(didScrollChangeListenerSetScrollConfirmBoolean){
+                                    updateScrollProgress();
+                                }else{
+                                    scrollConfirmBoolean = false;
+                                }
+                            }else{
+                                scrollConfirmBoolean = true;
+                                didScrollChangeListenerSetScrollConfirmBoolean = false;
+                            }
+                        }else{
+                            TellUserToScrollDown();
+                        }
+                    }
+                }
+            }
+            RawList.clear();
+            return false;
+
+        }
+    }
+
+    private void TellUserToScrollDown(){
+        Toast.makeText(mContext,"Please scroll down",Toast.LENGTH_SHORT).show();
+    }
+
+    private void calculateGeneralDirectionThenUpdateTopView(){
+        int UpScore = 0;
+        int DownScore = 0;
+        if(RawList.size()>15){
+            for(int i= RawList.size()-1 ; i>=RawList.size()-15 ; i--){
+                int num1 = RawList.get(i);
+                int numBefore1 = RawList.get(i - 1);
+
+                if(numBefore1>num1) DownScore++;
+                else UpScore++;
+            }
+            if(UpScore>DownScore){
+                if(isMinified)unMinifyTheTopPart();
+            }else{
+                if(!isMinified)minifyTheTopPart();
+            }
+        }
+    }
+
+    private void collapseTopPartBy(int distance){
+        int minimumHeightLevel = Utils.dpToPx(29);
+        if(!isMinified){
+            isMinified = true;
+            minifiedTextView.setVisibility(View.VISIBLE);
+        }
+
+        final CardView.LayoutParams params = (CardView.LayoutParams) progressBar.getLayoutParams();
+        int currentPos = params.topMargin;
+
+        if(currentPos<minimumHeightLevel) {
+//            params.topMargin = (currentPos - distance);
+//            progressBar.setLayoutParams(params);
+
+//            final CardView.LayoutParams params2 = (CardView.LayoutParams) minifiedTextView.getLayoutParams();
+//            int currentHeight = params2.height;
+//            params2.height = currentHeight-distance;
+//            minifiedTextView.setLayoutParams(params2);
+
+            ValueAnimator animatorTop;
+            animatorTop = ValueAnimator.ofInt(currentPos-distance);
+            animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    params.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                    progressBar.requestLayout();
+                }
+            });
+            animatorTop.setDuration(1).start();
+
+            float perc = (currentPos-Utils.dpToPx(29))/Utils.dpToPx(29);
+
+            final CardView.LayoutParams params3 = (CardView.LayoutParams) rightButtonLayout.getLayoutParams();
+            int currentHeight3 = params3.height;
+//            params3.height = currentHeight3-distance;
+//            rightButtonLayout.setLayoutParams(params3);
+
+            ValueAnimator animatorTop2;
+            animatorTop2 = ValueAnimator.ofInt(currentHeight3-distance);
+            animatorTop2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    params3.height = (Integer) valueAnimator.getAnimatedValue();
+                    rightButtonLayout.requestLayout();
+                }
+            });
+            animatorTop2.setDuration(1).start();
+
+            final CardView.LayoutParams params4 = (CardView.LayoutParams) backBtnLayout.getLayoutParams();
+            int currentHeight4 = params4.height;
+//            params4.height = currentHeight4-distance;
+//            backBtnLayout.setLayoutParams(params4);
+
+            ValueAnimator animatorTop4;
+            animatorTop4 = ValueAnimator.ofInt(currentHeight4-distance);
+            animatorTop4.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    params4.height = (Integer) valueAnimator.getAnimatedValue();
+                    backBtnLayout.requestLayout();
+                }
+            });
+            animatorTop4.setDuration(1).start();
+
+            rightButtonLayout.setAlpha(perc);
+            backBtnLayout.setAlpha(perc);
+            minifiedTextView.setAlpha(1-perc);
+
+        }else{
+            Log.d("MainActivity","Current position lower than minimumHeight level currentPos: "+currentPos+" minimumHeightLevel"+minimumHeightLevel);
+            rightButtonLayout.setVisibility(View.INVISIBLE);
+            backBtnLayout.setVisibility(View.INVISIBLE);
+            minifiedTextView.setAlpha(1f);
+        }
+    }
+
+    private void expandTopPartBy(int distance){
+        int maximumHeightLevel = Utils.dpToPx(58);
+        if(isMinified){
+            isMinified = false;
+            rightButtonLayout.setVisibility(View.VISIBLE);
+            backBtnLayout.setVisibility(View.VISIBLE);
+
+        }
+
+        final CardView.LayoutParams params = (CardView.LayoutParams) progressBar.getLayoutParams();
+        int currentPos = params.topMargin;
+
+        if(currentPos<maximumHeightLevel) {
+            params.topMargin = (currentPos + distance);
+            progressBar.setLayoutParams(params);
+
+            final CardView.LayoutParams params2 = (CardView.LayoutParams) minifiedTextView.getLayoutParams();
+            int currentHeight = params2.height;
+            params2.height = (currentHeight + distance);
+            minifiedTextView.setLayoutParams(params2);
+
+            float perc = (currentPos-Utils.dpToPx(29))/Utils.dpToPx(29);
+
+            final CardView.LayoutParams params3 = (CardView.LayoutParams) rightButtonLayout.getLayoutParams();
+            int currentHeight3 = params3.height;
+            params3.height = currentHeight3+distance;
+            rightButtonLayout.setLayoutParams(params3);
+
+            final CardView.LayoutParams params4 = (CardView.LayoutParams) backBtnLayout.getLayoutParams();
+            int currentHeight4 = params2.height;
+            params4.height = currentHeight4+distance;
+            backBtnLayout.setLayoutParams(params4);
+
+            rightButtonLayout.setAlpha(perc);
+            backBtnLayout.setAlpha(perc);
+            minifiedTextView.setAlpha(1-perc);
+        }else{
+            rightButtonLayout.setAlpha(1f);
+            backBtnLayout.setAlpha(1f);
+            minifiedTextView.setAlpha(0f);
+        }
+    }
+
+
+
+
+
+    private void addTouchListenerForSwipeBack(){
+        mSwipeBackDetector = new GestureDetector(this, new MySwipebackGestureListener());
+        swipeBackView.setOnTouchListener(touchListener);
+    }
+
+    View.OnTouchListener touchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (mSwipeBackDetector.onTouchEvent(motionEvent)) {
+                return true;
+            }
+            if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                if(isSideScrolling) {
+                    Log.d("touchListener"," onTouch ACTION_UP");
+                    isSideScrolling  = false;
+
+                    int RightScore = 0;
+                    int LeftScore = 0;
+                    if(SideSwipeRawList.size()>15){
+                        for(int i= SideSwipeRawList.size()-1 ;i>SideSwipeRawList.size()-15;i--){
+                            int num1 = SideSwipeRawList.get(i);
+                            int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                            if(numBefore1>num1) LeftScore++;
+                            else RightScore++;
+                        }
+                    }else{
+                        for(int i= SideSwipeRawList.size()-1 ;i>0;i--){
+                            int num1 = SideSwipeRawList.get(i);
+                            int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                            if(numBefore1>num1) LeftScore++;
+                            else RightScore++;
+                        }
+                    }
+                    if(RightScore>LeftScore){
+                        backButton.performClick();
+                    }
+                    hideNupdateSideSwipeThing();
+                    SideSwipeRawList.clear();
+                };
+            }
+
+            return false;
+        }
+    };
+
+
+
+
+    class MySwipebackGestureListener extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            Log.d("TAG","onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            Log.d("TAG","onDown: event.getRawX(): "+event.getRawX()+" event.getRawY()"+event.getRawY());
+            CardView.LayoutParams lParams = (CardView.LayoutParams) swipeBackView.getLayoutParams();
+            x_delta = X - lParams.leftMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Log.i("TAG", "onSingleTapConfirmed: ");
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            Log.i("TAG", "onLongPress: ");
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            Log.i("TAG", "onDoubleTap: ");
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+            if((X-x_delta)<maxSideSwipeLength){
+
+            }else if((X-x_delta)>maxSideSwipeLength){
+
+            }else{
+            }
+            showNupdateSideSwipeThing(X-x_delta);
+
+            Log.d("TAG","the e2.getAction()= "+e2.getAction()+" and the MotionEvent.ACTION_CANCEL= " +MotionEvent.ACTION_CANCEL);
+            SideSwipeRawList.add(X);
+
+            isSideScrolling = true;
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            int RightScore = 0;
+            int LeftScore = 0;
+            if(SideSwipeRawList.size()>15){
+                for(int i= SideSwipeRawList.size()-1 ;i>SideSwipeRawList.size()-15;i--){
+                    int num1 = SideSwipeRawList.get(i);
+                    int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                    if(numBefore1>num1) LeftScore++;
+                    else RightScore++;
+                }
+            }else{
+                for(int i= SideSwipeRawList.size()-1 ;i>0;i--){
+                    int num1 = SideSwipeRawList.get(i);
+                    int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                    if(numBefore1>num1) LeftScore++;
+                    else RightScore++;
+                }
+            }
+            if(RightScore>LeftScore){
+                backButton.performClick();
+            }
+            SideSwipeRawList.clear();
+            return false;
+
+        }
+    }
+
+    private void showNupdateSideSwipeThing(int pos){
+        int trans = (int)((pos-Utils.dpToPx(10))*0.9);
+        RelativeLayout isGoingBackIndicator = findViewById(R.id.isGoingBackIndicator);
+//        isGoingBackIndicator.setTranslationX(trans);
+
+        View v = findViewById(R.id.swipeBackViewIndicator);
+        CardView.LayoutParams params = (CardView.LayoutParams) v.getLayoutParams();
+        params.height = trans;
+        v.setLayoutParams(params);
+    }
+
+    private void hideNupdateSideSwipeThing(){
+        RelativeLayout isGoingBackIndicator = findViewById(R.id.isGoingBackIndicator);
+//        isGoingBackIndicator.animate().setDuration(mAnimationTime).translationX(Utils.dpToPx(-40)).start();
+
+        final View v = findViewById(R.id.swipeBackViewIndicator);
+        final CardView.LayoutParams params = (CardView.LayoutParams) v.getLayoutParams();
+
+        ValueAnimator animatorTop;
+        animatorTop = ValueAnimator.ofInt(params.height,0);
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.height = (Integer) valueAnimator.getAnimatedValue();
+                v.requestLayout();
+            }
+        });
+        animatorTop.setDuration(normalDuration).start();
+    }
+
+
+
+    //here
+    private void setUpScrollProgress(){
+        scrollProgressLayout.setVisibility(View.VISIBLE);
+        scrollProgress.setVisibility(View.VISIBLE);
+        if(canScrollForIncentive()){
+            scrollProgress.setProgress(0);
+            currentScrollProgress = 0;
+
+            final TextView textViewIncentiveAmount = findViewById(R.id.textViewIncentiveAmount);
+            textViewIncentiveAmount.setAlpha(1f);
+            textViewIncentiveAmount.setTranslationX(0);
+            textViewIncentiveAmount.setVisibility(View.VISIBLE);
+
+            final RelativeLayout doneImageLayout = findViewById(R.id.doneImageLayout);
+            doneImageLayout.setAlpha(0f);
+            doneImageLayout.setTranslationX(Utils.dpToPx(30));
+        }else{
+            currentScrollProgress = 100;
+            scrollProgress.setProgress(100);
+
+            final TextView textViewIncentiveAmount = findViewById(R.id.textViewIncentiveAmount);
+            textViewIncentiveAmount.setAlpha(0f);
+            textViewIncentiveAmount.setTranslationX(-Utils.dpToPx(30));
+            textViewIncentiveAmount.setVisibility(View.GONE);
+
+            final RelativeLayout doneImageLayout = findViewById(R.id.doneImageLayout);
+            doneImageLayout.setAlpha(1f);
+            doneImageLayout.setTranslationX(0);
+            doneImageLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    //jk its actually here
+    private void updateScrollProgress(){
+        scrollConfirmBoolean = false;
+        if(currentScrollProgress<100 && canScrollForIncentive() && !isUpdating) {
+            isUpdating = true;
+            currentScrollProgress += 20;
+            ObjectAnimator progressAnimator = ObjectAnimator.ofInt(scrollProgress, "progress", currentScrollProgress);
+            progressAnimator.setDuration(animationTime);
+            progressAnimator.setInterpolator(new LinearInterpolator());
+            progressAnimator.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animator) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animator) {
+                    isUpdating = false;
+                    if(currentScrollProgress==100)onIncentiveScrollFinish();
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animator) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animator) {
+
+                }
+            });
+            progressAnimator.start();
+        }
+
+    }
+
+    private boolean canScrollForIncentive(){
+        if(!Variables.getCurrentAdvert().didAdvertiserAddIncentive())return false;
+        else{
+            List<AdCoin> myCoins = loadUsersCoins();
+            Advert ad = Variables.getCurrentAdvert();
+            for(AdCoin coin: myCoins){
+                if(coin.getCoinType().equals(Constants.COIN_TYPE_WEBCLICK) &&
+                        coin.getAdvertPushRefInAdminConsole().equals(ad.getPushRefInAdminConsole())){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
+
+    private void onIncentiveScrollFinish(){
+        final TextView textViewIncentiveAmount = findViewById(R.id.textViewIncentiveAmount);
+        textViewIncentiveAmount.animate().setDuration(animationTime).alpha(0f).translationX(-Utils.dpToPx(30)).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        textViewIncentiveAmount.setVisibility(View.GONE);
+                        textViewIncentiveAmount.setTranslationX(0);
+                        textViewIncentiveAmount.setAlpha(1f);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+
+        final RelativeLayout doneImageLayout = findViewById(R.id.doneImageLayout);
+        doneImageLayout.animate().setDuration(animationTime).alpha(1f).translationX(0).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        doneImageLayout.setTranslationX(0);
+                        doneImageLayout.setAlpha(1f);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+
+        addToUsersIncentiveCount();
+
+    }
+
+    //Adds incentive to users money total
+    private void addToUsersIncentiveCount() {
+        Toast.makeText(mContext,"Incentive received.",Toast.LENGTH_SHORT).show();
+        Advert ad = Variables.getCurrentAdvert();
+        final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        double incentiveAmount = ad.getWebClickIncentive();
+
+        String day = isAlmostMidNight() ? TimeManager.getNextDayDay() : TimeManager.getDay();
+        String month = isAlmostMidNight() ? TimeManager.getNextDayMonth() : TimeManager.getMonth();
+        String year = isAlmostMidNight() ? TimeManager.getNextDayYear() : TimeManager.getYear();
+
+        MyTime tm = new MyTime(TimeManager.getCal());
+        tm.setDay(Integer.parseInt(day));
+        tm.setMonth(Integer.parseInt(month));
+        tm.setYear(Integer.parseInt(year));
+
+        AdCoin coin = new AdCoin(ad.getPushRefInAdminConsole(),incentiveAmount,ad.getAdvertiserUid(),tm,Constants.COIN_TYPE_WEBCLICK,uid);
+
+        new DatabaseManager().addCoinToUsersCoinList(coin);
+        addCoinToUsersCoinListInSharedPreferences(coin);
+        Variables.incrementReimbursalAmountBy((int)incentiveAmount);
+
+        updateUsersTotalReimbursalAmountAfterWebClick();
+        updateAdvertisersWebClickAmount();
+
+    }
+
+    private List<AdCoin> loadUsersCoins(){
+        List<AdCoin> myAdCoins = new ArrayList<>();
+
+        Gson gson = new Gson();
+        SharedPreferences prefs = mContext.getSharedPreferences(Constants.USERS_COIN_LIST, MODE_PRIVATE);
+        String storedHashMapString = prefs.getString(Constants.USERS_COIN_LIST, "nil");
+
+        if(!storedHashMapString.equals("nil")) {
+            java.lang.reflect.Type type = new TypeToken<List<AdCoin>>() {}.getType();
+            myAdCoins = gson.fromJson(storedHashMapString, type);
+        }
+        return myAdCoins;
+    }
+
+    private void addCoinToUsersCoinListInSharedPreferences(AdCoin coin){
+        List<AdCoin> myCoins = loadUsersCoins();
+        myCoins.add(coin);
+
+        Gson gson = new Gson();
+        String userListString = gson.toJson(myCoins);
+
+        SharedPreferences prefs = mContext.getSharedPreferences(Constants.USERS_COIN_LIST, MODE_PRIVATE);
+        prefs.edit().clear().putString(Constants.USERS_COIN_LIST, userListString).apply();
+    }
+
+    private void updateUsersTotalReimbursalAmountAfterWebClick(){
+        final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        SharedPreferences pref3 = mContext.getSharedPreferences("ReimbursementTotals", MODE_PRIVATE);
+        SharedPreferences.Editor editor3 = pref3.edit();
+        editor3.clear();
+        editor3.putInt(Constants.REIMBURSEMENT_TOTALS, Variables.getTotalReimbursementAmount());
+        Log(TAG, "Setting the Reimbursement totals in shared preferences - " + Integer.toString(Variables.getTotalReimbursementAmount()));
+        editor3.apply();
+
+        DatabaseReference adRef3 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.REIMBURSEMENT_TOTALS);
+        adRef3.setValue(Variables.getTotalReimbursementAmount());
+    }
+
+    private void updateAdvertisersWebClickAmount(){
+        final String datte;
+        //ad gotten will be current advert
+        final Advert ad = Variables.getCurrentAdvert();
+        datte = isAlmostMidNight() ? getNextDay() : getDate();
+
+        Query query = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                .child(datte)
+                .child(ad.getPushRefInAdminConsole())
+                .child("webClickNumber");
+        Log(TAG, "Query set up is :" + Constants.ADS_FOR_CONSOLE + " : " + datte + " : " + ad.getPushRefInAdminConsole() + " : webClickNumber");
+        DatabaseReference dbRef = query.getRef();
+
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                try {
+                    int number = dataSnapshot.getValue(int.class);
+                    int newNumber = number + 1;
+                    setNewNumberOfTimesWebClicked(newNumber, datte, ad);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log(TAG, "Unable to get number of times seen");
+            }
+        });
+
+    }
+
+    private void setNewNumberOfTimesWebClicked(int number, String date, Advert advert) {
+
+        long theDateInDays = ((advert.getDateInDays()+1)*-1);
+        String dateInDays = Long.toString(theDateInDays);
+
+        Query query2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(advert.getAdvertiserUid()).child(Constants.UPLOAD_HISTORY)
+                .child(dateInDays)
+                .child(advert.getPushRefInAdminConsole()).child("webClickNumber");
+        DatabaseReference dbref2 = query2.getRef();
+        dbref2.setValue(number);
+
+        String day = isAlmostMidNight() ? TimeManager.getNextDayDay() : TimeManager.getDay();
+        String month = isAlmostMidNight() ? TimeManager.getNextDayMonth() : TimeManager.getMonth();
+        String year = isAlmostMidNight() ? TimeManager.getNextDayYear() : TimeManager.getYear();
+
+        DatabaseReference adminRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
+                .child(year).child(month).child(day).child(advert.getPushRefInAdminConsole()).child("webClickNumber");
+        adminRef.setValue(number);
+
+        Query query = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                .child(date).child(advert.getPushRefInAdminConsole()).child("webClickNumber");
+
+        DatabaseReference dbRef = query.getRef();
+        dbRef.setValue(number).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log(TAG, "The new number has been set.");
+            }
+        });
+    }
+
+    private void setPapeHeight(){
+        ViewTreeObserver viewTreeObserver  = myWebView.getViewTreeObserver();
+
+        viewTreeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                int height = myWebView.getMeasuredHeight();
+                if( height != 0 ){
+                    pageHeight = height;
+                    myWebView.getViewTreeObserver().removeOnPreDrawListener(this);
+                }
+                return false;
+            }
+        });
+    }
+
+
+
+    //This is where everything starts
+    private void openBottomPart(){
+        isBottomPartOpen = true;
+        pauseTimerByStoppingItEntirely();
+        RelativeLayout blackBackgroundLayout = findViewById(R.id.blackBackgroundLayout);
+        blackBackgroundLayout.setVisibility(View.VISIBLE);
+        final View blackView = findViewById(R.id.blackBackgroundView);
+        blackView.setAlpha(0f);
+        blackView.animate().setDuration(mAnimationTime).alpha(0.7f).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        blackView.setAlpha(0.7f);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+
+        ContactSelectorContainer.setVisibility(View.VISIBLE);
+        expandContactSelector();
+
+        setContactSelectorClickListeners();
+        setRelevantData();
+    }
+
+    private void setContactSelectorClickListeners(){
+        final Advert ad = Variables.getCurrentAdvert();
+        final View blackView = findViewById(R.id.blackBackgroundView);
+
+        websiteLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!ad.getWebsiteLink().equals("none")) {
+                    if (!isConfirmDialLayout) openConfirmWebsiteLayout();
+                }
+            }
+        });
+        CallLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!ad.getAdvertiserPhoneNo().equals("none")) {
+                    if (!isConfirmOpenWebsiteLayout) {
+                        openConfirmDialLayout();
+                    } else {
+                        Log.e(TAG, "Cannot open ConfirmCall Layout, isConfirmOpenWebsiteLayout is true!!");
+                    }
+                }
+            }
+        });
+        LocationLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!ad.getAdvertiserLocations().isEmpty()){
+                    openLocation();
+                }
+            }
+        });
+
+        findViewById(R.id.phoneIcon).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CallLayout.performClick();
+            }
+        });
+
+        findViewById(R.id.websiteIcon).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                websiteLayout.performClick();
+            }
+        });
+
+        findViewById(R.id.locationIcon).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LocationLayout.performClick();
+            }
+        });
+
+
+        blackView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                if(isCardMinimized) closeBottomPart();
+            }
+        });
+    }
+
+    private void setRelevantData() {
+        Advert ad = Variables.getCurrentAdvert();
+
+        TextView callText = findViewById(R.id.callTextView);
+        TextView phoneNoText = findViewById(R.id.phoneNoText);
+        TextView websiteNameText = findViewById(R.id.websiteNameText);
+        TextView websiteIncentiveText = findViewById(R.id.websiteIncentiveText);
+        TextView incentiveTextView = findViewById(R.id.incentiveTextView);
+
+        if(!ad.getAdvertiserPhoneNo().equals("none")){
+            callText.setText(ad.getAdvertiserPhoneNo());
+            phoneNoText.setText(ad.getAdvertiserPhoneNo());
+        }
+        if(!ad.getWebsiteLink().equals("none")){
+            websiteNameText.setText(ad.getWebsiteLink());
+            PAGE = ad.getWebsiteLink();
+        }
+
+        if(ad.getAdvertiserPhoneNo().equals("none")) CallLayout.setAlpha(0.6f);
+        if(ad.getWebsiteLink().equals("none")) websiteLayout.setAlpha(0.6f);
+        if(ad.getAdvertiserLocations().isEmpty()) LocationLayout.setAlpha(0.6f);
+
+        if(ad.didAdvertiserAddIncentive()){
+            if(canScrollForIncentive()){
+                websiteIncentiveText.setText("They are offering an incentive of: "+ad.getWebClickIncentive()+"Ksh.");
+                incentiveTextView.setText("Incentive: "+ad.getWebClickIncentive()+"Ksh.");
+            }else{
+                websiteIncentiveText.setText("They're offering an incentive of: "+ad.getWebClickIncentive()+"Ksh.(c)");
+                incentiveTextView.setText("Incentive: "+ad.getWebClickIncentive()+"Ksh.(c)");
+            }
+
+        }else{
+            websiteIncentiveText.setText("");
+            incentiveTextView.setText("");
+        }
+
+    }
+
+    private void collapseContactSelector(){
+        ContactSelectorContainer.animate().translationY(Utils.dpToPx(-155)).setDuration(mAnimationTime)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                ContactSelectorContainer.setTranslationY(Utils.dpToPx(-155));
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+    }
+
+    private void expandContactSelector(){
+        ContactSelectorContainer.animate().translationY(Utils.dpToPx(0)).setDuration(mAnimationTime)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                ContactSelectorContainer.setVisibility(View.VISIBLE);
+                ContactSelectorContainer.setTranslationY(0);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+        setContactSelectorClickListeners();
+    }
+
+
+
+    private void openConfirmWebsiteLayout(){
+        isConfirmOpenWebsiteLayout = true;
+        final RelativeLayout ConfirmVisitWebsiteContainer = findViewById(R.id.ConfirmVisitWebsiteContainer);
+        ConfirmVisitWebsiteContainer.setVisibility(View.VISIBLE);
+        ContactSelectorContainer.animate().translationY(Utils.dpToPx(-160)).setDuration(mAnimationTime)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                ContactSelectorContainer.setTranslationY(Utils.dpToPx(-160));
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+
+        ConfirmVisitWebsiteContainer.animate().translationY(Utils.dpToPx(0)).setDuration(mAnimationTime)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                ConfirmVisitWebsiteContainer.setVisibility(View.VISIBLE);
+                ConfirmVisitWebsiteContainer.setTranslationY(0);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+
+        TextView websiteIncentiveText = findViewById(R.id.websiteIncentiveText);
+        websiteIncentiveText.setText("They are offering an incentive of: 2Ksh.");
+
+        TextView websiteNameText = findViewById(R.id.websiteNameText);
+        websiteNameText.setText("https://www.oneplus.com");
+
+        CardView okVisitBtn = findViewById(R.id.okVisitBtn);
+        okVisitBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updatePosition();
+                ConfirmVisitWebsiteContainer.animate().translationY(Utils.dpToPx(200)).setDuration(mAnimationTime)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        ConfirmVisitWebsiteContainer.setVisibility(View.VISIBLE);
+                        ConfirmVisitWebsiteContainer.setTranslationY(Utils.dpToPx(200));
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+                isConfirmOpenWebsiteLayout = false;
+
+                ContactSelectorContainer.animate().translationY(Utils.dpToPx(140)).setDuration(mAnimationTime)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        ContactSelectorContainer.setTranslationY(Utils.dpToPx(140));
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+            }
+        });
+
+    }
+
+    private void closeConfirmWebsiteLayout(){
+        isConfirmOpenWebsiteLayout = false;
+        final RelativeLayout ConfirmVisitWebsiteContainer = findViewById(R.id.ConfirmVisitWebsiteContainer);
+
+        ConfirmVisitWebsiteContainer.animate().translationY(Utils.dpToPx(200)).setDuration(mAnimationTime)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                ConfirmVisitWebsiteContainer.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+
+        expandContactSelector();
+    }
+
+    private void openConfirmDialLayout(){
+        isConfirmDialLayout = true;
+        final RelativeLayout ConfirmCallContainer = findViewById(R.id.ConfirmCallContainer);
+        ConfirmCallContainer.setVisibility(View.VISIBLE);
+        collapseContactSelector();
+
+        ConfirmCallContainer.animate().translationY(Utils.dpToPx(0)).setDuration(mAnimationTime)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                ConfirmCallContainer.setTranslationY(0);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+
+        CardView okDialBtn = findViewById(R.id.okDialBtn);
+        okDialBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openDialerAndCall();
+            }
+        });
+    }
+
+
+
+    private void closeConfirmDialLayout(){
+        isConfirmDialLayout = false;
+        final RelativeLayout ConfirmCallContainer = findViewById(R.id.ConfirmCallContainer);
+        ConfirmCallContainer.animate().translationY(Utils.dpToPx(200)).setDuration(mAnimationTime)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                ConfirmCallContainer.setVisibility(View.GONE);
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+
+        expandContactSelector();
+    }
+
+    private void openDialerAndCall() {
+
+    }
+
+    private void openLocation(){
+        Advert ad = Variables.getCurrentAdvert();
+        if(ad.getAdvertiserLocations().isEmpty()){
+            Toast.makeText(mContext,"They didn't add that.",Toast.LENGTH_SHORT).show();
+        }else{
+            Vibrator b = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+            b.vibrate(30);
+            AdvertiserLocation closestLocation = getClosestLocation();
+            String thing = "geo:"+closestLocation.getMyLatLng().latitude+","+closestLocation.getMyLatLng().longitude;
+            if(!closestLocation.getPlaceName().equals(""))thing = thing+"?q="+closestLocation.getPlaceName();
+            Uri gmmIntentUri = Uri.parse(thing);
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+            startActivity(mapIntent);
+        }
+    }
+
+    private AdvertiserLocation getClosestLocation(){
+        List<myLatLng> advertiserSetLong = new ArrayList<>();
+        for(AdvertiserLocation loc:Variables.getCurrentAdvert().getAdvertiserLocations()){
+            advertiserSetLong.add(loc.getMyLatLng());
+        }
+        if(Variables.usersLatLongs.isEmpty()){
+            return Variables.getCurrentAdvert().getAdvertiserLocations().get(0);
+        }else {
+            myLatLng closestLatLng = Variables.getCurrentAdvert().getAdvertiserLocations().get(0).getMyLatLng();
+            float closestDistance = 1000000000;
+            for (LatLng latlngUser : Variables.usersLatLongs) {
+                for(myLatLng latlngAdv: advertiserSetLong){
+                    Location locAdv = new Location("");
+                    locAdv.setLatitude(latlngAdv.latitude);
+                    locAdv.setLongitude(latlngAdv.longitude);
+
+                    Location locUser = new Location("");
+                    locUser.setLatitude(latlngUser.latitude);
+                    locUser.setLongitude(latlngUser.longitude);
+
+                    float distance = Variables.distanceInMetersBetween2Points(locAdv,locUser);
+                    if(distance<closestDistance){
+                        closestDistance = distance;
+                        closestLatLng = latlngAdv;
+                    }
+                }
+            }
+            for(AdvertiserLocation adLoc:Variables.getCurrentAdvert().getAdvertiserLocations()){
+                if(adLoc.getMyLatLng().equals(closestLatLng)){
+                    return adLoc;
+                }
+            }return Variables.getCurrentAdvert().getAdvertiserLocations().get(0);
+        }
+    }
+
+    private void closeBottomPart() {
+        if(isConfirmOpenWebsiteLayout){
+            isConfirmOpenWebsiteLayout = false;
+            final RelativeLayout ConfirmVisitWebsiteContainer = findViewById(R.id.ConfirmVisitWebsiteContainer);
+            ConfirmVisitWebsiteContainer.setVisibility(View.GONE);
+            ConfirmVisitWebsiteContainer.setTranslationY(Utils.dpToPx(200));
+        }if(isConfirmDialLayout){
+            isConfirmDialLayout = false;
+            final RelativeLayout ConfirmCallContainer = findViewById(R.id.ConfirmCallContainer);
+            ConfirmCallContainer.setVisibility(View.GONE);
+            ConfirmCallContainer.setTranslationY(Utils.dpToPx(200));
+        }
+        final RelativeLayout blackBackgroundLayout = findViewById(R.id.blackBackgroundLayout);
+        blackBackgroundLayout.animate().alpha(0f).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        blackBackgroundLayout.setVisibility(View.GONE);
+                        blackBackgroundLayout.setAlpha(1f);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+
+        ContactSelectorContainer.animate().translationY(Utils.dpToPx(200)).setDuration(mAnimationTime)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                ContactSelectorContainer.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+        isBottomPartOpen = false;
+        enableAllViews();
+        resumeTimerByStartingIt();
     }
 
 

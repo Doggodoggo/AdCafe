@@ -1,7 +1,6 @@
 package com.bry.adcafe.fragments;
 
 import android.Manifest;
-import android.animation.Animator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -9,32 +8,41 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
+import com.bry.adcafe.models.AdCoin;
+import com.bry.adcafe.models.MyTime;
 import com.bry.adcafe.services.DatabaseManager;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -60,6 +68,10 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
     private int payoutOptionHeight = 0;
     private int payoutLayoutsHeight = 0;
     private int confirmLayoutHeight = 0;
+
+    boolean isUserUsingCoinsInsteadOfNumber = false;
+    DataSnapshot historyUploadsSnap;
+    List<AdCoin> myLegitCoins;
 
 
 
@@ -147,6 +159,8 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
 
         FrameLayout bottomSheet = dialog.getWindow().findViewById(android.support.design.R.id.design_bottom_sheet);
         bottomSheet.setBackgroundResource(R.drawable.dialog_bg_trans);
+
+        performBackgroundCheckupOnAdCoins();
     }
 
     private void showPayoutDetailsPart(){
@@ -215,6 +229,10 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
         TextView amountToBeSentView = mContentView.findViewById(R.id.amountToBeSent);
         TextView phoneNumberView = mContentView.findViewById(R.id.phoneNumber);
         Button continueBtn = mContentView.findViewById(R.id.startButton);
+
+        if(isUserUsingCoinsInsteadOfNumber){
+            mTotals = getTotalValueFromEachCoin(myLegitCoins);
+        }
 
         amountToBeSentView.setText("Amount To Be Sent: "+mTotals+" Ksh.");
         phoneNumberView.setText("Phone number: "+mPhoneNo);
@@ -294,6 +312,110 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
         }
     }
 
+
+    private void showLoadingScreen(){
+        TextView PayoutTitle = mContentView.findViewById(R.id.PayoutTitle);
+        TextView PayoutExp = mContentView.findViewById(R.id.PayoutExp);
+        Button continueButton = mContentView.findViewById(R.id.continueButton);
+
+        PayoutTitle.setVisibility(View.INVISIBLE);
+        PayoutExp.setVisibility(View.INVISIBLE);
+        continueButton.setVisibility(View.INVISIBLE);
+
+        mContentView.findViewById(R.id.loadingProgressBar).setVisibility(View.VISIBLE);
+    }
+
+    private void hideLoadingScreen(){
+        TextView PayoutTitle = mContentView.findViewById(R.id.PayoutTitle);
+        TextView PayoutExp = mContentView.findViewById(R.id.PayoutExp);
+        Button continueButton = mContentView.findViewById(R.id.continueButton);
+
+        PayoutTitle.setVisibility(View.VISIBLE);
+        PayoutExp.setVisibility(View.VISIBLE);
+        continueButton.setVisibility(View.VISIBLE);
+
+        mContentView.findViewById(R.id.loadingProgressBar).setVisibility(View.INVISIBLE);
+    }
+
+    private void performBackgroundCheckupOnAdCoins(){
+        showLoadingScreen();
+
+        DatabaseReference adminRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS);
+        adminRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                historyUploadsSnap = dataSnapshot;
+                checkIfUserIsUsingOldSystem();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("TAG","error: "+databaseError.getMessage());
+            }
+        });
+
+    }
+
+    private void checkIfUserIsUsingOldSystem(){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS).child(uid)
+                .child(Constants.COIN_VALUE_SYSTEM);
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Variables.isUsingNewCoinValueSystem = false;
+                if(dataSnapshot.exists()){
+                    isUserUsingCoinsInsteadOfNumber = true;
+                    Variables.isUsingNewCoinValueSystem = true;
+                }
+                ConfirmEachCoinExists();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("TAG","error: "+databaseError.getMessage());
+            }
+        });
+    }
+
+    private void ConfirmEachCoinExists(){
+        List<AdCoin> coins = loadUsersCoins();
+        List<AdCoin> legitCoins = new ArrayList<>();
+
+        for(AdCoin coin:coins){
+            MyTime coinTime = coin.getTimeCreated();
+            DataSnapshot adSnap = historyUploadsSnap.child(Integer.toString(coinTime.getYear())).child(Integer.toString(coinTime.getMonth()))
+                    .child(Integer.toString(coinTime.getDay())).child(coin.getAdvertPushRefInAdminConsole());
+            if(adSnap.exists()){
+                legitCoins.add(coin);
+            }
+        }
+        Variables.legitCoins = legitCoins;
+        myLegitCoins = legitCoins;
+        hideLoadingScreen();
+    }
+
+    private List<AdCoin> loadUsersCoins(){
+        List<AdCoin> myAdCoins = new ArrayList<>();
+
+        Gson gson = new Gson();
+        SharedPreferences prefs = mActivity.getSharedPreferences(Constants.USERS_COIN_LIST, MODE_PRIVATE);
+        String storedHashMapString = prefs.getString(Constants.USERS_COIN_LIST, "nil");
+
+        if(!storedHashMapString.equals("nil")) {
+            java.lang.reflect.Type type = new TypeToken<List<AdCoin>>() {}.getType();
+            myAdCoins = gson.fromJson(storedHashMapString, type);
+        }
+        return myAdCoins;
+    }
+
+    private int getTotalValueFromEachCoin(List<AdCoin> legitCoinsList){
+        int amount = 0;
+        for(AdCoin coin: legitCoinsList){
+            amount+=coin.getValue();
+        }
+        return amount;
+    }
 
 
 

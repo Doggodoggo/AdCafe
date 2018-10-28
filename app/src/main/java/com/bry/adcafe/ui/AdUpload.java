@@ -1,5 +1,6 @@
 package com.bry.adcafe.ui;
 
+import android.animation.Animator;
 import android.app.Dialog;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
@@ -20,6 +21,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.util.Base64;
@@ -469,77 +471,6 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
 
 
-//    ValueEventListener val= new ValueEventListener() {
-//        @Override
-//        public void onDataChange(DataSnapshot dataSnapshot) {
-//            long numberOfClusters;
-//            if(dataSnapshot.getChildrenCount() == 0){
-//                numberOfClusters = 1;
-//            }else{
-//                numberOfClusters = dataSnapshot.getChildrenCount();
-//            }
-//            mClusterTotal = (int)numberOfClusters;
-//            Log(TAG,"---Number of clusters gotten from firebase is-- "+mClusterTotal);
-//            getClusterToStartForm();
-//        }
-//
-//        @Override
-//        public void onCancelled(DatabaseError databaseError) {
-//            mProgressBarUpload.setVisibility(View.GONE);
-//            mNoConnection.setVisibility(View.VISIBLE);
-//            mBottomNavs.setVisibility(View.GONE);
-//        }
-//    }; //triggers getClusterToStartFrom method.
-
-//    ValueEventListener val2 = new ValueEventListener() {
-//        @Override
-//        public void onDataChange(DataSnapshot dataSnapshot) {
-//            int clusterGotten;
-//            if(dataSnapshot.hasChildren()){
-//                clusterGotten = dataSnapshot.getValue(int.class);
-//            }else{
-//                clusterGotten = 1;
-//            }
-//            mClusterToStartFrom = clusterGotten;
-//            Log(TAG,"---Cluster to start from is -- "+mClusterToStartFrom);
-//            loadClusterToStartFromChildrenNo();
-//
-//        }
-//
-//        @Override
-//        public void onCancelled(DatabaseError databaseError) {
-////            setAllOtherViewsToBeVisible();
-//            mNoConnection.setVisibility(View.VISIBLE);
-//            mBottomNavs.setVisibility(View.GONE);
-////            mAvi.setVisibility(View.GONE);
-//            mProgressBarUpload.setVisibility(View.GONE);
-//            Log(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
-//            Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
-//                    Snackbar.LENGTH_LONG).show();
-//        }
-//    };
-
-//    ValueEventListener val3 = new ValueEventListener() {
-//        @Override
-//        public void onDataChange(DataSnapshot dataSnapshot) {
-//            noOfChildrenInClusterToStartFrom = (int)dataSnapshot.getChildrenCount();
-//            Log(TAG,"--Number of children in cluster to start from gotten from firebase is  -"+noOfChildrenInClusterToStartFrom);
-//            getNumberOfUploadedAdsInLatestCluster();
-//        }
-//
-//        @Override
-//        public void onCancelled(DatabaseError databaseError) {
-////            setAllOtherViewsToBeVisible();
-//            mNoConnection.setVisibility(View.VISIBLE);
-//            mBottomNavs.setVisibility(View.GONE);
-////            mAvi.setVisibility(View.GONE);
-//            mProgressBarUpload.setVisibility(View.GONE);
-//            Log(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
-//            Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
-//                    Snackbar.LENGTH_LONG).show();
-//        }
-//    };
-
 
     @Override
     protected void onDestroy(){
@@ -785,16 +716,20 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                         mPhoneNumber = phoneNumber.getText().toString().trim();
                     }
                 }
-                if(canDismiss)d.dismiss();
+                if(canDismiss){
+                    if(!mLink.equals("") && !mLink.equals("none")){
+                        showSetIncentiveView(d);
+                    }else{
+                        d.dismiss();
+                    }
+                }
             }
         });
         d.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialogInterface) {
                 findViewById(R.id.smallDot).setVisibility(View.INVISIBLE);
-                if(!websiteEditText.getText().toString().equals("")||
-                        !phoneNumber.getText().toString().equals("")||
-                        !Variables.advertiserLocations.isEmpty()){
+                if(!websiteEditText.getText().toString().equals("")|| !phoneNumber.getText().toString().equals("")|| !Variables.advertiserLocations.isEmpty()){
                     findViewById(R.id.smallDot).setVisibility(View.VISIBLE);
                 }
                 if(websiteEditText.getText().toString().equals("")) {
@@ -807,6 +742,104 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             }
         });
         d.show();
+    }
+
+    private void showSetIncentiveView(final Dialog d){
+        final LinearLayout setContactDetailsLayout = d.findViewById(R.id.setContactDetailsLayout);
+        setContactDetailsLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(-200).alpha(0f)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                setContactDetailsLayout.setTranslationX(-200);
+                setContactDetailsLayout.setAlpha(0f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+
+        final LinearLayout setIncentiveLayout = d.findViewById(R.id.setIncentiveLayout);
+        setIncentiveLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        setIncentiveLayout.setTranslationX(0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+
+        final NumberPicker incentiveAmountPicker = d.findViewById(R.id.incentiveAmountPicker);
+        incentiveAmountPicker.setMaxValue(100);
+        incentiveAmountPicker.setMinValue(1);
+        incentiveAmountPicker.setWrapSelectorWheel(false);
+        incentiveAmountPicker.setOnValueChangedListener(this);
+        incentiveAmountPicker.setValue(1);
+
+
+        final Button buttonWebsiteIncentiveOk = d.findViewById(R.id.buttonWebsiteIncentiveOk);
+        buttonWebsiteIncentiveOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Variables.incentiveForClick = incentiveAmountPicker.getValue();
+                d.dismiss();
+            }
+        });
+
+        final Button cancelWebsiteIncentiveBtn = d.findViewById(R.id.cancelWebsiteIncentiveBtn);
+        cancelWebsiteIncentiveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(Variables.incentiveForClick!=0){
+                    Variables.incentiveForClick = 0;
+                    view.setAlpha(0.5f);
+                    buttonWebsiteIncentiveOk.setText("SKIP");
+                }
+            }
+        });
+
+        incentiveAmountPicker.setOnScrollListener(new NumberPicker.OnScrollListener() {
+            @Override
+            public void onScrollStateChange(NumberPicker numberPicker, int i) {
+                cancelWebsiteIncentiveBtn.setAlpha(1f);
+                buttonWebsiteIncentiveOk.setText("SET");
+            }
+        });
+
+        if(Variables.incentiveForClick!=0){
+            cancelWebsiteIncentiveBtn.setAlpha(1f);
+            buttonWebsiteIncentiveOk.setText("SET");
+        }else{
+            Variables.incentiveForClick = 0;
+            cancelWebsiteIncentiveBtn.setAlpha(0.5f);
+            buttonWebsiteIncentiveOk.setText("SKIP");
+        }
+
     }
 
     private void showDialogForPayments() {
@@ -1209,6 +1242,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         advert.setPushRefInAdminConsole(pushId);
         advert.setUserEmail(FirebaseAuth.getInstance().getCurrentUser().getEmail());
         advert.setWebsiteLink(mLink);
+        advert.setWebClickNumber(0);
+        advert.setWebClickIncentive(Variables.incentiveForClick);
         advert.setPayoutReimbursalAmount(0);
         advert.setAmountToPayPerTargetedView(mAmountPlusOurShare);
         advert.setHasBeenReimbursed(false);
@@ -1308,6 +1343,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 advert.setCategory(mCategory);
                 advert.setAdvertiserPhoneNo("");
                 advert.setFlagged(false);
+                advert.setWebClickIncentive(Variables.incentiveForClick);
+                advert.setWebClickNumber(0);
                 advert.setAdvertiserUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
                 advert.setDateInDays(getDateInDays());
                 advert.setAdminFlagged(false);
@@ -1422,6 +1459,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 advert.setCategory(mCategory);
                 advert.setAdvertiserPhoneNo("");
                 advert.setFlagged(false);
+                advert.setWebClickIncentive(Variables.incentiveForClick);
+                advert.setWebClickNumber(0);
                 advert.setAdvertiserUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
                 advert.setDateInDays(getDateInDays());
                 advert.setAdminFlagged(false);

@@ -1021,11 +1021,17 @@ public class AdStats extends AppCompatActivity {
         double vat = (ad.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(
                 ad.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
 
-        double reimbursementTotals = ammountToBeRepaid+ad.getPayoutReimbursalAmount()+vat;
+        double incentiveAmm = 0;
+        if(ad.didAdvertiserAddIncentive()){
+            incentiveAmm = (ad.getWebClickIncentive()* (ad.getNumberOfUsersToReach()-ad.getWebClickNumber()) );
+        }
+
+        double reimbursementTotals = ammountToBeRepaid+ad.getPayoutReimbursalAmount()+vat+incentiveAmm;
+        double finaltotal = (double)Math.round(reimbursementTotals * 100d) / 100d;
 
         FragmentAdvertiserPayoutBottomsheet fragmentModalBottomSheet = new FragmentAdvertiserPayoutBottomsheet();
         fragmentModalBottomSheet.setActivity(AdStats.this);
-        fragmentModalBottomSheet.setDetails(reimbursementTotals,Variables.getPassword());
+        fragmentModalBottomSheet.setDetails(finaltotal,Variables.getPassword());
         fragmentModalBottomSheet.show(getSupportFragmentManager(),"BottomSheet Fragment");
     }
 

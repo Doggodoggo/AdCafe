@@ -91,7 +91,12 @@ public class MyAdStatsItem {
         double vat = (numberOfUsersWhoDidntSeeAd*(Variables.getUserCpvFromTotalPayPerUser(mAdvert.getAmountToPayPerTargetedView())))
                 *Constants.VAT_CONSTANT;
 
-        double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
+        double incentiveAmm = 0;
+        if(mAdvert.didAdvertiserAddIncentive()){
+            incentiveAmm = (mAdvert.getWebClickIncentive()* (mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
+        }
+
+        double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat+incentiveAmm;
         String number = Double.toString(round(totalReimbursalPlusPayout));
 
         mAmountToReimburse.setText("Reimbursing amount: "+number+" Ksh");
@@ -182,6 +187,31 @@ public class MyAdStatsItem {
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
             Log("MY_AD_STAT_ITEM","Listener from firebase has responded.Updating users reached so far");
+            if(dataSnapshot.getKey().equals("webClickNumber")){
+                mAdvert.setWebClickNumber(dataSnapshot.getValue(Integer.class));
+
+                int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen();
+                int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
+                        (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
+                double vat = (mAdvert.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(
+                        mAdvert.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
+
+                double incentiveAmm = 0;
+                if(mAdvert.didAdvertiserAddIncentive()){
+                    incentiveAmm = (mAdvert.getWebClickIncentive()* (mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
+                }
+
+                double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat+incentiveAmm;
+                String number = Double.toString(round(totalReimbursalPlusPayout));
+
+                mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
+                if(totalReimbursalPlusPayout==0){
+                    mHasBeenReimbursed.setText("Status: All Users Reached.");
+                    mAmountToReimburse.setText("Reimbursing :  0 Ksh");
+                    isClickable = false;
+                    mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
+                }
+            }else
             if(dataSnapshot.getKey().equals("payoutReimbursalAmount")){
                 mAdvert.setPayoutReimbursalAmount(dataSnapshot.getValue(double.class));
 
@@ -191,7 +221,12 @@ public class MyAdStatsItem {
                 double vat = (mAdvert.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(
                         mAdvert.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
 
-                double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
+                double incentiveAmm = 0;
+                if(mAdvert.didAdvertiserAddIncentive()){
+                    incentiveAmm = (mAdvert.getWebClickIncentive()* (mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
+                }
+
+                double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat+incentiveAmm;
                 String number = Double.toString(round(totalReimbursalPlusPayout));
 
                 mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
@@ -213,7 +248,13 @@ public class MyAdStatsItem {
                             (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
                     double vat = (mAdvert.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(
                             mAdvert.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
-                    double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
+
+                    double incentiveAmm = 0;
+                    if(mAdvert.didAdvertiserAddIncentive()){
+                        incentiveAmm = (mAdvert.getWebClickIncentive()* (mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
+                    }
+
+                    double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat+incentiveAmm;
                     String number = Double.toString(round(totalReimbursalPlusPayout));
 
                     mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
@@ -247,7 +288,13 @@ public class MyAdStatsItem {
                                     (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
                             double vat = (mAdvert.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(
                                     mAdvert.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
-                            double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat;
+
+                            double incentiveAmm = 0;
+                            if(mAdvert.didAdvertiserAddIncentive()){
+                                incentiveAmm = (mAdvert.getWebClickIncentive()* (mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
+                            }
+
+                            double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat+incentiveAmm;
                             String number = Double.toString(round(totalReimbursalPlusPayout));
 
                             mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");

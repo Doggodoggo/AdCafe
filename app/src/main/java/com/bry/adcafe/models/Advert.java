@@ -46,6 +46,11 @@ public class Advert {
 
     private String advertiserPhoneNo;
 
+    private double webClickIncentive = 0;
+    private Integer webClickNumber = 0;
+
+
+
     @Exclude
     private List<AdvertiserLocation> advertiserLocations = new ArrayList<>();
 
@@ -280,5 +285,28 @@ public class Advert {
         if(!getAdvertiserPhoneNo().equals("none") && !getAdvertiserPhoneNo().equals(""))return true;
         if(!advertiserLocations.isEmpty())return true;
         return false;
+    }
+
+    public boolean didAdvertiserAddIncentive(){
+        if(getWebClickIncentive()!=0) return true;
+        return false;
+    }
+
+    public double getWebClickIncentive() {
+        return webClickIncentive;
+    }
+
+    public void setWebClickIncentive(double webClickIncentive) {
+        this.webClickIncentive = webClickIncentive;
+    }
+
+
+
+    public int getWebClickNumber() {
+        return webClickNumber;
+    }
+
+    public void setWebClickNumber(int webClickNumber) {
+        this.webClickNumber = webClickNumber;
     }
 }

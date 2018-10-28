@@ -19,6 +19,7 @@
             android:layout_height="wrap_content">
 
             <TextView
+                android:id="@+id/PayoutTitle"
                 android:layout_width="match_parent"
                 android:textSize="19sp"
                 android:text="Payout Options."
@@ -27,6 +28,7 @@
                 android:layout_height="wrap_content" />
 
             <TextView
+                android:id="@+id/PayoutExp"
                 android:layout_width="match_parent"
                 android:layout_marginBottom="10dp"
                 android:text="@string/payoutDetails"
@@ -61,6 +63,15 @@
             </RelativeLayout>
 
         </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/loadingProgressBar"
+            android:layout_width="40dp"
+            android:visibility="invisible"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="75dp"
+            android:layout_centerHorizontal="true"
+            android:layout_height="40dp" />
 
         <LinearLayout
             android:id="@+id/enterPayoutDetailsPart"

@@ -1,129 +1,227 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:padding="15dp"
-    android:background="@drawable/dialog_bg"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
 
-    <TextView
-        android:layout_width="370dp"
-        android:textSize="23sp"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="10dp"
-        android:text="Your Contact Info."
-        android:textColor="@color/colorPrimary"
-        android:layout_marginBottom="10dp"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:id="@+id/explanation"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:text="You can add your contact info for users to reach you."
-        android:layout_height="wrap_content" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_height="wrap_content">
-
-        <ImageButton
-            android:layout_width="40dp"
-            android:id="@+id/phoneIcon"
-            android:background="@drawable/ic_action_call"
-            android:layout_height="40dp" />
-
-        <EditText
-            android:id="@+id/phoneNumber"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:textSize="15sp"
-            android:hint="Your phone number(0712345678)."
-            android:inputType="phone" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        android:layout_height="wrap_content">
-
-        <ImageButton
-            android:layout_width="40dp"
-            android:id="@+id/websiteIcon"
-            android:background="@drawable/ic_action_website"
-            android:layout_height="40dp" />
-
-        <EditText
-            android:id="@+id/websiteEditText"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:textSize="15sp"
-            android:hint="Your website.(www.yoursite.com)"
-            android:inputType="textWebEditText" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        android:layout_height="wrap_content">
-
-        <ImageButton
-            android:layout_width="40dp"
-            android:id="@+id/mapIcon"
-            android:background="@drawable/ic_action_map"
-            android:layout_height="40dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:gravity="center_vertical"
-            android:layout_marginLeft="4dp"
-            android:id="@+id/locationsSet"
-            android:text="Click the map icon to add your locations."
-            android:layout_height="match_parent" />
-
-    </LinearLayout>
-
     <RelativeLayout
         android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:paddingRight="2dp"
-        android:paddingLeft="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="10dp"
-        android:layout_height="40dp">
+        android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/cancelBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:background="@null"
-            android:text="Cancel"
-            android:visibility="invisible"
-            android:textColor="@color/colorPrimary" />
+        <LinearLayout
+            android:id="@+id/setContactDetailsLayout"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:padding="15dp"
+            android:visibility="visible"
+            android:layout_centerInParent="true"
+            android:background="@drawable/dialog_bg"
+            android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/buttonOk"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:background="@null"
-            android:text="Set."
-            android:textColor="@color/colorPrimary" />
+            <TextView
+                android:layout_width="300dp"
+                android:textSize="23sp"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:text="Your Contact Info."
+                android:textColor="@color/colorPrimary"
+                android:layout_marginBottom="10dp"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:id="@+id/explanation"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:text="You can add your contact info for users to reach you."
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:id="@+id/phoneIcon"
+                    android:background="@drawable/ic_action_call"
+                    android:layout_height="40dp" />
+
+                <EditText
+                    android:id="@+id/phoneNumber"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:textSize="15sp"
+                    android:hint="Your phone number(0712345678)."
+                    android:inputType="phone" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:id="@+id/websiteIcon"
+                    android:background="@drawable/ic_action_website"
+                    android:layout_height="40dp" />
+
+                <EditText
+                    android:id="@+id/websiteEditText"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:textSize="15sp"
+                    android:hint="Your website.(www.yoursite.com)"
+                    android:inputType="textWebEditText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:id="@+id/mapIcon"
+                    android:background="@drawable/ic_action_map"
+                    android:layout_height="40dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:gravity="center_vertical"
+                    android:layout_marginLeft="4dp"
+                    android:id="@+id/locationsSet"
+                    android:text="Click the map icon to add your locations."
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:paddingRight="2dp"
+                android:paddingLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_height="40dp">
+
+                <Button
+                    android:id="@+id/cancelBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentLeft="true"
+                    android:background="@null"
+                    android:text="Cancel"
+                    android:visibility="invisible"
+                    android:textColor="@color/colorPrimary" />
+
+                <Button
+                    android:id="@+id/buttonOk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:background="@null"
+                    android:text="Set."
+                    android:textColor="@color/colorPrimary" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/setIncentiveLayout"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_centerInParent="true"
+            android:padding="15dp"
+            android:translationX="00dp"
+            android:visibility="visible"
+            android:background="@drawable/dialog_bg"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="23sp"
+                android:paddingLeft="10dp"
+                android:layout_gravity="center_vertical"
+                android:text="Website Incentives."
+                android:textColor="@color/colorPrimary"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:id="@+id/explanation2"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:text="@string/incentiveExpl"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:id="@+id/explanation3"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:text="@string/incentiveExtra"
+                android:layout_height="wrap_content" />
+
+            <NumberPicker
+                android:id="@+id/incentiveAmountPicker"
+                android:layout_width="100dp"
+                android:layout_gravity="center"
+                android:background="@color/grey"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" />
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:paddingRight="2dp"
+                android:paddingLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_height="40dp">
+
+                <Button
+                    android:id="@+id/cancelWebsiteIncentiveBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentLeft="true"
+                    android:background="@null"
+                    android:text="Clear."
+                    android:visibility="visible"
+                    android:textColor="@color/colorPrimary" />
+
+                <Button
+                    android:id="@+id/buttonWebsiteIncentiveOk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:background="@null"
+                    android:text="Skip."
+                    android:textColor="@color/colorPrimary" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
 
     </RelativeLayout>
+
+
 
 
 </LinearLayout>
