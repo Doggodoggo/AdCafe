@@ -77,10 +77,12 @@ public class TomorrowsAdStatItem {
         mCategory.setText("Category : "+mAdvert.getCategory());
         double incentiveAmm = 0;
         if(mAdvert.didAdvertiserAddIncentive()){
-            incentiveAmm = (mAdvert.getWebClickIncentive()* (mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
+            incentiveAmm = (mAdvert.getWebClickIncentive()*(mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
+            Log.d("TomorrowsAdsItem","incentive amount: "+incentiveAmm);
         }
         double am = (mAdvert.getNumberOfUsersToReach()*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))+vat+incentiveAmm;
 
+        am = round(am);
         String amount = Double.toString(am);
         mAmountToReimburse.setText(String.format("Paid amount : %s Ksh.", amount));
         if(mAdvert.isFlagged()) {
@@ -229,6 +231,16 @@ public class TomorrowsAdStatItem {
         protected void onPreExecute() {
             super.onPreExecute();
         }
+    }
+
+    private static double round(double value) {
+        int places = 2;
+        if (places < 0) throw new IllegalArgumentException();
+
+        long factor = (long) Math.pow(10, places);
+        value = value * factor;
+        long tmp = Math.round(value);
+        return (double) tmp / factor;
     }
 
 }

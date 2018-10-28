@@ -184,7 +184,7 @@
                         android:layout_width="match_parent"
                         android:layout_gravity="bottom"
                         app:cardBackgroundColor="@color/colorPrimaryDark"
-                        app:cardCornerRadius="5dp"
+                        app:cardCornerRadius="10dp"
                         app:cardElevation="0dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"

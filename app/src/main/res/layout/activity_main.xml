@@ -26,10 +26,10 @@
 
             <ImageButton
                 android:id="@+id/logoutBtn"
-                android:layout_width="28dp"
-                android:layout_marginLeft="3dp"
-                android:layout_marginTop="3dp"
-                android:layout_height="28dp"
+                android:layout_width="23dp"
+                android:layout_marginLeft="6dp"
+                android:layout_marginTop="5dp"
+                android:layout_height="23dp"
                 android:background="@drawable/ic_action_feedback6"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -46,9 +46,10 @@
             android:layout_height="wrap_content">
             <ImageButton
                 android:id="@+id/bookmarkBtn"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginLeft="40dp"
+                android:layout_width="27dp"
+                android:layout_height="28dp"
+                android:layout_marginLeft="41dp"
+                android:layout_marginTop="2dp"
                 android:background="@drawable/ic_action_ad_archives"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -65,10 +66,10 @@
             android:layout_height="wrap_content">
             <ImageButton
                 android:id="@+id/dashboard"
-                android:layout_width="28dp"
-                android:layout_height="29dp"
-                android:layout_marginTop="3dp"
-                android:layout_marginLeft="39dp"
+                android:layout_width="24dp"
+                android:layout_height="25dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginLeft="42dp"
                 android:background="@drawable/ic_action_dashboard2"/>
             <TextView
                 android:layout_width="wrap_content"

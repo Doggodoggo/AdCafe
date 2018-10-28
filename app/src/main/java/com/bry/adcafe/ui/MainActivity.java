@@ -262,6 +262,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean scrollConfirmBoolean = false;
     private boolean didScrollChangeListenerSetScrollConfirmBoolean = false;
 
+    private int DIALER_REQUEST_CODE = 1001;
+    private int SHARE_IMAGE_REQUEST_CODE = 1525;
+
 
 
 
@@ -2957,7 +2960,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startShareImage();
             } else {
                 Log.v(TAG, "Permission is revoked");
-                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, SHARE_IMAGE_REQUEST_CODE);
             }
         } else { //permission is automatically granted on sdk<23 upon installation
             Log.v(TAG, "Permission is granted");
@@ -2998,10 +3001,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            Log.v(TAG, "Permission: " + permissions[0] + "was " + grantResults[0]);
-            //resume tasks needing this permission
-            startShareImage();
+        if (requestCode==DIALER_REQUEST_CODE){
+            if(grantResults[0]== PackageManager.PERMISSION_GRANTED) openDialerAndCall();
+        }
+        if(requestCode==SHARE_IMAGE_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.v(TAG, "Permission: " + permissions[0] + "was " + grantResults[0]);
+                //resume tasks needing this permission
+                startShareImage();
+            }
         }
     }
 
@@ -5779,7 +5787,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void openDialerAndCall() {
-
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        Advert ad = Variables.getCurrentAdvert();
+        intent.setData(Uri.parse("tel:" + ad.getAdvertiserPhoneNo()));
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CALL_PHONE}, DIALER_REQUEST_CODE);
+            return;
+        }
+        startActivity(intent);
     }
 
     private void openLocation(){

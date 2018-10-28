@@ -145,7 +145,7 @@
             android:orientation="vertical"
             android:layout_centerInParent="true"
             android:padding="15dp"
-            android:translationX="00dp"
+            android:translationX="400dp"
             android:visibility="visible"
             android:background="@drawable/dialog_bg"
             android:layout_height="wrap_content">

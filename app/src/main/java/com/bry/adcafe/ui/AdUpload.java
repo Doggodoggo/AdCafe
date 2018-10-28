@@ -771,6 +771,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         }).start();
 
         final LinearLayout setIncentiveLayout = d.findViewById(R.id.setIncentiveLayout);
+        setIncentiveLayout.setVisibility(View.VISIBLE);
         setIncentiveLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).setInterpolator(new LinearOutSlowInInterpolator())
                 .setListener(new Animator.AnimatorListener() {
                     @Override
@@ -834,6 +835,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         if(Variables.incentiveForClick!=0){
             cancelWebsiteIncentiveBtn.setAlpha(1f);
             buttonWebsiteIncentiveOk.setText("SET");
+            incentiveAmountPicker.setValue((int)Variables.incentiveForClick);
         }else{
             Variables.incentiveForClick = 0;
             cancelWebsiteIncentiveBtn.setAlpha(0.5f);

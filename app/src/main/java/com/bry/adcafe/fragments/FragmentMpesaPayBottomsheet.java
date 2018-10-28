@@ -90,13 +90,15 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
         this.mName = name;
 
         if(Variables.isTargetingDataSet()) this.mTargetedUsers = targetedUserDatas.size();
-        if(Variables.incentiveForClick!=0) this.mTotalIncentiveAmount = (Variables.incentiveForClick*targetedUsers);
+        if(Variables.incentiveForClick!=0) this.mTotalIncentiveAmount = (Variables.incentiveForClick*mTargetedUsers);
 
         this.mAmountToBePaid = mTargetedUsers*(mConstantAmountPerUserTargeted+Constants.MPESA_CHARGES);
         this.VATamm = getVATAmmount(mTargetedUsers*(Variables.getUserCpvFromTotalPayPerUser((int)mConstantAmountPerUserTargeted)));
         this.paymentTotals = mAmountToBePaid+VATamm+mTotalIncentiveAmount;
         this.chargeForPayment = getChargeForTransaction(paymentTotals);
         paymentTotals+=chargeForPayment;
+
+        paymentTotals = (double)Math.round(paymentTotals * 100d) / 100d;
     }
 
     private BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
@@ -242,7 +244,7 @@ public class FragmentMpesaPayBottomsheet extends BottomSheetDialogFragment {
 
         if(mTotalIncentiveAmount!=0){
             incentiveAmount.setText(Html.fromHtml("Total incentive amount: <b>"+mTotalIncentiveAmount+"Ksh.</b>"));
-            incentiveAmount.setVisibility(View.GONE);
+            incentiveAmount.setVisibility(View.VISIBLE);
         }
 
         mContentView.findViewById(R.id.startButton).setOnClickListener(new View.OnClickListener() {

@@ -13,7 +13,8 @@
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/colorPrimary</item>
         <item name="android:textColorPrimary">@color/colorPrimaryDark</item>
-        <item name="android:background">@color/white</item>
+        <item name="android:background">@drawable/dialog_bg</item>
+        <item name="android:windowBackground">@null</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
