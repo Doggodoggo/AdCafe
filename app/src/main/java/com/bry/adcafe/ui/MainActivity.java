@@ -821,6 +821,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
+
+
+
     private void getAdsSnapShot(){
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS);
         adRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -3544,6 +3547,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return new Integer(age);
     }
 
+
+
+
     private int locationContained(List<LatLng> checkLocalLst){
         int locations = 0;
         for(LatLng latlngUser : Variables.usersLatLongs){
@@ -3562,7 +3568,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return locations;
     }
 
-
     private void setIsAppOnline(boolean bol){
         SharedPreferences pref = getApplicationContext().getSharedPreferences(Constants.ONLINE_NESS, MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
@@ -3580,6 +3585,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log(TAG, "Setting uid in shared prefs - " + uid);
         editor.apply();
     }
+
 
 
 
@@ -3664,6 +3670,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
+
     public void PerformShutdown(){
         setLastUsedDateInFirebaseDate(User.getUid());
         if (dbRef != null) {
@@ -3712,6 +3719,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log(TAG,"Set user device category in shared pref and firebase");
 
     }
+
 
 
 
@@ -4008,6 +4016,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setUpWebView();
         setUpScrollProgress();
     }
+
 
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -5334,6 +5343,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         prefs.edit().clear().putString(Constants.USERS_COIN_LIST, userListString).apply();
     }
 
+
+
+
     private void updateUsersTotalReimbursalAmountAfterWebClick(){
         final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -5429,6 +5441,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+
 
 
 
@@ -5625,6 +5638,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
+
     private void openConfirmWebsiteLayout(){
         isConfirmOpenWebsiteLayout = true;
         final RelativeLayout ConfirmVisitWebsiteContainer = findViewById(R.id.ConfirmVisitWebsiteContainer);
@@ -5806,6 +5820,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+
 
 
 
