@@ -401,7 +401,27 @@ public class SetUsersPersonalInfo extends DialogFragment {
             public void onClick(View view) {
 //                locationLayout.setVisibility(View.GONE);
                 locationLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
-                        .setInterpolator(new LinearOutSlowInInterpolator());;
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        locationLayout.setAlpha(0f);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
                 loadFifthView();
             }
         });
@@ -410,7 +430,27 @@ public class SetUsersPersonalInfo extends DialogFragment {
             public void onClick(View view) {
 //                locationLayout.setVisibility(View.GONE);
                 locationLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
-                        .setInterpolator(new LinearOutSlowInInterpolator());;
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        locationLayout.setAlpha(0f);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
                 loadFifthView();
             }
         });

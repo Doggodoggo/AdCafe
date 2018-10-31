@@ -9,7 +9,7 @@
     tools:context="com.bry.adcafe.ui.Dashboard">
 
 
-    <ScrollView
+    <com.bry.adcafe.models.LockableScrollView
         android:id="@+id/ScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -611,7 +611,7 @@
 
         </LinearLayout>
 
-    </ScrollView>
+    </com.bry.adcafe.models.LockableScrollView>
 
     <RelativeLayout
         android:visibility="gone"
@@ -649,7 +649,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:text="@string/appSupport"
-                        android:typeface="monospace"
                         android:textColor="@color/grey"
                         android:textStyle="normal|bold"
                         android:textSize="22sp"

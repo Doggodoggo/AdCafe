@@ -49,6 +49,8 @@ public class Advert {
     private double webClickIncentive = 0;
     private Integer webClickNumber = 0;
 
+    private int numberOfPins = 0;
+
 
 
     @Exclude
@@ -264,7 +266,7 @@ public class Advert {
 
 
     public String getAdvertiserPhoneNo() {
-        if(advertiserPhoneNo==null) return "none";
+        if(advertiserPhoneNo==null ||advertiserPhoneNo.equals("")) return "none";
         return advertiserPhoneNo;
     }
 
@@ -308,5 +310,13 @@ public class Advert {
 
     public void setWebClickNumber(int webClickNumber) {
         this.webClickNumber = webClickNumber;
+    }
+
+    public int getNumberOfPins() {
+        return numberOfPins;
+    }
+
+    public void setNumberOfPins(int numberOfPins) {
+        this.numberOfPins = numberOfPins;
     }
 }

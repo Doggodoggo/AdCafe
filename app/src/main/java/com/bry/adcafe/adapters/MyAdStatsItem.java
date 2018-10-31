@@ -187,6 +187,15 @@ public class MyAdStatsItem {
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
             Log("MY_AD_STAT_ITEM","Listener from firebase has responded.Updating users reached so far");
+            if(dataSnapshot.getKey().equals(Constants.USERS_THAT_HAVE_CLICKED_IT)){
+
+            }else
+            if(dataSnapshot.getKey().equals(Constants.USERS_THAT_HAVE_SEEN)){
+
+            }else
+            if(dataSnapshot.getKey().equals("numberOfPins")){
+                mAdvert.setNumberOfPins(dataSnapshot.getValue(Integer.class));
+            }else
             if(dataSnapshot.getKey().equals("webClickNumber")){
                 mAdvert.setWebClickNumber(dataSnapshot.getValue(Integer.class));
 

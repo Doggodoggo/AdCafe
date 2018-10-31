@@ -142,10 +142,10 @@
             android:layout_width="2dp"
             android:visibility="invisible"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="147dp"
+            android:layout_marginLeft="140dp"
             android:layout_marginBottom="35dp"
             android:id="@+id/smallDot"
-            android:background="@color/fuchsia"
+            android:background="@color/colorPrimary"
             android:layout_height="2dp"/>
 
         <ImageView

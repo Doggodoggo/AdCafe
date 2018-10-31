@@ -687,17 +687,17 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             public void onClick(View v) {
                 boolean canDismiss = true;
                 findViewById(R.id.smallDot).setVisibility(View.INVISIBLE);
-                if(!websiteEditText.getText().toString().equals("")||
-                    !phoneNumber.getText().toString().equals("")||
+                if(!websiteEditText.getText().toString().trim().equals("")||
+                    !phoneNumber.getText().toString().trim().equals("")||
                     !Variables.advertiserLocations.isEmpty()){
                     findViewById(R.id.smallDot).setVisibility(View.VISIBLE);
                 }
-                if(websiteEditText.getText().toString().equals("")) {
+                if(websiteEditText.getText().toString().trim().equals("")) {
                     mLink = "none";
                 }else{
-                    mLink = websiteEditText.getText().toString();
+                    mLink = websiteEditText.getText().toString().trim();
                 }
-                if(phoneNumber.getText().toString().equals("")){
+                if(phoneNumber.getText().toString().trim().equals("")){
                     mPhoneNumber = "none";
                 }else{
                     if(phoneNumber.getText().toString().trim().length()<10){
@@ -729,13 +729,14 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             @Override
             public void onCancel(DialogInterface dialogInterface) {
                 findViewById(R.id.smallDot).setVisibility(View.INVISIBLE);
-                if(!websiteEditText.getText().toString().equals("")|| !phoneNumber.getText().toString().equals("")|| !Variables.advertiserLocations.isEmpty()){
+                if(!websiteEditText.getText().toString().trim().equals("")|| !phoneNumber.getText().toString().trim().equals("")
+                        || !Variables.advertiserLocations.isEmpty()){
                     findViewById(R.id.smallDot).setVisibility(View.VISIBLE);
                 }
-                if(websiteEditText.getText().toString().equals("")) {
+                if(websiteEditText.getText().toString().trim().equals("")) {
                     mLink = "none";
                 }
-                if(phoneNumber.getText().toString().equals("")){
+                if(phoneNumber.getText().toString().trim().equals("")){
                     mPhoneNumber = "none";
                 }
 

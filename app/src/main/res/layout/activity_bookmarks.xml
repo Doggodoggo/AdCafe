@@ -47,7 +47,7 @@
             android:layout_marginRight="10dp"
             android:layout_height="1dp"/>
 
-        <com.mindorks.placeholderview.PlaceHolderView
+        <com.bry.adcafe.models.MyPlaceHolderView
             android:id="@+id/PlaceHolderView"
             android:layout_marginBottom="1dp"
             android:layout_marginLeft="1dp"
@@ -56,7 +56,7 @@
             android:scrollbars="none"
             android:layout_marginStart="1dp" />
 
-        <com.mindorks.placeholderview.PlaceHolderView
+        <com.bry.adcafe.models.MyPlaceHolderView
             android:id="@+id/PlaceHolderView2"
             android:layout_marginBottom="1dp"
             android:layout_marginLeft="1dp"
@@ -133,19 +133,34 @@
     </LinearLayout>
 
 
-    <android.support.v4.view.ViewPager
+    <com.bry.adcafe.models.CustomViewPager
         android:id="@+id/viewPager"
         android:visibility="visible"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    </android.support.v4.view.ViewPager>
+    </com.bry.adcafe.models.CustomViewPager>
+
+    <View
+        android:id="@+id/swipeUpDownDetector"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="match_parent"/>
+
+    <View
+        android:id="@+id/adTouchDetector"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="match_parent"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:visibility="gone"
         android:gravity="center"
+        android:alpha="0"
+        android:translationX="50dp"
+        android:background="@color/white"
         android:paddingTop="5dp"
         android:id="@+id/topNavButtons"
         android:layout_gravity="top">
@@ -155,13 +170,21 @@
             android:visibility="visible"
             android:layout_alignParentLeft="true"
             android:layout_marginRight="1dp"
+            android:layout_marginLeft="10dp"
             android:layout_height="match_parent">
             <ImageButton
                 android:id="@+id/backBtn"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
-                android:layout_marginLeft="10dp"
                 android:background="@drawable/ic_action_back"/>
+
+            <View
+                android:id="@+id/backIndicator"
+                android:layout_width="0dp"
+                android:layout_centerHorizontal="true"
+                android:background="@color/colorPrimary"
+                android:layout_alignBottom="@id/backBtn"
+                android:layout_height="1dp"/>
 
         </RelativeLayout>
 
@@ -191,14 +214,23 @@
             android:layout_width="wrap_content"
             android:visibility="visible"
             android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
             android:layout_alignParentRight="true"
             android:layout_height="match_parent">
             <ImageButton
                 android:id="@+id/shareBtn"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginLeft="7dp"
-                android:background="@drawable/ic_action_share"/>
+                android:layout_marginTop="10dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/ic_action_share4"/>
+
+            <View
+                android:id="@+id/shareIndicator"
+                android:layout_width="0dp"
+                android:layout_centerHorizontal="true"
+                android:background="@color/colorPrimary"
+                android:layout_alignBottom="@id/shareBtn"
+                android:layout_height="1dp"/>
         </RelativeLayout>
 
     </RelativeLayout>
@@ -207,9 +239,12 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:gravity="center"
-        android:layout_marginRight="20dp"
+        android:background="@color/white"
+        android:paddingRight="20dp"
         android:paddingBottom="7dp"
         android:visibility="gone"
+        android:alpha="0"
+        android:translationX="50dp"
         android:id="@+id/bottomNavButtons"
         android:orientation="horizontal"
         android:layout_gravity="bottom">
@@ -226,7 +261,7 @@
                 android:layout_width="44dp"
                 android:layout_height="44dp"
                 android:layout_marginLeft="6dp"
-                android:background="@drawable/ic_action_contact"/>
+                android:background="@drawable/ic_action_contact2"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:id="@+id/websiteTextxx"
@@ -270,7 +305,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="3dp"
-                android:layout_marginLeft="6dp"
+                android:layout_marginLeft="5dp"
                 android:background="@drawable/ic_action_save" />
 
             <TextView
@@ -284,6 +319,591 @@
         </RelativeLayout>
 
     </LinearLayout>
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:id="@+id/blackBackgroundLayout"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="match_parent">
+
+            <View
+                android:id="@+id/blackBackgroundView"
+                android:alpha="0.7"
+                android:background="@color/black"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/ContactSelectorContainer"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_margin="10dp"
+            android:padding="15dp"
+            android:visibility="gone"
+            android:layout_alignParentBottom="true"
+            android:translationY="180dp"
+            android:background="@drawable/dialog_bg"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="19sp"
+                android:gravity="center_horizontal"
+                android:layout_marginBottom="20dp"
+                android:textColor="@color/colorPrimary"
+                android:text="Find Out More About Them."
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="10dp"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/CallLayout"
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:layout_width="35dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="5dp"
+                        android:id="@+id/phoneIcon"
+                        android:background="@drawable/ic_action_contact_call"
+                        android:layout_height="35dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:text="Call Them."
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:layout_gravity="center"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:text="Dialer."
+                        android:textSize="9sp"
+                        android:layout_gravity="center"
+                        android:id="@+id/callTextView"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/websiteLayout"
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:layout_width="35dp"
+                        android:layout_gravity="center"
+                        android:id="@+id/websiteIcon"
+                        android:layout_marginBottom="5dp"
+                        android:background="@drawable/ic_action_contact_webpage"
+                        android:layout_height="35dp" />
+
+                    <TextView
+                        android:id="@+id/visitWebsiteText"
+                        android:layout_width="wrap_content"
+                        android:text="Their Website."
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:layout_gravity="center"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:text="Online"
+                        android:layout_gravity="center"
+                        android:textSize="9sp"
+                        android:id="@+id/incentiveTextView"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/LocationLayout"
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:layout_width="35dp"
+                        android:layout_gravity="center"
+                        android:id="@+id/locationIcon"
+                        android:layout_marginBottom="5dp"
+                        android:background="@drawable/ic_action_contact_map"
+                        android:layout_height="35dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:text="Find Them:"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:layout_gravity="center"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:text="Their Location."
+                        android:textSize="9sp"
+                        android:layout_gravity="center"
+                        android:id="@+id/locationText"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/ConfirmCallContainer"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_margin="10dp"
+            android:padding="15dp"
+            android:layout_alignParentBottom="true"
+            android:translationY="180dp"
+            android:visibility="gone"
+            android:background="@drawable/dialog_bg"
+            android:layout_height="145dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:textSize="19sp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:textColor="@color/colorPrimary"
+                android:text="Continue to Dial?"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="14sp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="30dp"
+                android:text="Continue to dial the number?"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/phoneNoText"
+                android:layout_width="match_parent"
+                android:textSize="14sp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="50dp"
+                android:textStyle="bold"
+                android:text="0712 345 678"
+                android:layout_height="wrap_content" />
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/okDialBtn"
+                android:layout_width="match_parent"
+                android:layout_gravity="bottom"
+                app:cardBackgroundColor="@color/colorPrimaryDark"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="0dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="DIAL."
+                    android:textSize="11sp"
+                    android:layout_height="wrap_content" />
+
+            </android.support.v7.widget.CardView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/ConfirmVisitWebsiteContainer"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_margin="10dp"
+            android:padding="15dp"
+            android:visibility="gone"
+            android:layout_alignParentBottom="true"
+            android:translationY="180dp"
+            android:background="@drawable/dialog_bg"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:textSize="19sp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:textColor="@color/colorPrimary"
+                android:text="Continue to Visit?"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:layout_marginTop="35dp"
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/websiteIncentiveText"
+                    android:layout_width="match_parent"
+                    android:textSize="14sp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:text="They're offering an incentive of: XKsh."
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/websiteNameText"
+                    android:layout_width="match_parent"
+                    android:textSize="14sp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:textStyle="bold"
+                    android:text="https://www.mycoolwebsite.com"
+                    android:layout_height="17dp" />
+
+                <android.support.v7.widget.CardView
+                    android:id="@+id/okVisitBtn"
+                    android:layout_width="match_parent"
+                    android:layout_gravity="bottom"
+                    app:cardBackgroundColor="@color/colorPrimaryDark"
+                    app:cardCornerRadius="10dp"
+                    android:layout_marginTop="15dp"
+                    app:cardElevation="0dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:gravity="center"
+                        android:textColor="@color/white"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:text="VIST."
+                        android:textSize="11sp"
+                        android:layout_height="wrap_content" />
+
+                </android.support.v7.widget.CardView>
+
+            </LinearLayout>
+
+
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <!--Open WebVew View-->
+    <RelativeLayout
+        android:id="@+id/WebViewContainer"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/cardContainer"
+            android:layout_margin="10dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="1dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.bry.adcafe.models.ObservableWebView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/webview"
+                android:translationY="58dp"
+                android:scrollbars="none"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <LinearLayout
+                android:id="@+id/backBtnLayout"
+                android:layout_width="match_parent"
+                android:background="@color/white"
+                android:orientation="horizontal"
+                android:layout_height="58dp">
+
+                <ImageButton
+                    android:id="@+id/backBtnX"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="1dp"
+                    android:background="@drawable/ic_action_back"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp" />
+
+                <android.support.v7.widget.CardView
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="60dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardBackgroundColor="@color/whiteish"
+                    android:id="@+id/searchFoodCard"
+                    app:cardPreventCornerOverlap="false"
+                    app:cardElevation="0dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:id="@+id/websiteText"
+                        android:textSize="13sp"
+                        android:text="https:www.yourwebsite.com/"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="50dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_height="19dp" />
+
+                </android.support.v7.widget.CardView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rightButtonLayout"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:paddingRight="10dp"
+                android:gravity="right"
+                android:layout_height="58dp">
+
+                <ImageButton
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="10dp"
+                    android:id="@+id/reloadBtn"
+                    android:layout_marginTop="1dp"
+                    android:background="@drawable/ic_action_reload"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp" />
+
+                <ImageButton
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="10dp"
+                    android:id="@+id/closeBtn"
+                    android:visibility="gone"
+                    android:background="@drawable/ic_action_close"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp" />
+
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_marginTop="58dp"
+                android:background="@color/white"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:visibility="visible"
+                android:progress="0"
+                android:layout_weight="1" />
+
+            <View
+                android:id="@+id/swipeBackView"
+                android:layout_width="30dp"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="100dp"
+                android:layout_height="160dp"/>
+
+            <View
+                android:id="@+id/swipeBackViewIndicator"
+                android:layout_width="3dp"
+                android:background="@color/colorPrimary"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="100dp"
+                android:layout_height="0dp" />
+
+            <RelativeLayout
+                android:id="@+id/isGoingBackIndicator"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="60dp"
+                android:translationX="-40dp"
+                android:background="@drawable/circle_design_timer_file"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:background="@drawable/ic_action_back"
+                    android:layout_height="30dp" />
+
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/collapseIcon"
+                android:layout_gravity="center"
+                android:layout_width="25dp"
+                android:background="@drawable/ic_action_website"
+                android:layout_height="25dp" />
+
+            <TextView
+                android:id="@+id/minifiedTextView"
+                android:visibility="invisible"
+                android:layout_width="match_parent"
+                android:paddingRight="50dp"
+                android:paddingLeft="50dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:background="@color/white"
+                android:alpha="0.96"
+                android:text="blahblahblah.com"
+                android:layout_height="60dp" />
+
+            <RelativeLayout
+                android:id="@+id/scrollProgressLayout"
+                android:layout_width="24dp"
+                android:visibility="visible"
+                android:layout_marginRight="83dp"
+                android:layout_marginTop="18dp"
+                android:layout_gravity="right"
+                android:layout_height="24dp">
+
+                <TextView
+                    android:id="@+id/textViewIncentiveAmount"
+                    android:layout_width="17dp"
+                    android:layout_height="17dp"
+                    android:layout_centerInParent="true"
+                    android:text="2"
+                    android:gravity="center"
+                    android:background="@drawable/circle_design_timer_file"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="7sp" />
+
+                <ProgressBar
+                    android:id="@+id/scrollProgress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:visibility="visible"
+                    android:progress="100"
+                    android:layout_centerInParent="true"
+                    android:indeterminate="false"
+                    android:progressDrawable="@drawable/timer_layout"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp" />
+
+                <RelativeLayout
+                    android:id="@+id/doneImageLayout"
+                    android:layout_width="14dp"
+                    android:translationX="30dp"
+                    android:alpha="0"
+                    android:background="@drawable/circle_design_timer"
+                    android:layout_centerInParent="true"
+                    android:layout_height="14dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:background="@drawable/ic_action_incentive_received"
+                        android:layout_height="match_parent" />
+
+
+                </RelativeLayout>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/pageIconLayout"
+                android:layout_width="wrap_content"
+                android:visibility="gone"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/circle_design_timer_file"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/pageIcon"
+                    android:layout_width="15dp"
+                    android:layout_centerInParent="true"
+                    android:layout_height="15dp" />
+
+            </RelativeLayout>
+
+            <ProgressBar
+                android:id="@+id/progressBar2"
+                android:layout_marginTop="29dp"
+                android:background="@color/white"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:visibility="invisible"
+                android:progress="0"
+                android:layout_weight="1" />
+
+        </android.support.v7.widget.CardView>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:id="@+id/incentiveAddedMessage"
+            android:translationY="50dp"
+            android:alpha="0"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="50dp"
+            android:background="@drawable/dialog_bg"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="5dp"
+                android:background="@drawable/ic_action_incentive"
+                android:layout_height="30dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:padding="10dp"
+                android:text="Incentive added"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
 
 
 </android.support.design.widget.CoordinatorLayout>

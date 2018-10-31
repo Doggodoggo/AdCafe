@@ -164,7 +164,7 @@ public class SelectCategoryItem {
 //        roundedBitmapDrawable.setCircular(true);
 //        categoryImage.setImageDrawable(roundedBitmapDrawable);
 
-//        Glide.with(mContext).load(getImage(filename)).override(100, 130)
+//        Glide.with(mContext).load(getImage(filename)).apply(RequestOptions.circleCropTransform())
 //                .into(categoryImage);
 
         Glide.with(mContext).load(getImage(filename)).asBitmap().centerCrop().into(new BitmapImageViewTarget(categoryImage) {

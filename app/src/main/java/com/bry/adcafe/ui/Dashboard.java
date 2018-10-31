@@ -58,6 +58,7 @@ import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
 import com.bry.adcafe.fragments.SetUsersPersonalInfo;
 import com.bry.adcafe.fragments.myMapFragment;
 import com.bry.adcafe.models.AdCoin;
+import com.bry.adcafe.models.LockableScrollView;
 import com.bry.adcafe.models.Message;
 import com.bry.adcafe.models.PayoutResponse;
 import com.bry.adcafe.models.User;
@@ -149,7 +150,7 @@ public class Dashboard extends AppCompatActivity {
     private final int normalDuration = 320;
     private List<Integer> RawList = new ArrayList<>();
 
-    @Bind(R.id.ScrollView) ScrollView mScrollView;
+    @Bind(R.id.ScrollView) LockableScrollView mScrollView;
     @Bind(R.id.feedChatEditText) EditText mFeedChatEditText;
     @Bind(R.id.addImageBtn) ImageButton mAddImageBtn;
     @Bind(R.id.sendBtn) ImageButton mSendBtn;
@@ -1511,7 +1512,7 @@ public class Dashboard extends AppCompatActivity {
     public void showFeedChatView(){
         if(checkPermissionForLoadMessages()){
             isCardCollapsed = false;
-            mScrollView.setVisibility(View.GONE);
+            mScrollView.setScrollingEnabled(false);
             updateUpPosition(unCollapsedMargin,normalDuration);
             loadMessages();
             setFeedChatClickListeners();
@@ -1731,7 +1732,7 @@ public class Dashboard extends AppCompatActivity {
         isCardCollapsed = true;
         numberOfItemsAdded = 0;
         mChatsPlaceHolderView.removeAllViews();
-        mScrollView.setVisibility(View.VISIBLE);
+        mScrollView.setScrollingEnabled(true);
         updateUpPosition(collapsedMargin,normalDuration);
     }
 

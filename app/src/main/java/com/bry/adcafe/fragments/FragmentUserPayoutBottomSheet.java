@@ -1,6 +1,7 @@
 package com.bry.adcafe.fragments;
 
 import android.Manifest;
+import android.animation.Animator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -330,11 +331,12 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
         TextView PayoutExp = mContentView.findViewById(R.id.PayoutExp);
         Button continueButton = mContentView.findViewById(R.id.continueButton);
 
+        mContentView.findViewById(R.id.loadingProgressBar).setVisibility(View.INVISIBLE);
+
         PayoutTitle.setVisibility(View.VISIBLE);
         PayoutExp.setVisibility(View.VISIBLE);
         continueButton.setVisibility(View.VISIBLE);
 
-        mContentView.findViewById(R.id.loadingProgressBar).setVisibility(View.INVISIBLE);
     }
 
     private void performBackgroundCheckupOnAdCoins(){
@@ -384,7 +386,7 @@ public class FragmentUserPayoutBottomSheet extends BottomSheetDialogFragment {
 
         for(AdCoin coin:coins){
             MyTime coinTime = coin.getTimeCreated();
-            DataSnapshot adSnap = historyUploadsSnap.child(Integer.toString(coinTime.getYear())).child(Integer.toString(coinTime.getMonth()))
+            DataSnapshot adSnap = historyUploadsSnap.child(Integer.toString(coinTime.getYear())).child(coinTime.getAbbreviatedMonth())
                     .child(Integer.toString(coinTime.getDay())).child(coin.getAdvertPushRefInAdminConsole());
             if(adSnap.exists()){
                 legitCoins.add(coin);

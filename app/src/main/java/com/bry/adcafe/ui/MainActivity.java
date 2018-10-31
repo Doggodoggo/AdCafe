@@ -64,8 +64,10 @@ import android.widget.Toast;
 
 
 import com.bry.adcafe.models.AdCoin;
+import com.bry.adcafe.models.ExpressionData;
 import com.bry.adcafe.models.MyTime;
 import com.bry.adcafe.models.ObservableWebView;
+import com.bry.adcafe.models.WebClickData;
 import com.bry.adcafe.services.AlarmReceiver1;
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
@@ -265,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private int DIALER_REQUEST_CODE = 1001;
     private int SHARE_IMAGE_REQUEST_CODE = 1525;
+    private boolean isLoadingPrevious = false;
 
 
 
@@ -2834,7 +2837,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ad.setPushId(pushId);
 
         long currentTimeMillis = System.currentTimeMillis();
-//        long currentDay = -(currentTimeMillis+1000*60*60*3)/(1000*60*60*24);
         long currentDay = Long.parseLong(getDateInDays());
         ad.setDateInDays(currentDay);
 
@@ -2852,6 +2854,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Variables.hasBeenPinned = true;
             }
         });
+
+        updateNumberOfPins();
     }
 
     private void setAdsNumberOfPins() {
@@ -2918,10 +2922,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //its here
     private void setNewNumberOfTimesSeen(int number, String date, Advert advert) {
         Log(TAG, "Setting the new number of times seen in firebase.");
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         long theDateInDays = ((advert.getDateInDays()+1)*-1);
         String dateInDays = Long.toString(theDateInDays);
 
+        //advertisers upload history part
         Query query2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(advert.getAdvertiserUid()).child(Constants.UPLOAD_HISTORY)
                 .child(dateInDays)
@@ -2929,16 +2935,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         DatabaseReference dbref2 = query2.getRef();
         dbref2.setValue(number);
 
+        //setting expression data in upload history part
+        DatabaseReference uploadHistoryViewingDataRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(advert.getAdvertiserUid()).child(Constants.UPLOAD_HISTORY)
+                .child(dateInDays)
+                .child(advert.getPushRefInAdminConsole()).child(Constants.USERS_THAT_HAVE_SEEN).child(uid);
+
+        ExpressionData exp = new ExpressionData(uid,new MyTime(TimeManager.getCal()),Variables.getCurrentAdvert().getPushRefInAdminConsole());
+        uploadHistoryViewingDataRef.setValue(exp);
+
+
         String day = isAlmostMidNight() ? TimeManager.getNextDayDay() : TimeManager.getDay();
         String month = isAlmostMidNight() ? TimeManager.getNextDayMonth() : TimeManager.getMonth();
         String year = isAlmostMidNight() ? TimeManager.getNextDayYear() : TimeManager.getYear();
 
+
+        //All ads history part
         DatabaseReference adminRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
                 .child(year).child(month).child(day).child(advert.getPushRefInAdminConsole()).child("numberOfTimesSeen");
         adminRef.setValue(number);
 
 
+        //setting expression data in history uploads part
+        DatabaseReference historyUploadViewingDataRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
+                .child(year).child(month).child(day).child(advert.getPushRefInAdminConsole()).child(Constants.USERS_THAT_HAVE_SEEN).child(uid);
+        historyUploadViewingDataRef.setValue(exp);
 
+
+        //ads for console part
         Query query = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
                 .child(date).child(advert.getPushRefInAdminConsole()).child("numberOfTimesSeen");
 
@@ -2950,6 +2974,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log(TAG, "The new number has been set.");
             }
         });
+
+
+        //setting expression data in ads for console part
+        DatabaseReference consoleViewingDataRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                .child(date).child(advert.getPushRefInAdminConsole()).child(Constants.USERS_THAT_HAVE_SEEN).child(uid);
+        consoleViewingDataRef.setValue(exp);
+
     }
 
 
@@ -4271,7 +4302,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
         animatorTop.setDuration(normalDuration).start();
-        minifiedTextView.setTranslationX(-Utils.dpToPx(60));
+//        minifiedTextView.setTranslationX(-Utils.dpToPx(60));
         minifiedTextView.animate().setDuration(normalDuration).translationX(0).setInterpolator(new LinearOutSlowInInterpolator())
                 .setListener(new Animator.AnimatorListener() {
                     @Override
@@ -4375,6 +4406,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     }
                 }).start();
+
     }
 
     private void unMinifyTheTopPart(){
@@ -4396,7 +4428,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 backBtnLayout.requestLayout();
             }
         });
-        websiteText.setTranslationX(Utils.dpToPx(70));
+//        websiteText.setTranslationX(Utils.dpToPx(70));
         websiteText.animate().setDuration(normalDuration).translationX(0).setInterpolator(new LinearOutSlowInInterpolator())
                 .setListener(new Animator.AnimatorListener() {
                     @Override
@@ -4965,6 +4997,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     if(RightScore>LeftScore){
                         backButton.performClick();
+                        isLoadingPrevious = true;
+
                     }
                     hideNupdateSideSwipeThing();
                     SideSwipeRawList.clear();
@@ -5057,8 +5091,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
             if(RightScore>LeftScore){
-                backButton.performClick();
+
+                    backButton.performClick();
+                    isLoadingPrevious = true;
+
             }
+            hideNupdateSideSwipeThing();
             SideSwipeRawList.clear();
             return false;
 
@@ -5068,7 +5106,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void showNupdateSideSwipeThing(int pos){
         int trans = (int)((pos-Utils.dpToPx(10))*0.9);
         RelativeLayout isGoingBackIndicator = findViewById(R.id.isGoingBackIndicator);
-//        isGoingBackIndicator.setTranslationX(trans);
 
         View v = findViewById(R.id.swipeBackViewIndicator);
         CardView.LayoutParams params = (CardView.LayoutParams) v.getLayoutParams();
@@ -5078,22 +5115,64 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void hideNupdateSideSwipeThing(){
         RelativeLayout isGoingBackIndicator = findViewById(R.id.isGoingBackIndicator);
-//        isGoingBackIndicator.animate().setDuration(mAnimationTime).translationX(Utils.dpToPx(-40)).start();
 
         final View v = findViewById(R.id.swipeBackViewIndicator);
         final CardView.LayoutParams params = (CardView.LayoutParams) v.getLayoutParams();
 
-        ValueAnimator animatorTop;
-        animatorTop = ValueAnimator.ofInt(params.height,0);
-        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
-        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                params.height = (Integer) valueAnimator.getAnimatedValue();
-                v.requestLayout();
-            }
-        });
-        animatorTop.setDuration(normalDuration).start();
+        if(isLoadingPrevious){
+            isLoadingPrevious = false;
+            ValueAnimator animatorTop;
+            animatorTop = ValueAnimator.ofInt(params.height,params.height+Utils.dpToPx(5000));
+            animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+            animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    params.height = (Integer) valueAnimator.getAnimatedValue();
+                    v.requestLayout();
+                }
+            });
+            animatorTop.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animator) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animator) {
+                    v.setVisibility(View.GONE);
+                    params.height = 0;
+                    v.setLayoutParams(params);
+                    v.setAlpha(1f);
+                    v.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animator) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animator) {
+
+                }
+            });
+            animatorTop.setDuration(normalDuration).start();
+            v.animate().alpha(0f).setDuration(normalDuration).setInterpolator(new LinearInterpolator()).start();
+        }else{
+            ValueAnimator animatorTop;
+            animatorTop = ValueAnimator.ofInt(params.height,0);
+            animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+            animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    params.height = (Integer) valueAnimator.getAnimatedValue();
+                    v.requestLayout();
+                }
+            });
+            animatorTop.setDuration(normalDuration).start();
+        }
+
+
     }
 
 
@@ -5271,12 +5350,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         double incentiveAmount = ad.getWebClickIncentive();
 
         String day = isAlmostMidNight() ? TimeManager.getNextDayDay() : TimeManager.getDay();
-        String month = isAlmostMidNight() ? TimeManager.getNextDayMonth() : TimeManager.getMonth();
+        int month = isAlmostMidNight() ? TimeManager.getNextDayMonthValue() : TimeManager.getMonthVal();
         String year = isAlmostMidNight() ? TimeManager.getNextDayYear() : TimeManager.getYear();
 
         MyTime tm = new MyTime(TimeManager.getCal());
         tm.setDay(Integer.parseInt(day));
-        tm.setMonth(Integer.parseInt(month));
+        tm.setComputerMonth(month);
         tm.setYear(Integer.parseInt(year));
 
         AdCoin coin = new AdCoin(ad.getPushRefInAdminConsole(),incentiveAmount,ad.getAdvertiserUid(),tm,Constants.COIN_TYPE_WEBCLICK,uid);
@@ -5395,6 +5474,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setNewNumberOfTimesWebClicked(int number, String date, Advert advert) {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         long theDateInDays = ((advert.getDateInDays()+1)*-1);
         String dateInDays = Long.toString(theDateInDays);
@@ -5406,6 +5486,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         DatabaseReference dbref2 = query2.getRef();
         dbref2.setValue(number);
 
+
+        //setting click data in upload history part
+        DatabaseReference uploadHistoryViewingDataRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(advert.getAdvertiserUid()).child(Constants.UPLOAD_HISTORY)
+                .child(dateInDays)
+                .child(advert.getPushRefInAdminConsole()).child(Constants.USERS_THAT_HAVE_CLICKED_IT).child(uid);
+
+        WebClickData exp = new WebClickData(uid,new MyTime(TimeManager.getCal()),Variables.getCurrentAdvert().getPushRefInAdminConsole());
+        uploadHistoryViewingDataRef.setValue(exp);
+
+
+
         String day = isAlmostMidNight() ? TimeManager.getNextDayDay() : TimeManager.getDay();
         String month = isAlmostMidNight() ? TimeManager.getNextDayMonth() : TimeManager.getMonth();
         String year = isAlmostMidNight() ? TimeManager.getNextDayYear() : TimeManager.getYear();
@@ -5413,6 +5505,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         DatabaseReference adminRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
                 .child(year).child(month).child(day).child(advert.getPushRefInAdminConsole()).child("webClickNumber");
         adminRef.setValue(number);
+
+
+        DatabaseReference historyUploadViewingDataRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
+                .child(year).child(month).child(day).child(advert.getPushRefInAdminConsole()).child(Constants.USERS_THAT_HAVE_CLICKED_IT).child(uid);
+        historyUploadViewingDataRef.setValue(exp);
+
 
         Query query = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
                 .child(date).child(advert.getPushRefInAdminConsole()).child("webClickNumber");
@@ -5424,6 +5522,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log(TAG, "The new number has been set.");
             }
         });
+
+        //setting expression data in ads for console part
+        DatabaseReference consoleViewingDataRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                .child(date).child(advert.getPushRefInAdminConsole()).child(Constants.USERS_THAT_HAVE_CLICKED_IT).child(uid);
+        consoleViewingDataRef.setValue(exp);
     }
 
     private void setPapeHeight(){
@@ -5481,6 +5584,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         setContactSelectorClickListeners();
         setRelevantData();
+        moveSwipeViewUpwards();
     }
 
     private void setContactSelectorClickListeners(){
@@ -5492,6 +5596,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(View view) {
                 if(!ad.getWebsiteLink().equals("none")) {
                     if (!isConfirmDialLayout) openConfirmWebsiteLayout();
+                }else{
+                    Toast.makeText(mContext, "They didn't add that.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -5504,6 +5610,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     } else {
                         Log.e(TAG, "Cannot open ConfirmCall Layout, isConfirmOpenWebsiteLayout is true!!");
                     }
+                }else{
+                    Toast.makeText(mContext, "They didn't add that.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -5512,6 +5620,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(View view) {
                 if(!ad.getAdvertiserLocations().isEmpty()){
                     openLocation();
+                }else{
+                    Toast.makeText(mContext, "They didn't add that.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -5560,8 +5670,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             phoneNoText.setText(ad.getAdvertiserPhoneNo());
         }
         if(!ad.getWebsiteLink().equals("none")){
-            websiteNameText.setText(ad.getWebsiteLink());
-            PAGE = ad.getWebsiteLink();
+            String url = Variables.getCurrentAdvert().getWebsiteLink();
+            if (!url.startsWith("http://") && !url.startsWith("https://")) url = "http://" + url;
+            websiteNameText.setText(url);
+            PAGE = url;
         }
 
         if(ad.getAdvertiserPhoneNo().equals("none")) CallLayout.setAlpha(0.6f);
@@ -5570,7 +5682,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if(ad.didAdvertiserAddIncentive()){
             if(canScrollForIncentive()){
-                websiteIncentiveText.setText("They are offering an incentive of: "+ad.getWebClickIncentive()+"Ksh.");
+                websiteIncentiveText.setText("They're offering an incentive of: "+ad.getWebClickIncentive()+"Ksh.");
                 incentiveTextView.setText("Incentive: "+ad.getWebClickIncentive()+"Ksh.");
             }else{
                 websiteIncentiveText.setText("They're offering an incentive of: "+ad.getWebClickIncentive()+"Ksh.(c)");
@@ -5643,6 +5755,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         isConfirmOpenWebsiteLayout = true;
         final RelativeLayout ConfirmVisitWebsiteContainer = findViewById(R.id.ConfirmVisitWebsiteContainer);
         ConfirmVisitWebsiteContainer.setVisibility(View.VISIBLE);
+
+
         ContactSelectorContainer.animate().translationY(Utils.dpToPx(-160)).setDuration(mAnimationTime)
                 .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
             @Override
@@ -5691,10 +5805,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }).start();
 
         TextView websiteIncentiveText = findViewById(R.id.websiteIncentiveText);
-        websiteIncentiveText.setText("They are offering an incentive of: 2Ksh.");
+        Advert ad = Variables.getCurrentAdvert();
+        if(ad.didAdvertiserAddIncentive()) {
+            if (canScrollForIncentive()) {
+                websiteIncentiveText.setText("They're offering an incentive of: " + ad.getWebClickIncentive() + "Ksh.");
+            } else {
+                websiteIncentiveText.setText("They're offering an incentive of: " + ad.getWebClickIncentive() + "Ksh.(c)");
+            }
+        }else{
+            websiteIncentiveText.setText("");
+        }
 
         TextView websiteNameText = findViewById(R.id.websiteNameText);
-        websiteNameText.setText("https://www.oneplus.com");
+        websiteNameText.setText(PAGE);
 
         CardView okVisitBtn = findViewById(R.id.okVisitBtn);
         okVisitBtn.setOnClickListener(new View.OnClickListener() {
@@ -5726,7 +5849,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }).start();
                 isConfirmOpenWebsiteLayout = false;
 
-                ContactSelectorContainer.animate().translationY(Utils.dpToPx(140)).setDuration(mAnimationTime)
+                ContactSelectorContainer.animate().translationY(Utils.dpToPx(160)).setDuration(mAnimationTime)
                         .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animator) {
@@ -5735,7 +5858,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onAnimationEnd(Animator animator) {
-                        ContactSelectorContainer.setTranslationY(Utils.dpToPx(140));
+                        ContactSelectorContainer.setTranslationY(Utils.dpToPx(160));
                     }
 
                     @Override
@@ -5788,6 +5911,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final RelativeLayout ConfirmCallContainer = findViewById(R.id.ConfirmCallContainer);
         ConfirmCallContainer.setVisibility(View.VISIBLE);
         collapseContactSelector();
+
+        TextView phoneNoText = findViewById(R.id.phoneNoText);
+        phoneNoText.setText(Variables.getCurrentAdvert().getAdvertiserPhoneNo());
 
         ConfirmCallContainer.animate().translationY(Utils.dpToPx(0)).setDuration(mAnimationTime)
                 .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
@@ -5857,7 +5983,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void openDialerAndCall() {
         Intent intent = new Intent(Intent.ACTION_CALL);
         Advert ad = Variables.getCurrentAdvert();
-        intent.setData(Uri.parse("tel:" + ad.getAdvertiserPhoneNo()));
+        String number = ad.getAdvertiserPhoneNo();
+        intent.setData(Uri.parse("tel:" + number.trim()));
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CALL_PHONE}, DIALER_REQUEST_CODE);
             return;
@@ -5979,8 +6106,135 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         isBottomPartOpen = false;
         enableAllViews();
         resumeTimerByStartingIt();
+        unMoveSwipeViewUpwards();
     }
 
 
+
+    private void moveSwipeViewUpwards(){
+        final int pos = Utils.dpToPx(-50);
+
+        mSwipeView.animate().translationY(pos).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                mSwipeView.setTranslationY(pos);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+    }
+
+    private void unMoveSwipeViewUpwards(){
+        final int pos = 0;
+
+        mSwipeView.animate().translationY(pos).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        mSwipeView.setTranslationY(pos);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+    }
+
+
+
+    private void updateNumberOfPins(){
+        final String datte;
+        final Advert ad = Variables.getCurrentAdvert();
+        datte = isAlmostMidNight() ? getNextDay() : getDate();
+
+        Query query = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                .child(datte)
+                .child(ad.getPushRefInAdminConsole())
+                .child("numberOfPins");
+
+        DatabaseReference dbRef = query.getRef();
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int number = 0;
+                if(dataSnapshot.exists()){
+                    try {
+                        number = dataSnapshot.getValue(int.class);
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                int newNumber = number + 1;
+                updateNewNumberOfPins(newNumber, datte, ad);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log(TAG, "Unable to get number of times seen");
+            }
+        });
+    }
+
+    private void updateNewNumberOfPins(int number, String date,Advert advert){
+        Log.d(TAG,"Updating new number of pins value");
+        long theDateInDays = ((advert.getDateInDays()+1)*-1);
+        String dateInDays = Long.toString(theDateInDays);
+
+        //advertisers upload history part
+        Query query2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(advert.getAdvertiserUid()).child(Constants.UPLOAD_HISTORY)
+                .child(dateInDays)
+                .child(advert.getPushRefInAdminConsole()).child("numberOfPins");
+        DatabaseReference dbref2 = query2.getRef();
+        dbref2.setValue(number);
+
+        String day = isAlmostMidNight() ? TimeManager.getNextDayDay() : TimeManager.getDay();
+        String month = isAlmostMidNight() ? TimeManager.getNextDayMonth() : TimeManager.getMonth();
+        String year = isAlmostMidNight() ? TimeManager.getNextDayYear() : TimeManager.getYear();
+
+        //All ads history part
+        DatabaseReference adminRef = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
+                .child(year).child(month).child(day).child(advert.getPushRefInAdminConsole()).child("numberOfPins");
+        adminRef.setValue(number);
+
+
+        //ads for console part
+        Query query = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                .child(date).child(advert.getPushRefInAdminConsole()).child("numberOfPins");
+
+        DatabaseReference dbRef = query.getRef();
+        dbRef.setValue(number).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log(TAG, "The new number has been set.");
+            }
+        });
+    }
 
 }

@@ -262,7 +262,7 @@ public class SubscriptionManagerItem {
             }
         });
 
-//        Glide.with(mContext).load(getImage(filename)).into(categoryImage);
+//        Glide.with(mContext).load(getImage(filename)).apply(RequestOptions.circleCropTransform()).into(categoryImage);
         imageId = getImage(filename);
     }
 

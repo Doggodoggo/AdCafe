@@ -1,5 +1,6 @@
 package com.bry.adcafe.models;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class MyTime {
@@ -99,6 +100,19 @@ public class MyTime {
 
     public void setComputerMonth(int month){
         this.month = month;
+    }
+
+
+    public String getAbbreviatedMonth(){
+        return getMonthName_Abbr(getMonth());
+    }
+
+    private static String getMonthName_Abbr(int month) {
+        Calendar calx = Calendar.getInstance();
+        calx.set(Calendar.MONTH, month-1);
+        SimpleDateFormat month_date = new SimpleDateFormat("MMM");
+        String month_name = month_date.format(calx.getTime());
+        return month_name;
     }
 
 }

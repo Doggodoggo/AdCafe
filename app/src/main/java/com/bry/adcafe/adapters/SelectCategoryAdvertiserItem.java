@@ -91,7 +91,7 @@ public class SelectCategoryAdvertiserItem {
             }
         });
 
-//        Glide.with(mContext).load(roundedBitmapDrawable).into(categoryImage);
+//        Glide.with(mContext).load(getImage(filename)).apply(RequestOptions.circleCropTransform()).into(categoryImage);
     }
 
     private int getImage(String imageName) {

@@ -236,7 +236,8 @@ public class Constants {
     public static String USERS_COIN_LIST = "UsersCoinList";
 
     public static String COIN_VALUE_SYSTEM = "IsUsingCoinSystem12399";
-
+    public static String USERS_THAT_HAVE_SEEN = "UsersThatHaveSeenIt";
+    public static String USERS_THAT_HAVE_CLICKED_IT = "UsersThatHaveClickedIt";
 
 
 }

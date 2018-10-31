@@ -451,6 +451,18 @@ public class TimeManager {
         return getMonthName_Abbr(mm);
     }
 
+    public static int getNextDayMonthValue(){
+        Calendar c = cal;
+        Calendar myCal = Calendar.getInstance();
+        myCal.set(c.get(Calendar.YEAR),c.get(Calendar.MONTH),c.get(Calendar.DATE));
+
+        myCal.add(Calendar.DATE, 1);
+        String yy = Integer.toString(myCal.get(Calendar.YEAR));
+        int mm = (myCal.get(Calendar.MONTH));
+        String dd = Integer.toString(myCal.get(Calendar.DAY_OF_MONTH));
+        return mm;
+    }
+
     public static String getNextDayDay(){
         Calendar c = cal;
         Calendar myCal = Calendar.getInstance();
@@ -468,6 +480,7 @@ public class TimeManager {
     public static Calendar getCal() {
         return cal;
     }
+
 
 
 
