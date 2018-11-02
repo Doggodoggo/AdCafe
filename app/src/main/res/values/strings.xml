@@ -29,7 +29,7 @@
     <string name="connectionBack">"Your back online, you may now continue."</string>
     <string name="Logout">"Logout"</string>
     <string name="pinning">"Pinning."</string>
-    <string name="learnSE">"Modest Marketing."</string>
+    <string name="learnSE">"The Digital Billboard."</string>
     <string name="lastAd">"This may be the last one."</string>
     <string name="dashInfo">"This is where all the stats concerning ads you've seen and money you can claim is stored."</string>
     <string name="cannotPin">"You cannot pin this without an internet connection"</string>
@@ -164,15 +164,15 @@
     <string name="needToMakePayments">Next you need to make a payment before the upload.
         We only support Mpesa payments for now.</string>
     <string name="needUserDetails">We also need a few more details from you before we can continue.</string>
-    <string name="tutorialExplanationAdvertiser6.2">The cost of advertising here depends on the amount charged by
+    <string name="tutorialExplanationAdvertiser6_2">The cost of advertising here depends on the amount charged by
         the group of users you are targeting. For instance, some users charge 3Ksh per view.</string>
-    <string name="tutorialExplanationAdvertiser6.3">So if you were to target the 3Ksh users, you would pay 500Ksh per 100 users reached
+    <string name="tutorialExplanationAdvertiser6_3">So if you were to target the 3Ksh users, you would pay 500Ksh per 100 users reached
         &#13;&#10; i.e   3Ksh + 2Ksh(plus 15Ksh for making a user payout) per user reached.</string>
 
 
 
 
-    <string name="tutorialExplanationAdvertiser6.4">We charge 2Ksh on top of the amount charged by the users, for every user reached
+    <string name="tutorialExplanationAdvertiser6_4">We charge 2Ksh on top of the amount charged by the users, for every user reached
         <br />(thus the 3Ksh + 2Ksh). Remember that.</string>
     <string name="adStatsPageEplanation">The Ad Stats Window can help you monitor and perform actions on your uploaded ads in real time.</string>
     <string name="takeDownButton">The take down button is for taking down an ad uploaded if you need to do so. You can only take the ad

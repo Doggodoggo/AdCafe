@@ -11,13 +11,12 @@
         android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
-        android:typeface="monospace"
         android:textStyle="normal|bold"
         android:text="24 Jan"
         android:layout_marginBottom="5dp"
         android:textSize="11sp" />
 
-    <com.mindorks.placeholderview.PlaceHolderView
+    <com.bry.adcafe.models.MyPlaceHolderView
         android:id="@+id/PHViewForSpecificDay"
         android:layout_marginBottom="1dp"
         android:layout_marginLeft="0dp"

@@ -21,6 +21,7 @@ import android.support.v7.widget.CardView;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -96,8 +97,11 @@ public class SavedAdsCard {
     private boolean hasSentIntentToViewAd = false;
     private PlaceHolderView parentPHView;
 
+    private MotionEvent mEvent;
 
-    public SavedAdsCard(int index,PlaceHolderView parentPHView,Advert advert, Context context, PlaceHolderView placeHolderView,String pinID,long noOfDays,boolean isLastElement) {
+
+    public SavedAdsCard(int index,PlaceHolderView parentPHView,Advert advert, Context context,
+                        PlaceHolderView placeHolderView,String pinID,long noOfDays,boolean isLastElement) {
         this.mAdvert = advert;
         mContext = context;
         this.mPlaceHolderView = placeHolderView;
@@ -134,6 +138,15 @@ public class SavedAdsCard {
         loadListeners();
         sac = this;
         BAWhite();
+
+        imageView.setOnTouchListener(new android.view.View.OnTouchListener() {
+            @Override
+            public boolean onTouch(android.view.View v, MotionEvent event) {
+                Log.e(TAG,"registered on touch: "+event.getRawX());
+//                Variables.activeEvent = event;
+                return false;
+            }
+        });
     }
 
     private BroadcastReceiver mMessageReceiverToLoadImages = new BroadcastReceiver() {
@@ -395,6 +408,8 @@ public class SavedAdsCard {
 
     @Click(R.id.SavedImageView)
     private void onClick(){
+        float x = imageView.getX();
+        Log.e(TAG,"the X pos is: "+x);
         if(Variables.isSelectingMultipleItems) selectAdForUnpinning();
         else viewAd();
     }

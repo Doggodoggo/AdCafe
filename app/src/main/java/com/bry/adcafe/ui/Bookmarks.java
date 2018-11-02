@@ -122,7 +122,7 @@ import com.wang.avi.AVLoadingIndicatorView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class Bookmarks extends AppCompatActivity {
+public class Bookmarks extends AppCompatActivity{
     private static final String TAG = "Bookmarks";
     private Context mContext;
     @Bind(R.id.PlaceHolderView) public MyPlaceHolderView mPlaceHolderView;
@@ -258,6 +258,8 @@ public class Bookmarks extends AppCompatActivity {
     private boolean hasEventBeenSet = false;
     private boolean hasAdBeenSet = false;
 
+    private boolean isSetUpSharing = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -289,7 +291,6 @@ public class Bookmarks extends AppCompatActivity {
         isCardMinimized = true;
         addTouchListener();
 
-        setTouchListenerForExpandImage();
         animateCollapse();
     }
 
@@ -978,7 +979,7 @@ public class Bookmarks extends AppCompatActivity {
                 hideProg();
                 cycleCount=0;
             }
-
+            setTouchListenerForExpandImage();
         }
     }
 
@@ -1010,7 +1011,8 @@ public class Bookmarks extends AppCompatActivity {
 
     private void loadDaysAdsIntoViews2(List<Advert> adList, long noOfDays){
         int pos = getPositionOf(noOfDays);
-        mPlaceHolderView2.addView(pos,new SAContainer(adList,mContext,mPlaceHolderView2,noOfDays));
+
+        mPlaceHolderView2.addView(pos,new SAContainer(adList,mContext,mPlaceHolderView2,noOfDays,pos));
 //        mPlaceHolderView2.addView(new SAContainer(adList,mContext,mPlaceHolderView2,noOfDays));
         cycleCount++;
         startLoadAdsIntoViews();
@@ -1401,11 +1403,10 @@ public class Bookmarks extends AppCompatActivity {
         ValueAnimator animatorBot;
         ValueAnimator animatorTop;
 
-        animatorRight = ValueAnimator.ofInt(0,rightMargin);
-        animatorLeft = ValueAnimator.ofInt(0,leftMargin);
-
-        animatorTop = ValueAnimator.ofInt(0,100,topMargin);
-        animatorBot = ValueAnimator.ofInt(0,-100,bottomMargin);
+        animatorRight = ValueAnimator.ofInt(0);
+        animatorLeft = ValueAnimator.ofInt(0);
+        animatorTop = ValueAnimator.ofInt(0,400);
+        animatorBot = ValueAnimator.ofInt(0,-400);
 
 
         animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
@@ -1456,6 +1457,8 @@ public class Bookmarks extends AppCompatActivity {
         animatorLeft.start();
         animatorRight.start();
 
+        vpPager.animate().alpha(0f).setDuration(250).setInterpolator(new LinearOutSlowInInterpolator()).start();
+
         animatorRight.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {
@@ -1465,6 +1468,7 @@ public class Bookmarks extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animator animator) {
                 vpPager.setVisibility(View.GONE);
+                vpPager.setAlpha(1f);
                 vpPager.removeAllViews();
             }
 
@@ -1482,11 +1486,11 @@ public class Bookmarks extends AppCompatActivity {
         hasAdBeenSet = false;
 
         RelativeLayout topNavButtons = findViewById(R.id.topNavButtons);
-        topNavButtons.animate().alpha(0f).translationX(Utils.dpToPx(50)).setDuration(mAnimationTime)
+        topNavButtons.animate().alpha(0f).translationY(Utils.dpToPx(50)).setDuration(mAnimationTime)
                 .setInterpolator(new LinearOutSlowInInterpolator()).start();
 
         LinearLayout bottomNavButtons = findViewById(R.id.bottomNavButtons);
-        bottomNavButtons.animate().alpha(0f).translationX(Utils.dpToPx(50)).setDuration(mAnimationTime)
+        bottomNavButtons.animate().alpha(0f).translationY(Utils.dpToPx(50)).setDuration(mAnimationTime)
                 .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -1513,14 +1517,25 @@ public class Bookmarks extends AppCompatActivity {
 
             }
         }).start();
+
+        isSetUpSharing = false;
+        findViewById(R.id.isSharingProgress).setVisibility(View.INVISIBLE);
     }
 
     private void animateExpand(){
         vpPager = findViewById(R.id.viewPager);
-        int leftMargin = getScreenWidth();
-        int topMargin = Utils.dpToPx(100);
-        int bottomMargin = Utils.dpToPx(100);
-        int rightMargin = -getScreenWidth();
+
+        int leftMargin = 0;
+        int topMargin = getScreenHeight()/2;
+        int bottomMargin = -getScreenHeight()/2;
+        int rightMargin = 0;
+
+        if(Variables.activeEvent!=null) {
+            leftMargin = (int) Variables.activeEvent.getRawX();
+            topMargin = (int) Variables.activeEvent.getRawY();
+            bottomMargin = getScreenHeight() - (topMargin + Utils.dpToPx(90));
+            rightMargin = getScreenWidth() - (leftMargin + Utils.dpToPx(85));
+        }else Log.e(TAG,"active event is null");
 
         final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) vpPager.getLayoutParams();
 
@@ -1539,7 +1554,6 @@ public class Bookmarks extends AppCompatActivity {
 
         animatorRight = ValueAnimator.ofInt(rightMargin,0);
         animatorLeft = ValueAnimator.ofInt(leftMargin,0);
-
         animatorTop = ValueAnimator.ofInt(topMargin,0);
         animatorBot = ValueAnimator.ofInt(bottomMargin,0);
 
@@ -1582,10 +1596,10 @@ public class Bookmarks extends AppCompatActivity {
         });
 
 
-        animatorBot.setDuration(mAnimationTime);
-        animatorTop.setDuration(mAnimationTime);
-        animatorLeft.setDuration(mAnimationTime);
-        animatorRight.setDuration(mAnimationTime);
+        animatorBot.setDuration(mAnimationTime-100);
+        animatorTop.setDuration(mAnimationTime-100);
+        animatorLeft.setDuration(mAnimationTime-100);
+        animatorRight.setDuration(mAnimationTime-100);
 
         animatorBot.start();
         animatorTop.start();
@@ -1615,10 +1629,10 @@ public class Bookmarks extends AppCompatActivity {
         });
 
         RelativeLayout topNavButtons = findViewById(R.id.topNavButtons);
-        topNavButtons.animate().alpha(1f).translationX(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator()).start();
+        topNavButtons.animate().alpha(1f).translationY(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator()).start();
 
         LinearLayout bottomNavButtons = findViewById(R.id.bottomNavButtons);
-        bottomNavButtons.animate().alpha(1f).translationX(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+        bottomNavButtons.animate().alpha(1f).translationY(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
                 .setListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -1741,7 +1755,11 @@ public class Bookmarks extends AppCompatActivity {
             public void onClick(View view) {
                 Variables.adToBeShared = mAllAdsList.get(currentPagePosition);
                 if(Variables.loadedSavedAdsList.get(Variables.adToBeShared.getPushRefInAdminConsole())!=null) {
-                    if(isEnabled)isStoragePermissionGranted();
+                    if(isEnabled){
+//                            findViewById(R.id.isSharingProgress).setVisibility(View.VISIBLE);
+                            isStoragePermissionGranted();
+
+                    }
                 }
             }
         });
@@ -4076,10 +4094,12 @@ public class Bookmarks extends AppCompatActivity {
                 else UpScore++;
             }
 
-            if(velocityY>0){
-                if(Math.abs(velocityY)>1500)findViewById(R.id.backBtn).performClick();
-            }else{
-                if(Math.abs(velocityY)>1500)findViewById(R.id.shareBtn).performClick();
+            if(Math.abs(velocityX)<Math.abs(velocityY)) {
+                if (velocityY > 0) {
+                    if (Math.abs(velocityY) > 1500) findViewById(R.id.backBtn).performClick();
+                } else {
+                    if (Math.abs(velocityY) > 1500) findViewById(R.id.shareBtn).performClick();
+                }
             }
                 hideNupdatePositionOfLinesUnderViewPagerNavButtons();
             vpagerYrawList.clear();
@@ -4112,11 +4132,12 @@ public class Bookmarks extends AppCompatActivity {
             View v = findViewById(R.id.shareIndicator);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v.getLayoutParams();
             params.width = Math.abs(pos);
-            if(Math.abs(pos)<Utils.dpToPx(42)) v.setLayoutParams(params);
+            if(Math.abs(pos)<Utils.dpToPx(24)) v.setLayoutParams(params);
         }
     }
 
     private void hideNupdatePositionOfLinesUnderViewPagerNavButtons(){
+        int trans = (int)vpPager.getTranslationY();
         vpPager.animate().setInterpolator(new LinearOutSlowInInterpolator()).setDuration(mAnimationTime).translationY(0)
                 .setListener(new Animator.AnimatorListener() {
                     @Override
@@ -4140,114 +4161,50 @@ public class Bookmarks extends AppCompatActivity {
                     }
                 }).start();
 
-        final View v = findViewById(R.id.backIndicator);
-        final RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v.getLayoutParams();
-        ValueAnimator animatorTop;
-        animatorTop = ValueAnimator.ofInt(params.width,0);
-        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
-        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                params.width = (Integer) valueAnimator.getAnimatedValue();
-                v.requestLayout();
-            }
-        });
-        animatorTop.setDuration(normalDuration).start();
-
-
-        final View v2 = findViewById(R.id.shareIndicator);
-        final RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) v2.getLayoutParams();
-        ValueAnimator animatorTop2;
-        animatorTop2 = ValueAnimator.ofInt(params2.width,0);
-        animatorTop2.setInterpolator(new LinearOutSlowInInterpolator());
-        animatorTop2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                params2.width = (Integer) valueAnimator.getAnimatedValue();
-                v2.requestLayout();
-            }
-        });
-        animatorTop2.setDuration(normalDuration).start();
+        if(trans>0) {
+            final View v = findViewById(R.id.backIndicator);
+            final RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v.getLayoutParams();
+            ValueAnimator animatorTop;
+            animatorTop = ValueAnimator.ofInt(params.width, 0);
+            animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+            animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    params.width = (Integer) valueAnimator.getAnimatedValue();
+                    v.requestLayout();
+                }
+            });
+            animatorTop.setDuration(normalDuration).start();
+        }else {
+            final View v2 = findViewById(R.id.shareIndicator);
+            final RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) v2.getLayoutParams();
+            ValueAnimator animatorTop2;
+            animatorTop2 = ValueAnimator.ofInt(Utils.dpToPx(24), 0);
+            animatorTop2.setInterpolator(new LinearOutSlowInInterpolator());
+            animatorTop2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    params2.width = (Integer) valueAnimator.getAnimatedValue();
+                    v2.requestLayout();
+                }
+            });
+            animatorTop2.setDuration(normalDuration).start();
+        }
 
     }
 
 
 
-    private GestureDetector expandGestureDetector;
 
     private void setTouchListenerForExpandImage(){
-//        View adTouchDetector = findViewById(R.id.adTouchDetector);
-//        adTouchDetector.setVisibility(View.VISIBLE);
-//        expandGestureDetector = new GestureDetector(mContext, new Bookmarks.MyExpandGestureDetector());
-//        adTouchDetector.setOnTouchListener(touchListenerForExpandImage);
     }
 
-    View.OnTouchListener touchListenerForExpandImage = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (expandGestureDetector.onTouchEvent(motionEvent)) {
-                mPlaceHolderView2.onTouchEvent(motionEvent);
-                return true;
-            }
-            return false;
-        }
-    };
-
-    class MyExpandGestureDetector extends GestureDetector.SimpleOnGestureListener {
-        int origX = 0;
-        int origY = 0;
-
-
-        @Override
-        public boolean onDown(MotionEvent event) {
-            Log.d("TAG","onDown: ");
-            final int X = (int) event.getRawX();
-            final int Y = (int) event.getRawY();
-            Log.d("TAG","onDown: event.getRawX(): "+event.getRawX()+" event.getRawY()"+event.getRawY());
-            CoordinatorLayout.LayoutParams lParams = (CoordinatorLayout.LayoutParams) vpPager.getLayoutParams();
-            Ydelta = Y - lParams.topMargin;
-
-            origX = lParams.leftMargin;
-            origY = lParams.topMargin;
-
-
-            return true;
-        }
-
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            event = e;
-            Log.e(TAG,"onSingleTap made");
-            if(hasAdBeenSet)showExpandedImage(mAllAdsList.indexOf(Variables.adToBeViewed));
-            else hasEventBeenSet = true;
-            return true;
-        }
-
-        @Override
-        public void onLongPress(MotionEvent e) {
-            Log.i("TAG", "onLongPress: ");
-        }
-
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-            Log.i("TAG", "onDoubleTap: ");
-            return true;
-        }
-
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            final int Y = (int) e2.getRawY();
-            final int X = (int) e2.getRawX();
-
-            return true;
-        }
-
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-
-            return false;
-
-        }
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        Log.d(TAG,"window focus change detected");
+        isSetUpSharing = false;
+        findViewById(R.id.isSharingProgress).setVisibility(View.INVISIBLE);
     }
+
 
 }

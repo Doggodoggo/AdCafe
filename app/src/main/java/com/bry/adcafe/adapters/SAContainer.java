@@ -8,17 +8,21 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Base64;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.widget.TextView;
 
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.MyPlaceHolderView;
 import com.bry.adcafe.services.TimeManager;
 import com.bry.adcafe.services.Utils;
 import com.google.firebase.auth.FirebaseAuth;
@@ -51,7 +55,7 @@ import java.util.List;
 public class SAContainer {
     private final String TAG = "SAContainer";
     @View(R.id.dayText) private TextView dateTextView;
-    @View(R.id.PHViewForSpecificDay) private PlaceHolderView PHViewForSpecificDay;
+    @View(R.id.PHViewForSpecificDay) private MyPlaceHolderView PHViewForSpecificDay;
 
     private Context mContext;
     private PlaceHolderView mPlaceHolderView;
@@ -64,12 +68,16 @@ public class SAContainer {
     private int backgroundCycles = 0;
 
     private List<Advert> adList2 = new ArrayList<>();
+    private int pos;
+    private MotionEvent event;
+    private GestureDetector expandGestureDetector;
 
-    public SAContainer(List<Advert> adlist, Context context, PlaceHolderView placeHolderView, long noOfDayss) {
+    public SAContainer(List<Advert> adlist, Context context, PlaceHolderView placeHolderView, long noOfDayss, int pos) {
         this.adList = adlist;
         mContext = context;
         mPlaceHolderView = placeHolderView;
         noOfDays = noOfDayss;
+        this.pos = pos;
     }
 
     @Resolve
@@ -101,6 +109,7 @@ public class SAContainer {
         }
         hasLoaded = true;
         loadListeners();
+
     }
 
     @Resolve

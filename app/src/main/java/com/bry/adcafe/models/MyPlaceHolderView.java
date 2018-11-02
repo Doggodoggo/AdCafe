@@ -2,8 +2,11 @@ package com.bry.adcafe.models;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 
+import com.bry.adcafe.Variables;
 import com.mindorks.placeholderview.PlaceHolderView;
 
 public class MyPlaceHolderView extends PlaceHolderView {
@@ -23,11 +26,15 @@ public class MyPlaceHolderView extends PlaceHolderView {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if(touchListener!=null)touchListener.onTouch(this,ev);
+        Log.d("MyPlaceHolderView","touch event detected");
+//        Variables.activeEvent = ev;
+        if(touchListener!=null)touchListener.onTouch(MyPlaceHolderView.this,ev);
         return super.onTouchEvent(ev);
     }
 
-    public void setOnTouchEvent(final OnTouchListener customTouchListener){
+
+
+    public void setMyOnTouchEvent(final OnTouchListener customTouchListener){
         touchListener = customTouchListener;
     }
 

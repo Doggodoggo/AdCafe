@@ -5,6 +5,7 @@ import android.graphics.Point;
 import android.location.Location;
 import android.util.Base64;
 import android.util.Log;
+import android.view.MotionEvent;
 
 import com.braintreepayments.cardform.view.CardForm;
 import com.bry.adcafe.adapters.AdvertCard;
@@ -178,6 +179,8 @@ public class Variables {
     public static boolean hasReachedBottomOfPage = false;
     public static boolean isUsingNewCoinValueSystem = false;
     public static List<AdCoin> legitCoins;
+
+    public static MotionEvent activeEvent;
 
 
 
