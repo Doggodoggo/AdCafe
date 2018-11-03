@@ -269,6 +269,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int SHARE_IMAGE_REQUEST_CODE = 1525;
     private boolean isLoadingPrevious = false;
 
+    private Integer scrollAmount = 0;
 
 
 
@@ -4106,14 +4107,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View view) {
                 if(myWebView.canGoBack()){
-                    String url = myWebView.copyBackForwardList().getItemAtIndex(myWebView.copyBackForwardList().getSize()-1).getUrl();
-                    updateToSpecificUrl(url);
-                    UpdateButtonsAndAll();
-                    myWebView.goBack();
+                    String url = myWebView.copyBackForwardList().getItemAtIndex(myWebView.copyBackForwardList().getSize() - 1).getUrl();
+                    if(url.contains("about:blank")) {
+                        updateToSpecificUrl(url);
+                        UpdateButtonsAndAll();
+                        myWebView.goBack();
 
-                    Animation pulse = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.pulse);
-                    backButton.startAnimation(pulse);
-
+                        Animation pulse = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.pulse);
+                        backButton.startAnimation(pulse);
+                    }
                 }
 
             }
@@ -4616,41 +4618,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }
 
-                        if(RawList.size()>0) {
+                        if (RawList.size() > 0) {
                             int scrollAmm = Math.abs((RawList.get(RawList.size() - 1)) - (RawList.get(0)));
                             Log.d("MainAct", "scrollAmm: " + scrollAmm);
-                            if(scrollAmm>SCROLL_AMOUNT_THRESHOLD && !isProgressShowing){
-                                if(DownScore>UpScore){
-                                    if(scrollConfirmBoolean){
-                                        if(didScrollChangeListenerSetScrollConfirmBoolean){
-                                            updateScrollProgress();
-                                        }else{
-                                            scrollConfirmBoolean = false;
-                                        }
-                                    }else{
-                                        scrollConfirmBoolean = true;
-                                        didScrollChangeListenerSetScrollConfirmBoolean = false;
-                                    }
-                                }
-                                else if(UpScore>DownScore){
-                                    if(Variables.hasReachedBottomOfPage){
-                                        if(scrollConfirmBoolean){
-                                            if(didScrollChangeListenerSetScrollConfirmBoolean){
-                                                updateScrollProgress();
-                                            }else{
-                                                scrollConfirmBoolean = false;
-                                            }
-                                        }else{
-                                            scrollConfirmBoolean = true;
-                                            didScrollChangeListenerSetScrollConfirmBoolean = false;
-                                        }
-                                    }else{
+//                            if (scrollAmm > SCROLL_AMOUNT_THRESHOLD && !isProgressShowing) {
+//                                if (DownScore > UpScore) {
+//                                    if (scrollConfirmBoolean) {
+//                                        if (didScrollChangeListenerSetScrollConfirmBoolean) {
+//                                            updateScrollProgress();
+//                                        } else {
+//                                            scrollConfirmBoolean = false;
+//                                        }
+//                                    } else {
+//                                        scrollConfirmBoolean = true;
+//                                        didScrollChangeListenerSetScrollConfirmBoolean = false;
+//                                    }
+//                                } else if (UpScore > DownScore) {
+//                                    if (Variables.hasReachedBottomOfPage) {
+//                                        if (scrollConfirmBoolean) {
+//                                            if (didScrollChangeListenerSetScrollConfirmBoolean) {
+//                                                updateScrollProgress();
+//                                            } else {
+//                                                scrollConfirmBoolean = false;
+//                                            }
+//                                        } else {
+//                                            scrollConfirmBoolean = true;
+//                                            didScrollChangeListenerSetScrollConfirmBoolean = false;
+//                                        }
+//                                    } else {
+//                                        TellUserToScrollDown();
+//                                    }
+//                                }
+//                            }
+
+                            if (scrollAmount > SCROLL_AMOUNT_THRESHOLD && !isProgressShowing) {
+                                if (DownScore > UpScore) {
+                                    updateScrollProgress();
+
+                                } else if (UpScore > DownScore) {
+                                    if (Variables.hasReachedBottomOfPage) {
+                                        updateScrollProgress();
+                                    } else {
                                         TellUserToScrollDown();
                                     }
                                 }
                             }
                         }
                         RawList.clear();
+                        scrollAmount = 0;
                     };
                 }
                 return false;
@@ -4682,6 +4697,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         didScrollChangeListenerSetScrollConfirmBoolean = true;
                     }
                 }
+                scrollAmount+=(t-oldt);
                 scrollSoFar = t;
             }
         });
@@ -4768,47 +4784,57 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     else UpScore++;
                 }
             }
-            if(UpScore>DownScore){
-                if(isMinified)unMinifyTheTopPart();
-            }else{
-                if(!isMinified)minifyTheTopPart();
+            if (UpScore > DownScore) {
+                if (isMinified) unMinifyTheTopPart();
+            } else {
+                if (!isMinified) minifyTheTopPart();
             }
-            if(RawList.size()>0) {
+            if (RawList.size() > 0) {
                 int scrollAmm = Math.abs(RawList.get(RawList.size() - 1) - RawList.get(0));
                 Log.d("MainAct", "scrollAmm: " + scrollAmm);
-                Log.d("mainacc","velocityY: "+ velocityY);
-                if (scrollAmm > SCROLL_AMOUNT_THRESHOLD && !isProgressShowing && Math.abs(velocityY)<2600){
-                    if(DownScore>UpScore){
-                        if(scrollConfirmBoolean){
-                            if(didScrollChangeListenerSetScrollConfirmBoolean){
-                                updateScrollProgress();
-                            }else{
-                                scrollConfirmBoolean = false;
-                            }
-                        }else{
-                            scrollConfirmBoolean = true;
-                            didScrollChangeListenerSetScrollConfirmBoolean = false;
-                        }
-                    }
-                    else if(UpScore>DownScore){
-                        if(Variables.hasReachedBottomOfPage){
-                            if(scrollConfirmBoolean){
-                                if(didScrollChangeListenerSetScrollConfirmBoolean){
-                                    updateScrollProgress();
-                                }else{
-                                    scrollConfirmBoolean = false;
-                                }
-                            }else{
-                                scrollConfirmBoolean = true;
-                                didScrollChangeListenerSetScrollConfirmBoolean = false;
-                            }
-                        }else{
+                Log.d("mainacc", "velocityY: " + velocityY);
+                if (scrollAmount > SCROLL_AMOUNT_THRESHOLD && !isProgressShowing && Math.abs(velocityY) < 3000) {
+//                    if (DownScore > UpScore) {
+//                        if (scrollConfirmBoolean) {
+//                            if (didScrollChangeListenerSetScrollConfirmBoolean) {
+//                                updateScrollProgress();
+//                            } else {
+//                                scrollConfirmBoolean = false;
+//                            }
+//                        } else {
+//                            scrollConfirmBoolean = true;
+//                            didScrollChangeListenerSetScrollConfirmBoolean = false;
+//                        }
+//                    } else if (UpScore > DownScore) {
+//                        if (Variables.hasReachedBottomOfPage) {
+//                            if (scrollConfirmBoolean) {
+//                                if (didScrollChangeListenerSetScrollConfirmBoolean) {
+//                                    updateScrollProgress();
+//                                } else {
+//                                    scrollConfirmBoolean = false;
+//                                }
+//                            } else {
+//                                scrollConfirmBoolean = true;
+//                                didScrollChangeListenerSetScrollConfirmBoolean = false;
+//                            }
+//                        } else {
+//                            TellUserToScrollDown();
+//                        }
+//                    }
+                    if (DownScore > UpScore) {
+                        updateScrollProgress();
+
+                    } else if (UpScore > DownScore) {
+                        if (Variables.hasReachedBottomOfPage) {
+                            updateScrollProgress();
+                        } else {
                             TellUserToScrollDown();
                         }
                     }
                 }
             }
             RawList.clear();
+            scrollAmount = 0;
             return false;
 
         }
