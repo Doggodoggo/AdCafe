@@ -19,33 +19,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/colorPrimary"
-            android:text="Pricing cont ..."
+            android:text="Incentives cont..."
             android:textSize="25sp" />
 
         <TextView
             android:id="@+id/textView2"
             android:textColor="@color/colorPrimary"
             android:layout_width="wrap_content"
-            android:layout_marginRight="15dp"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:width="290dp"
-            android:layout_marginLeft="15dp"
-            android:layout_height="wrap_content"
-            android:text="@string/priceSplittingExp"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/linkToCostSplitExp"
-            android:textColor="@color/colorPrimary"
-            android:layout_width="wrap_content"
             android:layout_marginRight="20dp"
             android:layout_marginTop="20dp"
             android:gravity="center"
-            android:width="220dp"
             android:layout_marginLeft="20dp"
             android:layout_height="wrap_content"
-            android:text="@string/linkToCostExpl"
+            android:text="@string/incentiveNote"
             android:textSize="16sp" />
 
     </LinearLayout>

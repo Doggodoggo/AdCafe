@@ -255,16 +255,18 @@
 
 
     <string name="discardInfoWarning">If you leave now, all the information you\'ve set will be discarded.</string>
-
     <string name="confirmEmail">"We've sent you an email for verification. The app will automatically detect that you're verified and you will be able to access and use the app."</string>
     <string name="reconfirmEmail">"To continue, you need to first verify your email address. The app will automatically detect that you're verified and you'll be able to use the app."</string>
-
     <string name="appSupport">AdCafé Support.</string>
     <string name="yourSpeakingText">"We typically respond within a few hours."</string>
-    
     <string name="incentiveExpl">You can set an incentive to motivate users to visit and browse your website.</string>
     <string name="incentiveExtra">Incentives typically range between 1Ksh and 5Ksh, but you can set any amount you want.</string>
 
+
+
+    <string name="incentiveExplanation">"The app also allows for you to offer users an incentive to visit your website. How it works is that, when you set you web url, you can also set an amount as an incentive to motivate users to visit your website and expose them more to your services and brand."</string>
+    <string name="incentiveNote">"Due note that an incentive is not for a user to click and load your website, its for scrolling through the content in your website."</string>
+    <string name="incentivesForUsers">"Some advertisers may offer you an extra amount for visiting their website, called incentives. So when you see a visible contact icon, be sure to check it out."</string>
 
 
     <string name="feedbacktype">Feedback Type</string>
