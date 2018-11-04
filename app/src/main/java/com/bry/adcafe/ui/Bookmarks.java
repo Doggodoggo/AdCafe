@@ -769,6 +769,7 @@ public class Bookmarks extends AppCompatActivity{
 //                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
                         Intent intent2 = new Intent(Variables.adToBeViewed.getPushRefInAdminConsole());
                         mAllAdsList.remove(Variables.adToBeViewed);
+                        Variables.loadedSavedAdsList.remove(Variables.adToBeViewed.getPushRefInAdminConsole());
                         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent2);
                         Variables.placeHolderView = mPlaceHolderView;
                         mAuthProgressDialog.show();
@@ -1531,10 +1532,10 @@ public class Bookmarks extends AppCompatActivity{
         int rightMargin = 0;
 
         if(Variables.activeEvent!=null) {
-            leftMargin = (int) Variables.activeEvent.getRawX();
-            topMargin = (int) Variables.activeEvent.getRawY();
-            bottomMargin = getScreenHeight() - (topMargin + Utils.dpToPx(90));
-            rightMargin = getScreenWidth() - (leftMargin + Utils.dpToPx(85));
+            leftMargin = (int) (Variables.activeEvent.getRawX()-Utils.dpToPx(45));
+            topMargin = (int) (Variables.activeEvent.getRawY()-Utils.dpToPx(45));
+            bottomMargin = getScreenHeight() - (topMargin + Utils.dpToPx(45));
+            rightMargin = getScreenWidth() - (leftMargin + Utils.dpToPx(45));
         }else Log.e(TAG,"active event is null");
 
         final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) vpPager.getLayoutParams();
@@ -1558,10 +1559,10 @@ public class Bookmarks extends AppCompatActivity{
         animatorBot = ValueAnimator.ofInt(bottomMargin,0);
 
 
-        animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
-        animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
-        animatorLeft.setInterpolator(new LinearOutSlowInInterpolator());
-        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+//        animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
+//        animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
+//        animatorLeft.setInterpolator(new LinearOutSlowInInterpolator());
+//        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
 
         animatorRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -1595,6 +1596,11 @@ public class Bookmarks extends AppCompatActivity{
             }
         });
 
+
+//        animatorBot.setDuration(mAnimationTime);
+//        animatorTop.setDuration(mAnimationTime);
+//        animatorLeft.setDuration(mAnimationTime);
+//        animatorRight.setDuration(mAnimationTime);
 
         animatorBot.setDuration(mAnimationTime-100);
         animatorTop.setDuration(mAnimationTime-100);

@@ -143,7 +143,7 @@ public class SavedAdsCard {
             @Override
             public boolean onTouch(android.view.View v, MotionEvent event) {
                 Log.e(TAG,"registered on touch: "+event.getRawX());
-//                Variables.activeEvent = event;
+                Variables.activeEvent = event;
                 return false;
             }
         });
