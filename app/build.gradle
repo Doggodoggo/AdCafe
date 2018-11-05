@@ -29,8 +29,8 @@ android {
         applicationId "com.bry.adstudio"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 53
-        versionName "1.53"
+        versionCode 54
+        versionName "1.54"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

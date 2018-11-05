@@ -2178,12 +2178,14 @@ public class Bookmarks extends AppCompatActivity{
             public void onClick(View view) {
                 if(myWebView.canGoBack()){
                     String url = myWebView.copyBackForwardList().getItemAtIndex(myWebView.copyBackForwardList().getSize()-1).getUrl();
-                    updateToSpecificUrl(url);
-                    UpdateButtonsAndAll();
-                    myWebView.goBack();
+                    if(!url.contains("about:blank")) {
+                        updateToSpecificUrl(url);
+                        UpdateButtonsAndAll();
+                        myWebView.goBack();
 
-                    Animation pulse = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.pulse);
-                    backButton.startAnimation(pulse);
+                        Animation pulse = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.pulse);
+                        backButton.startAnimation(pulse);
+                    }
 
                 }
 

@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private ProgressBar scrollProgress;
     private int currentScrollProgress = 0;
-    private int SCROLL_AMOUNT_THRESHOLD = 180;
+    private int SCROLL_AMOUNT_THRESHOLD = 160;
 
     private int pageHeight = 0;
     private int scrollSoFar = 0;
@@ -4108,7 +4108,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(View view) {
                 if(myWebView.canGoBack()){
                     String url = myWebView.copyBackForwardList().getItemAtIndex(myWebView.copyBackForwardList().getSize() - 1).getUrl();
-                    if(url.contains("about:blank")) {
+                    if(!url.contains("about:blank")) {
                         updateToSpecificUrl(url);
                         UpdateButtonsAndAll();
                         myWebView.goBack();
@@ -4674,31 +4674,62 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         myWebView.setOnScrollChangedCallback(new ObservableWebView.OnScrollChangedCallback(){
             public void onScroll(int l, int t, int oldl, int oldt){
-                if(t> oldt){
-                    if(scrollConfirmBoolean){
-                        if(!didScrollChangeListenerSetScrollConfirmBoolean){
-                            updateScrollProgress();
-                        }else{
-                            scrollConfirmBoolean = false;
+                if(Math.abs(t-oldt)>Math.abs(l-oldl)) {
+                    if (t > oldt) {
+                        if (scrollConfirmBoolean) {
+                            if (!didScrollChangeListenerSetScrollConfirmBoolean) {
+                                updateScrollProgress();
+                            } else {
+                                scrollConfirmBoolean = false;
+                            }
+                        } else {
+                            scrollConfirmBoolean = true;
+                            didScrollChangeListenerSetScrollConfirmBoolean = true;
                         }
-                    }else{
-                        scrollConfirmBoolean = true;
-                        didScrollChangeListenerSetScrollConfirmBoolean = true;
-                    }
-                } else if(t< oldt){
-                    if(scrollConfirmBoolean){
-                        if(!didScrollChangeListenerSetScrollConfirmBoolean){
-                            updateScrollProgress();
-                        }else{
-                            scrollConfirmBoolean = false;
+                    } else if (t < oldt) {
+                        if (scrollConfirmBoolean) {
+                            if (!didScrollChangeListenerSetScrollConfirmBoolean) {
+                                updateScrollProgress();
+                            } else {
+                                scrollConfirmBoolean = false;
+                            }
+                        } else {
+                            scrollConfirmBoolean = true;
+                            didScrollChangeListenerSetScrollConfirmBoolean = true;
                         }
-                    }else{
-                        scrollConfirmBoolean = true;
-                        didScrollChangeListenerSetScrollConfirmBoolean = true;
                     }
+                    scrollAmount += (t - oldt);
+                    scrollSoFar = t;
+                }else{
+                    if (l > oldt && (l - oldl) > SCROLL_AMOUNT_THRESHOLD) {
+                        if (scrollConfirmBoolean) {
+                            if (!didScrollChangeListenerSetScrollConfirmBoolean) {
+                                updateScrollProgress();
+                            } else {
+                                scrollConfirmBoolean = false;
+                            }
+                        } else {
+                            scrollConfirmBoolean = true;
+                            didScrollChangeListenerSetScrollConfirmBoolean = true;
+                        }
+                    } else if (l < oldl && (oldl - l) > SCROLL_AMOUNT_THRESHOLD) {
+                        if (scrollConfirmBoolean) {
+                            if (!didScrollChangeListenerSetScrollConfirmBoolean) {
+                                updateScrollProgress();
+                            } else {
+                                scrollConfirmBoolean = false;
+                            }
+                        } else {
+                            scrollConfirmBoolean = true;
+                            didScrollChangeListenerSetScrollConfirmBoolean = true;
+                        }
+                    }
+
+                    scrollAmount += (l - oldl);
+                    Log.d("OnScrollChange: ", "Scroll change amount: " + (l - oldl));
+                    Log.d("OnScrollChange: ", "Total Scroll amount: " + scrollAmount);
+                    scrollSoFar = t;
                 }
-                scrollAmount+=(t-oldt);
-                scrollSoFar = t;
             }
         });
 

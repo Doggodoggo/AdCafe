@@ -380,7 +380,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                 counter++;
             }
         }
-        if(counter!=1 && counter!=2){
+        if(counter!=1 && counter!=2 && counter!=3){
             mEmailEditText.setError("We need your actual email address.");
             return false;
         }
