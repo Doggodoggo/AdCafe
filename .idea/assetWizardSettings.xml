@@ -23,7 +23,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_open_in_new_black_24dp.xml" />
+                                                <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_https_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -34,7 +34,7 @@
                                   <option name="values">
                                     <map>
                                       <entry key="imageAsset" value="C:\Users\bryon\Desktop\frostbite\images\Icons\Globe_icon_(the_Noun_Project_30701).svg.png" />
-                                      <entry key="outputName" value="ic_action_contact_large" />
+                                      <entry key="outputName" value="ic_action_secure" />
                                       <entry key="theme" value="CUSTOM" />
                                       <entry key="themeColor" value="064644" />
                                     </map>

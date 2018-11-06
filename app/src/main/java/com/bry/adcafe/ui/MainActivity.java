@@ -270,6 +270,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean isLoadingPrevious = false;
 
     private Integer scrollAmount = 0;
+    @Bind(R.id.secureImage) ImageView secureImage;
 
 
 
@@ -1849,10 +1850,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                fragmentModalBottomSheet.setAdvert(Variables.getCurrentAdvert());
 //                fragmentModalBottomSheet.show(getSupportFragmentManager(), "BottomSheet Fragment");
 //            }
-            if(Variables.getCurrentAdvert().didAdvertiserSetContactInfo()) {
-                disableAllViews();
-                openBottomPart();
-            }
+
+//            if(Variables.getCurrentAdvert().didAdvertiserSetContactInfo()) {
+//                disableAllViews();
+//                openBottomPart();
+//            }
+            disableAllViews();
+            openBottomPart();
 
         }
 
@@ -4086,6 +4090,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     hideProgress();
                     UpdateButtonsAndAll();
                     updateUrl();
+
+                    String currentUrl = myWebView.getUrl();
+                    Log.e("MainAct: ","current url"+currentUrl);
+                    if(!currentUrl.contains("https://")){
+                        secureImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_not_secure));
+                    }else{
+                        secureImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_secure));
+                    }
+                    secureImage.setVisibility(View.VISIBLE);
+                    secureImage.animate().translationX(0).alpha(1f).setDuration(animationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                            .setListener(new Animator.AnimatorListener() {
+                                @Override
+                                public void onAnimationStart(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    secureImage.setTranslationX(0);
+                                    secureImage.setAlpha(1f);
+                                }
+
+                                @Override
+                                public void onAnimationCancel(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animator animation) {
+
+                                }
+                            }).start();
                 }
             }
 
@@ -5721,16 +5757,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TextView websiteNameText = findViewById(R.id.websiteNameText);
         TextView websiteIncentiveText = findViewById(R.id.websiteIncentiveText);
         TextView incentiveTextView = findViewById(R.id.incentiveTextView);
+        TextView locationText = findViewById(R.id.locationText);
 
         if(!ad.getAdvertiserPhoneNo().equals("none")){
             callText.setText(ad.getAdvertiserPhoneNo());
             phoneNoText.setText(ad.getAdvertiserPhoneNo());
+        }else{
+            callText.setText("-");
+            phoneNoText.setText("-");
         }
+
+        if(ad.getAdvertiserLocations().isEmpty()){
+            locationText.setText("-");
+        }
+
         if(!ad.getWebsiteLink().equals("none")){
             String url = Variables.getCurrentAdvert().getWebsiteLink();
             if (!url.startsWith("http://") && !url.startsWith("https://")) url = "http://" + url;
             websiteNameText.setText(url);
             PAGE = url;
+        }else{
+            websiteNameText.setText("-");
         }
 
         if(ad.getAdvertiserPhoneNo().equals("none")) CallLayout.setAlpha(0.6f);
@@ -5747,8 +5794,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
         }else{
-            websiteIncentiveText.setText("");
-            incentiveTextView.setText("");
+            websiteIncentiveText.setText("-");
+            incentiveTextView.setText("-");
         }
 
     }

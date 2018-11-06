@@ -637,6 +637,17 @@
                     app:cardPreventCornerOverlap="false"
                     app:cardElevation="0dp">
 
+                    <ImageView
+                        android:id="@+id/secureImage"
+                        android:layout_width="10dp"
+                        android:visibility="invisible"
+                        android:alpha="0"
+                        android:layout_marginLeft="9dp"
+                        android:layout_marginTop="1dp"
+                        android:translationX="10dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_height="10dp" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:id="@+id/websiteText"

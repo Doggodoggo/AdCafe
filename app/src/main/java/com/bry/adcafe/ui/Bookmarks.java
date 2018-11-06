@@ -259,6 +259,7 @@ public class Bookmarks extends AppCompatActivity{
     private boolean hasAdBeenSet = false;
 
     private boolean isSetUpSharing = false;
+    @Bind(R.id.secureImage) ImageView secureImage;
 
 
     @Override
@@ -1532,10 +1533,11 @@ public class Bookmarks extends AppCompatActivity{
         int rightMargin = 0;
 
         if(Variables.activeEvent!=null) {
-            leftMargin = (int) (Variables.activeEvent.getRawX()-Utils.dpToPx(45));
-            topMargin = (int) (Variables.activeEvent.getRawY()-Utils.dpToPx(45));
-            bottomMargin = getScreenHeight() - (topMargin + Utils.dpToPx(45));
-            rightMargin = getScreenWidth() - (leftMargin + Utils.dpToPx(45));
+            Log.e(TAG,"Raw values  getRawX: "+Variables.activeEvent.getRawX()+" getRawY: "+Variables.activeEvent.getRawY());
+            leftMargin = (int) (Variables.activeEvent.getRawX());
+            topMargin = (int) (Variables.activeEvent.getRawY());
+            bottomMargin = getScreenHeight() - (topMargin +45);
+            rightMargin = getScreenWidth() - (leftMargin +45);
         }else Log.e(TAG,"active event is null");
 
         final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) vpPager.getLayoutParams();
@@ -1602,8 +1604,8 @@ public class Bookmarks extends AppCompatActivity{
 //        animatorLeft.setDuration(mAnimationTime);
 //        animatorRight.setDuration(mAnimationTime);
 
-        animatorBot.setDuration(mAnimationTime-100);
-        animatorTop.setDuration(mAnimationTime-100);
+        animatorBot.setDuration(mAnimationTime-110);
+        animatorTop.setDuration(mAnimationTime-110);
         animatorLeft.setDuration(mAnimationTime-100);
         animatorRight.setDuration(mAnimationTime-100);
 
@@ -2140,6 +2142,38 @@ public class Bookmarks extends AppCompatActivity{
                     hideProgress();
                     UpdateButtonsAndAll();
                     updateUrl();
+
+                    String currentUrl = myWebView.getUrl();
+                    Log.e("MainAct: ","current url"+currentUrl);
+                    if(!currentUrl.contains("https://")){
+                        secureImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_not_secure));
+                    }else{
+                        secureImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_secure));
+                    }
+                    secureImage.setVisibility(View.VISIBLE);
+                    secureImage.animate().translationX(0).alpha(1f).setDuration(animationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                            .setListener(new Animator.AnimatorListener() {
+                                @Override
+                                public void onAnimationStart(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    secureImage.setTranslationX(0);
+                                    secureImage.setAlpha(1f);
+                                }
+
+                                @Override
+                                public void onAnimationCancel(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animator animation) {
+
+                                }
+                            }).start();
                 }
             }
 
