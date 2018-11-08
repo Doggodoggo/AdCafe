@@ -341,5 +341,19 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
+    <View
+        android:id="@+id/swipeBackView2"
+        android:layout_width="30dp"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="80dp"
+        android:layout_height="180dp"/>
+
+    <View
+        android:id="@+id/swipeBackViewIndicator2"
+        android:layout_width="3dp"
+        android:background="@color/colorPrimary"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="350dp"
+        android:layout_height="0dp" />
 
 </android.support.design.widget.CoordinatorLayout>

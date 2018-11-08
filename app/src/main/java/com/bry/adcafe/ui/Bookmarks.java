@@ -119,6 +119,8 @@ import java.util.Random;
 
 import com.wang.avi.AVLoadingIndicatorView;
 
+import org.w3c.dom.Text;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
@@ -262,6 +264,19 @@ public class Bookmarks extends AppCompatActivity{
     @Bind(R.id.secureImage) ImageView secureImage;
 
 
+    @Bind(R.id.swipeBackView2)View swipeBackView2;
+    private boolean isSwipingForBack2 = false;
+    private GestureDetector mSwipeBackDetector2;
+    private int maxSideSwipeLength2 = 200;
+    private int x_delta2;
+    private List<Integer> SideSwipeRawList2 = new ArrayList<>();
+    private boolean isSideScrolling2 = false;
+
+    private int scrollAmount = 0;
+    private boolean isAtTopOfPage = false;
+    private boolean isCollapsingCard = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -293,6 +308,8 @@ public class Bookmarks extends AppCompatActivity{
         addTouchListener();
 
         animateCollapse();
+        addTouchListenerForSwipeBack2();
+
     }
 
     private void setDeleteIcon() {
@@ -1368,6 +1385,9 @@ public class Bookmarks extends AppCompatActivity{
             if(!Variables.adToBeViewed.didAdvertiserSetContactInfo()) {
                 findViewById(R.id.Website).setAlpha(0.4f);
                 findViewById(R.id.websiteTextxx).setAlpha(0.4f);
+            }else{
+                findViewById(R.id.Website).setAlpha(1f);
+                findViewById(R.id.websiteTextxx).setAlpha(1f);
             }
             TextView tv = findViewById(R.id.dateView);
             tv.setText(getDateFromDays(Variables.adToBeViewed.getDateInDays()));
@@ -2001,16 +2021,16 @@ public class Bookmarks extends AppCompatActivity{
     private void collapseCard(){
         hideWebViews();
         final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) WebViewContainer.getLayoutParams();
-
+        isCollapsingCard = true;
         ValueAnimator animatorRight;
         ValueAnimator animatorLeft;
         ValueAnimator animatorBot;
         ValueAnimator animatorTop;
 
-        animatorRight = ValueAnimator.ofInt(0,250,250);
-        animatorLeft = ValueAnimator.ofInt(0,250,250);
-        animatorTop = ValueAnimator.ofInt(0,350,450);
-        animatorBot = ValueAnimator.ofInt(0,350,350);
+        animatorRight = ValueAnimator.ofInt(params.rightMargin,250,250);
+        animatorLeft = ValueAnimator.ofInt(params.leftMargin,250,250);
+        animatorTop = ValueAnimator.ofInt(params.topMargin,350,450);
+        animatorBot = ValueAnimator.ofInt(params.bottomMargin,350,350);
 
         animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
         animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
@@ -2086,17 +2106,15 @@ public class Bookmarks extends AppCompatActivity{
     }
 
     private void OnCollapseCard(){
+        isCollapsingCard = false;
         WebViewContainer.setVisibility(View.GONE);
         WebViewContainer.setAlpha(1f);
+
         if(hasPageBeenOpened){
             hasPageBeenOpened = false;
-            if (Build.VERSION.SDK_INT < 18) {
-                myWebView.clearView();
-                myWebView.clearHistory();
-            } else {
-                myWebView.loadUrl("about:blank");
-                myWebView.clearHistory();
-            }
+            Log.w(TAG,"Setting page to blank");
+            myWebView.loadUrl("about:blank");
+            myWebView.clearHistory();
         }
     }
 
@@ -2174,6 +2192,7 @@ public class Bookmarks extends AppCompatActivity{
 
                                 }
                             }).start();
+                    isAtTopOfPage = true;
                 }
             }
 
@@ -2758,7 +2777,9 @@ public class Bookmarks extends AppCompatActivity{
                             }
                         }
                         RawList.clear();
-                    };
+                        scrollAmount = 0;
+                        if(!isCollapsingCard)resetWebViewContainer();
+                    }
                 }
                 return false;
             }
@@ -2790,9 +2811,15 @@ public class Bookmarks extends AppCompatActivity{
                     }
                 }
                 scrollSoFar = t;
+                scrollAmount += (t - oldt);
+                Log.w(TAG,"Scroll so far: "+scrollSoFar+" scroll amount: "+scrollAmount);
+                if(t==0){
+                    isAtTopOfPage = true;
+                }else{
+                    isAtTopOfPage = false;
+                }
             }
         });
-
     }
 
 
@@ -2849,8 +2876,18 @@ public class Bookmarks extends AppCompatActivity{
             Log.d("TAG","the e2.getAction()= "+e2.getAction()+" and the MotionEvent.ACTION_CANCEL= " +MotionEvent.ACTION_CANCEL);
             RawList.add(Y);
             if(RawList.size()==5)calculateGeneralDirectionThenUpdateTopView();
-
             mIsScrolling = true;
+
+
+            if ((Y-_yDelta)>0) {
+                if(isAtTopOfPage){
+                    beginCollapseIfIsScrollingUpAtTop(Y-_yDelta);
+                }
+            }else{
+                resetWebViewContainer();
+            }
+
+
             return true;
         }
 
@@ -2877,6 +2914,7 @@ public class Bookmarks extends AppCompatActivity{
             }
             if(UpScore>DownScore){
                 if(isMinified)unMinifyTheTopPart();
+                if(isAtTopOfPage && Math.abs(velocityY)>1000) onBackPressed();
             }else{
                 if(!isMinified)minifyTheTopPart();
             }
@@ -2919,6 +2957,120 @@ public class Bookmarks extends AppCompatActivity{
             return false;
 
         }
+    }
+
+    private void beginCollapseIfIsScrollingUpAtTop(int amount){
+        if(scrollSoFar==0) {
+            int trans = (int) ((amount - Utils.dpToPx(10)) * 0.07);
+
+            final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) WebViewContainer.getLayoutParams();
+            params.rightMargin = (int)(trans*0.1);
+            params.leftMargin = (int)(trans*0.1);
+            params.topMargin = trans;
+            params.bottomMargin = trans;
+
+            WebViewContainer.setLayoutParams(params);
+
+            final RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) ContactSelectorContainer.getLayoutParams();
+            params2.topMargin = Utils.dpToPx(10)-trans;
+            params2.bottomMargin = Utils.dpToPx(10)+trans;
+            ContactSelectorContainer.setLayoutParams(params2);
+        }
+    }
+
+    private void resetWebViewContainer(){
+        final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) WebViewContainer.getLayoutParams();
+
+        ValueAnimator animatorRight;
+        ValueAnimator animatorLeft;
+        ValueAnimator animatorBot;
+        ValueAnimator animatorTop;
+
+        animatorRight = ValueAnimator.ofInt(params.rightMargin ,0);
+        animatorLeft = ValueAnimator.ofInt(params.leftMargin ,0);
+
+        animatorTop = ValueAnimator.ofInt(params.topMargin ,0);
+        animatorBot = ValueAnimator.ofInt(params.bottomMargin ,0);
+
+
+        animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorLeft.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+
+        animatorRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.rightMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+        animatorLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.leftMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+        animatorBot.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.bottomMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+
+        animatorBot.setDuration(mAnimationTime);
+        animatorTop.setDuration(mAnimationTime);
+        animatorLeft.setDuration(mAnimationTime);
+        animatorRight.setDuration(mAnimationTime);
+
+        animatorBot.start();
+        animatorTop.start();
+        animatorLeft.start();
+        animatorRight.start();
+
+        final RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) ContactSelectorContainer.getLayoutParams();
+
+        ValueAnimator animatorContactTop = ValueAnimator.ofInt(params2.topMargin ,0);
+        ValueAnimator animatorContactBot = ValueAnimator.ofInt(params2.bottomMargin ,0);
+
+        animatorContactTop.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorContactBot.setInterpolator(new LinearOutSlowInInterpolator());
+
+        animatorContactTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params2.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                ContactSelectorContainer.requestLayout();
+            }
+        });
+
+        animatorContactBot.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params2.bottomMargin = (Integer) valueAnimator.getAnimatedValue();
+                ContactSelectorContainer.requestLayout();
+            }
+        });
+
+        animatorContactTop.setDuration(mAnimationTime);
+        animatorContactTop.start();
+
+        animatorContactBot.setDuration(mAnimationTime);
+        animatorContactBot.start();
+
     }
 
     private void TellUserToScrollDown(){
@@ -3613,6 +3765,11 @@ public class Bookmarks extends AppCompatActivity{
     }
 
     private void expandContactSelector(){
+        final RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) ContactSelectorContainer.getLayoutParams();
+        params2.topMargin = Utils.dpToPx(10);
+        params2.bottomMargin = Utils.dpToPx(10);
+        ContactSelectorContainer.setLayoutParams(params2);
+
         ContactSelectorContainer.animate().translationY(Utils.dpToPx(0)).setDuration(mAnimationTime)
                 .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
             @Override
@@ -3714,54 +3871,58 @@ public class Bookmarks extends AppCompatActivity{
         okVisitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updatePosition();
-                ConfirmVisitWebsiteContainer.animate().translationY(Utils.dpToPx(200)).setDuration(mAnimationTime)
-                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animator) {
+                if(isNetworkConnected(mContext)) {
+                    updatePosition();
+                    ConfirmVisitWebsiteContainer.animate().translationY(Utils.dpToPx(200)).setDuration(mAnimationTime)
+                            .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
 
-                    }
+                        }
 
-                    @Override
-                    public void onAnimationEnd(Animator animator) {
-                        ConfirmVisitWebsiteContainer.setVisibility(View.VISIBLE);
-                        ConfirmVisitWebsiteContainer.setTranslationY(Utils.dpToPx(200));
-                    }
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            ConfirmVisitWebsiteContainer.setVisibility(View.VISIBLE);
+                            ConfirmVisitWebsiteContainer.setTranslationY(Utils.dpToPx(200));
+                        }
 
-                    @Override
-                    public void onAnimationCancel(Animator animator) {
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
 
-                    }
+                        }
 
-                    @Override
-                    public void onAnimationRepeat(Animator animator) {
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
 
-                    }
-                }).start();
-                isConfirmOpenWebsiteLayout = false;
+                        }
+                    }).start();
+                    isConfirmOpenWebsiteLayout = false;
 
-                ContactSelectorContainer.animate().translationY(Utils.dpToPx(160)).setDuration(mAnimationTime)
-                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animator) {
+                    ContactSelectorContainer.animate().translationY(Utils.dpToPx(160)).setDuration(mAnimationTime)
+                            .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
 
-                    }
+                        }
 
-                    @Override
-                    public void onAnimationEnd(Animator animator) {
-                        ContactSelectorContainer.setTranslationY(Utils.dpToPx(160));
-                    }
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            ContactSelectorContainer.setTranslationY(Utils.dpToPx(160));
+                        }
 
-                    @Override
-                    public void onAnimationCancel(Animator animator) {
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
 
-                    }
+                        }
 
-                    @Override
-                    public void onAnimationRepeat(Animator animator) {
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
 
-                    }
-                }).start();
+                        }
+                    }).start();
+                }else{
+                    Toast.makeText(mContext,"Connect to the internet",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -4247,6 +4408,217 @@ public class Bookmarks extends AppCompatActivity{
         isSetUpSharing = false;
         findViewById(R.id.isSharingProgress).setVisibility(View.INVISIBLE);
     }
+
+
+
+    private void addTouchListenerForSwipeBack2() {
+        mSwipeBackDetector2 = new GestureDetector(this, new MySwipebackGestureListener2());
+        swipeBackView2.setOnTouchListener(touchListener2);
+    }
+
+    View.OnTouchListener touchListener2 = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (mSwipeBackDetector2.onTouchEvent(motionEvent)) {
+                return true;
+            }
+            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                if (isSideScrolling2) {
+                    Log.d("touchListener", " onTouch ACTION_UP");
+                    isSideScrolling2 = false;
+
+                    int RightScore = 0;
+                    int LeftScore = 0;
+                    if (SideSwipeRawList2.size() > 15) {
+                        for (int i = SideSwipeRawList2.size() - 1; i > SideSwipeRawList2.size() - 15; i--) {
+                            int num1 = SideSwipeRawList2.get(i);
+                            int numBefore1 = SideSwipeRawList2.get(i - 1);
+
+                            if (numBefore1 > num1) LeftScore++;
+                            else RightScore++;
+                        }
+                    } else {
+                        for (int i = SideSwipeRawList2.size() - 1; i > 0; i--) {
+                            int num1 = SideSwipeRawList2.get(i);
+                            int numBefore1 = SideSwipeRawList2.get(i - 1);
+
+                            if (numBefore1 > num1) LeftScore++;
+                            else RightScore++;
+                        }
+                    }
+                    if (RightScore > LeftScore) {
+//                        onBackPressed();
+                    }
+                    hideNupdateSideSwipeThing2();
+                    SideSwipeRawList2.clear();
+                }
+                ;
+            }
+
+            return false;
+        }
+    };
+
+    class MySwipebackGestureListener2 extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            Log.d("TAG", "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            Log.d("TAG", "onDown: event.getRawX(): " + event.getRawX() + " event.getRawY()" + event.getRawY());
+            CoordinatorLayout.LayoutParams lParams = (CoordinatorLayout.LayoutParams) swipeBackView2.getLayoutParams();
+            x_delta2 = X - lParams.leftMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Log.i("TAG", "onSingleTapConfirmed: ");
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            Log.i("TAG", "onLongPress: ");
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            Log.i("TAG", "onDoubleTap: ");
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+            if ((X - x_delta2) < maxSideSwipeLength) {
+
+            } else if ((X - x_delta2) > maxSideSwipeLength) {
+
+            } else {
+            }
+            showNupdateSideSwipeThing2(X - x_delta2);
+
+            Log.d("TAG", "the e2.getAction()= " + e2.getAction() + " and the MotionEvent.ACTION_CANCEL= " + MotionEvent.ACTION_CANCEL);
+            SideSwipeRawList2.add(X);
+
+            isSideScrolling2 = true;
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            int RightScore = 0;
+            int LeftScore = 0;
+            if (SideSwipeRawList2.size() > 15) {
+                for (int i = SideSwipeRawList2.size() - 1; i > SideSwipeRawList2.size() - 15; i--) {
+                    int num1 = SideSwipeRawList2.get(i);
+                    int numBefore1 = SideSwipeRawList2.get(i - 1);
+
+                    if (numBefore1 > num1) LeftScore++;
+                    else RightScore++;
+                }
+            } else {
+                for (int i = SideSwipeRawList2.size() - 1; i > 0; i--) {
+                    int num1 = SideSwipeRawList2.get(i);
+                    int numBefore1 = SideSwipeRawList2.get(i - 1);
+
+                    if (numBefore1 > num1) LeftScore++;
+                    else RightScore++;
+                }
+            }
+            if (RightScore > LeftScore) {
+                onBackPressed();
+            }
+            SideSwipeRawList2.clear();
+            return false;
+
+        }
+    }
+
+    private void showNupdateSideSwipeThing2(int pos) {
+        int trans = (int) ((pos - Utils.dpToPx(10)) * 0.9);
+//        RelativeLayout isGoingBackIndicator = findViewById(R.id.isGoingBackIndicator);
+//        isGoingBackIndicator.setTranslationX(trans);
+
+        View v = findViewById(R.id.swipeBackViewIndicator2);
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) v.getLayoutParams();
+        params.height = trans;
+        v.setLayoutParams(params);
+
+        LinearLayout AdArchivesLayout = findViewById(R.id.AdArchivesLayout);
+        AdArchivesLayout.setTranslationX((int)(trans*0.05));
+
+        TextView noPins = findViewById(R.id.noPins);
+        noPins.setTranslationX((int)(trans*0.05));
+
+        ImageButton deleteAllicon = findViewById(R.id.deleteAllicon);
+        deleteAllicon.setTranslationX((int)(trans*0.05));
+    }
+
+    private void hideNupdateSideSwipeThing2() {
+        int myDurat = 200;
+//        RelativeLayout isGoingBackIndicator = findViewById(R.id.isGoingBackIndicator);
+//        isGoingBackIndicator.animate().setDuration(mAnimationTime).translationX(Utils.dpToPx(-40)).start();
+
+        final View v = findViewById(R.id.swipeBackViewIndicator2);
+        final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) v.getLayoutParams();
+
+        ValueAnimator animatorTop;
+        animatorTop = ValueAnimator.ofInt(params.height, 0);
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.height = (Integer) valueAnimator.getAnimatedValue();
+                v.requestLayout();
+            }
+        });
+        animatorTop.setDuration(myDurat).start();
+
+        final TextView noPins = findViewById(R.id.noPins);
+        final ImageButton deleteAllicon = findViewById(R.id.deleteAllicon);
+
+        noPins.animate().setDuration(myDurat).setInterpolator(new LinearOutSlowInInterpolator()).translationX(0).start();
+        deleteAllicon.animate().setDuration(myDurat).setInterpolator(new LinearOutSlowInInterpolator()).translationX(0).start();
+
+        final LinearLayout AdArchivesLayout = findViewById(R.id.AdArchivesLayout);
+        AdArchivesLayout.animate().setDuration(myDurat).setInterpolator(new LinearOutSlowInInterpolator()).translationX(0)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        AdArchivesLayout.setTranslationX(0);
+                        noPins.setTranslationX(0);
+                        deleteAllicon.setTranslationX(0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
 
 
 }

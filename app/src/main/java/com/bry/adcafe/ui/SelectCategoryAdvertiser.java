@@ -1,5 +1,7 @@
 package com.bry.adcafe.ui;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
@@ -10,10 +12,14 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -26,6 +32,7 @@ import com.bry.adcafe.Variables;
 import com.bry.adcafe.adapters.SelectCategoryAdvertiserContainer;
 import com.bry.adcafe.fragments.GetAmmountPerUserFragment;
 import com.bry.adcafe.services.TimeManager;
+import com.bry.adcafe.services.Utils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -58,6 +65,15 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
     private DatabaseReference SKListener;
     private boolean isNeedToLoadLogin = false;
 
+    @Bind(R.id.swipeBackView2)View swipeBackView2;
+    private boolean isSwipingForBack2 = false;
+    private GestureDetector mSwipeBackDetector2;
+    private int maxSideSwipeLength2 = 200;
+    private int x_delta2;
+    private List<Integer> SideSwipeRawList2 = new ArrayList<>();
+    private boolean isSideScrolling2 = false;
+    private int maxSideSwipeLength = 200;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +93,7 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForStartingNextActivity,
                 new IntentFilter("START_NEXT_ACTIVITY"));
 
+        addTouchListenerForSwipeBack2();
     }
 
     private void setUpTimeIfNeedBe(){
@@ -385,5 +402,200 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
         int res = mContext.getResources().getIdentifier(filename, "drawable", mContext.getPackageName());
         if(res==0)Log.e(TAG,"Category image for "+category+" does not exist");
         return res != 0;
+    }
+
+
+    private void addTouchListenerForSwipeBack2() {
+        mSwipeBackDetector2 = new GestureDetector(this, new MySwipebackGestureListener2());
+        swipeBackView2.setOnTouchListener(touchListener2);
+    }
+
+    View.OnTouchListener touchListener2 = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (mSwipeBackDetector2.onTouchEvent(motionEvent)) {
+                return true;
+            }
+            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                if (isSideScrolling2) {
+                    Log.d("touchListener", " onTouch ACTION_UP");
+                    isSideScrolling2 = false;
+
+                    int RightScore = 0;
+                    int LeftScore = 0;
+                    if (SideSwipeRawList2.size() > 15) {
+                        for (int i = SideSwipeRawList2.size() - 1; i > SideSwipeRawList2.size() - 15; i--) {
+                            int num1 = SideSwipeRawList2.get(i);
+                            int numBefore1 = SideSwipeRawList2.get(i - 1);
+
+                            if (numBefore1 > num1) LeftScore++;
+                            else RightScore++;
+                        }
+                    } else {
+                        for (int i = SideSwipeRawList2.size() - 1; i > 0; i--) {
+                            int num1 = SideSwipeRawList2.get(i);
+                            int numBefore1 = SideSwipeRawList2.get(i - 1);
+
+                            if (numBefore1 > num1) LeftScore++;
+                            else RightScore++;
+                        }
+                    }
+                    if (RightScore > LeftScore) {
+//                        onBackPressed();
+                    }
+                    hideNupdateSideSwipeThing2();
+                    SideSwipeRawList2.clear();
+                }
+                ;
+            }
+
+            return false;
+        }
+    };
+
+    class MySwipebackGestureListener2 extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            Log.d("TAG", "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            Log.d("TAG", "onDown: event.getRawX(): " + event.getRawX() + " event.getRawY()" + event.getRawY());
+            CoordinatorLayout.LayoutParams lParams = (CoordinatorLayout.LayoutParams) swipeBackView2.getLayoutParams();
+            x_delta2 = X - lParams.leftMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Log.i("TAG", "onSingleTapConfirmed: ");
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            Log.i("TAG", "onLongPress: ");
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            Log.i("TAG", "onDoubleTap: ");
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+            if ((X - x_delta2) < maxSideSwipeLength) {
+
+            } else if ((X - x_delta2) > maxSideSwipeLength) {
+
+            } else {
+            }
+            showNupdateSideSwipeThing2(X - x_delta2);
+
+            Log.d("TAG", "the e2.getAction()= " + e2.getAction() + " and the MotionEvent.ACTION_CANCEL= " + MotionEvent.ACTION_CANCEL);
+            SideSwipeRawList2.add(X);
+
+            isSideScrolling2 = true;
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            int RightScore = 0;
+            int LeftScore = 0;
+            if (SideSwipeRawList2.size() > 15) {
+                for (int i = SideSwipeRawList2.size() - 1; i > SideSwipeRawList2.size() - 15; i--) {
+                    int num1 = SideSwipeRawList2.get(i);
+                    int numBefore1 = SideSwipeRawList2.get(i - 1);
+
+                    if (numBefore1 > num1) LeftScore++;
+                    else RightScore++;
+                }
+            } else {
+                for (int i = SideSwipeRawList2.size() - 1; i > 0; i--) {
+                    int num1 = SideSwipeRawList2.get(i);
+                    int numBefore1 = SideSwipeRawList2.get(i - 1);
+
+                    if (numBefore1 > num1) LeftScore++;
+                    else RightScore++;
+                }
+            }
+            if (RightScore > LeftScore) {
+                onBackPressed();
+            }
+            SideSwipeRawList2.clear();
+            return false;
+
+        }
+    }
+
+    private void showNupdateSideSwipeThing2(int pos) {
+        int trans = (int) ((pos - Utils.dpToPx(10)) * 0.9);
+//        RelativeLayout isGoingBackIndicator = findViewById(R.id.isGoingBackIndicator);
+//        isGoingBackIndicator.setTranslationX(trans);
+
+        View v = findViewById(R.id.swipeBackViewIndicator2);
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) v.getLayoutParams();
+        params.height = trans;
+        v.setLayoutParams(params);
+
+        mainView.setTranslationX((int)(trans*0.05));
+
+    }
+
+    private void hideNupdateSideSwipeThing2() {
+        int myDurat = 200;
+//        RelativeLayout isGoingBackIndicator = findViewById(R.id.isGoingBackIndicator);
+//        isGoingBackIndicator.animate().setDuration(mAnimationTime).translationX(Utils.dpToPx(-40)).start();
+
+        final View v = findViewById(R.id.swipeBackViewIndicator2);
+        final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) v.getLayoutParams();
+
+        ValueAnimator animatorTop;
+        animatorTop = ValueAnimator.ofInt(params.height, 0);
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.height = (Integer) valueAnimator.getAnimatedValue();
+                v.requestLayout();
+            }
+        });
+        animatorTop.setDuration(myDurat).start();
+
+
+        mainView.animate().setDuration(myDurat).setInterpolator(new LinearOutSlowInInterpolator()).translationX(0)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mainView.setTranslationX(0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
     }
 }

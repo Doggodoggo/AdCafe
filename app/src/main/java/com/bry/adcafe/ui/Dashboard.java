@@ -1,6 +1,7 @@
 package com.bry.adcafe.ui;
 
 import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.FragmentManager;
@@ -35,6 +36,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -163,6 +166,14 @@ public class Dashboard extends AppCompatActivity {
 
     private int numberOfNewMessages = 0;
 
+    @Bind(R.id.swipeBackView)View swipeBackView;
+    private boolean isSwipingForBack = false;
+    private GestureDetector mSwipeBackDetector;
+    private int maxSideSwipeLength = 200;
+    private int x_delta;
+    private List<Integer> SideSwipeRawList = new ArrayList<>();
+    private boolean isSideScrolling = false;
+
 
 
     @Override
@@ -191,6 +202,8 @@ public class Dashboard extends AppCompatActivity {
         addListenerForChangeInPayoutTotals();
 
         fastCollapseTheFeedChatView();
+
+        addTouchListenerForSwipeBack();
     }
 
     @Override
@@ -1868,6 +1881,203 @@ public class Dashboard extends AppCompatActivity {
             amount+=coin.getValue();
         }
         return amount;
+    }
+
+
+
+
+    private void addTouchListenerForSwipeBack() {
+        mSwipeBackDetector = new GestureDetector(this, new MySwipebackGestureListener());
+        swipeBackView.setOnTouchListener(touchListener);
+    }
+
+    View.OnTouchListener touchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (mSwipeBackDetector.onTouchEvent(motionEvent)) {
+                return true;
+            }
+            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                if (isSideScrolling) {
+                    Log.d("touchListener", " onTouch ACTION_UP");
+                    isSideScrolling = false;
+
+                    int RightScore = 0;
+                    int LeftScore = 0;
+                    if (SideSwipeRawList.size() > 15) {
+                        for (int i = SideSwipeRawList.size() - 1; i > SideSwipeRawList.size() - 15; i--) {
+                            int num1 = SideSwipeRawList.get(i);
+                            int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                            if (numBefore1 > num1) LeftScore++;
+                            else RightScore++;
+                        }
+                    } else {
+                        for (int i = SideSwipeRawList.size() - 1; i > 0; i--) {
+                            int num1 = SideSwipeRawList.get(i);
+                            int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                            if (numBefore1 > num1) LeftScore++;
+                            else RightScore++;
+                        }
+                    }
+                    if (RightScore > LeftScore) {
+//                        onBackPressed();
+                    }
+                    hideNupdateSideSwipeThing();
+                    SideSwipeRawList.clear();
+                }
+                ;
+            }
+
+            return false;
+        }
+    };
+
+    class MySwipebackGestureListener extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            Log.d("TAG", "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            Log.d("TAG", "onDown: event.getRawX(): " + event.getRawX() + " event.getRawY()" + event.getRawY());
+            CoordinatorLayout.LayoutParams lParams = (CoordinatorLayout.LayoutParams) swipeBackView.getLayoutParams();
+            x_delta = X - lParams.leftMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Log.i("TAG", "onSingleTapConfirmed: ");
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            Log.i("TAG", "onLongPress: ");
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            Log.i("TAG", "onDoubleTap: ");
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+            if ((X - x_delta) < maxSideSwipeLength) {
+
+            } else if ((X - x_delta) > maxSideSwipeLength) {
+
+            } else {
+            }
+            showNupdateSideSwipeThing(X - x_delta);
+
+            Log.d("TAG", "the e2.getAction()= " + e2.getAction() + " and the MotionEvent.ACTION_CANCEL= " + MotionEvent.ACTION_CANCEL);
+            SideSwipeRawList.add(X);
+
+            isSideScrolling = true;
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            int RightScore = 0;
+            int LeftScore = 0;
+            if (SideSwipeRawList.size() > 15) {
+                for (int i = SideSwipeRawList.size() - 1; i > SideSwipeRawList.size() - 15; i--) {
+                    int num1 = SideSwipeRawList.get(i);
+                    int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                    if (numBefore1 > num1) LeftScore++;
+                    else RightScore++;
+                }
+            } else {
+                for (int i = SideSwipeRawList.size() - 1; i > 0; i--) {
+                    int num1 = SideSwipeRawList.get(i);
+                    int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                    if (numBefore1 > num1) LeftScore++;
+                    else RightScore++;
+                }
+            }
+            if (RightScore > LeftScore) {
+                onBackPressed();
+            }
+            SideSwipeRawList.clear();
+            return false;
+
+        }
+    }
+
+    private void showNupdateSideSwipeThing(int pos) {
+        int trans = (int) ((pos - Utils.dpToPx(10)) * 0.9);
+        RelativeLayout isGoingBackIndicator = findViewById(R.id.isGoingBackIndicator);
+//        isGoingBackIndicator.setTranslationX(trans);
+
+        View v = findViewById(R.id.swipeBackViewIndicator);
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) v.getLayoutParams();
+        params.height = trans;
+        v.setLayoutParams(params);
+
+        LockableScrollView scrollView = findViewById(R.id.ScrollView);
+        scrollView.setTranslationX((int)(trans*0.05));
+    }
+
+    private void hideNupdateSideSwipeThing() {
+        int myDurat = 200;
+        RelativeLayout isGoingBackIndicator = findViewById(R.id.isGoingBackIndicator);
+//        isGoingBackIndicator.animate().setDuration(mAnimationTime).translationX(Utils.dpToPx(-40)).start();
+
+        final View v = findViewById(R.id.swipeBackViewIndicator);
+        final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) v.getLayoutParams();
+
+        ValueAnimator animatorTop;
+        animatorTop = ValueAnimator.ofInt(params.height, 0);
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.height = (Integer) valueAnimator.getAnimatedValue();
+                v.requestLayout();
+            }
+        });
+        animatorTop.setDuration(myDurat).start();
+
+        final LockableScrollView scrollView = findViewById(R.id.ScrollView);
+        scrollView.animate().setDuration(myDurat).setInterpolator(new LinearOutSlowInInterpolator()).translationX(0)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        scrollView.setTranslationX(0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
     }
 
 

@@ -209,7 +209,7 @@ public class Splash extends AppCompatActivity {
 
     private void goToNextActivity(){
         logoPart.setRotationY(0);
-        logoPart.animate().setDuration(duration).translationY(-100)
+        logoPart.animate().setDuration(duration).translationY(0)
                 .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {
@@ -230,6 +230,7 @@ public class Splash extends AppCompatActivity {
 
             }
         });
+
         ObjectAnimator colorFade = ObjectAnimator.ofObject(findViewById(R.id.pageID)
                 , "backgroundColor" /*view attribute name*/,
                 new ArgbEvaluator(),

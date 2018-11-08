@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,6 +9,7 @@
     tools:context="com.bry.adcafe.ui.AdStats">
 
     <LinearLayout
+            android:id="@+id/mainViewLayout"
             android:layout_width="match_parent"
             android:orientation="vertical"
             android:layout_height="wrap_content">
@@ -107,4 +108,34 @@
 
     </LinearLayout>
 
-</LinearLayout>
+    <View
+        android:id="@+id/swipeBackView"
+        android:layout_width="30dp"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="80dp"
+        android:layout_height="180dp"/>
+
+    <View
+        android:id="@+id/swipeBackViewIndicator"
+        android:layout_width="3dp"
+        android:background="@color/colorPrimary"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="350dp"
+        android:layout_height="0dp" />
+
+    <RelativeLayout
+        android:id="@+id/isGoingBackIndicator"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="60dp"
+        android:translationX="-40dp"
+        android:background="@drawable/circle_design_timer_file"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:background="@drawable/ic_action_back"
+            android:layout_height="30dp" />
+
+    </RelativeLayout>
+
+</android.support.design.widget.CoordinatorLayout>

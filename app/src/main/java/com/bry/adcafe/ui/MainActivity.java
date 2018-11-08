@@ -271,6 +271,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Integer scrollAmount = 0;
     @Bind(R.id.secureImage) ImageView secureImage;
+    private boolean isAtTopOfPage = false;
+    private boolean isCollapsingCard = false;
 
 
 
@@ -3948,6 +3950,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void collapseCard(){
         hideWebViews();
+        isCollapsingCard = true;
         final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) WebViewContainer.getLayoutParams();
 
         ValueAnimator animatorRight;
@@ -3955,10 +3958,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ValueAnimator animatorBot;
         ValueAnimator animatorTop;
 
-        animatorRight = ValueAnimator.ofInt(0,250,250);
-        animatorLeft = ValueAnimator.ofInt(0,250,250);
-        animatorTop = ValueAnimator.ofInt(0,350,450);
-        animatorBot = ValueAnimator.ofInt(0,350,350);
+        animatorRight = ValueAnimator.ofInt(params.rightMargin,250,250);
+        animatorLeft = ValueAnimator.ofInt(params.leftMargin,250,250);
+        animatorTop = ValueAnimator.ofInt(params.topMargin,350,450);
+        animatorBot = ValueAnimator.ofInt(params.bottomMargin,350,350);
 
         animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
         animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
@@ -4034,6 +4037,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void OnCollapseCard(){
+        isCollapsingCard = false;
         WebViewContainer.setVisibility(View.GONE);
         WebViewContainer.setAlpha(1f);
         if(hasPageBeenOpened){
@@ -4122,6 +4126,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                                 }
                             }).start();
+                    isAtTopOfPage = true;
                 }
             }
 
@@ -4136,6 +4141,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         updateUrl();
         UpdateButtonsAndAll();
         setPapeHeight();
+
     }
 
     private void addClickListeners(){
@@ -4702,7 +4708,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                         RawList.clear();
                         scrollAmount = 0;
-                    };
+                        if(!isCollapsingCard)resetWebViewContainer();
+                    }
                 }
                 return false;
             }
@@ -4760,11 +4767,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             didScrollChangeListenerSetScrollConfirmBoolean = true;
                         }
                     }
-
+                    scrollSoFar = t;
                     scrollAmount += (l - oldl);
+
+                    Log.w(TAG,"Scroll so far: "+scrollSoFar+" scroll amount: "+scrollAmount);
                     Log.d("OnScrollChange: ", "Scroll change amount: " + (l - oldl));
                     Log.d("OnScrollChange: ", "Total Scroll amount: " + scrollAmount);
-                    scrollSoFar = t;
+                }
+                if(t==0){
+                    isAtTopOfPage = true;
+                }else{
+                    isAtTopOfPage = false;
                 }
             }
         });
@@ -4826,6 +4839,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             RawList.add(Y);
             if(RawList.size()==5)calculateGeneralDirectionThenUpdateTopView();
 
+            if ((Y-_yDelta)>0) {
+                if(isAtTopOfPage){
+                    beginCollapseIfIsScrollingUpAtTop(Y-_yDelta);
+                }
+            }else{
+                resetWebViewContainer();
+            }
+
             mIsScrolling = true;
             return true;
         }
@@ -4853,6 +4874,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             if (UpScore > DownScore) {
                 if (isMinified) unMinifyTheTopPart();
+                if(isAtTopOfPage && Math.abs(velocityY)>1000) onBackPressed();
             } else {
                 if (!isMinified) minifyTheTopPart();
             }
@@ -4907,8 +4929,131 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
+    private void beginCollapseIfIsScrollingUpAtTop(int amount){
+        if(scrollSoFar==0) {
+            int trans = (int) ((amount - Utils.dpToPx(10)) * 0.07);
+
+            final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) WebViewContainer.getLayoutParams();
+            params.rightMargin = (int)(trans*0.1);
+            params.leftMargin = (int)(trans*0.1);
+            params.topMargin = trans;
+            params.bottomMargin = trans;
+
+            WebViewContainer.setLayoutParams(params);
+
+            final RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) ContactSelectorContainer.getLayoutParams();
+            params2.topMargin = Utils.dpToPx(10)-trans;
+            params2.bottomMargin = Utils.dpToPx(10)+trans;
+            ContactSelectorContainer.setLayoutParams(params2);
+        }
+    }
+
+    private void resetWebViewContainer(){
+        final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) WebViewContainer.getLayoutParams();
+
+        ValueAnimator animatorRight;
+        ValueAnimator animatorLeft;
+        ValueAnimator animatorBot;
+        ValueAnimator animatorTop;
+
+        animatorRight = ValueAnimator.ofInt(params.rightMargin ,0);
+        animatorLeft = ValueAnimator.ofInt(params.leftMargin ,0);
+
+        animatorTop = ValueAnimator.ofInt(params.topMargin ,0);
+        animatorBot = ValueAnimator.ofInt(params.bottomMargin ,0);
+
+
+        animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorLeft.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+
+        animatorRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.rightMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+        animatorLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.leftMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+        animatorBot.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.bottomMargin = (Integer) valueAnimator.getAnimatedValue();
+                WebViewContainer.requestLayout();
+            }
+        });
+
+
+        animatorBot.setDuration(mAnimationTime);
+        animatorTop.setDuration(mAnimationTime);
+        animatorLeft.setDuration(mAnimationTime);
+        animatorRight.setDuration(mAnimationTime);
+
+        animatorBot.start();
+        animatorTop.start();
+        animatorLeft.start();
+        animatorRight.start();
+
+        final RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) ContactSelectorContainer.getLayoutParams();
+
+        ValueAnimator animatorContactTop = ValueAnimator.ofInt(params2.topMargin ,0);
+        ValueAnimator animatorContactBot = ValueAnimator.ofInt(params2.bottomMargin ,0);
+
+        animatorContactTop.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorContactBot.setInterpolator(new LinearOutSlowInInterpolator());
+
+        animatorContactTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params2.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                ContactSelectorContainer.requestLayout();
+            }
+        });
+
+        animatorContactBot.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params2.bottomMargin = (Integer) valueAnimator.getAnimatedValue();
+                ContactSelectorContainer.requestLayout();
+            }
+        });
+
+        animatorContactTop.setDuration(mAnimationTime);
+        animatorContactTop.start();
+
+        animatorContactBot.setDuration(mAnimationTime);
+        animatorContactBot.start();
+
+    }
+
+
+
     private void TellUserToScrollDown(){
-        Toast.makeText(mContext,"Please scroll down",Toast.LENGTH_SHORT).show();
+        if(noOfStrikes==0){
+            Toast.makeText(mContext,"Please scroll down",Toast.LENGTH_SHORT).show();
+            noOfStrikes++;
+        }else if(noOfStrikes==1){
+            Toast.makeText(mContext,"Please scroll down",Toast.LENGTH_SHORT).show();
+            noOfStrikes++;
+        }
     }
 
     private void calculateGeneralDirectionThenUpdateTopView(){
@@ -5758,7 +5903,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TextView websiteIncentiveText = findViewById(R.id.websiteIncentiveText);
         TextView incentiveTextView = findViewById(R.id.incentiveTextView);
         TextView locationText = findViewById(R.id.locationText);
-
+        TextView textViewIncentiveAmount = findViewById(R.id.textViewIncentiveAmount);
         if(!ad.getAdvertiserPhoneNo().equals("none")){
             callText.setText(ad.getAdvertiserPhoneNo());
             phoneNoText.setText(ad.getAdvertiserPhoneNo());
@@ -5788,6 +5933,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if(canScrollForIncentive()){
                 websiteIncentiveText.setText("They're offering an incentive of: "+ad.getWebClickIncentive()+"Ksh.");
                 incentiveTextView.setText("Incentive: "+ad.getWebClickIncentive()+"Ksh.");
+
+                textViewIncentiveAmount.setText(""+ad.getWebClickIncentive());
             }else{
                 websiteIncentiveText.setText("They're offering an incentive of: "+ad.getWebClickIncentive()+"Ksh.(c)");
                 incentiveTextView.setText("Incentive: "+ad.getWebClickIncentive()+"Ksh.(c)");
@@ -5826,6 +5973,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void expandContactSelector(){
+        final RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) ContactSelectorContainer.getLayoutParams();
+        params2.topMargin = Utils.dpToPx(10);
+        params2.bottomMargin = Utils.dpToPx(10);
+        ContactSelectorContainer.setLayoutParams(params2);
+
         ContactSelectorContainer.animate().translationY(Utils.dpToPx(0)).setDuration(mAnimationTime)
                 .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
             @Override
@@ -5927,54 +6079,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         okVisitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updatePosition();
-                ConfirmVisitWebsiteContainer.animate().translationY(Utils.dpToPx(200)).setDuration(mAnimationTime)
-                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animator) {
+                if(isOnline()) {
+                    updatePosition();
+                    ConfirmVisitWebsiteContainer.animate().translationY(Utils.dpToPx(200)).setDuration(mAnimationTime)
+                            .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
 
-                    }
+                        }
 
-                    @Override
-                    public void onAnimationEnd(Animator animator) {
-                        ConfirmVisitWebsiteContainer.setVisibility(View.VISIBLE);
-                        ConfirmVisitWebsiteContainer.setTranslationY(Utils.dpToPx(200));
-                    }
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            ConfirmVisitWebsiteContainer.setVisibility(View.VISIBLE);
+                            ConfirmVisitWebsiteContainer.setTranslationY(Utils.dpToPx(200));
+                        }
 
-                    @Override
-                    public void onAnimationCancel(Animator animator) {
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
 
-                    }
+                        }
 
-                    @Override
-                    public void onAnimationRepeat(Animator animator) {
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
 
-                    }
-                }).start();
-                isConfirmOpenWebsiteLayout = false;
+                        }
+                    }).start();
+                    isConfirmOpenWebsiteLayout = false;
 
-                ContactSelectorContainer.animate().translationY(Utils.dpToPx(160)).setDuration(mAnimationTime)
-                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animator) {
+                    ContactSelectorContainer.animate().translationY(Utils.dpToPx(160)).setDuration(mAnimationTime)
+                            .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
 
-                    }
+                        }
 
-                    @Override
-                    public void onAnimationEnd(Animator animator) {
-                        ContactSelectorContainer.setTranslationY(Utils.dpToPx(160));
-                    }
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            ContactSelectorContainer.setTranslationY(Utils.dpToPx(160));
+                        }
 
-                    @Override
-                    public void onAnimationCancel(Animator animator) {
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
 
-                    }
+                        }
 
-                    @Override
-                    public void onAnimationRepeat(Animator animator) {
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
 
-                    }
-                }).start();
+                        }
+                    }).start();
+                }else{
+                    Toast.makeText(mContext,"Connect to the internet",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

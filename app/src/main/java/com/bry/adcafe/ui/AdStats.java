@@ -1,5 +1,7 @@
 package com.bry.adcafe.ui;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -12,14 +14,20 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,11 +41,13 @@ import com.bry.adcafe.adapters.OlderAdsItem;
 import com.bry.adcafe.adapters.TomorrowsAdStatItem;
 import com.bry.adcafe.fragments.FragmentAdvertiserPayoutBottomsheet;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.LockableScrollView;
 import com.bry.adcafe.models.PayoutResponse;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.TimeManager;
+import com.bry.adcafe.services.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -94,6 +104,14 @@ public class AdStats extends AppCompatActivity {
     private DatabaseReference SKListener;
     private boolean isNeedToLoadLogin = false;
 
+    @Bind(R.id.swipeBackView)View swipeBackView;
+    private boolean isSwipingForBack = false;
+    private GestureDetector mSwipeBackDetector;
+    private int maxSideSwipeLength = 200;
+    private int x_delta;
+    private List<Integer> SideSwipeRawList = new ArrayList<>();
+    private boolean isSideScrolling = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +134,7 @@ public class AdStats extends AppCompatActivity {
         }
         DataListsView.getBuilder().setLayoutManager(new GridLayoutManager(mContext,2));
         addListenerForPaymentSession();
+        addTouchListenerForSwipeBack();
     }
 
     @Override
@@ -1297,5 +1316,203 @@ public class AdStats extends AppCompatActivity {
         long tmp = Math.round(value);
         return (double) tmp / factor;
     }
+
+
+
+
+    private void addTouchListenerForSwipeBack() {
+        mSwipeBackDetector = new GestureDetector(this, new MySwipebackGestureListener());
+        swipeBackView.setOnTouchListener(touchListener);
+    }
+
+    View.OnTouchListener touchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (mSwipeBackDetector.onTouchEvent(motionEvent)) {
+                return true;
+            }
+            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                if (isSideScrolling) {
+                    Log.d("touchListener", " onTouch ACTION_UP");
+                    isSideScrolling = false;
+
+                    int RightScore = 0;
+                    int LeftScore = 0;
+                    if (SideSwipeRawList.size() > 15) {
+                        for (int i = SideSwipeRawList.size() - 1; i > SideSwipeRawList.size() - 15; i--) {
+                            int num1 = SideSwipeRawList.get(i);
+                            int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                            if (numBefore1 > num1) LeftScore++;
+                            else RightScore++;
+                        }
+                    } else {
+                        for (int i = SideSwipeRawList.size() - 1; i > 0; i--) {
+                            int num1 = SideSwipeRawList.get(i);
+                            int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                            if (numBefore1 > num1) LeftScore++;
+                            else RightScore++;
+                        }
+                    }
+                    if (RightScore > LeftScore) {
+//                        onBackPressed();
+                    }
+                    hideNupdateSideSwipeThing();
+                    SideSwipeRawList.clear();
+                }
+                ;
+            }
+
+            return false;
+        }
+    };
+
+    class MySwipebackGestureListener extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            Log.d("TAG", "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            Log.d("TAG", "onDown: event.getRawX(): " + event.getRawX() + " event.getRawY()" + event.getRawY());
+            CoordinatorLayout.LayoutParams lParams = (CoordinatorLayout.LayoutParams) swipeBackView.getLayoutParams();
+            x_delta = X - lParams.leftMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Log.i("TAG", "onSingleTapConfirmed: ");
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            Log.i("TAG", "onLongPress: ");
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            Log.i("TAG", "onDoubleTap: ");
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+            if ((X - x_delta) < maxSideSwipeLength) {
+
+            } else if ((X - x_delta) > maxSideSwipeLength) {
+
+            } else {
+            }
+            showNupdateSideSwipeThing(X - x_delta);
+
+            Log.d("TAG", "the e2.getAction()= " + e2.getAction() + " and the MotionEvent.ACTION_CANCEL= " + MotionEvent.ACTION_CANCEL);
+            SideSwipeRawList.add(X);
+
+            isSideScrolling = true;
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            int RightScore = 0;
+            int LeftScore = 0;
+            if (SideSwipeRawList.size() > 15) {
+                for (int i = SideSwipeRawList.size() - 1; i > SideSwipeRawList.size() - 15; i--) {
+                    int num1 = SideSwipeRawList.get(i);
+                    int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                    if (numBefore1 > num1) LeftScore++;
+                    else RightScore++;
+                }
+            } else {
+                for (int i = SideSwipeRawList.size() - 1; i > 0; i--) {
+                    int num1 = SideSwipeRawList.get(i);
+                    int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                    if (numBefore1 > num1) LeftScore++;
+                    else RightScore++;
+                }
+            }
+            if (RightScore > LeftScore) {
+                onBackPressed();
+            }
+            SideSwipeRawList.clear();
+            return false;
+
+        }
+    }
+
+    private void showNupdateSideSwipeThing(int pos) {
+        int trans = (int) ((pos - Utils.dpToPx(10)) * 0.9);
+        RelativeLayout isGoingBackIndicator = findViewById(R.id.isGoingBackIndicator);
+//        isGoingBackIndicator.setTranslationX(trans);
+
+        View v = findViewById(R.id.swipeBackViewIndicator);
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) v.getLayoutParams();
+        params.height = trans;
+        v.setLayoutParams(params);
+
+        LinearLayout scrollView = findViewById(R.id.mainViewLayout);
+        scrollView.setTranslationX((int)(trans*0.05));
+    }
+
+    private void hideNupdateSideSwipeThing() {
+        int myDurat = 200;
+        RelativeLayout isGoingBackIndicator = findViewById(R.id.isGoingBackIndicator);
+//        isGoingBackIndicator.animate().setDuration(mAnimationTime).translationX(Utils.dpToPx(-40)).start();
+
+        final View v = findViewById(R.id.swipeBackViewIndicator);
+        final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) v.getLayoutParams();
+
+        ValueAnimator animatorTop;
+        animatorTop = ValueAnimator.ofInt(params.height, 0);
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.height = (Integer) valueAnimator.getAnimatedValue();
+                v.requestLayout();
+            }
+        });
+        animatorTop.setDuration(myDurat).start();
+
+        final LinearLayout mainViewLayout = findViewById(R.id.mainViewLayout);
+        mainViewLayout.animate().setDuration(myDurat).setInterpolator(new LinearOutSlowInInterpolator()).translationX(0)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mainViewLayout.setTranslationX(0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
 
 }
