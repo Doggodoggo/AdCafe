@@ -2793,6 +2793,7 @@ public class Bookmarks extends AppCompatActivity{
                         scrollAmount = 0;
                         if(!isCollapsingCard)resetWebViewContainer();
                     }
+//                    if(!isCollapsingCard)resetWebViewContainer();
                 }
                 return false;
             }
@@ -2894,7 +2895,8 @@ public class Bookmarks extends AppCompatActivity{
 
             if ((Y-_yDelta)>0) {
                 if(isAtTopOfPage){
-                    beginCollapseIfIsScrollingUpAtTop(Y-_yDelta);
+//                    if(!isLoading)
+                        beginCollapseIfIsScrollingUpAtTop(Y-_yDelta);
                 }
             }else{
                 resetWebViewContainer();
@@ -3056,8 +3058,8 @@ public class Bookmarks extends AppCompatActivity{
 
         final RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) ContactSelectorContainer.getLayoutParams();
 
-        ValueAnimator animatorContactTop = ValueAnimator.ofInt(params2.topMargin ,0);
-        ValueAnimator animatorContactBot = ValueAnimator.ofInt(params2.bottomMargin ,0);
+        ValueAnimator animatorContactTop = ValueAnimator.ofInt(params2.topMargin,Utils.dpToPx(10));
+        ValueAnimator animatorContactBot = ValueAnimator.ofInt(params2.bottomMargin,Utils.dpToPx(10));
 
         animatorContactTop.setInterpolator(new LinearOutSlowInInterpolator());
         animatorContactBot.setInterpolator(new LinearOutSlowInInterpolator());
