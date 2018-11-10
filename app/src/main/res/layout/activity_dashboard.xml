@@ -347,7 +347,7 @@
                         android:visibility="invisible"
                         android:layout_marginTop="45dp"
                         android:layout_marginLeft="110dp"
-                        android:background="@color/colorPrimary"
+                        android:background="@drawable/circle"
                         android:alpha="0.9"
                         android:layout_height="3dp"/>
 
@@ -464,11 +464,11 @@
 
                             <View
                                 android:id="@+id/dotForNotification"
-                                android:layout_width="2dp"
-                                android:layout_height="2dp"
+                                android:layout_width="3dp"
+                                android:layout_height="3dp"
                                 android:layout_marginLeft="40dp"
                                 android:layout_marginTop="15dp"
-                                android:background="@color/colorPrimaryLight"
+                                android:background="@drawable/circle"
                                 android:visibility="invisible" />
 
                         </android.support.v7.widget.CardView>
@@ -492,11 +492,11 @@
 
                             <View
                                 android:id="@+id/dotForUserData"
-                                android:layout_width="2dp"
-                                android:layout_height="2dp"
+                                android:layout_width="3dp"
+                                android:layout_height="3dp"
                                 android:layout_marginLeft="40dp"
                                 android:layout_marginTop="15dp"
-                                android:background="@color/colorPrimaryLight"
+                                android:background="@drawable/circle"
                                 android:visibility="invisible" />
 
                         </android.support.v7.widget.CardView>
@@ -528,11 +528,11 @@
 
                             <View
                                 android:id="@+id/dotForTargeted"
-                                android:layout_width="2dp"
-                                android:layout_height="2dp"
+                                android:layout_width="3dp"
+                                android:layout_height="3dp"
                                 android:layout_marginLeft="40dp"
                                 android:layout_marginTop="15dp"
-                                android:background="@color/colorPrimaryLight"
+                                android:background="@drawable/circle"
                                 android:visibility="visible" />
 
                         </android.support.v7.widget.CardView>

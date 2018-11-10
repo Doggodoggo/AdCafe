@@ -276,6 +276,8 @@ public class Bookmarks extends AppCompatActivity{
     private boolean isAtTopOfPage = false;
     private boolean isCollapsingCard = false;
 
+    private boolean isLoading = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -786,7 +788,17 @@ public class Bookmarks extends AppCompatActivity{
 //                        Intent intent = new Intent("DELETE_PINNED_AD");
 //                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
                         Intent intent2 = new Intent(Variables.adToBeViewed.getPushRefInAdminConsole());
-                        mAllAdsList.remove(Variables.adToBeViewed);
+//                        mAllAdsList.remove(Variables.adToBeViewed);
+                        Advert adv = null;
+                        for(Advert ad: mAllAdsList){
+                            if(ad.getPushRefInAdminConsole().equals(Variables.adToBeViewed.getPushRefInAdminConsole())){
+                                adv = ad;
+                                Log.w(TAG,"Found the item!!!");
+                            }
+                        }
+                        if(adv!=null){
+                            mAllAdsList.remove(adv);
+                        }
                         Variables.loadedSavedAdsList.remove(Variables.adToBeViewed.getPushRefInAdminConsole());
                         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent2);
                         Variables.placeHolderView = mPlaceHolderView;
@@ -2027,10 +2039,10 @@ public class Bookmarks extends AppCompatActivity{
         ValueAnimator animatorBot;
         ValueAnimator animatorTop;
 
-        animatorRight = ValueAnimator.ofInt(params.rightMargin,250,250);
-        animatorLeft = ValueAnimator.ofInt(params.leftMargin,250,250);
-        animatorTop = ValueAnimator.ofInt(params.topMargin,350,450);
-        animatorBot = ValueAnimator.ofInt(params.bottomMargin,350,350);
+        animatorRight = ValueAnimator.ofInt(params.rightMargin,150,250);
+        animatorLeft = ValueAnimator.ofInt(params.leftMargin,150,250);
+        animatorTop = ValueAnimator.ofInt(params.topMargin,350,600);
+        animatorBot = ValueAnimator.ofInt(params.bottomMargin,350,300);
 
         animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
         animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
@@ -2069,11 +2081,11 @@ public class Bookmarks extends AppCompatActivity{
             }
         });
 
-
+        int mAnimationTime = 450;
         animatorBot.setDuration(mAnimationTime);
         animatorTop.setDuration(mAnimationTime);
-        animatorLeft.setDuration(mAnimationTime+100);
-        animatorRight.setDuration(mAnimationTime+100);
+        animatorLeft.setDuration(mAnimationTime);
+        animatorRight.setDuration(mAnimationTime);
 
         animatorBot.start();
         animatorTop.start();
@@ -2154,13 +2166,13 @@ public class Bookmarks extends AppCompatActivity{
             public void onProgressChanged(WebView view, int progress) {
                 if(!isProgressShowing) showProgressBar();
                 updateProgress(progress);
-
+                isLoading = true;
                 // Return the app name after finish loading
                 if(progress == 100){
                     hideProgress();
                     UpdateButtonsAndAll();
                     updateUrl();
-
+                    isLoading = false;
                     String currentUrl = myWebView.getUrl();
                     Log.e("MainAct: ","current url"+currentUrl);
                     if(!currentUrl.contains("https://")){
@@ -2251,6 +2263,7 @@ public class Bookmarks extends AppCompatActivity{
                 myWebView.reload();
                 UpdateButtonsAndAll();
                 updateUrl();
+                mReloadButton.setBackground(getResources().getDrawable(R.drawable.ic_action_close));
             }
         });
 
@@ -4168,14 +4181,56 @@ public class Bookmarks extends AppCompatActivity{
 
 
     private void moveSwipeViewUpwards(){
-        final int pos = Utils.dpToPx(-50);
+        final int pos = Utils.dpToPx(-20);
+        vpPager.animate().setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator()).translationY(pos)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
 
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        vpPager.setTranslationY(pos);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
 
     }
 
     private void unMoveSwipeViewUpwards(){
         final int pos = 0;
+        vpPager.animate().setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator()).translationY(pos)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
 
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        vpPager.setTranslationY(pos);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
     }
 
 

@@ -33,8 +33,9 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="imageAsset" value="C:\Users\bryon\Desktop\frostbite\images\Icons\Globe_icon_(the_Noun_Project_30701).svg.png" />
-                                      <entry key="outputName" value="ic_action_secure" />
+                                      <entry key="assetType" value="IMAGE" />
+                                      <entry key="imageAsset" value="C:\Users\bryon\Desktop\my files\Work\Inks\Icons\share_icon.png" />
+                                      <entry key="outputName" value="ic_action_contact3" />
                                       <entry key="theme" value="CUSTOM" />
                                       <entry key="themeColor" value="064644" />
                                     </map>

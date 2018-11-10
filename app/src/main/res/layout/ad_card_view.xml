@@ -113,14 +113,14 @@
                 <ImageButton
                     android:id="@+id/shareImageIcon"
                     android:layout_width="26dp"
-                    android:layout_marginTop="9dp"
+                    android:layout_marginTop="11dp"
                     android:layout_height="26dp"
-                    android:layout_marginLeft="17dp"
+                    android:layout_marginLeft="16dp"
                     android:background="@drawable/ic_action_share4"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:id="@+id/shareImageText"
-                    android:text="Share."
+                    android:text="share."
                     android:textSize="8dp"
                     android:paddingTop="35dp"
                     android:paddingLeft="18dp"
@@ -145,7 +145,7 @@
             android:layout_marginLeft="140dp"
             android:layout_marginBottom="35dp"
             android:id="@+id/smallDot"
-            android:background="@color/colorPrimary"
+            android:background="@drawable/circle"
             android:layout_height="2dp"/>
 
         <ImageView
@@ -179,7 +179,7 @@
                     android:visibility="invisible"
                     style="@style/AVLoadingIndicatorView"
                     app:indicatorName="LineScaleIndicator"
-                    app:indicatorColor="@color/accent" />
+                    app:indicatorColor="@color/colorPrimaryDark" />
         </RelativeLayout>
 
 

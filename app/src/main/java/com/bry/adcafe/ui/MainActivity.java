@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
@@ -3784,7 +3785,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         mLoadingProgressBar.animate().setDuration(300).translationY(-Utils.dpToPx(100)).alpha(0f).setInterpolator(new LinearOutSlowInInterpolator());
-        mLoadingText.animate().setDuration(300).translationY(-Utils.dpToPx(100)).alpha(0f).setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+        mLoadingText.animate().setDuration(300).translationY(-Utils.dpToPx(100)).alpha(0f).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {
 
