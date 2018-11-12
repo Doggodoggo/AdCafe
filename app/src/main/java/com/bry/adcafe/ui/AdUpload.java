@@ -711,6 +711,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 }
                 if(websiteEditText.getText().toString().trim().equals("")) {
                     mLink = "none";
+                    Variables.incentiveForClick = 0;
                 }else{
                     mLink = websiteEditText.getText().toString().trim();
                 }
@@ -752,6 +753,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 }
                 if(websiteEditText.getText().toString().trim().equals("")) {
                     mLink = "none";
+                    Variables.incentiveForClick = 0;
                 }
                 if(phoneNumber.getText().toString().trim().equals("")){
                     mPhoneNumber = "none";
@@ -1134,7 +1136,13 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mFilepath);
                     bm = getResizedBitmap(bitmap,1300);
-                    Glide.with(mContext).load(bitmapToByte(bitmap)).asBitmap().override(400, 300).into(mProfileImageViewPreview);
+//                    byte[] myByte = bitmapToByte(bm);
+//                    Glide.with(mContext).load(myByte)
+//                            .override(400, 300)
+//                            .into(mProfileImageViewPreview);
+                    mProfileImageViewPreview.setImageBitmap(bm);
+                    mProfileImageViewPreview.setBackground(null);
+
                     if(mHasNumberBeenChosen)mUploadLayout.setVisibility(View.VISIBLE);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -1150,7 +1158,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
     private byte[] bitmapToByte(Bitmap bitmap){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG,80,baos);
+        bitmap.compress(Bitmap.CompressFormat.JPEG,100,baos);
         byte[] byteArray = baos.toByteArray();
         return byteArray;
     }
