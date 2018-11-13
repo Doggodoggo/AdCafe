@@ -836,7 +836,7 @@ public class DatabaseManager {
         String hashMapString = gson.toJson(Variables.Subscriptions);
 
         SharedPreferences prefs = context.getSharedPreferences("Subscriptions", MODE_PRIVATE);
-        prefs.edit().putString("hashString", hashMapString).apply();
+        prefs.edit().clear().putString("hashString", hashMapString).apply();
     }
 
 

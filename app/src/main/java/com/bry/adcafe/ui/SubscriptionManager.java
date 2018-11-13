@@ -152,7 +152,11 @@ public class SubscriptionManager extends AppCompatActivity implements View.OnCli
                         String cat = subSnap.getValue(String.class);
                         if(doesCategoryImageExist(cat)) subcategories.add(cat);
                     }
-                    if(!subcategories.isEmpty()) placeHolderView.addView(new SubscriptionManagerContainer(mContext,placeHolderView,category,subcategories));
+                    if(!subcategories.isEmpty()){
+                        if(!category.equals(Constants.CATEGORY_EVERYONE_CONTAINER)) {
+                            placeHolderView.addView(new SubscriptionManagerContainer(mContext, placeHolderView, category, subcategories));
+                        }
+                    }
                 }
                 loadingLayout.setVisibility(View.GONE);
                 mainView.setVisibility(View.VISIBLE);

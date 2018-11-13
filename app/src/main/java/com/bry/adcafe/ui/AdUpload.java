@@ -245,6 +245,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
     }
 
 
+
     @Override
     protected void onResume(){
         isWindowPaused = false;
@@ -266,7 +267,6 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         isWindowPaused = true;
         super.onPause();
     }
-
 
     private void startGetNumberOfClusters(){
         if(isOnline(mContext)){
@@ -303,7 +303,6 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         mLoadingTextView.setVisibility(View.VISIBLE);
         setAllOtherViewsToBeGone();
         Log(TAG,"---Getting number of clusters.");
-        //When restructuring to advertising to specific type of users,add .child("%AdvertCategory%");
         mRef = FirebaseDatabase.getInstance().getReference(Constants.CLUSTERS).child(Constants.CLUSTERS_LIST)
                 .child(Integer.toString(mAmountToPayPerTargetedView)).child(mCategory);
         mRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -414,7 +413,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                     noOfChildrenInLatestCluster = 0;
                 }
                 Log(TAG,"---the number of children gotten is: "+noOfChildrenInLatestCluster);
-                loadAllUsersForCategory();
+                loadAllUsersIfCategoryIsAllUsers();
             }
 
             @Override
@@ -429,6 +428,33 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                         Snackbar.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void loadAllUsersIfCategoryIsAllUsers(){
+       if(mCategory.equals(Constants.CATEGORY_EVERYONE)) {
+           DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS);
+           dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+               @Override
+               public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                   for(DataSnapshot userSnap:dataSnapshot.getChildren()){
+                       String uid = userSnap.getKey();
+                       if(!userIds.contains(uid))userIds.add(uid);
+                   }
+                   loadAllUsersForCategory();
+               }
+
+               @Override
+               public void onCancelled(@NonNull DatabaseError databaseError) {
+                   mNoConnection.setVisibility(View.VISIBLE);
+                   mBottomNavs.setVisibility(View.GONE);
+//                mAvi.setVisibility(View.GONE);
+                   mProgressBarUpload.setVisibility(View.GONE);
+                   Log(TAG,"---Unable to connect to firebase at the moment. "+databaseError.getMessage());
+                   Snackbar.make(findViewById(R.id.SignUpCoordinatorLayout), R.string.cannotUploadFailedFirebase,
+                           Snackbar.LENGTH_LONG).show();
+               }
+           });
+       }else loadAllUsersForCategory();
     }
 
     private void loadAllUsersForCategory(){
@@ -464,9 +490,19 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                         String subKey = subSnap.getKey();
                         subs.add(subKey);
                     }
-                    int cluster = userSnap.child(Constants.SUBSCRIPTION_lIST).child(mCategory).getValue(int.class);
-                    UsersInCategory.add(new TargetedUser(uid,gender,birthday,birthmonth,birthyear,
-                            userLocations,cluster,deviceCategory,subs));
+                    int cluster = 1;
+
+                    if(userSnap.child(Constants.SUBSCRIPTION_lIST).child(mCategory).exists()) {
+                        cluster = userSnap.child(Constants.SUBSCRIPTION_lIST).child(mCategory).getValue(int.class);
+                        UsersInCategory.add(new TargetedUser(uid,gender,birthday,birthmonth,birthyear,
+                                userLocations,cluster,deviceCategory,subs));
+                    }else{
+                        if(mCategory.equals(Constants.CATEGORY_EVERYONE)){
+                            UsersInCategory.add(new TargetedUser(uid,gender,birthday,birthmonth,birthyear,
+                                    userLocations,cluster,deviceCategory,subs));
+                        }
+                    }
+
                 }
                 setAllOtherViewsToBeVisible();
                 mProgressBarUpload.setVisibility(View.GONE);

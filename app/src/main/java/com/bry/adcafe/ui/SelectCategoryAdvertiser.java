@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
@@ -74,6 +75,8 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
     private boolean isSideScrolling2 = false;
     private int maxSideSwipeLength = 200;
 
+    private long allUsersNumber = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,7 +107,7 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
             TimeManager.setUpTimeManager(Constants.LOAD_TIME, mContext);
             LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForSetUpTime,
                     new IntentFilter(Constants.LOAD_TIME));
-        } else loadUserStatsFirst();
+        } else loadAllUserNumber();
     }
 
     @Override
@@ -132,15 +135,37 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG,"Finished setting up time.");
-            loadUserStatsFirst();
+            loadAllUserNumber();
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
         }
     };
 
-    private void loadUserStatsFirst(){
+    private void loadAllUserNumber(){
         failedToLoadLayout.setVisibility(View.GONE);
         mainView.setVisibility(View.GONE);
         loadingLayout.setVisibility(View.VISIBLE);
+
+        DatabaseReference mAll = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS);
+        mAll.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                for(DataSnapshot userSnap:dataSnapshot.getChildren()){
+//                    if(userSnap.child(Constants.SUBSCRIPTION_lIST).child(Constants.CATEGORY_EVERYONE).exists()){
+//                        allUsersNumber++;
+//                    }
+//                }
+                allUsersNumber= dataSnapshot.getChildrenCount();
+                loadUserStatsFirst();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void loadUserStatsFirst(){
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(Constants.CLUSTERS)
                 .child(Constants.CLUSTERS_LIST);
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -153,6 +178,9 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
                         String category = categorySnap.getKey();
                         long numberOfUsers = ((categorySnap.getChildrenCount()-1)*1000)
                                 +categorySnap.child(Long.toString(categorySnap.getChildrenCount())).getChildrenCount();
+                        if(category.equals(Constants.CATEGORY_EVERYONE)){
+                            numberOfUsers = allUsersNumber;
+                        }
                         categoryStats.put(category,numberOfUsers);
                     }
                     userStats.put(cpvValue,categoryStats);
@@ -173,6 +201,7 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                SelectCategoryAdvertiserContainer lastCat = null;
                 for(DataSnapshot snap:dataSnapshot.getChildren()){
                     String category = snap.getKey();
                     List<String> subcategories = new ArrayList<>();
@@ -183,7 +212,16 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
                             Variables.allCategories.add(subSnap.getValue(String.class));
                         }
                     }
-                    if(!subcategories.isEmpty())placeHolderView.addView(new SelectCategoryAdvertiserContainer(mContext,placeHolderView,category,subcategories));
+                    if(!subcategories.isEmpty()){
+                        if(category.equals(Constants.CATEGORY_EVERYONE_CONTAINER)){
+                            lastCat = new SelectCategoryAdvertiserContainer(mContext,placeHolderView,category,subcategories);
+                        }else{
+                            placeHolderView.addView(new SelectCategoryAdvertiserContainer(mContext,placeHolderView,category,subcategories));
+                        }
+                    }
+                }
+                if(lastCat!=null){
+                    placeHolderView.addView(lastCat);
                 }
                 loadingLayout.setVisibility(View.GONE);
                 mainView.setVisibility(View.VISIBLE);
@@ -285,7 +323,7 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
     public void onClick(View v) {
         if(v==retryLoadingButton){
             if(isOnline(mContext)) {
-                loadUserStatsFirst();
+                loadAllUserNumber();
             }else{
                 Toast.makeText(mContext,"To continue,you need an internet connection",Toast.LENGTH_SHORT).show();
             }

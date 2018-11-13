@@ -239,5 +239,8 @@ public class Constants {
     public static String USERS_THAT_HAVE_SEEN = "UsersThatHaveSeenIt";
     public static String USERS_THAT_HAVE_CLICKED_IT = "UsersThatHaveClickedIt";
 
+    public static String CATEGORY_EVERYONE = "everyone";
+    public static String CATEGORY_EVERYONE_CONTAINER = "all-users";
+
 
 }

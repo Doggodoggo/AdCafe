@@ -97,7 +97,11 @@ public class SelectCategory extends AppCompatActivity implements View.OnClickLis
                             numberOfSubs++;
                         }
                     }
-                   if(!subcategories.isEmpty()) placeHolderView.addView(new SelectCategoryContainer(mContext,placeHolderView,category,subcategories));
+                   if(!subcategories.isEmpty()){
+                        if(!category.equals(Constants.CATEGORY_EVERYONE_CONTAINER)){
+                            placeHolderView.addView(new SelectCategoryContainer(mContext,placeHolderView,category,subcategories));
+                        }
+                   }
                 }
                 new DatabaseManager().setNumberOfSubscriptionsUserKnowsAbout(numberOfSubs);
                 loadingLayout.setVisibility(View.GONE);
@@ -253,6 +257,9 @@ public class SelectCategory extends AppCompatActivity implements View.OnClickLis
         hasDataBeenLoaded = false;
         DatabaseManager dbm = new DatabaseManager();
         dbm.setContext(mContext);
+        if(!Variables.selectedCategoriesToSubscribeTo.contains(Constants.CATEGORY_EVERYONE)) {
+            Variables.selectedCategoriesToSubscribeTo.add(Constants.CATEGORY_EVERYONE);
+        }
         dbm.setUpUserSubscriptions(Variables.selectedCategoriesToSubscribeTo);
     }
 

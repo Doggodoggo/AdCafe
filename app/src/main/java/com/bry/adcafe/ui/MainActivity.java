@@ -1961,7 +1961,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             if(Variables.mIsLastOrNotLast.equals(Constants.NO_ADS)||isLastAd) {
                 if (Variables.didAdCafeRemoveCategory) informUserOfSubscriptionChanges();
-                if (Variables.didAdCafeAddNewCategory) tellUserOfNewSubscription();
+                if (Variables.didAdCafeAddNewCategory){
+                    Variables.newSubs.remove(Constants.CATEGORY_EVERYONE);
+                    if(!Variables.newSubs.isEmpty()){
+                        tellUserOfNewSubscription();
+                    }else{
+                        Variables.didAdCafeAddNewCategory = false;
+                        Variables.newSubs.clear();
+                    }
+                }
             }
         }
 
@@ -2025,7 +2033,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setCurrentAdInSubscriptionAndCurrentSubscriptionIndexInFireBase();
 
         if(Variables.didAdCafeRemoveCategory)informUserOfSubscriptionChanges();
-        if(Variables.didAdCafeAddNewCategory) tellUserOfNewSubscription();
+        if(Variables.didAdCafeAddNewCategory){
+            Variables.newSubs.remove(Constants.CATEGORY_EVERYONE);
+            if(!Variables.newSubs.isEmpty()){
+                tellUserOfNewSubscription();
+            }else{
+                Variables.didAdCafeAddNewCategory = false;
+                Variables.newSubs.clear();
+            }
+        }
 
         if(mSwipeView.getChildCount() == 1 && !isLoadingMoreAds)
             Toast.makeText(mContext, R.string.lastAd, Toast.LENGTH_SHORT).show();

@@ -102,9 +102,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mRegisterLink.setOnClickListener(this);
         mLoginButton.setOnClickListener(this);
         mContext = this.getApplicationContext();
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForFinishedLoadingData,new IntentFilter(Constants.LOADED_USER_DATA_SUCCESSFULLY));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForFailedToLoadData,new IntentFilter(Constants.FAILED_TO_LOAD_USER_DATA));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForSetUpTime,new IntentFilter(Constants.LOAD_TIME));
+        setBroadcastListeners();
         Variables.isLoginOnline = true;
 
         mPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -144,6 +142,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }
             }
         };
+    }
+
+    private void setBroadcastListeners(){
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForFinishedLoadingData,new IntentFilter(Constants.LOADED_USER_DATA_SUCCESSFULLY));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForFailedToLoadData,new IntentFilter(Constants.FAILED_TO_LOAD_USER_DATA));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForSetUpTime,new IntentFilter(Constants.LOAD_TIME));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForFinishedSubscribingUserToAllAdsCategory
+                ,new IntentFilter(Constants.SET_UP_USERS_SUBSCRIPTION_LIST));
+    }
+
+    private void removeBroadCastReceivers(){
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFailedToLoadData);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedLoadingData);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForSetUpTime);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedSubscribingUserToAllAdsCategory);
     }
 
     private  void setNoInternetView(){
@@ -204,8 +217,31 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG,"Finished loading user data");
-            hasEverythingLoaded = true;
-            if(isActivityVisible)checkIfTheFuckingEULAHasBeenUpdated();
+            if(Variables.Subscriptions.containsKey(Constants.CATEGORY_EVERYONE)){
+                hasEverythingLoaded = true;
+                if(isActivityVisible)checkIfTheFuckingEULAHasBeenUpdated();
+            }else{
+                if(Variables.Subscriptions.isEmpty()){
+                    //If user has no subscriptions, app will take them to select subscription activity
+                    hasEverythingLoaded = true;
+                    if(isActivityVisible)checkIfTheFuckingEULAHasBeenUpdated();
+                }else{
+                    //if user has subscriptions, but not containing the 'everyone' category;
+                    Log.e(TAG,"User isn't subbed to everyone category. Subscribing him/her now.");
+                    DatabaseManager man = new DatabaseManager();
+                    man.setContext(mContext);
+                    man.subscribeUserToSpecificCategory(Constants.CATEGORY_EVERYONE);
+                }
+            }
+
+        }
+    };
+
+    private BroadcastReceiver mMessageReceiverForFinishedSubscribingUserToAllAdsCategory = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG,"Finished subscribing user to everything category. Restarting loading user data.");
+            nowReallyStartLoadingUserData();
         }
     };
 
@@ -256,9 +292,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onDestroy(){
         Variables.isLoginOnline = false;
-        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFailedToLoadData);
-        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedLoadingData);
-        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForSetUpTime);
+        removeBroadCastReceivers();
         super.onDestroy();
     }
 

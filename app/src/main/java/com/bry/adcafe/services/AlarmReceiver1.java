@@ -109,12 +109,12 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                     if (isUserLoggedIn()) loadTimeFirst();
                     h.removeCallbacks(r);
                 }else{
-                    h.postDelayed(r, 30000);
+                    h.postDelayed(r, 10000);
                 }
 
             }
         };
-        h.postDelayed(r, 30000);
+        h.postDelayed(r, 10000);
     }
 
     private void loadTimeFirst(){
@@ -156,6 +156,7 @@ public class AlarmReceiver1 extends BroadcastReceiver {
     }
 
     private void loadSubscriptionsThenCheckForAds(){
+        Subscriptions.clear();
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Log(TAG,"Starting to load users data to check if there are ads");
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
@@ -176,11 +177,19 @@ public class AlarmReceiver1 extends BroadcastReceiver {
                     Log(TAG,"Key category gotten from firebase is : "+category+" Value : "+cluster);
                     Subscriptions.put(category,cluster);
                 }
-                DataSnapshot isNeedToResetSubsSnap = dataSnapshot.child(Constants.RESET_ALL_SUBS_BOOLEAN);
-                if(!isNeedToResetSubsSnap.getValue(Boolean.class)) {
-                    numberOfSubsFromFirebase = Subscriptions.size();
+                if(Subscriptions.containsKey(Constants.CATEGORY_EVERYONE)) {
+                    DataSnapshot isNeedToResetSubsSnap = dataSnapshot.child(Constants.RESET_ALL_SUBS_BOOLEAN);
+                    if (!isNeedToResetSubsSnap.getValue(Boolean.class)) {
+                        numberOfSubsFromFirebase = Subscriptions.size();
 //                    checkNumberForEach();
-                    getTargetedUsersDataList();
+                        getTargetedUsersDataList();
+                    }
+                }else{
+                    DatabaseManager man = new DatabaseManager();
+                    man.setContext(mContext);
+                    man.subscribeUserToSpecificCategory(Constants.CATEGORY_EVERYONE);
+                    LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForFinishedSubscribingUserToAllAdsCategory
+                            ,new IntentFilter(Constants.SET_UP_USERS_SUBSCRIPTION_LIST));
                 }
             }
 
@@ -190,6 +199,16 @@ public class AlarmReceiver1 extends BroadcastReceiver {
             }
         });
     }
+
+    private BroadcastReceiver mMessageReceiverForFinishedSubscribingUserToAllAdsCategory = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG,"Finished subscribing user to everything category");
+            Variables.hasChangesBeenMadeToCategories = false;
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedSubscribingUserToAllAdsCategory);
+            loadSubscriptionsThenCheckForAds();
+        }
+    };
 
     private void getTargetedUsersDataList(){
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child(Constants.TARGET_USER_DATA);
