@@ -12,6 +12,7 @@ import android.util.Log;
 import com.bry.adcafe.Constants;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.ui.MainActivity;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Calendar;
 
@@ -55,8 +56,12 @@ public class BootCompletedIntentReceiver extends BroadcastReceiver {
             e.printStackTrace();
         }
 
-
-        Intent i = new Intent(context, MessagesService.class);
-        context.startService(i);
+        try{
+            String auth = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            Intent i = new Intent(context, MessagesService.class);
+            context.startService(i);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

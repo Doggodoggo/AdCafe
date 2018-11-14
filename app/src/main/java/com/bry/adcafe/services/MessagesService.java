@@ -70,8 +70,8 @@ public class MessagesService extends IntentService {
         super.onCreate();
         // If a Context object is needed, call getApplicationContext() here.
         mContext = getApplicationContext();
-        uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
         try{
+            uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
             if(mRef!=null) mRef.removeEventListener(mChil);
         }catch (Exception e){
             e.printStackTrace();
@@ -81,59 +81,61 @@ public class MessagesService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         // This describes what will happen when service is triggered
-        mRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_MESSAGES)
-                .child(uid).child(Constants.MESSAGES_LIST);
+        if(uid!=null) {
+            mRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_MESSAGES)
+                    .child(uid).child(Constants.MESSAGES_LIST);
 
-        mChil = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.w(TAG,"Added message detected");
-                Log.e(TAG,dataSnapshot.getValue().toString());
-                try{
-                    Message item = dataSnapshot.getValue(Message.class);
-                    if(item.getSenderId().equals(uid)){
-                        item.setIsUsersMessage(true);
-                    }else{
-                        item.setIsUsersMessage(false);
-                    }
-                    if (!item.IsUsersMessage()) {
-                        if(item.getMessageType().equals(Constants.IMAGE_MESSAGE)){
-                            setMessageImageInStorageThenAddMessageToSavedMessageList(item);
-                        }else{
-                            Log.w(TAG,"Detected sent message by admin. Adding message to saved message list");
-                            addMessageToSavedMessagesList(item);
+            mChil = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Log.w(TAG, "Added message detected");
+                    Log.e(TAG, dataSnapshot.getValue().toString());
+                    try {
+                        Message item = dataSnapshot.getValue(Message.class);
+                        if (item.getSenderId().equals(uid)) {
+                            item.setIsUsersMessage(true);
+                        } else {
+                            item.setIsUsersMessage(false);
                         }
-                    }else{
-                        if(!checkIfMessageIsContained(item)){
+                        if (!item.IsUsersMessage()) {
+                            if (item.getMessageType().equals(Constants.IMAGE_MESSAGE)) {
+                                setMessageImageInStorageThenAddMessageToSavedMessageList(item);
+                            } else {
+                                Log.w(TAG, "Detected sent message by admin. Adding message to saved message list");
+                                addMessageToSavedMessagesList(item);
+                            }
+                        } else {
+                            if (!checkIfMessageIsContained(item)) {
 //                            addMessageToSavedMessagesList(item);
+                            }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                }catch (Exception e){
-                    e.printStackTrace();
                 }
-            }
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            }
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                }
 
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-            }
+                }
 
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
-            }
+                }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        };
-        Log.w(TAG,"adding child event listener for detecting new messages");
-        mRef.addChildEventListener(mChil);
+                }
+            };
+            Log.w(TAG, "adding child event listener for detecting new messages");
+            mRef.addChildEventListener(mChil);
+        }
     }
 
     @Override
