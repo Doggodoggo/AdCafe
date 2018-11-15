@@ -83,11 +83,15 @@ public class SelectCategoryAdvertiserItem {
         Glide.with(mContext).load(getImage(filename)).asBitmap().centerCrop().into(new BitmapImageViewTarget(categoryImage) {
             @Override
             protected void setResource(Bitmap resource) {
-                RoundedBitmapDrawable circularBitmapDrawable =
-                        RoundedBitmapDrawableFactory.create(mContext.getResources(),resource);
+                try{
+                    RoundedBitmapDrawable circularBitmapDrawable =
+                            RoundedBitmapDrawableFactory.create(mContext.getResources(),resource);
 //                                Bitmap.createScaledBitmap(resource,100,100,false));
-                circularBitmapDrawable.setCircular(true);
-                categoryImage.setImageDrawable(circularBitmapDrawable);
+                    circularBitmapDrawable.setCircular(true);
+                    categoryImage.setImageDrawable(circularBitmapDrawable);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         });
 

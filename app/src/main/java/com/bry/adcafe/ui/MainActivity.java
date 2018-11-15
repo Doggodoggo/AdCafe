@@ -1418,13 +1418,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
            //This will load all the ads images.
            for(final Advert ad: mAdList){
                String pushRefInAdminConsole = ad.getPushRefInAdminConsole();
+               final int pos = mAdList.indexOf(ad);
                DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE).child(date)
                        .child(pushRefInAdminConsole).child("imageUrl");
                adRef.addListenerForSingleValueEvent(new ValueEventListener() {
                    @Override
                    public void onDataChange(DataSnapshot dataSnapshot) {
                        String imageUrl = dataSnapshot.getValue(String.class);
-                       mAdList.get(mAdList.indexOf(ad)).setImageUrl(imageUrl);
+                       mAdList.get(pos).setImageUrl(imageUrl);
                        iterations++;
                        if(iterations == mAdList.size()){
                            iterations = 0;
