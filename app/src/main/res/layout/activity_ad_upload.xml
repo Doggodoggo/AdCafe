@@ -193,8 +193,19 @@
         </LinearLayout>
 
         <ImageView
+            android:id="@+id/profileImageViewPreviewBackground"
+            android:scaleType="centerCrop"
+            android:layout_width="match_parent"
+            android:layout_marginRight="0.5dp"
+            android:layout_marginLeft="0.5dp"
+            android:layout_marginTop="0.5dp"
+            android:alpha="0.25"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="48dp"/>
+
+        <ImageView
             android:id="@+id/profileImageViewPreview"
-            android:scaleType="fitXY"
+            android:scaleType="fitCenter"
             android:layout_width="match_parent"
             android:layout_marginRight="0.5dp"
             android:background="@drawable/placeholderimage"

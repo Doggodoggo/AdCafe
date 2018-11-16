@@ -1,5 +1,6 @@
 package com.bry.adcafe.adapters;
 
+import android.animation.Animator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Base64;
 import android.util.Log;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,6 +53,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
 @Layout(R.layout.ad_card_view)
 public class AdvertCard{
     @View(R.id.profileImageView) private ImageView profileImageView;
+    @View(R.id.profileImageViewBack) private ImageView profileImageViewBack;
     @View(R.id.errorImageView) private ImageView errorImageView;
     @View(R.id.adCardAvi) private AVLoadingIndicatorView mAvi;
 
@@ -89,6 +92,13 @@ public class AdvertCard{
     private int positionBL = 0;
     private boolean isFirstCard = false;
     private boolean isOnTop = false;
+
+    private Bitmap backBl;
+    private boolean hasBackBlBeenSet;
+    private byte[] backBlImageBytes;
+
+    private int animationDutat = 300;
+    private float defaultAlpha = 0.15f;
 
 
     public AdvertCard(Context context, Advert advert, SwipePlaceHolderView swipeView,String lastOrNotLast){
@@ -145,6 +155,12 @@ public class AdvertCard{
             try {
                 bs = decodeFromFirebaseBase64(mAdvert.getImageUrl());
                 Log("SavedAdsCard---", "Image has been converted to bitmap.");
+
+                if(!hasBackBlBeenSet){
+                    hasBackBlBeenSet = true;
+                    backBl = fastblur(bs,0.7f,27);
+                }
+
                 mImageBytes = bitmapToByte(bs);
                 mAdvert.setImageBitmap(bs);
             } catch (Exception e) {
@@ -217,6 +233,11 @@ public class AdvertCard{
                 MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, 25));
                 Glide.with(mContext).load(mImageBytes).bitmapTransform(multi).listener(myRq).into(profileImageView);
             }
+
+            MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, 30));
+//            Glide.with(mContext).load(mImageBytes).bitmapTransform(multi).into(profileImageViewBack);
+
+            profileImageViewBack.setImageBitmap(backBl);
         }
 
     }
@@ -243,6 +264,36 @@ public class AdvertCard{
                 return false;
             }
         }).into(profileImageView);
+
+//        MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, 30));
+//        Glide.with(mContext).load(mImageBytes).bitmapTransform(multi).into(profileImageViewBack);
+
+        profileImageViewBack.setImageBitmap(backBl);
+        profileImageViewBack.animate().alpha(defaultAlpha).setDuration(animationDutat).setInterpolator(new LinearInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        profileImageViewBack.setAlpha(defaultAlpha);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+//        Glide.with(mContext).load(mImageBytes).bitmapTransform(multi).into(profileImageViewBack);
+
+
         lockViews();
         clickable=false;
         Variables.setCurrentAdvert(mAdvert);
@@ -320,6 +371,29 @@ public class AdvertCard{
                 sendBroadcast(START_TIMER);
             }
         }
+
+        profileImageViewBack.animate().alpha(defaultAlpha).setDuration(animationDutat).setInterpolator(new LinearInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        profileImageViewBack.setAlpha(defaultAlpha);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
 
         if(mLastOrNotLast.equals(Constants.ANNOUNCEMENTS)){
             if(mSwipeView.getChildCount()==1){
@@ -823,6 +897,7 @@ public class AdvertCard{
                         positionBL++;
                     }
                 }
+
             }
             return "executed";
         }
