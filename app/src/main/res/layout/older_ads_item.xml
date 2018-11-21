@@ -76,11 +76,37 @@
                 android:text="boi"
                 android:layout_height="wrap_content" />
 
+            <android.support.v7.widget.CardView
+                android:id="@+id/viewCard"
+                android:visibility="visible"
+                android:layout_width="match_parent"
+                android:layout_gravity="bottom"
+                app:cardBackgroundColor="@color/colorPrimaryDark"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="0dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/takeDownText"
+                    android:layout_width="match_parent"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:layout_marginTop="11dp"
+                    android:layout_marginBottom="11dp"
+                    android:text="VIEW."
+                    android:textSize="11sp"
+                    android:layout_height="wrap_content" />
+
+            </android.support.v7.widget.CardView>
+
             <Button
                 android:id="@+id/reimburseOldBtn"
                 android:layout_width="86dp"
                 android:layout_gravity="center"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:layout_height="32dp"
                 android:layout_marginTop="10dp"
                 android:textColor="@color/white"

@@ -181,6 +181,7 @@ public class Variables {
     public static List<AdCoin> legitCoins;
 
     public static MotionEvent activeEvent;
+    public static Advert adToBeViewedInTelemetries;
 
 
 

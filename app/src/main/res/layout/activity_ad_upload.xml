@@ -245,12 +245,19 @@
         android:layout_width="match_parent"
         android:layout_height="50dp">
 
+        <ProgressBar
+            android:id="@+id/loadingProgressBar"
+            android:layout_width="20dp"
+            android:visibility="invisible"
+            android:layout_marginTop="15dp"
+            android:layout_height="20dp" />
+
         <ImageView
             android:layout_width="wrap_content"
             android:id="@+id/helpIcon"
             android:visibility="visible"
             android:layout_marginTop="10dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="10dp"
             android:background="@drawable/ic_action_helpp2"
             android:layout_height="wrap_content" />
 

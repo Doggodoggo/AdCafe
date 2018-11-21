@@ -241,6 +241,11 @@ public class Constants {
 
     public static String CATEGORY_EVERYONE = "everyone";
     public static String CATEGORY_EVERYONE_CONTAINER = "all-users";
+    public static String TOMORROWS_ADS = "TOMORROWS_ADS";
+    public static String TODAYS_ADS = "TODAYS_ADS";
+    public static String YESTERDAYS_ADS = "YESTERDAYS_ADS";
+    public static String OLDER_UPLOADS = "OLDER_UPLOADS";
 
+    public static String ALL_AD_IMAGES = "AdImages";
 
 }

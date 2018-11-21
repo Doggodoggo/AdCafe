@@ -50,6 +50,8 @@ public class Advert {
     private Integer webClickNumber = 0;
 
     private int numberOfPins = 0;
+    private String AdType;
+    private boolean hasSetBackupImage = false;
 
 
 
@@ -318,5 +320,21 @@ public class Advert {
 
     public void setNumberOfPins(int numberOfPins) {
         this.numberOfPins = numberOfPins;
+    }
+
+    public String getAdType() {
+        return AdType;
+    }
+
+    public void setAdType(String adType) {
+        AdType = adType;
+    }
+
+    public boolean hasSetBackupImage() {
+        return hasSetBackupImage;
+    }
+
+    public void setHasSetBackupImage(boolean hasSetBackupImage) {
+        this.hasSetBackupImage = hasSetBackupImage;
     }
 }

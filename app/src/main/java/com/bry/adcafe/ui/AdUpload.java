@@ -55,6 +55,7 @@ import com.bry.adcafe.fragments.SetAdvertiserLocation;
 import com.bry.adcafe.fragments.SetAdvertiserTargetInfoFragment;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.AdvertiserLocation;
+import com.bry.adcafe.models.MyTime;
 import com.bry.adcafe.models.TargetedUser;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.Payments;
@@ -63,8 +64,11 @@ import com.bry.adcafe.services.Utils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCanceledListener;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -1180,9 +1184,13 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 //                    MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, 30));
 //                    Glide.with(mContext).load(bitmapToByte(bm)).bitmapTransform(multi).into(profileImageViewPreviewBackground);
 
-                  profileImageViewPreviewBackground.setImageBitmap(null);
-                  profileImageViewPreviewBackground.setBackground(null);
+                    profileImageViewPreviewBackground.setImageBitmap(null);
+                    profileImageViewPreviewBackground.setBackground(null);
                     LongOperationFI op = new LongOperationFI();
+
+                    ProgressBar prog = findViewById(R.id.loadingProgressBar);
+                    prog.setVisibility(View.VISIBLE);
+
                     op.execute("");
 //                    Bitmap backBl = fastblur(bm,0.7f,27);
 //                    profileImageViewPreviewBackground.setImageBitmap(backBl);
@@ -1223,6 +1231,9 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             super.onPostExecute(result);
             ImageView profileImageViewPreviewBackground = findViewById(R.id.profileImageViewPreviewBackground);
             profileImageViewPreviewBackground.setImageBitmap(backBl);
+
+            ProgressBar prog = findViewById(R.id.loadingProgressBar);
+            prog.setVisibility(View.INVISIBLE);
         }
 
     }
@@ -1541,8 +1552,10 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
 
         Advert advert = new Advert(encodedImageToUpload);
         advert.setNumberOfTimesSeen(0);
+        advert.setHasSetBackupImage(true);
         advert.setPaymentReference(Variables.transactionID);
         advert.setPaymentMethod(Variables.paymentOption);
+        advert.setAdvertiserPhoneNo(mPhoneNumber);
         advert.setAdvertiserUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
         advert.setNumberOfUsersToReach(mNumberOfClusters*Constants.NUMBER_OF_USERS_PER_CLUSTER);
         if(Variables.isTargetingDataSet())advert.setNumberOfUsersToReach(knownTargetedUsers.size());
@@ -1564,6 +1577,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                uploadImage(bm);
             }
         });
+        setBackupImage(pushId,encodedImageToUpload);
         advert.setImageUrl("");
         DatabaseReference dbrefh = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(User.getUid()).child(Constants.UPLOAD_HISTORY).child(Long.toString(-(getDateInDays()+1)))
@@ -1648,7 +1662,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 advert.setPushId(pushId);
                 advert.setWebsiteLink(mLink);
                 advert.setCategory(mCategory);
-                advert.setAdvertiserPhoneNo("");
+                advert.setAdvertiserPhoneNo(mPhoneNumber);
                 advert.setFlagged(false);
                 advert.setWebClickIncentive(Variables.incentiveForClick);
                 advert.setWebClickNumber(0);
@@ -1764,7 +1778,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                 advert.setPushId(pushId);
                 advert.setWebsiteLink(mLink);
                 advert.setCategory(mCategory);
-                advert.setAdvertiserPhoneNo("");
+                advert.setAdvertiserPhoneNo(mPhoneNumber);
                 advert.setFlagged(false);
                 advert.setWebClickIncentive(Variables.incentiveForClick);
                 advert.setWebClickNumber(0);
@@ -1852,6 +1866,19 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         }
 
 
+    }
+
+    private void setBackupImage(String adId, String image){
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(Constants.ALL_AD_IMAGES).child(adId);
+        myRef.child("imageId").setValue(adId);
+        myRef.child("uploadDateInDays").setValue(getDateInDays());
+        myRef.child("uploadDate").setValue(new MyTime(TimeManager.getCal()));
+        myRef.child("image").setValue(image).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log(TAG,"Set backup image in firebase");
+            }
+        });
     }
 
 

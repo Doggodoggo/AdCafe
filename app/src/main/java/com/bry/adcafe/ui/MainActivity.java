@@ -1411,6 +1411,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void loadAdsIntoAdvertCard(){
+        hideViews();
         String date;
         date = mIsBeingReset ? getNextDay() : getDate();
 

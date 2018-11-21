@@ -10,25 +10,36 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
+import android.util.Base64;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,8 +51,8 @@ import com.bry.adcafe.adapters.MyAdStatsItem;
 import com.bry.adcafe.adapters.OlderAdsItem;
 import com.bry.adcafe.adapters.TomorrowsAdStatItem;
 import com.bry.adcafe.fragments.FragmentAdvertiserPayoutBottomsheet;
+import com.bry.adcafe.models.AdImageData;
 import com.bry.adcafe.models.Advert;
-import com.bry.adcafe.models.LockableScrollView;
 import com.bry.adcafe.models.PayoutResponse;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.DatabaseManager;
@@ -113,6 +124,47 @@ public class AdStats extends AppCompatActivity {
     private boolean isSideScrolling = false;
 
 
+    @Bind(R.id.telemetryLayout) RelativeLayout telemetryLayout;
+    private int mAnimationTime = 300;
+    private boolean isTelemetryCardMinimized = true;
+    @Bind(R.id.telemetryBack) ImageButton telemetryBack;
+    @Bind(R.id.normalTelemetryLayout) RelativeLayout normalTelemetryLayout;
+    @Bind(R.id.statTelemetryIcon) ImageView statTelemetryIcon;
+    @Bind(R.id.viewingDateText) TextView viewingDateText;
+    @Bind(R.id.targetNumber) TextView targetNumber;
+    @Bind(R.id.userSeenNumber) TextView userSeenNumber;
+    @Bind(R.id.adImage) ImageView adImage;
+    @Bind(R.id.adImageBackground) ImageView adImageBackground;
+    @Bind(R.id.uploaderText) TextView uploaderText;
+    @Bind(R.id.statusText) TextView statusText;
+    @Bind(R.id.amountPaidNumber) TextView amountPaidNumber;
+    @Bind(R.id.reimbursalAmountNumber) TextView reimbursalAmountNumber;
+    @Bind(R.id.reimburseCard) CardView reimburseCard;
+    @Bind(R.id.takeDownCard) CardView takeDownCard;
+    @Bind(R.id.webclickIncentiveText) TextView webclickIncentiveText;
+    @Bind(R.id.numberOfPinsText) TextView numberOfPinsText;
+    @Bind(R.id.websiteText) TextView websiteText;
+    @Bind(R.id.editWebsiteIcon) ImageButton editWebsiteIcon;
+    @Bind(R.id.phoneNoText) TextView phoneNoText;
+    @Bind(R.id.editPhoneNoIcon) ImageButton editPhoneNoIcon;
+    @Bind(R.id.contactLocationText) TextView contactLocationText;
+    @Bind(R.id.categoryText) TextView categoryText;
+    private Bitmap bm;
+    private boolean isEditingWebsiteUrl = false;
+    private boolean isEditingPhoneNo = false;
+    Bitmap backBl;
+    @Bind(R.id.loadingProgressBar) ProgressBar loadingProgressBar;
+    private List<Advert> myUploadHistoryAds = new ArrayList<>();
+    private List<AdImageData> myHistoryAdImages = new ArrayList<>();
+    private int historyCycleCount = 0;
+
+    private ChildEventListener telemetryEventListener;
+    private DatabaseReference dbRef;
+    @Bind(R.id.takeDownView) LinearLayout takeDownView;
+    private boolean isCardCollapsing = false;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,6 +187,10 @@ public class AdStats extends AppCompatActivity {
         DataListsView.getBuilder().setLayoutManager(new GridLayoutManager(mContext,2));
         addListenerForPaymentSession();
         addTouchListenerForSwipeBack();
+
+
+        collapseCard();
+        isTelemetryCardMinimized = true;
     }
 
     @Override
@@ -144,6 +200,14 @@ public class AdStats extends AppCompatActivity {
         h.removeCallbacks(r);
         removeListenerForChangeInSessionKey();
         isWindowPaused = true;
+    }
+
+    @Override
+    protected void onStop(){
+        super.onStop();
+        if(!isTelemetryCardMinimized){
+            hideSelectedAdTelemetries();
+        }
     }
 
 
@@ -193,11 +257,7 @@ public class AdStats extends AppCompatActivity {
             public void run() {
                 Log(TAG, "---started the time checker for when it is almost midnight.");
                 if (isAlmostMidNight()) {
-                    DataListsView.setVisibility(View.GONE);
-                    findViewById(R.id.topText).setVisibility(View.GONE);
-                    findViewById(R.id.LoadingViews).setVisibility(View.VISIBLE);
-                    createProgressDialog();
-                    setUpTimeIfNeedBe();
+                    finish();
                 }
                 h.postDelayed(r, 60000);
             }
@@ -244,6 +304,9 @@ public class AdStats extends AppCompatActivity {
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForCantTakeDown,
                 new IntentFilter("CANT_TAKE_DOWN_AD"));
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiverForOpenAdvertTelemetries,
+                new IntentFilter("VIEW_AD_TELEMETRIES"));
     }
 
     private void unregisterReceivers(){
@@ -253,6 +316,7 @@ public class AdStats extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForCantTakeDown);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForSuccessfulPayout);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForFailedPayout);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiverForOpenAdvertTelemetries);
 
         Intent intent = new Intent("REMOVE-LISTENERS");
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
@@ -360,6 +424,7 @@ public class AdStats extends AppCompatActivity {
                     cycleCount3++;
                     if(dataSnapshot.hasChildren()) {
                         Advert adUploadedByUser = dataSnapshot.getValue(Advert.class);
+                        adUploadedByUser.setAdType(Constants.TOMORROWS_ADS);
                         DataSnapshot clusters = dataSnapshot.child("clustersToUpLoadTo");
                         for (DataSnapshot clusterSnap : clusters.getChildren()) {
                             int cluster = Integer.parseInt(clusterSnap.getKey());
@@ -444,6 +509,13 @@ public class AdStats extends AppCompatActivity {
                     cycleCount++;
                     if(dataSnapshot.hasChildren()) {
                         Advert adUploadedByUser = dataSnapshot.getValue(Advert.class);
+                        adUploadedByUser.setAdType(Constants.TODAYS_ADS);
+                        DataSnapshot clusters = dataSnapshot.child("clustersToUpLoadTo");
+                        for (DataSnapshot clusterSnap : clusters.getChildren()) {
+                            int cluster = Integer.parseInt(clusterSnap.getKey());
+                            int pushId = clusterSnap.getValue(int.class);
+                            adUploadedByUser.clusters.put(cluster, pushId);
+                        }
                         Double payoutReimbursalAmm = dataSnapshot.child("payoutReimbursalAmount").getValue(Double.class);
                         adUploadedByUser.setPayoutReimbursalAmount(payoutReimbursalAmm);
                         Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
@@ -529,6 +601,13 @@ public class AdStats extends AppCompatActivity {
                     cycleCount2++;
                     if(dataSnapshot.hasChildren()) {
                         Advert adUploadedByUser = dataSnapshot.getValue(Advert.class);
+                        adUploadedByUser.setAdType(Constants.YESTERDAYS_ADS);
+                        DataSnapshot clusters = dataSnapshot.child("clustersToUpLoadTo");
+                        for (DataSnapshot clusterSnap : clusters.getChildren()) {
+                            int cluster = Integer.parseInt(clusterSnap.getKey());
+                            int pushId = clusterSnap.getValue(int.class);
+                            adUploadedByUser.clusters.put(cluster, pushId);
+                        }
                         Double payoutReimbursalAmm = dataSnapshot.child("payoutReimbursalAmount").getValue(Double.class);
                         adUploadedByUser.setPayoutReimbursalAmount(payoutReimbursalAmm);
                         Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
@@ -571,6 +650,7 @@ public class AdStats extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log(TAG,"Loading upload history");
+                myUploadHistoryAds.clear();
                 if(dataSnapshot.exists()){
                     doChildrenExist = true;
                     boolean hasTopBeenAdded = false;
@@ -596,6 +676,8 @@ public class AdStats extends AppCompatActivity {
                            Log(TAG,"The viewing date is past the dates for not showing");
                            for(DataSnapshot snapMini:snap.getChildren()){
                                Advert ad = snapMini.getValue(Advert.class);
+                               ad.setAdType(Constants.OLDER_UPLOADS);
+                               if(ad.hasSetBackupImage())myUploadHistoryAds.add(ad);
                                if(!hasTopBeenAdded){
                                    DataListsView.addView(new DateForAdStats(mContext,"Your Upload History.",DataListsView));
                                    DataListsView.addView(new DateForAdStats(mContext,"",DataListsView));
@@ -606,13 +688,17 @@ public class AdStats extends AppCompatActivity {
                        }
                     }
                 }
-                DataListsView.setVisibility(View.VISIBLE);
-                findViewById(R.id.topText).setVisibility(View.VISIBLE);
-                findViewById(R.id.LoadingViews).setVisibility(View.GONE);
-                if(doChildrenExist){
-                    findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
-                }else{
-                    findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
+                if(!myUploadHistoryAds.isEmpty()){
+                    loadImages();
+                } else {
+                    DataListsView.setVisibility(View.VISIBLE);
+                    findViewById(R.id.topText).setVisibility(View.VISIBLE);
+                    findViewById(R.id.LoadingViews).setVisibility(View.GONE);
+                    if (doChildrenExist) {
+                        findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
+                    } else {
+                        findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
+                    }
                 }
             }
 
@@ -622,6 +708,131 @@ public class AdStats extends AppCompatActivity {
                 Toast.makeText(mContext,"We're having a few connectivity issues...",Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+
+
+
+    private void loadImages(){
+        historyCycleCount = 0;
+        loadSpecificImage();
+    }
+
+    private void loadSpecificImage(){
+        String adId = myUploadHistoryAds.get(historyCycleCount).getPushRefInAdminConsole();
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(Constants.ALL_AD_IMAGES).child(adId);
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    String id = dataSnapshot.child("imageId").getValue(String.class);
+                    String image = dataSnapshot.child("image").getValue(String.class);
+                    AdImageData adImageData = new AdImageData();
+                    adImageData.setAdId(id);
+                    adImageData.setAdImage(image);
+
+                    myHistoryAdImages.add(adImageData);
+                }
+
+                historyCycleCount++;
+                String adId = myUploadHistoryAds.get(historyCycleCount).getPushRefInAdminConsole();
+                if(adId!=null){
+                    loadSpecificImage();
+                }else{
+                    historyCycleCount=0;
+                    setHistoryImagesData();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void setHistoryImagesData(){
+        if(myHistoryAdImages.isEmpty()){
+            DataListsView.setVisibility(View.VISIBLE);
+            findViewById(R.id.topText).setVisibility(View.VISIBLE);
+            findViewById(R.id.LoadingViews).setVisibility(View.GONE);
+            if(doChildrenExist){
+                findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
+            }else{
+                findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
+            }
+        }else{
+            LongOperationHist hx = new LongOperationHist();
+            hx.execute("");
+        }
+
+    }
+
+    private class LongOperationHist extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+            try{
+                List<AdImageData> adImgsToLoop = new ArrayList<>(myHistoryAdImages);
+                myHistoryAdImages.clear();
+                 for(AdImageData adI:adImgsToLoop){
+                     generateImageBitmap(adI);
+                 }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return "executed";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            myHistoryAdImages.clear();
+            DataListsView.setVisibility(View.VISIBLE);
+            findViewById(R.id.topText).setVisibility(View.VISIBLE);
+            findViewById(R.id.LoadingViews).setVisibility(View.GONE);
+            if(doChildrenExist){
+                findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
+            }else{
+                findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
+            }
+        }
+
+    }
+
+    private void generateImageBitmap(AdImageData adI){
+        try {
+            Bitmap bm = getResizedBitmap(decodeFromFirebaseBase64(adI.getAdImage()),1000);
+            Log(TAG,"History adImage has been converted to bitmap.");
+            adI.setImageBitmap(bm);
+            myHistoryAdImages.add(adI);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Bitmap decodeFromFirebaseBase64(String image) {
+        byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
+        Bitmap bitm = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
+        Bitmap newBm = getResizedBitmap(bitm,500);
+        return newBm;
+    }
+
+    private static Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float) width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+
+        return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
 
@@ -639,7 +850,6 @@ public class AdStats extends AppCompatActivity {
         return TimeManager.getDateInDays();
     }
 
-
     private String getNextDay(){
         return TimeManager.getNextDay();
 
@@ -651,10 +861,14 @@ public class AdStats extends AppCompatActivity {
         return (netInfo != null && netInfo.isConnected());
     }
 
+
+
+
     private BroadcastReceiver mMessageReceiverForTakeDownAd = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log(TAG, "Message received for taking down ad.");
+//            showSelectedAdTelemetries();
             showConfirmSubscribeMessage();
         }
     };
@@ -742,20 +956,39 @@ public class AdStats extends AppCompatActivity {
         else mAuthProgressDialog.setMessage("Taking down ad...");
         boolean bol = !ad.isFlagged();
 
+        String date = getDate();
+        if(Variables.adToBeFlagged.getAdType().equals(Constants.TOMORROWS_ADS)){
+            date = getNextDay();
+        }else if(Variables.adToBeFlagged.getAdType().equals(Constants.TODAYS_ADS)){
+            date = getDate();
+        }
+
         DatabaseReference  mRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
-                .child(getNextDay())
+                .child(date)
                 .child(ad.getPushRefInAdminConsole())
                 .child("flagged");
         mRef.setValue(bol);
 
+
+        String dateChild = TimeManager.getNextDayYear()+TimeManager.getNextDayMonth()+TimeManager.getNextDayDay();
+        if(Variables.adToBeFlagged.getAdType().equals(Constants.TOMORROWS_ADS)){
+            dateChild = TimeManager.getNextDayYear()+TimeManager.getNextDayMonth()+TimeManager.getNextDayDay();
+        }else if(Variables.adToBeFlagged.getAdType().equals(Constants.TODAYS_ADS)){
+            dateChild = TimeManager.getYear()+TimeManager.getMonth()+TimeManager.getDay();
+        }
+
+
         DatabaseReference mRef3 = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
-                .child(TimeManager.getNextDayYear()).child(TimeManager.getNextDayMonth()).child(TimeManager.getNextDayDay())
+                .child(dateChild)
                 .child(ad.getPushRefInAdminConsole()).child("flagged");
         mRef3.setValue(bol);
 
+
+        long dateInDays = ad.getDateInDays()+1;
+
         DatabaseReference mRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                 .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
-                .child(Long.toString(-(TimeManager.getDateInDays()+1)))
+                .child(Long.toString(-(dateInDays)))
                 .child(ad.getPushRefInAdminConsole()).child("flagged");
         mRef2.setValue(bol);
 
@@ -767,8 +1000,15 @@ public class AdStats extends AppCompatActivity {
     }
 
     private void flagSpecific(int cluster, int pushId, final Advert ad, final boolean bol){
+        String date = getDate();
+        if(Variables.adToBeFlagged.getAdType().equals(Constants.TOMORROWS_ADS)){
+            date = getNextDay();
+        }else if(Variables.adToBeFlagged.getAdType().equals(Constants.TODAYS_ADS)){
+            date = getDate();
+        }
+
         DatabaseReference  mRef3 = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS)
-                .child(getNextDay())
+                .child(date)
                 .child(Integer.toString(Variables.getUserCpvFromTotalPayPerUser(ad.getAmountToPayPerTargetedView())))
                 .child(ad.getCategory())
                 .child(Integer.toString(cluster))
@@ -1147,7 +1387,6 @@ public class AdStats extends AppCompatActivity {
         return (netInfo != null && netInfo.isConnected());
     }
 
-
     private void Log(String tag,String message){
 //        try{
 //            String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
@@ -1157,6 +1396,7 @@ public class AdStats extends AppCompatActivity {
 //        }
         Log.d(tag,message);
     }
+
 
 
     ChildEventListener chil = new ChildEventListener() {
@@ -1322,51 +1562,49 @@ public class AdStats extends AppCompatActivity {
 
     private void addTouchListenerForSwipeBack() {
         mSwipeBackDetector = new GestureDetector(this, new MySwipebackGestureListener());
-        swipeBackView.setOnTouchListener(touchListener);
-    }
-
-    View.OnTouchListener touchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (mSwipeBackDetector.onTouchEvent(motionEvent)) {
-                return true;
-            }
-            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                if (isSideScrolling) {
-                    Log.d("touchListener", " onTouch ACTION_UP");
-                    isSideScrolling = false;
-
-                    int RightScore = 0;
-                    int LeftScore = 0;
-                    if (SideSwipeRawList.size() > 15) {
-                        for (int i = SideSwipeRawList.size() - 1; i > SideSwipeRawList.size() - 15; i--) {
-                            int num1 = SideSwipeRawList.get(i);
-                            int numBefore1 = SideSwipeRawList.get(i - 1);
-
-                            if (numBefore1 > num1) LeftScore++;
-                            else RightScore++;
-                        }
-                    } else {
-                        for (int i = SideSwipeRawList.size() - 1; i > 0; i--) {
-                            int num1 = SideSwipeRawList.get(i);
-                            int numBefore1 = SideSwipeRawList.get(i - 1);
-
-                            if (numBefore1 > num1) LeftScore++;
-                            else RightScore++;
-                        }
-                    }
-                    if (RightScore > LeftScore) {
-//                        onBackPressed();
-                    }
-                    hideNupdateSideSwipeThing();
-                    SideSwipeRawList.clear();
+        swipeBackView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent motionEvent) {
+                if (mSwipeBackDetector.onTouchEvent(motionEvent)) {
+                    return true;
                 }
-                ;
-            }
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if (isSideScrolling) {
+                        Log.d("touchListener", " onTouch ACTION_UP");
+                        isSideScrolling = false;
 
-            return false;
-        }
-    };
+                        int RightScore = 0;
+                        int LeftScore = 0;
+                        if (SideSwipeRawList.size() > 15) {
+                            for (int i = SideSwipeRawList.size() - 1; i > SideSwipeRawList.size() - 15; i--) {
+                                int num1 = SideSwipeRawList.get(i);
+                                int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                                if (numBefore1 > num1) LeftScore++;
+                                else RightScore++;
+                            }
+                        } else {
+                            for (int i = SideSwipeRawList.size() - 1; i > 0; i--) {
+                                int num1 = SideSwipeRawList.get(i);
+                                int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                                if (numBefore1 > num1) LeftScore++;
+                                else RightScore++;
+                            }
+                        }
+                        if (RightScore > LeftScore) {
+//                        onBackPressed();
+                        }
+                        hideNupdateSideSwipeThing();
+                        SideSwipeRawList.clear();
+                    }
+                    ;
+                }
+
+                return false;
+            }
+        });
+    }
 
     class MySwipebackGestureListener extends GestureDetector.SimpleOnGestureListener {
         int origX = 0;
@@ -1457,16 +1695,48 @@ public class AdStats extends AppCompatActivity {
 
     private void showNupdateSideSwipeThing(int pos) {
         int trans = (int) ((pos - Utils.dpToPx(10)) * 0.9);
-        RelativeLayout isGoingBackIndicator = findViewById(R.id.isGoingBackIndicator);
+        if(isTelemetryCardMinimized){
+            RelativeLayout isGoingBackIndicator = findViewById(R.id.isGoingBackIndicator);
 //        isGoingBackIndicator.setTranslationX(trans);
 
-        View v = findViewById(R.id.swipeBackViewIndicator);
-        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) v.getLayoutParams();
-        params.height = trans;
-        v.setLayoutParams(params);
+            View v = findViewById(R.id.swipeBackViewIndicator);
+            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) v.getLayoutParams();
+            params.height = trans;
+            v.setLayoutParams(params);
 
-        LinearLayout scrollView = findViewById(R.id.mainViewLayout);
-        scrollView.setTranslationX((int)(trans*0.05));
+            LinearLayout scrollView = findViewById(R.id.mainViewLayout);
+            scrollView.setTranslationX((int)(trans*0.05));
+        }else{
+            float s = (float)(((50-(trans*0.01))/50)*1f);
+            telemetryLayout.setScaleX(s);
+            telemetryLayout.setScaleY(s);
+
+            final RelativeLayout blackBack = findViewById(R.id.blackBack);
+            final float alph = s-0.3f;
+            blackBack.setAlpha(alph);
+            blackBack.animate().alpha(alph).setDuration(mAnimationTime).setListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    blackBack.setAlpha(alph);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            })
+                    .setInterpolator(new LinearOutSlowInInterpolator()).start();
+        }
     }
 
     private void hideNupdateSideSwipeThing() {
@@ -1489,8 +1759,166 @@ public class AdStats extends AppCompatActivity {
         });
         animatorTop.setDuration(myDurat).start();
 
-        final LinearLayout mainViewLayout = findViewById(R.id.mainViewLayout);
-        mainViewLayout.animate().setDuration(myDurat).setInterpolator(new LinearOutSlowInInterpolator()).translationX(0)
+        if(!isCardCollapsing){
+            final LinearLayout mainViewLayout = findViewById(R.id.mainViewLayout);
+            telemetryLayout.animate().setDuration(myDurat).setInterpolator(new LinearOutSlowInInterpolator()).scaleX(1f).scaleY(1f).start();
+            mainViewLayout.animate().setDuration(myDurat).setInterpolator(new LinearOutSlowInInterpolator()).translationX(0)
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mainViewLayout.setTranslationX(0);
+                            telemetryLayout.setScaleX(1f);
+                            telemetryLayout.setScaleY(1f);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+
+                        }
+                    }).start();
+
+            final RelativeLayout blackBack = findViewById(R.id.blackBack);
+            final float alph = 0.8f;
+            blackBack.setAlpha(alph);
+            blackBack.animate().alpha(alph).setDuration(mAnimationTime).setListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    blackBack.setAlpha(alph);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            })
+                    .setInterpolator(new LinearOutSlowInInterpolator()).start();
+        }
+
+    }
+
+
+
+
+    BroadcastReceiver mMessageReceiverForOpenAdvertTelemetries = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            showSelectedAdTelemetries();
+        }
+    };
+
+    @Override
+    public void onBackPressed(){
+        if(!isTelemetryCardMinimized){
+            hideSelectedAdTelemetries();
+        }
+        else{
+            super.onBackPressed();
+        }
+    }
+
+    private void showSelectedAdTelemetries(){
+        if(isTelemetryCardMinimized){
+            expandCard();
+            onTelemetryOpen();
+            isTelemetryCardMinimized = false;
+        }
+    }
+
+    private void hideSelectedAdTelemetries(){
+        if(!isTelemetryCardMinimized){
+            collapseCard();
+            isTelemetryCardMinimized = true;
+        }
+    }
+
+
+    private void expandCard(){
+        Advert ad = Variables.adToBeViewedInTelemetries;
+        telemetryLayout.setVisibility(View.VISIBLE);
+        final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) telemetryLayout.getLayoutParams();
+
+        ValueAnimator animatorRight;
+        ValueAnimator animatorLeft;
+        ValueAnimator animatorBot;
+        ValueAnimator animatorTop;
+
+        animatorRight = ValueAnimator.ofInt(200,100,0);
+        animatorLeft = ValueAnimator.ofInt(200,100,0);
+
+        animatorTop = ValueAnimator.ofInt(500,300,0);
+        animatorBot = ValueAnimator.ofInt(400,300,0);
+
+
+        animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorLeft.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+
+        animatorRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.rightMargin = (Integer) valueAnimator.getAnimatedValue();
+                telemetryLayout.requestLayout();
+            }
+        });
+
+        animatorLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.leftMargin = (Integer) valueAnimator.getAnimatedValue();
+                telemetryLayout.requestLayout();
+            }
+        });
+
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                telemetryLayout.requestLayout();
+            }
+        });
+
+        animatorBot.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.bottomMargin = (Integer) valueAnimator.getAnimatedValue();
+                telemetryLayout.requestLayout();
+            }
+        });
+
+
+        animatorBot.setDuration(mAnimationTime);
+        animatorTop.setDuration(mAnimationTime);
+        animatorLeft.setDuration(mAnimationTime);
+        animatorRight.setDuration(mAnimationTime);
+
+        animatorBot.start();
+        animatorTop.start();
+        animatorLeft.start();
+        animatorRight.start();
+
+        final float newAlpha = 1f;
+        telemetryLayout.animate().alpha(newAlpha).setInterpolator(new LinearInterpolator()).setDuration(mAnimationTime)
                 .setListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -1499,7 +1927,7 @@ public class AdStats extends AppCompatActivity {
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        mainViewLayout.setTranslationX(0);
+                        telemetryLayout.setAlpha(newAlpha);
                     }
 
                     @Override
@@ -1512,7 +1940,1234 @@ public class AdStats extends AppCompatActivity {
 
                     }
                 }).start();
+
+        animatorRight.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+//                onTelemetryOpen();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+
+
+        final float telemLayout = 1f;
+        normalTelemetryLayout.setVisibility(View.VISIBLE);
+        normalTelemetryLayout.animate().alpha(telemLayout).setInterpolator(new FastOutLinearInInterpolator()).setDuration(mAnimationTime)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        normalTelemetryLayout.setAlpha(telemLayout);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        statTelemetryIcon.setVisibility(View.GONE);
+
+        if(ad.getImageBitmap()!=null){
+            takeDownView.setTranslationX(-Utils.dpToPx(10));
+            takeDownView.animate().translationX(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            takeDownView.setTranslationX(0);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+
+                        }
+                    }).start();
+        }
+
+        final RelativeLayout blackBack = findViewById(R.id.blackBack);
+        blackBack.setVisibility(View.VISIBLE);
+        final float alph = 0.8f;
+        blackBack.animate().alpha(alph).setDuration(mAnimationTime+100).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                blackBack.setVisibility(View.VISIBLE);
+                blackBack.setAlpha(alph);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        })
+                .setInterpolator(new LinearOutSlowInInterpolator()).start();
+
     }
+
+    private void collapseCard(){
+        final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) telemetryLayout.getLayoutParams();
+        isCardCollapsing = true;
+        ValueAnimator animatorRight;
+        ValueAnimator animatorLeft;
+        ValueAnimator animatorBot;
+        ValueAnimator animatorTop;
+
+        animatorRight = ValueAnimator.ofInt(0,250,250);
+        animatorLeft = ValueAnimator.ofInt(0,250,250);
+        animatorTop = ValueAnimator.ofInt(0,450,800);
+        animatorBot = ValueAnimator.ofInt(0,450,100);
+
+        animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorLeft.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+
+        animatorRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.rightMargin = (Integer) valueAnimator.getAnimatedValue();
+                telemetryLayout.requestLayout();
+            }
+        });
+
+        animatorLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.leftMargin = (Integer) valueAnimator.getAnimatedValue();
+                telemetryLayout.requestLayout();
+            }
+        });
+
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                telemetryLayout.requestLayout();
+            }
+        });
+
+        animatorBot.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.bottomMargin = (Integer) valueAnimator.getAnimatedValue();
+                telemetryLayout.requestLayout();
+            }
+        });
+
+
+        animatorBot.setDuration(mAnimationTime);
+        animatorTop.setDuration(mAnimationTime);
+        animatorLeft.setDuration(mAnimationTime+100);
+        animatorRight.setDuration(mAnimationTime+100);
+
+        animatorBot.start();
+        animatorTop.start();
+        animatorLeft.start();
+        animatorRight.start();
+
+        final float newAlpha = 0f;
+        telemetryLayout.animate().alpha(newAlpha).setInterpolator(new FastOutLinearInInterpolator()).setDuration(mAnimationTime)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        telemetryLayout.setAlpha(newAlpha);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+
+        final float telemLayout = 0f;
+        normalTelemetryLayout.setVisibility(View.GONE);
+        normalTelemetryLayout.animate().alpha(telemLayout).setInterpolator(new FastOutLinearInInterpolator()).setDuration(mAnimationTime)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        normalTelemetryLayout.setVisibility(View.GONE);
+                        normalTelemetryLayout.setAlpha(telemLayout);
+                        isCardCollapsing = false;
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        statTelemetryIcon.setVisibility(View.VISIBLE);
+
+        animatorRight.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                onTelemetryClose();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+
+        final RelativeLayout blackBack = findViewById(R.id.blackBack);
+        final float alph = 0f;
+        blackBack.animate().alpha(alph).setDuration(mAnimationTime).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                blackBack.setVisibility(View.GONE);
+                blackBack.setAlpha(alph);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        })
+                .setInterpolator(new LinearOutSlowInInterpolator()).start();
+
+    }
+
+    private void onTelemetryOpen(){
+        setAdImage();
+        setTelemetryData();
+        setTelemetryEventListeners();
+        setTelemetryClickListeners();
+
+        isEditingPhoneNo = false;
+        isEditingWebsiteUrl = false;
+    }
+
+    private void onTelemetryClose() {
+        adImageBackground.setImageBitmap(null);
+        adImage.setImageBitmap(null);
+        if(dbRef!=null) dbRef.removeEventListener(telemetryEventListener);
+        telemetryLayout.setScaleY(1f);
+        telemetryLayout.setScaleX(1f);
+
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("COLLAPSED_CARD"));
+    }
+
+
+
+
+
+    private void setTelemetryEventListeners() {
+        telemetryEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if(dataSnapshot.getKey().equals("flagged")){
+                    Variables.adToBeViewedInTelemetries.setFlagged(dataSnapshot.getValue(Boolean.class));
+                }else
+                    if(dataSnapshot.getKey().equals("websiteLink")){
+                        Variables.adToBeViewedInTelemetries.setWebsiteLink(dataSnapshot.getValue(String.class));
+                }else
+                    if(dataSnapshot.getKey().equals("advertiserPhoneNo")){
+                        Variables.adToBeViewedInTelemetries.setAdvertiserPhoneNo(dataSnapshot.getValue(String.class));
+                }else
+                    if(dataSnapshot.getKey().equals(Constants.USERS_THAT_HAVE_CLICKED_IT)){
+
+                }else
+                    if(dataSnapshot.getKey().equals(Constants.USERS_THAT_HAVE_SEEN)){
+
+                }else
+                    if(dataSnapshot.getKey().equals("numberOfPins")){
+                        Variables.adToBeViewedInTelemetries.setNumberOfPins(dataSnapshot.getValue(Integer.class));
+                }else
+                    if(dataSnapshot.getKey().equals("webClickNumber")){
+                        Variables.adToBeViewedInTelemetries.setWebClickNumber(dataSnapshot.getValue(Integer.class));
+                }else
+                    if(dataSnapshot.getKey().equals("payoutReimbursalAmount")){
+                        Variables.adToBeViewedInTelemetries.setPayoutReimbursalAmount(dataSnapshot.getValue(double.class));
+                }else{
+                    if (dataSnapshot.getKey().equals("numberOfTimesSeen")) {
+                        try {
+                            int newValue = dataSnapshot.getValue(int.class);
+                            Log(TAG, "New value gotten from firebase --" + newValue);
+                            Variables.adToBeViewedInTelemetries.setNumberOfTimesSeen(newValue);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (dataSnapshot.getKey().equals("hasBeenReimbursed")) {
+                        try {
+                            boolean newValue = dataSnapshot.getValue(boolean.class);
+                            Log(TAG, "New value gotten from firebase --" + newValue);
+                            Variables.adToBeViewedInTelemetries.setHasBeenReimbursed(newValue);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                setTelemetryData();
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
+        Advert ad = Variables.adToBeViewedInTelemetries;
+        if(ad.getAdType().equals(Constants.TOMORROWS_ADS)){
+            String tme = TimeManager.getNextDay();
+            dbRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                    .child(tme).child(ad.getPushRefInAdminConsole());
+
+        }else if(ad.getAdType().equals(Constants.TODAYS_ADS)){
+            String tme = TimeManager.getDate();
+            dbRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                    .child(tme).child(Variables.adToBeViewedInTelemetries.getPushRefInAdminConsole());
+
+        }else if(ad.getAdType().equals(Constants.YESTERDAYS_ADS)){
+            String tme = TimeManager.getPreviousDay();
+            dbRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                    .child(tme).child(Variables.adToBeViewedInTelemetries.getPushRefInAdminConsole());
+
+        }else{
+            //history uploads
+            dbRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                    .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
+                    .child(Long.toString(-(ad.getDateInDays()+1))).child(ad.getPushRefInAdminConsole());
+        }
+        dbRef.addChildEventListener(telemetryEventListener);
+    }
+
+    private void setTelemetryData() {
+        Advert ad = Variables.adToBeViewedInTelemetries;
+
+        viewingDateText.setText(String.format("Uploaded on: %s", getDateFromDays(ad.getDateInDays())));
+        userSeenNumber.setText(Integer.toString(ad.getNumberOfTimesSeen()));
+
+        uploaderText.setText(String.format("Uploaded by : %s", ad.getUserEmail()));
+        if(ad.isFlagged()){
+            statusText.setText("Status: Taken Down.");
+            targetNumber.setText("N/A");
+
+            TextView t = findViewById(R.id.takeDownText);
+            t.setText("PUT UP.");
+        }else{
+            statusText.setText("Status: Online.");
+
+            targetNumber.setText(Integer.toString(ad.getNumberOfUsersToReach()));
+
+            TextView t = findViewById(R.id.takeDownText);
+            t.setText("TAKE DOWN.");
+        }
+        setTotalAmounts();
+
+        if(ad.isHasBeenReimbursed()){
+            if(isCardForYesterdayAds()){
+                statusText.setText("Status: Reimbursed.");
+            }else{
+                statusText.setText("Status: NOT Reimbursed.");
+            }
+            reimburseCard.setCardBackgroundColor(getResources().getColor(R.color.grey));
+        }else{
+            reimburseCard.setCardBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+        }
+
+        if(!ad.getWebsiteLink().equals("none")){
+            websiteText.setText(ad.getWebsiteLink());
+        }else{
+            websiteText.setText("N/A");
+        }
+
+        if(!ad.getAdvertiserPhoneNo().equals("")&&!ad.getAdvertiserPhoneNo().equals("none")){
+            phoneNoText.setText(ad.getAdvertiserPhoneNo());
+        }else{
+            phoneNoText.setText("N/A");
+        }
+
+        if(ad.getAdvertiserLocations().isEmpty()){
+            contactLocationText.setText("N/A");
+        }else{
+            contactLocationText.setText(ad.getAdvertiserLocations().size()+" Locations.");
+        }
+
+        if(ad.getNumberOfPins()==1){
+            numberOfPinsText.setText(ad.getNumberOfPins()+" Pin.");
+        }else numberOfPinsText.setText(ad.getNumberOfPins()+" Pins.");
+
+        categoryText.setText(ad.getCategory());
+
+
+
+        if((!ad.getAdType().equals(Constants.TOMORROWS_ADS) && !ad.getAdType().equals(Constants.TODAYS_ADS)) && !ad.isHasBeenReimbursed()){
+            reimburseCard.setCardBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+        }else{
+            reimburseCard.setCardBackgroundColor(getResources().getColor(R.color.accent));
+        }
+
+        if(ad.getAdType().equals(Constants.TOMORROWS_ADS) || ad.getAdType().equals(Constants.TODAYS_ADS)){
+            takeDownCard.setCardBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+        }else{
+            takeDownCard.setCardBackgroundColor(getResources().getColor(R.color.accent));
+        }
+
+    }
+
+    private void setTotalAmounts(){
+        Advert ad = Variables.adToBeViewedInTelemetries;
+
+        int numberOfUsersWhoDidntSeeAd = ad.getNumberOfUsersToReach()- ad.getNumberOfTimesSeen();
+        int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd* (ad.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
+        double vat = (numberOfUsersWhoDidntSeeAd*(Variables.getUserCpvFromTotalPayPerUser(ad.getAmountToPayPerTargetedView())))
+                *Constants.VAT_CONSTANT;
+        double incentiveAmm = 0;
+        if(ad.didAdvertiserAddIncentive()){
+            incentiveAmm = (ad.getWebClickIncentive()* (ad.getNumberOfUsersToReach()-ad.getWebClickNumber()));
+        }
+        double totalReimbursalPlusPayout = (double)ammountToBeRepaid+ad.getPayoutReimbursalAmount()+vat+incentiveAmm;
+        String number = Double.toString(round(totalReimbursalPlusPayout));
+
+        if(ad.isHasBeenReimbursed()){
+            reimbursalAmountNumber.setText("0 Ksh");
+        }else{
+            reimbursalAmountNumber.setText(number+" Ksh");
+        }
+
+        int totalAmmPaid = ad.getNumberOfUsersToReach()* (ad.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
+        double vatTotal = (ad.getNumberOfUsersToReach()*(Variables.getUserCpvFromTotalPayPerUser(ad.getAmountToPayPerTargetedView())))
+                *Constants.VAT_CONSTANT;
+        double incentiveAmmTotal = 0;
+        if(ad.didAdvertiserAddIncentive()){
+            incentiveAmmTotal = (ad.getWebClickIncentive()* (ad.getNumberOfUsersToReach()));
+        }
+        double totalReimbursalPlusPayoutTotal = (double)totalAmmPaid+ad.getPayoutReimbursalAmount()+vatTotal+incentiveAmmTotal;
+        String numberTotal = Double.toString(round(totalReimbursalPlusPayoutTotal));
+
+        amountPaidNumber.setText(numberTotal+" Ksh");
+
+        webclickIncentiveText.setText(incentiveAmmTotal+" Ksh ( "+ad.getNumberOfUsersToReach()+" * "+ad.getWebClickIncentive()+"Ksh ).");
+
+    }
+
+
+
+
+    private void setAdImage() {
+        Advert ad = Variables.adToBeViewedInTelemetries;
+        if(ad.getImageBitmap()==null){
+            int pos = -1;
+            for(int i=0 ; i<myHistoryAdImages.size(); i++){
+                if(myHistoryAdImages.get(i).getAdId().equals(ad.getPushRefInAdminConsole())){
+                    pos=i;
+                    break;
+                }
+            }
+            if(pos != -1){
+                Bitmap bs = myHistoryAdImages.get(pos).getImageBitmap();
+                ad.setImageBitmap(bs);
+            }
+        }
+        adImage.setImageBitmap(ad.getImageBitmap());
+
+        bm = ad.getImageBitmap();
+        adImageBackground.setImageBitmap(null);
+        backBl = null;
+
+        loadingProgressBar.setVisibility(View.VISIBLE);
+        LongOperationFI op = new LongOperationFI();
+        op.execute("");
+    }
+
+    private class LongOperationFI extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+            try{
+                backBl = fastblur(Variables.adToBeViewedInTelemetries.getImageBitmap(),0.7f,27);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return "executed";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            if(backBl!=null){
+                adImageBackground.setImageBitmap(backBl);
+                RelativeLayout imageLayout = findViewById(R.id.imageLayout);
+
+                imageLayout.setVisibility(View.VISIBLE);
+                adImageBackground.setVisibility(View.VISIBLE);
+            }else{
+                RelativeLayout imageLayout = findViewById(R.id.imageLayout);
+                imageLayout.setVisibility(View.GONE);
+
+                takeDownView.setTranslationX(Utils.dpToPx(100));
+                takeDownView.animate().translationX(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                        .setListener(new Animator.AnimatorListener() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                takeDownView.setTranslationX(0);
+                            }
+
+                            @Override
+                            public void onAnimationCancel(Animator animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animator animation) {
+
+                            }
+                        }).start();
+            }
+            loadingProgressBar.setVisibility(View.GONE);
+        }
+
+    }
+
+    private Bitmap fastblur(Bitmap sentBitmap, float scale, int radius) {
+
+        int width = Math.round(sentBitmap.getWidth() * scale);
+        int height = Math.round(sentBitmap.getHeight() * scale);
+        sentBitmap = Bitmap.createScaledBitmap(sentBitmap, width, height, false);
+
+        Bitmap bitmap = sentBitmap.copy(sentBitmap.getConfig(), true);
+
+        if (radius < 1) {
+            return (null);
+        }
+
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+
+        int[] pix = new int[w * h];
+//        Log.e("pix", w + " " + h + " " + pix.length);
+        bitmap.getPixels(pix, 0, w, 0, 0, w, h);
+
+        int wm = w - 1;
+        int hm = h - 1;
+        int wh = w * h;
+        int div = radius + radius + 1;
+
+        int r[] = new int[wh];
+        int g[] = new int[wh];
+        int b[] = new int[wh];
+        int rsum, gsum, bsum, x, y, i, p, yp, yi, yw;
+        int vmin[] = new int[Math.max(w, h)];
+
+        int divsum = (div + 1) >> 1;
+        divsum *= divsum;
+        int dv[] = new int[256 * divsum];
+        for (i = 0; i < 256 * divsum; i++) {
+            dv[i] = (i / divsum);
+        }
+
+        yw = yi = 0;
+
+        int[][] stack = new int[div][3];
+        int stackpointer;
+        int stackstart;
+        int[] sir;
+        int rbs;
+        int r1 = radius + 1;
+        int routsum, goutsum, boutsum;
+        int rinsum, ginsum, binsum;
+
+        for (y = 0; y < h; y++) {
+            rinsum = ginsum = binsum = routsum = goutsum = boutsum = rsum = gsum = bsum = 0;
+            for (i = -radius; i <= radius; i++) {
+                p = pix[yi + Math.min(wm, Math.max(i, 0))];
+                sir = stack[i + radius];
+                sir[0] = (p & 0xff0000) >> 16;
+                sir[1] = (p & 0x00ff00) >> 8;
+                sir[2] = (p & 0x0000ff);
+                rbs = r1 - Math.abs(i);
+                rsum += sir[0] * rbs;
+                gsum += sir[1] * rbs;
+                bsum += sir[2] * rbs;
+                if (i > 0) {
+                    rinsum += sir[0];
+                    ginsum += sir[1];
+                    binsum += sir[2];
+                } else {
+                    routsum += sir[0];
+                    goutsum += sir[1];
+                    boutsum += sir[2];
+                }
+            }
+            stackpointer = radius;
+
+            for (x = 0; x < w; x++) {
+
+                r[yi] = dv[rsum];
+                g[yi] = dv[gsum];
+                b[yi] = dv[bsum];
+
+                rsum -= routsum;
+                gsum -= goutsum;
+                bsum -= boutsum;
+
+                stackstart = stackpointer - radius + div;
+                sir = stack[stackstart % div];
+
+                routsum -= sir[0];
+                goutsum -= sir[1];
+                boutsum -= sir[2];
+
+                if (y == 0) {
+                    vmin[x] = Math.min(x + radius + 1, wm);
+                }
+                p = pix[yw + vmin[x]];
+
+                sir[0] = (p & 0xff0000) >> 16;
+                sir[1] = (p & 0x00ff00) >> 8;
+                sir[2] = (p & 0x0000ff);
+
+                rinsum += sir[0];
+                ginsum += sir[1];
+                binsum += sir[2];
+
+                rsum += rinsum;
+                gsum += ginsum;
+                bsum += binsum;
+
+                stackpointer = (stackpointer + 1) % div;
+                sir = stack[(stackpointer) % div];
+
+                routsum += sir[0];
+                goutsum += sir[1];
+                boutsum += sir[2];
+
+                rinsum -= sir[0];
+                ginsum -= sir[1];
+                binsum -= sir[2];
+
+                yi++;
+            }
+            yw += w;
+        }
+        for (x = 0; x < w; x++) {
+            rinsum = ginsum = binsum = routsum = goutsum = boutsum = rsum = gsum = bsum = 0;
+            yp = -radius * w;
+            for (i = -radius; i <= radius; i++) {
+                yi = Math.max(0, yp) + x;
+
+                sir = stack[i + radius];
+
+                sir[0] = r[yi];
+                sir[1] = g[yi];
+                sir[2] = b[yi];
+
+                rbs = r1 - Math.abs(i);
+
+                rsum += r[yi] * rbs;
+                gsum += g[yi] * rbs;
+                bsum += b[yi] * rbs;
+
+                if (i > 0) {
+                    rinsum += sir[0];
+                    ginsum += sir[1];
+                    binsum += sir[2];
+                } else {
+                    routsum += sir[0];
+                    goutsum += sir[1];
+                    boutsum += sir[2];
+                }
+
+                if (i < hm) {
+                    yp += w;
+                }
+            }
+            yi = x;
+            stackpointer = radius;
+            for (y = 0; y < h; y++) {
+                // Preserve alpha channel: ( 0xff000000 & pix[yi] )
+                pix[yi] = ( 0xff000000 & pix[yi] ) | ( dv[rsum] << 16 ) | ( dv[gsum] << 8 ) | dv[bsum];
+
+                rsum -= routsum;
+                gsum -= goutsum;
+                bsum -= boutsum;
+
+                stackstart = stackpointer - radius + div;
+                sir = stack[stackstart % div];
+
+                routsum -= sir[0];
+                goutsum -= sir[1];
+                boutsum -= sir[2];
+
+                if (x == 0) {
+                    vmin[y] = Math.min(y + r1, hm) * w;
+                }
+                p = x + vmin[y];
+
+                sir[0] = r[p];
+                sir[1] = g[p];
+                sir[2] = b[p];
+
+                rinsum += sir[0];
+                ginsum += sir[1];
+                binsum += sir[2];
+
+                rsum += rinsum;
+                gsum += ginsum;
+                bsum += binsum;
+
+                stackpointer = (stackpointer + 1) % div;
+                sir = stack[stackpointer];
+
+                routsum += sir[0];
+                goutsum += sir[1];
+                boutsum += sir[2];
+
+                rinsum -= sir[0];
+                ginsum -= sir[1];
+                binsum -= sir[2];
+
+                yi += w;
+            }
+        }
+
+//        Log.e("pix", w + " " + h + " " + pix.length);
+        bitmap.setPixels(pix, 0, w, 0, 0, w, h);
+
+        return (bitmap);
+    }
+
+
+
+
+
+    private void setTelemetryClickListeners() {
+        final Advert ad = Variables.adToBeViewedInTelemetries;
+
+        telemetryBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+        reimburseCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!ad.isHasBeenReimbursed() && getReimbursalAmount() !=0 &&
+                        !ad.getAdType().equals(Constants.TOMORROWS_ADS) && !ad.getAdType().equals(Constants.TODAYS_ADS)){
+                    startReimbursal();
+                }
+            }
+        });
+
+        takeDownCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ad.getAdType().equals(Constants.TOMORROWS_ADS)
+                        ||ad.getAdType().equals(Constants.TODAYS_ADS)){
+                    if(!ad.isAdminFlagged()) {
+                        startTakeDown();
+                    }else{
+                        showPromptForTakenDown();
+                    }
+                }
+
+            }
+        });
+
+        editWebsiteIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isEditingPhoneNo && !isEditingWebsiteUrl){
+                    startEditWebsiteUrl();
+                }
+            }
+        });
+
+        editPhoneNoIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isEditingPhoneNo && !isEditingWebsiteUrl){
+                    startEditPhoneNo();
+                }
+            }
+        });
+
+    }
+
+    private Double getReimbursalAmount(){
+        Advert ad = Variables.adToBeViewedInTelemetries;
+
+        int numberOfUsersWhoDidntSeeAd = ad.getNumberOfUsersToReach()- ad.getNumberOfTimesSeen();
+        int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd* (ad.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
+        double vat = (numberOfUsersWhoDidntSeeAd*(Variables.getUserCpvFromTotalPayPerUser(ad.getAmountToPayPerTargetedView())))
+                *Constants.VAT_CONSTANT;
+        double incentiveAmm = 0;
+        if(ad.didAdvertiserAddIncentive()){
+            incentiveAmm = (ad.getWebClickIncentive()* (ad.getNumberOfUsersToReach()-ad.getWebClickNumber()));
+        }
+        double totalReimbursalPlusPayout = (double)ammountToBeRepaid+ad.getPayoutReimbursalAmount()+vat+incentiveAmm;
+
+        return round(totalReimbursalPlusPayout);
+
+    }
+
+
+
+    private void startEditPhoneNo() {
+        isEditingPhoneNo = true;
+        final Advert ad = Variables.adToBeViewedInTelemetries;
+
+        final Dialog d = new Dialog(this);
+        d.setContentView(R.layout.dialog_change_phone_no);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        Button b1 = d.findViewById(R.id.okBtn);
+        Button RemoveBtn = d.findViewById(R.id.RemoveBtn);
+        final EditText phoneE = d.findViewById(R.id.phoneNoEditTextt);
+        if(!ad.getAdvertiserPhoneNo().equals("") && !ad.getAdvertiserPhoneNo().equals("none")) phoneE.setText(ad.getAdvertiserPhoneNo());
+
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String no = phoneE.getText().toString().trim();
+                if(no.equals("")){
+                    phoneE.setError("Enter your new phone number");
+                }else if(phoneE.getText().toString().trim().length()<10){
+                    phoneE.setError("That's not a real phone number");
+                }else{
+                    try{
+                        int phoneNo = Integer.parseInt(no);
+                        d.dismiss();
+                        setNewPhoneNo(Integer.toString(phoneNo));
+                        phoneE.setText("");
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        phoneE.setError("That's not a real number");
+                    }
+                }
+            }
+        });
+        RemoveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+                setNewPhoneNo("");
+                phoneE.setText("");
+            }
+        });
+
+        d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                isEditingPhoneNo = false;
+            }
+        });
+        d.show();
+    }
+
+    private void setNewPhoneNo(String phoneNo) {
+        isEditingPhoneNo = false;
+        mAuthProgressDialog.show();
+        if(phoneNo.equals("")){
+            phoneNo = "none";
+        }
+        Advert ad = Variables.adToBeViewedInTelemetries;
+        if(phoneNo.equals("none"))mAuthProgressDialog.setMessage("Removing your phone number...");
+        else mAuthProgressDialog.setMessage("Updating your phone number...");
+
+        String date = getDate();
+        if(ad.getAdType().equals(Constants.TOMORROWS_ADS)){
+            date = getNextDay();
+        }else if(ad.getAdType().equals(Constants.TODAYS_ADS)){
+            date = getDate();
+        }
+
+        DatabaseReference  mRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                .child(date)
+                .child(ad.getPushRefInAdminConsole())
+                .child("advertiserPhoneNo");
+        mRef.setValue(phoneNo);
+
+
+        String dateChild = TimeManager.getNextDayYear()+TimeManager.getNextDayMonth()+TimeManager.getNextDayDay();
+        if(ad.getAdType().equals(Constants.TOMORROWS_ADS)){
+            dateChild = TimeManager.getNextDayYear()+TimeManager.getNextDayMonth()+TimeManager.getNextDayDay();
+        }else if(ad.getAdType().equals(Constants.TODAYS_ADS)){
+            dateChild = TimeManager.getYear()+TimeManager.getMonth()+TimeManager.getDay();
+        }
+
+
+        DatabaseReference mRef3 = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
+                .child(dateChild)
+                .child(ad.getPushRefInAdminConsole()).child("advertiserPhoneNo");
+        mRef3.setValue(phoneNo);
+
+
+        long dateInDays = ad.getDateInDays()+1;
+
+        if(ad.getAdType().equals(Constants.TODAYS_ADS)){
+            dateInDays = TimeManager.getDateInDays();
+        }
+
+        DatabaseReference mRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
+                .child(Long.toString(-(dateInDays)))
+                .child(ad.getPushRefInAdminConsole()).child("advertiserPhoneNo");
+        mRef2.setValue(phoneNo);
+
+        Log(TAG,"Changing phone number for ad : "+ad.getPushRefInAdminConsole());
+        numberOfClusters = ad.clusters.size();
+        if(numberOfClusters!=0){
+            int nextCluster = getClusterValue(runCount,ad);
+            int nextPushId = getPushIdValue(runCount,ad);
+            updateSpecificPhoneNoData(nextCluster,nextPushId,ad,phoneNo);
+        }else{
+            mAuthProgressDialog.dismiss();
+        }
+
+    }
+
+    public void updateSpecificPhoneNoData(int cluster,int pushId,final Advert ad, final String phoneNo){
+        String date = getDate();
+        if(ad.getAdType().equals(Constants.TOMORROWS_ADS)){
+            date = getNextDay();
+        }else if(ad.getAdType().equals(Constants.TODAYS_ADS)){
+            date = getDate();
+        }
+
+        DatabaseReference  mRef3 = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS)
+                .child(date)
+                .child(Integer.toString(Variables.getUserCpvFromTotalPayPerUser(ad.getAmountToPayPerTargetedView())))
+                .child(ad.getCategory())
+                .child(Integer.toString(cluster))
+                .child(Integer.toString(pushId))
+                .child("contactdata").child(Constants.ADVERTISER_PHONE_NO);
+        mRef3.setValue(phoneNo).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                runCount++;
+                if(runCount<numberOfClusters){
+                    int nextCluster = getClusterValue(runCount,ad);
+                    int nextPushId = getPushIdValue(runCount,ad);
+                    updateSpecificPhoneNoData(nextCluster,nextPushId,ad,phoneNo);
+                }else{
+                    runCount = 0;
+                    numberOfClusters = 0;
+                    mAuthProgressDialog.dismiss();
+                }
+            }
+        });
+    }
+
+
+
+    private void startEditWebsiteUrl() {
+        isEditingWebsiteUrl = true;
+        final Advert ad = Variables.adToBeViewedInTelemetries;
+
+        final Dialog d = new Dialog(this);
+        d.setContentView(R.layout.dialog_change_website);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        Button b1 = d.findViewById(R.id.okBtn);
+        Button RemoveBtn = d.findViewById(R.id.RemoveBtn);
+        final EditText webisteE = d.findViewById(R.id.websiteEditTextt);
+        if(!ad.getWebsiteLink().equals("none")) webisteE.setText(ad.getWebsiteLink());
+
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String web = webisteE.getText().toString().trim();
+                if(web.equals("")){
+                    web = "none";
+                }
+                d.dismiss();
+                setNewWebsite(web);
+                webisteE.setText("");
+            }
+        });
+
+        RemoveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+                setNewWebsite("");
+                webisteE.setText("");
+            }
+        });
+
+        d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                isEditingWebsiteUrl = false;
+            }
+        });
+        d.show();
+
+    }
+
+    private void setNewWebsite(String web) {
+        isEditingWebsiteUrl = false;
+
+        if(web.equals("")){
+            web = "none";
+        }
+        mAuthProgressDialog.show();
+        Advert ad = Variables.adToBeViewedInTelemetries;
+        if(web.equals("none"))mAuthProgressDialog.setMessage("Removing your website url...");
+        else mAuthProgressDialog.setMessage("Updating your website url...");
+
+        String date = getDate();
+        if(ad.getAdType().equals(Constants.TOMORROWS_ADS)){
+            date = getNextDay();
+        }else if(ad.getAdType().equals(Constants.TODAYS_ADS)){
+            date = getDate();
+        }
+
+        DatabaseReference  mRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                .child(date)
+                .child(ad.getPushRefInAdminConsole())
+                .child("websiteLink");
+        mRef.setValue(web);
+
+
+        String dateChild = TimeManager.getNextDayYear()+TimeManager.getNextDayMonth()+TimeManager.getNextDayDay();
+        if(ad.getAdType().equals(Constants.TOMORROWS_ADS)){
+            dateChild = TimeManager.getNextDayYear()+TimeManager.getNextDayMonth()+TimeManager.getNextDayDay();
+        }else if(ad.getAdType().equals(Constants.TODAYS_ADS)){
+            dateChild = TimeManager.getYear()+TimeManager.getMonth()+TimeManager.getDay();
+        }
+
+
+        DatabaseReference mRef3 = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
+                .child(dateChild)
+                .child(ad.getPushRefInAdminConsole()).child("websiteLink");
+        mRef3.setValue(web);
+
+
+        long dateInDays = ad.getDateInDays()+1;
+
+        if(ad.getAdType().equals(Constants.TODAYS_ADS)){
+            dateInDays = TimeManager.getDateInDays();
+        }
+
+        DatabaseReference mRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
+                .child(Long.toString(-(dateInDays)))
+                .child(ad.getPushRefInAdminConsole()).child("websiteLink");
+        mRef2.setValue(web);
+
+        Log(TAG,"Changing webUrl for ad : "+ad.getPushRefInAdminConsole());
+        numberOfClusters = ad.clusters.size();
+        if(numberOfClusters==0){
+            mAuthProgressDialog.dismiss();
+        }else{
+            int nextCluster = getClusterValue(runCount,ad);
+            int nextPushId = getPushIdValue(runCount,ad);
+            updateSpecificWebsiteData(nextCluster,nextPushId,ad,web);
+        }
+
+
+    }
+
+    public void updateSpecificWebsiteData(int cluster,int pushId,final Advert ad, final String url){
+        String date = getDate();
+        if(ad.getAdType().equals(Constants.TOMORROWS_ADS)){
+            date = getNextDay();
+        }else if(ad.getAdType().equals(Constants.TODAYS_ADS)){
+            date = getDate();
+        }
+
+        DatabaseReference  mRef3 = FirebaseDatabase.getInstance().getReference(Constants.ADVERTS)
+                .child(date)
+                .child(Integer.toString(Variables.getUserCpvFromTotalPayPerUser(ad.getAmountToPayPerTargetedView())))
+                .child(ad.getCategory())
+                .child(Integer.toString(cluster))
+                .child(Integer.toString(pushId))
+                .child("websiteLink");
+        mRef3.setValue(url).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                runCount++;
+                if(runCount<numberOfClusters){
+                    int nextCluster = getClusterValue(runCount,ad);
+                    int nextPushId = getPushIdValue(runCount,ad);
+                    updateSpecificWebsiteData(nextCluster,nextPushId,ad,url);
+                }else{
+                    runCount = 0;
+                    numberOfClusters = 0;
+                    mAuthProgressDialog.dismiss();
+                }
+            }
+        });
+    }
+
+
+
+    private void startTakeDown() {
+        final Advert ad = Variables.adToBeViewedInTelemetries;
+        Variables.adToBeFlagged = ad;
+
+        if (!ad.isFlagged()) {
+            Variables.areYouSureTakeDownText = "Are you sure you want to take down your ad?";
+        } else {
+            Variables.areYouSureTakeDownText = "Are you sure you want to put back up your ad?";
+        }
+        showConfirmSubscribeMessage();
+    }
+
+    private void startReimbursal() {
+        Variables.adToBeReimbursed = Variables.adToBeViewedInTelemetries;
+        if(Variables.adToBeReimbursed.getAdType().equals(Constants.OLDER_UPLOADS))Variables.isOlderAd = true;
+
+        new DatabaseManager().setIsMakingPayoutInFirebase(true);
+        showBottomSheetForReimbursement();
+    }
+
+
+
+
+    private String getDateFromDays(long days){
+        long currentTimeInMills = days*(1000*60*60*24);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(currentTimeInMills);
+        int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
+        int monthOfYear = cal.get(Calendar.MONTH);
+        int year = cal.get(Calendar.YEAR);
+
+//        String monthName = new DateFormatSymbols().getMonths()[monthOfYear];
+        String monthName = getMonthName_Abbr(monthOfYear);
+
+        Log("Splash","Date gotten is : "+dayOfMonth+" "+monthName+" "+year);
+
+        Calendar cal2 = Calendar.getInstance();
+        int year2 = cal2.get(Calendar.YEAR);
+        String yearName;
+
+        if(year == year2){
+            Log("My_ad_stat_item","Ad was pined this year...");
+            yearName = "";
+        }else if(year2 == year+1){
+            Log("My_ad_stat_item","Ad was pined last year...");
+            yearName =", "+Integer.toString(year);
+        }else{
+            yearName =", "+ Integer.toString(year);
+        }
+
+        return dayOfMonth+" "+monthName+yearName;
+    }
+
+    private String getMonthName_Abbr(int month) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH, month);
+        SimpleDateFormat month_date = new SimpleDateFormat("MMM");
+        String month_name = month_date.format(cal.getTime());
+        return month_name;
+    }
+
+    private boolean isCardForYesterdayAds(){
+        return Variables.adToBeViewedInTelemetries.getDateInDays()+1 < getDateInDays();
+    }
+
+
 
 
 }

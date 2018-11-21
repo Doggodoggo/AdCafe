@@ -532,7 +532,12 @@ public class DatabaseManager {
 
                 //this loads the users no Of Categories known
                 DataSnapshot subNoKnown = dataSnapshot.child(Constants.NO_OF_CATEGORIES_KNOWN);
-                int subNumberKnown = subNoKnown.getValue(int.class);
+                int subNumberKnown = categoryList.size();
+                try{
+                  subNumberKnown  = subNoKnown.getValue(int.class);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
                 Log.d(TAG, "Current category list size is: " + categoryList.size());
                 if (subNumberKnown < categoryList.size()) {
                     Log(TAG, "Number of subs known is less than current category size.");

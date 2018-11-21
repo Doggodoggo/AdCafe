@@ -126,13 +126,16 @@ public class OlderAdsItem {
     }
 
 
-    @Click(R.id.reimburseOldBtn)
+    @Click(R.id.viewCard)
     private void onClick(){
-        if (isClickable) {
-            Variables.isOlderAd = true;
-            Variables.adToBeReimbursed = mAdvert;
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("START_ADVERTISER_PAYOUT"));
-        }
+//        if (isClickable) {
+//            Variables.isOlderAd = true;
+//            Variables.adToBeReimbursed = mAdvert;
+//            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("START_ADVERTISER_PAYOUT"));
+//        }
+
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("VIEW_AD_TELEMETRIES"));
+        Variables.adToBeViewedInTelemetries = mAdvert;
     }
 
 

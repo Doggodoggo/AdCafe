@@ -87,6 +87,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.sql.Time;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -287,8 +288,12 @@ public class Dashboard extends AppCompatActivity {
                     Intent intent = new Intent(Dashboard.this,TutorialAdvertisers.class);
                     startActivity(intent);
                 }else{
-                    Intent intent = new Intent(Dashboard.this,SelectCategoryAdvertiser.class);
-                    startActivity(intent);
+                    if(TimeManager.isAlmostMidNight()){
+                        Toast.makeText(mContext,"Please wait for 1 minute.",Toast.LENGTH_SHORT).show();
+                    }else {
+                        Intent intent = new Intent(Dashboard.this, SelectCategoryAdvertiser.class);
+                        startActivity(intent);
+                    }
                 }
             }
         });
@@ -296,8 +301,12 @@ public class Dashboard extends AppCompatActivity {
         findOutCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Dashboard.this, AdStats.class);
-                startActivity(intent);
+                if(TimeManager.isAlmostMidNight()){
+                    Toast.makeText(mContext,"Please wait for 1 minute.",Toast.LENGTH_SHORT).show();
+                }else {
+                    Intent intent = new Intent(Dashboard.this, AdStats.class);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -323,7 +332,6 @@ public class Dashboard extends AppCompatActivity {
 //                reportDialogFragment.setMenuVisibility(false);
 //                reportDialogFragment.show(fm, "Feedback.");
 //                reportDialogFragment.setfragContext(mContext);
-
                   showFeedChatView();
             }
         });

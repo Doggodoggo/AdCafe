@@ -153,21 +153,23 @@ public class TomorrowsAdStatItem {
         });
     }
 
-    @Click(R.id.takeDownButton)
+    @Click(R.id.viewCard)
     private void onClick(){
-        if(!mAdvert.isAdminFlagged()) {
-            Variables.adToBeFlagged = mAdvert;
-            Intent intent = new Intent("TAKE_DOWN");
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-            if (!mAdvert.isFlagged()) {
-                Variables.areYouSureTakeDownText = "Are you sure you want to take down your ad?";
-            } else {
-                Variables.areYouSureTakeDownText = "Are you sure you want to put back up your ad?";
-            }
-        }else{
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("CANT_TAKE_DOWN_AD"));
-//            Toast.makeText(mContext,"You can't put back up your ad, it was taken down by the admin.",Toast.LENGTH_SHORT).show();
-        }
+//        if(!mAdvert.isAdminFlagged()) {
+//            Variables.adToBeFlagged = mAdvert;
+//            Intent intent = new Intent("TAKE_DOWN");
+//            LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+//            if (!mAdvert.isFlagged()) {
+//                Variables.areYouSureTakeDownText = "Are you sure you want to take down your ad?";
+//            } else {
+//                Variables.areYouSureTakeDownText = "Are you sure you want to put back up your ad?";
+//            }
+//        }else{
+//            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("CANT_TAKE_DOWN_AD"));
+//        }
+
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("VIEW_AD_TELEMETRIES"));
+        Variables.adToBeViewedInTelemetries = mAdvert;
     }
 
 

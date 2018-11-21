@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.CardView;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Button;
@@ -55,7 +56,7 @@ public class MyAdStatsItem {
     @View(R.id.AmountToReimburse) private TextView mAmountToReimburse;
     @View(R.id.hasBeenReimbursed) private TextView mHasBeenReimbursed;
     @View(R.id.dateUploaded) private TextView mDateUploaded;
-    @View(R.id.reimburseBtn) private Button mReimburseButton;
+//    @View(R.id.reimburseBtn) private Button mReimburseButton;
 
     private Context mContext;
     private PlaceHolderView mPlaceHolderView;
@@ -82,7 +83,7 @@ public class MyAdStatsItem {
         if(!mAdvert.isFlagged()){
             mUsersReachedSoFar.setText("Users reached : "+mAdvert.getNumberOfTimesSeen());
         }else{
-            mUsersReachedSoFar.setText("Taken Down. No users reached.");
+            mUsersReachedSoFar.setText("Users reached : "+mAdvert.getNumberOfTimesSeen()+" (Taken Down).");
         }
 
         int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen();
@@ -117,13 +118,13 @@ public class MyAdStatsItem {
             e.printStackTrace();
         }
         if(!mAdvert.isHasBeenReimbursed() && isCardForYesterdayAds() && ammountToBeRepaid !=0 ){
-            mReimburseButton.setVisibility(android.view.View.VISIBLE);
+//            mReimburseButton.setVisibility(android.view.View.VISIBLE);
             isClickable = true;
             addListenerForPayoutSessions();
         }else{
             isClickable = false;
-            if(isCardForYesterdayAds()) mReimburseButton.setVisibility(android.view.View.VISIBLE);
-            mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
+//            if(isCardForYesterdayAds()) mReimburseButton.setVisibility(android.view.View.VISIBLE);
+//            mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
         }
         loadListeners();
     }
@@ -154,12 +155,14 @@ public class MyAdStatsItem {
         Glide.with(mContext).load(bitmapToByte(getResizedBitmap(mAdvert.getImageBitmap(),150))).into(mAdImage);
     }
 
-    @Click(R.id.reimburseBtn)
+    @Click(R.id.viewCard)
     private void onClick(){
-        if(isClickable) {
-            Variables.adToBeReimbursed = mAdvert;
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("START_ADVERTISER_PAYOUT"));
-        }
+//        if(isClickable) {
+//            Variables.adToBeReimbursed = mAdvert;
+//            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("START_ADVERTISER_PAYOUT"));
+//        }
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("VIEW_AD_TELEMETRIES"));
+        Variables.adToBeViewedInTelemetries = mAdvert;
     }
 
 
@@ -187,6 +190,20 @@ public class MyAdStatsItem {
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
             Log("MY_AD_STAT_ITEM","Listener from firebase has responded.Updating users reached so far");
+            if(dataSnapshot.getKey().equals("flagged")){
+                mAdvert.setFlagged(dataSnapshot.getValue(Boolean.class));
+                if(!mAdvert.isFlagged()){
+                    mUsersReachedSoFar.setText("Users reached : "+mAdvert.getNumberOfTimesSeen());
+                }else{
+                    mUsersReachedSoFar.setText("Users reached : "+mAdvert.getNumberOfTimesSeen()+" (Taken Down).");
+                }
+            }else
+            if(dataSnapshot.getKey().equals("websiteLink")){
+                mAdvert.setWebsiteLink(dataSnapshot.getValue(String.class));
+            }else
+            if(dataSnapshot.getKey().equals("advertiserPhoneNo")){
+                mAdvert.setAdvertiserPhoneNo(dataSnapshot.getValue(String.class));
+            }else
             if(dataSnapshot.getKey().equals(Constants.USERS_THAT_HAVE_CLICKED_IT)){
 
             }else
@@ -218,7 +235,7 @@ public class MyAdStatsItem {
                     mHasBeenReimbursed.setText("Status: All Users Reached.");
                     mAmountToReimburse.setText("Reimbursing :  0 Ksh");
                     isClickable = false;
-                    mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
+//                    mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
                 }
             }else
             if(dataSnapshot.getKey().equals("payoutReimbursalAmount")){
@@ -243,83 +260,87 @@ public class MyAdStatsItem {
                     mHasBeenReimbursed.setText("Status: All Users Reached.");
                     mAmountToReimburse.setText("Reimbursing :  0 Ksh");
                     isClickable = false;
-                    mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
+//                    mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
                 }
             }else{
-                try {
-                    int newValue = dataSnapshot.getValue(int.class);
-                    Log("MY_AD_STAT_ITEM", "New value gotten from firebase --" + newValue);
-                    mAdvert.setNumberOfTimesSeen(newValue);
-                    mUsersReachedSoFar.setText("Users reached so far : " + newValue);
-                    int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach() - newValue;
-
-                    int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
-                            (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
-                    double vat = (mAdvert.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(
-                            mAdvert.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
-
-                    double incentiveAmm = 0;
-                    if(mAdvert.didAdvertiserAddIncentive()){
-                        incentiveAmm = (mAdvert.getWebClickIncentive()* (mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
-                    }
-
-                    double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat+incentiveAmm;
-                    String number = Double.toString(round(totalReimbursalPlusPayout));
-
-                    mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
-                    if(totalReimbursalPlusPayout==0){
-                        mHasBeenReimbursed.setText("Status: All Users Reached.");
-                        mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
-                        isClickable = false;
-                        mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                try {
-                    boolean newValue = dataSnapshot.getValue(boolean.class);
-                    Log("ADMIN_STAT_ITEM", "New value gotten from firebase --" + newValue);
-                    mAdvert.setHasBeenReimbursed(newValue);
+                if(dataSnapshot.getKey().equals("numberOfTimesSeen")) {
                     try {
-                        if (mAdvert.isHasBeenReimbursed()) {
-                            mHasBeenReimbursed.setText("Status: Reimbursed.");
+                        int newValue = dataSnapshot.getValue(int.class);
+                        Log("MY_AD_STAT_ITEM", "New value gotten from firebase --" + newValue);
+                        mAdvert.setNumberOfTimesSeen(newValue);
+                        mUsersReachedSoFar.setText("Users reached so far : " + newValue);
+                        int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach() - newValue;
+
+                        int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd *
+                                (mAdvert.getAmountToPayPerTargetedView() + Constants.MPESA_CHARGES);
+                        double vat = (mAdvert.getNumberOfUsersToReach() * Variables.getUserCpvFromTotalPayPerUser(
+                                mAdvert.getAmountToPayPerTargetedView())) * Constants.VAT_CONSTANT;
+
+                        double incentiveAmm = 0;
+                        if (mAdvert.didAdvertiserAddIncentive()) {
+                            incentiveAmm = (mAdvert.getWebClickIncentive() * (mAdvert.getNumberOfUsersToReach() - mAdvert.getWebClickNumber()));
+                        }
+
+                        double totalReimbursalPlusPayout = (double) ammountToBeRepaid + mAdvert.getPayoutReimbursalAmount() + vat + incentiveAmm;
+                        String number = Double.toString(round(totalReimbursalPlusPayout));
+
+                        mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
+                        if (totalReimbursalPlusPayout == 0) {
+                            mHasBeenReimbursed.setText("Status: All Users Reached.");
                             mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
-                            if (isCardForYesterdayAds())
-//                                mReimburseButton.setVisibility(android.view.View.GONE);
-                                isClickable = false;
-                                removeListenerForPayoutSessions();
-                                mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
-                        } else {
-                            mHasBeenReimbursed.setText("Status: NOT Reimbursed.");
-
-                            int numberOfUsersWhoDidntSeeAd = (mAdvert.getNumberOfUsersToReach() - mAdvert.getNumberOfTimesSeen());
-                            int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*
-                                    (mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES);
-                            double vat = (mAdvert.getNumberOfUsersToReach()*Variables.getUserCpvFromTotalPayPerUser(
-                                    mAdvert.getAmountToPayPerTargetedView())) *Constants.VAT_CONSTANT;
-
-                            double incentiveAmm = 0;
-                            if(mAdvert.didAdvertiserAddIncentive()){
-                                incentiveAmm = (mAdvert.getWebClickIncentive()* (mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
-                            }
-
-                            double totalReimbursalPlusPayout = (double)ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat+incentiveAmm;
-                            String number = Double.toString(round(totalReimbursalPlusPayout));
-
-                            mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
-                            if(totalReimbursalPlusPayout==0){
-                                mHasBeenReimbursed.setText("Status: All Users Reached.");
-                                mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
-                                isClickable = false;
-                                mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
-                                removeListenerForPayoutSessions();
-                            }
+                            isClickable = false;
+//                        mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                }
+                if(dataSnapshot.getKey().equals("hasBeenReimbursed")) {
+                    try {
+                        boolean newValue = dataSnapshot.getValue(boolean.class);
+                        Log("ADMIN_STAT_ITEM", "New value gotten from firebase --" + newValue);
+                        mAdvert.setHasBeenReimbursed(newValue);
+                        try {
+                            if (mAdvert.isHasBeenReimbursed()) {
+                                mHasBeenReimbursed.setText("Status: Reimbursed.");
+                                mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
+                                if (isCardForYesterdayAds())
+//                                mReimburseButton.setVisibility(android.view.View.GONE);
+                                    isClickable = false;
+                                removeListenerForPayoutSessions();
+//                                mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
+                            } else {
+                                mHasBeenReimbursed.setText("Status: NOT Reimbursed.");
+
+                                int numberOfUsersWhoDidntSeeAd = (mAdvert.getNumberOfUsersToReach() - mAdvert.getNumberOfTimesSeen());
+                                int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd *
+                                        (mAdvert.getAmountToPayPerTargetedView() + Constants.MPESA_CHARGES);
+                                double vat = (mAdvert.getNumberOfUsersToReach() * Variables.getUserCpvFromTotalPayPerUser(
+                                        mAdvert.getAmountToPayPerTargetedView())) * Constants.VAT_CONSTANT;
+
+                                double incentiveAmm = 0;
+                                if (mAdvert.didAdvertiserAddIncentive()) {
+                                    incentiveAmm = (mAdvert.getWebClickIncentive() * (mAdvert.getNumberOfUsersToReach() - mAdvert.getWebClickNumber()));
+                                }
+
+                                double totalReimbursalPlusPayout = (double) ammountToBeRepaid + mAdvert.getPayoutReimbursalAmount() + vat + incentiveAmm;
+                                String number = Double.toString(round(totalReimbursalPlusPayout));
+
+                                mAmountToReimburse.setText("Reimbursing ammt: " + number + "Ksh");
+                                if (totalReimbursalPlusPayout == 0) {
+                                    mHasBeenReimbursed.setText("Status: All Users Reached.");
+                                    mAmountToReimburse.setText("Reimbursing amount:  0 Ksh");
+                                    isClickable = false;
+//                                mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
+                                    removeListenerForPayoutSessions();
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -343,9 +364,9 @@ public class MyAdStatsItem {
     private BroadcastReceiver mMessageReceiverForRemovingEventListeners = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-          dbRef.removeEventListener(chil);
-          removeListenerForPayoutSessions();
-          LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+            if(dbRef!=null) dbRef.removeEventListener(chil);
+            removeListenerForPayoutSessions();
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
         }
     };
 
@@ -361,17 +382,27 @@ public class MyAdStatsItem {
                 new IntentFilter(Constants.IS_MAKING_PAYOUT+"true"));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForShowBtnsBecauseOfPayoutSessionStop,
                 new IntentFilter(Constants.IS_MAKING_PAYOUT+"false"));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForCollapsedCard,
+                new IntentFilter("COLLAPSED_CARD"));
     }
 
     private void removeListenerForPayoutSessions(){
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForHideBtnsBecauseOfPayoutSessionStart);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForShowBtnsBecauseOfPayoutSessionStop);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForCollapsedCard);
     }
 
     private BroadcastReceiver mMessageReceiverForShowBtnsBecauseOfPayoutSessionStop = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             showPayoutButtons();
+        }
+    };
+
+    private BroadcastReceiver mMessageReceiverForCollapsedCard = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
         }
     };
 
@@ -496,12 +527,12 @@ public class MyAdStatsItem {
 
 
     private void hidePayoutButtons(){
-        mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
+//        mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));
         isClickable = false;
     }
 
     private void showPayoutButtons(){
-        mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.colorPrimaryDark));
+//        mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.colorPrimaryDark));
         isClickable = true;
     }
 
