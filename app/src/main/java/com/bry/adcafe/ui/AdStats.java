@@ -53,8 +53,10 @@ import com.bry.adcafe.adapters.TomorrowsAdStatItem;
 import com.bry.adcafe.fragments.FragmentAdvertiserPayoutBottomsheet;
 import com.bry.adcafe.models.AdImageData;
 import com.bry.adcafe.models.Advert;
+import com.bry.adcafe.models.ExpressionData;
 import com.bry.adcafe.models.PayoutResponse;
 import com.bry.adcafe.models.User;
+import com.bry.adcafe.models.WebClickData;
 import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.TimeManager;
@@ -347,6 +349,7 @@ public class AdStats extends AppCompatActivity {
         }
     };
 
+
     private void loadPassData(){
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS).child(uid);
@@ -379,7 +382,6 @@ public class AdStats extends AppCompatActivity {
             }
         });
     }
-
 
     private void loadTomorrowsUploadedAds() {
         loadPassData();
@@ -509,6 +511,16 @@ public class AdStats extends AppCompatActivity {
                     cycleCount++;
                     if(dataSnapshot.hasChildren()) {
                         Advert adUploadedByUser = dataSnapshot.getValue(Advert.class);
+                        if(dataSnapshot.child(Constants.USERS_THAT_HAVE_SEEN).exists()){
+                              for(DataSnapshot expSnap : dataSnapshot.child(Constants.USERS_THAT_HAVE_SEEN).getChildren()){
+                                  adUploadedByUser.expressions.add(expSnap.getValue(ExpressionData.class));
+                              }
+                        }
+                        if(dataSnapshot.child(Constants.USERS_THAT_HAVE_CLICKED_IT).exists()){
+                            for(DataSnapshot expSnap : dataSnapshot.child(Constants.USERS_THAT_HAVE_CLICKED_IT).getChildren()){
+                                adUploadedByUser.webclicks.add(expSnap.getValue(WebClickData.class));
+                            }
+                        }
                         adUploadedByUser.setAdType(Constants.TODAYS_ADS);
                         DataSnapshot clusters = dataSnapshot.child("clustersToUpLoadTo");
                         for (DataSnapshot clusterSnap : clusters.getChildren()) {
@@ -550,7 +562,6 @@ public class AdStats extends AppCompatActivity {
         }
         loadPreviousDaysAds();
     }
-
 
 
 
@@ -601,6 +612,16 @@ public class AdStats extends AppCompatActivity {
                     cycleCount2++;
                     if(dataSnapshot.hasChildren()) {
                         Advert adUploadedByUser = dataSnapshot.getValue(Advert.class);
+                        if(dataSnapshot.child(Constants.USERS_THAT_HAVE_SEEN).exists()){
+                            for(DataSnapshot expSnap : dataSnapshot.child(Constants.USERS_THAT_HAVE_SEEN).getChildren()){
+                                adUploadedByUser.expressions.add(expSnap.getValue(ExpressionData.class));
+                            }
+                        }
+                        if(dataSnapshot.child(Constants.USERS_THAT_HAVE_CLICKED_IT).exists()){
+                            for(DataSnapshot expSnap : dataSnapshot.child(Constants.USERS_THAT_HAVE_CLICKED_IT).getChildren()){
+                                adUploadedByUser.webclicks.add(expSnap.getValue(WebClickData.class));
+                            }
+                        }
                         adUploadedByUser.setAdType(Constants.YESTERDAYS_ADS);
                         DataSnapshot clusters = dataSnapshot.child("clustersToUpLoadTo");
                         for (DataSnapshot clusterSnap : clusters.getChildren()) {
@@ -676,6 +697,16 @@ public class AdStats extends AppCompatActivity {
                            Log(TAG,"The viewing date is past the dates for not showing");
                            for(DataSnapshot snapMini:snap.getChildren()){
                                Advert ad = snapMini.getValue(Advert.class);
+                               if(dataSnapshot.child(Constants.USERS_THAT_HAVE_SEEN).exists()){
+                                   for(DataSnapshot expSnap : dataSnapshot.child(Constants.USERS_THAT_HAVE_SEEN).getChildren()){
+                                       ad.expressions.add(expSnap.getValue(ExpressionData.class));
+                                   }
+                               }
+                               if(dataSnapshot.child(Constants.USERS_THAT_HAVE_CLICKED_IT).exists()){
+                                   for(DataSnapshot expSnap : dataSnapshot.child(Constants.USERS_THAT_HAVE_CLICKED_IT).getChildren()){
+                                       ad.webclicks.add(expSnap.getValue(WebClickData.class));
+                                   }
+                               }
                                ad.setAdType(Constants.OLDER_UPLOADS);
                                if(ad.hasSetBackupImage())myUploadHistoryAds.add(ad);
                                if(!hasTopBeenAdded){
@@ -2054,8 +2085,8 @@ public class AdStats extends AppCompatActivity {
         ValueAnimator animatorBot;
         ValueAnimator animatorTop;
 
-        animatorRight = ValueAnimator.ofInt(0,250,250);
-        animatorLeft = ValueAnimator.ofInt(0,250,250);
+        animatorRight = ValueAnimator.ofInt(0,220,220);
+        animatorLeft = ValueAnimator.ofInt(0,280,280);
         animatorTop = ValueAnimator.ofInt(0,450,800);
         animatorBot = ValueAnimator.ofInt(0,450,100);
 

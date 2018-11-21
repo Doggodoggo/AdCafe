@@ -53,6 +53,9 @@ public class Advert {
     private String AdType;
     private boolean hasSetBackupImage = false;
 
+    public List<ExpressionData> expressions = new ArrayList<>();
+    public List<WebClickData> webclicks = new ArrayList<>();
+
 
 
     @Exclude

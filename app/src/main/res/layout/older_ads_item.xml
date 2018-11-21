@@ -90,7 +90,7 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:id="@+id/takeDownText"
+                    android:id="@+id/takeDownTextX"
                     android:layout_width="match_parent"
                     android:gravity="center"
                     android:textColor="@color/white"
