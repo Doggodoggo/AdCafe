@@ -175,6 +175,7 @@ public class Dashboard extends AppCompatActivity {
     private List<Integer> SideSwipeRawList = new ArrayList<>();
     private boolean isSideScrolling = false;
 
+    @Bind(R.id.linLyt) LinearLayout linLyt;
 
 
     @Override
@@ -205,6 +206,8 @@ public class Dashboard extends AppCompatActivity {
         fastCollapseTheFeedChatView();
 
         addTouchListenerForSwipeBack();
+
+
     }
 
     @Override

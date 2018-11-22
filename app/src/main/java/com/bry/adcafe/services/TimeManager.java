@@ -481,6 +481,10 @@ public class TimeManager {
         return cal;
     }
 
+    public static int getHour(){
+        return cal.get(Calendar.HOUR_OF_DAY);
+    }
+
 
 
 

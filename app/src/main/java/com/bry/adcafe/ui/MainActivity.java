@@ -65,6 +65,7 @@ import android.widget.Toast;
 
 
 import com.bry.adcafe.models.AdCoin;
+import com.bry.adcafe.models.AdPinData;
 import com.bry.adcafe.models.ExpressionData;
 import com.bry.adcafe.models.MyTime;
 import com.bry.adcafe.models.ObservableWebView;
@@ -2885,15 +2886,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setAdsNumberOfPins() {
-        Advert ad = Variables.getCurrentAdvert();
+        final Advert ad = Variables.getCurrentAdvert();
+        final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         final DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.PINNED_AD_POOL)
                 .child(getDateInDays()).child(ad.getPushRefInAdminConsole()).child(Constants.NO_OF_TIMES_PINNED);
+
+        final DatabaseReference adPinRef = FirebaseDatabase.getInstance().getReference(Constants.AD_PINS)
+                .child(ad.getPushRefInAdminConsole()).child(uid);
+
         adRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
                     int numberOfPins = dataSnapshot.getValue(int.class);
                     adRef.setValue(numberOfPins+1);
+                    adPinRef.setValue(new AdPinData(uid,ad.getPushRefInAdminConsole(),new MyTime(TimeManager.getCal())));
                 }else{
                     adRef.setValue(1);
                 }

@@ -12,6 +12,7 @@ apply plugin: 'io.fabric'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
+    maven { url 'https://jitpack.io' }
 }
 
 
@@ -43,6 +44,9 @@ android {
             signingConfig signingConfigs.config
         }
     }
+    packagingOptions {
+        exclude 'META-INF/proguard/androidx-annotations.pro'
+    }
     sourceSets {
         main {
             assets.srcDirs = ['src/main/assets', 'src/main/assets/']
@@ -56,6 +60,7 @@ android {
         noCompress "cer"
     }
     buildToolsVersion = '28.0.3'
+
 }
 
 dependencies {
@@ -101,6 +106,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-places:16.0.0'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.google.firebase:firebase-core:16.0.4'
-
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0-alpha'
+    implementation 'com.jjoe64:graphview:4.2.2'
 }
 apply plugin: 'com.google.gms.google-services'

@@ -304,7 +304,28 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         hasSetSomeInfo = false;
         genderLayout.setVisibility(View.VISIBLE);
         genderLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
-                .setInterpolator(new LinearOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                genderLayout.setTranslationX(0);
+                genderLayout.setAlpha(1f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
         if(Variables.genderTarget.equals(Constants.MALE)){
             hasSetSomeInfo = true;
             radioButtonMale.setChecked(true);
@@ -1003,9 +1024,30 @@ public class SetAdvertiserTargetInfoFragment extends DialogFragment {
         backBtn5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                categoriesLayout.setVisibility(View.GONE);
-                categoriesLayout.setTranslationX(600);
+                categoriesLayout.animate().translationX(Utils.dpToPx(400)).setDuration(Constants.ANIMATION_DURATION)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        categoriesLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
                 loadDeviceCategoryRangeSelector();
+
             }
         });
 

@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -52,6 +53,7 @@ import com.bry.adcafe.adapters.OlderAdsItem;
 import com.bry.adcafe.adapters.TomorrowsAdStatItem;
 import com.bry.adcafe.fragments.FragmentAdvertiserPayoutBottomsheet;
 import com.bry.adcafe.models.AdImageData;
+import com.bry.adcafe.models.AdPinData;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.ExpressionData;
 import com.bry.adcafe.models.PayoutResponse;
@@ -61,6 +63,11 @@ import com.bry.adcafe.services.DatabaseManager;
 import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.TimeManager;
 import com.bry.adcafe.services.Utils;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -71,6 +78,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 import com.mindorks.placeholderview.PlaceHolderView;
 
 import java.text.SimpleDateFormat;
@@ -164,7 +174,17 @@ public class AdStats extends AppCompatActivity {
     private DatabaseReference dbRef;
     @Bind(R.id.takeDownView) LinearLayout takeDownView;
     private boolean isCardCollapsing = false;
+    private ChildEventListener expressionTelemetryListener;
+    private DatabaseReference dbExpressionRef;
+    private ChildEventListener clickTelemetryListener;
+    private DatabaseReference dbClickRef;
+    private ChildEventListener pinTelemetryListener;
+    private DatabaseReference dbPinRef;
 
+    @Bind(R.id.chart) LineChart expressionGraph;
+    @Bind(R.id.webpageChart) LineChart webpageChart;
+    @Bind(R.id.webpageVisitCount) TextView webpageVisitCount;
+    private DataSnapshot pinSnapshot;
 
 
     @Override
@@ -463,9 +483,24 @@ public class AdStats extends AppCompatActivity {
         for(int i = 0;i<getNumber(mUploadedAds3.size());i++){
             DataListsView.addView(new DateForAdStats(mContext,"",DataListsView));
         }
-        loadAdsThatHaveBeenUploaded();
+        loadPinData();
     }
 
+    private void loadPinData(){
+        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference(Constants.AD_PINS);
+        mRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                pinSnapshot = dataSnapshot;
+                loadAdsThatHaveBeenUploaded();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
 
 
     private void loadAdsThatHaveBeenUploaded() {
@@ -511,6 +546,12 @@ public class AdStats extends AppCompatActivity {
                     cycleCount++;
                     if(dataSnapshot.hasChildren()) {
                         Advert adUploadedByUser = dataSnapshot.getValue(Advert.class);
+                        if(pinSnapshot!=null){
+                            for(DataSnapshot advertPinDataSnap:pinSnapshot.child(adUploadedByUser.getPushRefInAdminConsole()).getChildren()){
+                                AdPinData adPin = advertPinDataSnap.getValue(AdPinData.class);
+                                if(!adUploadedByUser.adPins.contains(adPin))adUploadedByUser.adPins.add(adPin);
+                            }
+                        }
                         if(dataSnapshot.child(Constants.USERS_THAT_HAVE_SEEN).exists()){
                               for(DataSnapshot expSnap : dataSnapshot.child(Constants.USERS_THAT_HAVE_SEEN).getChildren()){
                                   adUploadedByUser.expressions.add(expSnap.getValue(ExpressionData.class));
@@ -612,6 +653,12 @@ public class AdStats extends AppCompatActivity {
                     cycleCount2++;
                     if(dataSnapshot.hasChildren()) {
                         Advert adUploadedByUser = dataSnapshot.getValue(Advert.class);
+                        if(pinSnapshot!=null){
+                            for(DataSnapshot advertPinDataSnap:pinSnapshot.child(adUploadedByUser.getPushRefInAdminConsole()).getChildren()){
+                                AdPinData adPin = advertPinDataSnap.getValue(AdPinData.class);
+                                if(!adUploadedByUser.adPins.contains(adPin))adUploadedByUser.adPins.add(adPin);
+                            }
+                        }
                         if(dataSnapshot.child(Constants.USERS_THAT_HAVE_SEEN).exists()){
                             for(DataSnapshot expSnap : dataSnapshot.child(Constants.USERS_THAT_HAVE_SEEN).getChildren()){
                                 adUploadedByUser.expressions.add(expSnap.getValue(ExpressionData.class));
@@ -697,6 +744,12 @@ public class AdStats extends AppCompatActivity {
                            Log(TAG,"The viewing date is past the dates for not showing");
                            for(DataSnapshot snapMini:snap.getChildren()){
                                Advert ad = snapMini.getValue(Advert.class);
+                               if(pinSnapshot!=null){
+                                   for(DataSnapshot advertPinDataSnap:pinSnapshot.child(ad.getPushRefInAdminConsole()).getChildren()){
+                                       AdPinData adPin = advertPinDataSnap.getValue(AdPinData.class);
+                                       if(!ad.adPins.contains(adPin))ad.adPins.add(adPin);
+                                   }
+                               }
                                if(dataSnapshot.child(Constants.USERS_THAT_HAVE_SEEN).exists()){
                                    for(DataSnapshot expSnap : dataSnapshot.child(Constants.USERS_THAT_HAVE_SEEN).getChildren()){
                                        ad.expressions.add(expSnap.getValue(ExpressionData.class));
@@ -986,6 +1039,7 @@ public class AdStats extends AppCompatActivity {
         if(ad.isFlagged())mAuthProgressDialog.setMessage("Restoring the ad...");
         else mAuthProgressDialog.setMessage("Taking down ad...");
         boolean bol = !ad.isFlagged();
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         String date = getDate();
         if(Variables.adToBeFlagged.getAdType().equals(Constants.TOMORROWS_ADS)){
@@ -1018,7 +1072,7 @@ public class AdStats extends AppCompatActivity {
         long dateInDays = ad.getDateInDays()+1;
 
         DatabaseReference mRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
-                .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
+                .child(uid).child(Constants.UPLOAD_HISTORY)
                 .child(Long.toString(-(dateInDays)))
                 .child(ad.getPushRefInAdminConsole()).child("flagged");
         mRef2.setValue(bol);
@@ -1857,6 +1911,8 @@ public class AdStats extends AppCompatActivity {
         }
     };
 
+
+
     @Override
     public void onBackPressed(){
         if(!isTelemetryCardMinimized){
@@ -1881,6 +1937,7 @@ public class AdStats extends AppCompatActivity {
             isTelemetryCardMinimized = true;
         }
     }
+
 
 
     private void expandCard(){
@@ -2051,7 +2108,7 @@ public class AdStats extends AppCompatActivity {
         final RelativeLayout blackBack = findViewById(R.id.blackBack);
         blackBack.setVisibility(View.VISIBLE);
         final float alph = 0.8f;
-        blackBack.animate().alpha(alph).setDuration(mAnimationTime+100).setListener(new Animator.AnimatorListener() {
+        blackBack.animate().alpha(alph).setDuration(mAnimationTime).setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -2255,7 +2312,12 @@ public class AdStats extends AppCompatActivity {
     private void onTelemetryClose() {
         adImageBackground.setImageBitmap(null);
         adImage.setImageBitmap(null);
-        if(dbRef!=null) dbRef.removeEventListener(telemetryEventListener);
+
+        if(dbRef!=null)dbRef.removeEventListener(telemetryEventListener);
+        if(dbExpressionRef!=null)dbExpressionRef.removeEventListener(expressionTelemetryListener);
+        if(dbClickRef!=null)dbClickRef.removeEventListener(clickTelemetryListener);
+        if(dbPinRef!=null)dbPinRef.removeEventListener(pinTelemetryListener);
+
         telemetryLayout.setScaleY(1f);
         telemetryLayout.setScaleX(1f);
 
@@ -2337,6 +2399,93 @@ public class AdStats extends AppCompatActivity {
             }
         };
 
+        expressionTelemetryListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                ExpressionData exp = dataSnapshot.getValue(ExpressionData.class);
+                Variables.adToBeViewedInTelemetries.expressions.add(exp);
+                setTelemetryData();
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
+        clickTelemetryListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                WebClickData wb = dataSnapshot.getValue(WebClickData.class);
+                if(!Variables.adToBeViewedInTelemetries.webclicks.contains(wb))Variables.adToBeViewedInTelemetries.webclicks.add(wb);
+                setTelemetryData();
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
+        pinTelemetryListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                AdPinData adPin = dataSnapshot.getValue(AdPinData.class);
+                if(!Variables.adToBeViewedInTelemetries.adPins.contains(adPin))Variables.adToBeViewedInTelemetries.adPins.add(adPin);
+                setTelemetryData();
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
         Advert ad = Variables.adToBeViewedInTelemetries;
         if(ad.getAdType().equals(Constants.TOMORROWS_ADS)){
             String tme = TimeManager.getNextDay();
@@ -2348,18 +2497,50 @@ public class AdStats extends AppCompatActivity {
             dbRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
                     .child(tme).child(Variables.adToBeViewedInTelemetries.getPushRefInAdminConsole());
 
+            dbExpressionRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                    .child(tme).child(Variables.adToBeViewedInTelemetries.getPushRefInAdminConsole())
+                    .child(Constants.USERS_THAT_HAVE_SEEN);
+
+            dbClickRef =  FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                    .child(tme).child(Variables.adToBeViewedInTelemetries.getPushRefInAdminConsole())
+                    .child(Constants.USERS_THAT_HAVE_CLICKED_IT);
+
         }else if(ad.getAdType().equals(Constants.YESTERDAYS_ADS)){
             String tme = TimeManager.getPreviousDay();
             dbRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
                     .child(tme).child(Variables.adToBeViewedInTelemetries.getPushRefInAdminConsole());
+
+            dbExpressionRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                    .child(tme).child(Variables.adToBeViewedInTelemetries.getPushRefInAdminConsole())
+                    .child(Constants.USERS_THAT_HAVE_SEEN);
+
+            dbClickRef =  FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                    .child(tme).child(Variables.adToBeViewedInTelemetries.getPushRefInAdminConsole())
+                    .child(Constants.USERS_THAT_HAVE_CLICKED_IT);
 
         }else{
             //history uploads
             dbRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
                     .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
                     .child(Long.toString(-(ad.getDateInDays()+1))).child(ad.getPushRefInAdminConsole());
+
+            dbExpressionRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                    .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
+                    .child(Long.toString(-(ad.getDateInDays()+1))).child(ad.getPushRefInAdminConsole())
+                    .child(Constants.USERS_THAT_HAVE_SEEN);
+
+            dbClickRef =  FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                    .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
+                    .child(Long.toString(-(ad.getDateInDays()+1))).child(ad.getPushRefInAdminConsole())
+                    .child(Constants.USERS_THAT_HAVE_CLICKED_IT);
         }
+        dbPinRef = FirebaseDatabase.getInstance().getReference(Constants.AD_PINS)
+                .child(ad.getPushRefInAdminConsole());
+
         dbRef.addChildEventListener(telemetryEventListener);
+        dbExpressionRef.addChildEventListener(expressionTelemetryListener);
+        dbClickRef.addChildEventListener(clickTelemetryListener);
+        dbPinRef.addChildEventListener(pinTelemetryListener);
     }
 
     private void setTelemetryData() {
@@ -2414,9 +2595,9 @@ public class AdStats extends AppCompatActivity {
             contactLocationText.setText(ad.getAdvertiserLocations().size()+" Locations.");
         }
 
-        if(ad.getNumberOfPins()==1){
-            numberOfPinsText.setText(ad.getNumberOfPins()+" Pin.");
-        }else numberOfPinsText.setText(ad.getNumberOfPins()+" Pins.");
+        if(ad.adPins.size()==1){
+            numberOfPinsText.setText(ad.adPins.size()+" Pin.");
+        }else numberOfPinsText.setText(ad.adPins.size()+" Pins.");
 
         categoryText.setText(ad.getCategory());
 
@@ -2434,7 +2615,83 @@ public class AdStats extends AppCompatActivity {
             takeDownCard.setCardBackgroundColor(getResources().getColor(R.color.accent));
         }
 
+        setExpressionGraph();
+        setWebClickGraph();
     }
+
+    private void setExpressionGraph(){
+        List<Integer> times = new ArrayList<>();
+        times.add(TimeManager.getCal().get(Calendar.HOUR_OF_DAY));
+        for(int i=TimeManager.getHour()-4;i<=TimeManager.getHour();i++){
+            if(i>0){
+                times.add(i);
+            }
+        }
+        List<Entry> entries = new ArrayList<>();
+        for (int data : times) {
+            entries.add(new Entry(data, getUsersWhoSawAt(data)));
+        }
+        LineDataSet dataSet = new LineDataSet(entries, "Average Views in the last 4 hours.");
+        dataSet.setColor(getResources().getColor(R.color.colorPrimaryDark));
+        dataSet.setValueTextColor(getResources().getColor(R.color.colorPrimaryLight));
+
+        LineData lineData = new LineData(dataSet);
+        XAxis xAxis = expressionGraph.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.TOP);
+
+        expressionGraph.setData(lineData);
+        expressionGraph.invalidate();
+    }
+
+    private int getUsersWhoSawAt(int hour){
+        int number = 0;
+        for(ExpressionData data:Variables.adToBeViewedInTelemetries.expressions){
+            if(data.getViewingTime().getHour()==hour){
+                number++;
+            }
+        }
+        return number;
+    }
+
+
+
+    private void setWebClickGraph(){
+        List<Integer> times = new ArrayList<>();
+        times.add(TimeManager.getCal().get(Calendar.HOUR_OF_DAY));
+        for(int i=TimeManager.getHour()-4;i<=TimeManager.getHour();i++){
+            if(i>0){
+                times.add(i);
+            }
+        }
+        List<Entry> entries = new ArrayList<>();
+        for (int data : times) {
+            entries.add(new Entry(data, getUsersWhoVisitedAt(data)));
+        }
+        LineDataSet dataSet = new LineDataSet(entries, "Average website visits for the last 4 hours.");
+        dataSet.setColor(getResources().getColor(R.color.colorPrimaryDark));
+        dataSet.setValueTextColor(getResources().getColor(R.color.colorPrimaryLight));
+
+        LineData lineData = new LineData(dataSet);
+        XAxis xAxis = webpageChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.TOP);
+
+        webpageChart.setData(lineData);
+        webpageChart.invalidate();
+
+        webpageVisitCount.setText(Variables.adToBeViewedInTelemetries.webclicks.size()+" Webpage Visits");
+    }
+
+    private int getUsersWhoVisitedAt(int hour){
+        int number = 0;
+        for(WebClickData data:Variables.adToBeViewedInTelemetries.webclicks){
+            if(data.getWebClickTime().getHour()==hour){
+                number++;
+            }
+        }
+        return number;
+    }
+
+
 
     private void setTotalAmounts(){
         Advert ad = Variables.adToBeViewedInTelemetries;

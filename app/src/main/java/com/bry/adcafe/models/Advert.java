@@ -55,6 +55,7 @@ public class Advert {
 
     public List<ExpressionData> expressions = new ArrayList<>();
     public List<WebClickData> webclicks = new ArrayList<>();
+    public List<AdPinData> adPins = new ArrayList<>();
 
 
 

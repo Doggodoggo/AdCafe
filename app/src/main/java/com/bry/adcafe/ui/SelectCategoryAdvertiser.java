@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.LocalBroadcastManager;
@@ -76,6 +77,10 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
     private int maxSideSwipeLength = 200;
 
     private long allUsersNumber = 0;
+    private LinkedHashMap<String,Long> userLastOnline = new LinkedHashMap<>();
+    private List<String> users = new ArrayList<>();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,6 +159,18 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
 //                        allUsersNumber++;
 //                    }
 //                }
+                for(DataSnapshot userSnap:dataSnapshot.getChildren()){
+                    String uid = userSnap.getKey();
+                    long lastSeenDate = 0L;
+                    if(userSnap.child(Constants.LAST_SEEN_DATE_IN_DAYS).exists()){
+                        lastSeenDate = userSnap.child(Constants.LAST_SEEN_DATE_IN_DAYS).getValue(long.class);
+                    }
+                    if(lastSeenDate+ 30L >TimeManager.getDateInDays()){
+                        users.add(uid);
+                    }
+//                    userLastOnline.put(uid,lastSeenDate);
+
+                }
                 allUsersNumber= dataSnapshot.getChildrenCount();
                 loadUserStatsFirst();
             }
@@ -170,18 +187,26 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
                 .child(Constants.CLUSTERS_LIST);
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for(DataSnapshot snap:dataSnapshot.getChildren()){
                     Integer cpvValue = Integer.parseInt(snap.getKey());
                     LinkedHashMap<String,Long> categoryStats = new LinkedHashMap<>();
                     for (DataSnapshot categorySnap: snap.getChildren()){
                         String category = categorySnap.getKey();
-                        long numberOfUsers = ((categorySnap.getChildrenCount()-1)*1000)
-                                +categorySnap.child(Long.toString(categorySnap.getChildrenCount())).getChildrenCount();
+                        int numberOfUsers = 0;
                         if(category.equals(Constants.CATEGORY_EVERYONE)){
-                            numberOfUsers = allUsersNumber;
+                            numberOfUsers=users.size();
+                        }else{
+                            for(DataSnapshot clusterSnap:categorySnap.getChildren()){
+                                for(DataSnapshot userSnap:clusterSnap.getChildren()) {
+                                    String userId = userSnap.getKey();
+                                    if (users.contains(userId)) {
+                                        numberOfUsers++;
+                                    }
+                                }
+                            }
                         }
-                        categoryStats.put(category,numberOfUsers);
+                        categoryStats.put(category,((long)numberOfUsers));
                     }
                     userStats.put(cpvValue,categoryStats);
                 }

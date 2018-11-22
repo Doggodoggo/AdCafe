@@ -247,5 +247,7 @@ public class Constants {
     public static String OLDER_UPLOADS = "OLDER_UPLOADS";
 
     public static String ALL_AD_IMAGES = "AdImages";
+    public static int INACTIVE_USER_THRESHOLD = 30;
+    public static String AD_PINS = "AdPins";
 
 }

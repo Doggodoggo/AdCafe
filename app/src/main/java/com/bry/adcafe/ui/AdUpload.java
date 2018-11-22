@@ -497,16 +497,25 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                         String subKey = subSnap.getKey();
                         subs.add(subKey);
                     }
+
+                    Long lastSeenDate = 0L;
+                    if(userSnap.child(Constants.LAST_SEEN_DATE_IN_DAYS).exists()){
+                        lastSeenDate = userSnap.child(Constants.LAST_SEEN_DATE_IN_DAYS).getValue(long.class);
+                    }
                     int cluster = 1;
 
                     if(userSnap.child(Constants.SUBSCRIPTION_lIST).child(mCategory).exists()) {
                         cluster = userSnap.child(Constants.SUBSCRIPTION_lIST).child(mCategory).getValue(int.class);
-                        UsersInCategory.add(new TargetedUser(uid,gender,birthday,birthmonth,birthyear,
-                                userLocations,cluster,deviceCategory,subs));
-                    }else{
-                        if(mCategory.equals(Constants.CATEGORY_EVERYONE)){
+                        if(lastSeenDate+ 30L >TimeManager.getDateInDays()){
                             UsersInCategory.add(new TargetedUser(uid,gender,birthday,birthmonth,birthyear,
                                     userLocations,cluster,deviceCategory,subs));
+                        }
+                    }else{
+                        if(mCategory.equals(Constants.CATEGORY_EVERYONE)){
+                            if(lastSeenDate+ 30L >TimeManager.getDateInDays()) {
+                                UsersInCategory.add(new TargetedUser(uid, gender, birthday, birthmonth, birthyear,
+                                        userLocations, cluster, deviceCategory, subs));
+                            }
                         }
                     }
 

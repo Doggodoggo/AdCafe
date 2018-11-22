@@ -213,60 +213,63 @@ public class OlderAdsItem {
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
             Log.d("MY_AD_STAT_ITEM","Listener from firebase has responded.Updating users reached so far");
-            try{
-                int newValue = dataSnapshot.getValue(int.class);
-                Log.d("MY_AD_STAT_ITEM","New value gotten from firebase --"+newValue);
-                mAdvert.setNumberOfTimesSeen(newValue);
-                mUsersReachedSoFarView.setText("Users reached so far : "+newValue);
-                int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach()- newValue;
-                int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView();
-                double vat = (numberOfUsersWhoDidntSeeAd*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))
-                        *Constants.VAT_CONSTANT;
+            if(dataSnapshot.getKey().equals("numberOfTimesSeen")) {
+                try {
+                    int newValue = dataSnapshot.getValue(int.class);
+                    Log.d("MY_AD_STAT_ITEM", "New value gotten from firebase --" + newValue);
+                    mAdvert.setNumberOfTimesSeen(newValue);
+                    mUsersReachedSoFarView.setText("Users reached so far : " + newValue);
+                    int numberOfUsersWhoDidntSeeAd = mAdvert.getNumberOfUsersToReach() - newValue;
+                    int ammountToBeRepaid = numberOfUsersWhoDidntSeeAd * mAdvert.getAmountToPayPerTargetedView();
+                    double vat = (numberOfUsersWhoDidntSeeAd * (mAdvert.getAmountToPayPerTargetedView() + Constants.MPESA_CHARGES))
+                            * Constants.VAT_CONSTANT;
 
-                double incentiveAmm = 0;
-                if(mAdvert.didAdvertiserAddIncentive()){
-                    incentiveAmm = (mAdvert.getWebClickIncentive()* (mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
-                }
-
-                String number = Integer.toString(ammountToBeRepaid+((int)vat)+((int)incentiveAmm));
-                mAmountToReimburseView.setText("Reimbursing amount : "+number+" Ksh");
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-            try{
-                boolean newValue = dataSnapshot.getValue(boolean.class);
-                Log.d("ADMIN_STAT_ITEM","New value gotten from firebase --"+newValue);
-                mAdvert.setHasBeenReimbursed(newValue);
-                try{
-                    if(mAdvert.isHasBeenReimbursed()) {
-                        mHasBeenReimbursedView.setText("Status: Reimbursed.");
-                        mAmountToReimburseView.setText("Reimbursing amount:  0 Ksh");
-                        if(isCardForYesterdayAds()){
-                            hidePayoutButtons();
-                            removeListenerForPayoutSessions();
-                        }
-                    }else{
-                        mHasBeenReimbursedView.setText("Status: NOT Reimbursed.");
-                        int numberOfUsersWhoDidntSeeAd = (mAdvert.getNumberOfUsersToReach()- mAdvert.getNumberOfTimesSeen());
-                        int ammountToBeRepaid = (numberOfUsersWhoDidntSeeAd*mAdvert.getAmountToPayPerTargetedView());
-                        double vat = (numberOfUsersWhoDidntSeeAd*(mAdvert.getAmountToPayPerTargetedView()+Constants.MPESA_CHARGES))
-                                *Constants.VAT_CONSTANT;
-
-                        double incentiveAmm = 0;
-                        if(mAdvert.didAdvertiserAddIncentive()){
-                            incentiveAmm = (mAdvert.getWebClickIncentive()* (mAdvert.getNumberOfUsersToReach()-mAdvert.getWebClickNumber()) );
-                        }
-
-                        String number = Integer.toString(ammountToBeRepaid+((int) vat)+ ((int) incentiveAmm));
-                        mAmountToReimburseView.setText("Reimbursing amount : "+number+" Ksh");
+                    double incentiveAmm = 0;
+                    if (mAdvert.didAdvertiserAddIncentive()) {
+                        incentiveAmm = (mAdvert.getWebClickIncentive() * (mAdvert.getNumberOfUsersToReach() - mAdvert.getWebClickNumber()));
                     }
-                }catch (Exception e){
+
+                    String number = Integer.toString(ammountToBeRepaid + ((int) vat) + ((int) incentiveAmm));
+                    mAmountToReimburseView.setText("Reimbursing amount : " + number + " Ksh");
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+            }else
+            if(dataSnapshot.getKey().equals("numberOfTimesSeen")) {
+                try {
+                    boolean newValue = dataSnapshot.getValue(boolean.class);
+                    Log.d("ADMIN_STAT_ITEM", "New value gotten from firebase --" + newValue);
+                    mAdvert.setHasBeenReimbursed(newValue);
+                    try {
+                        if (mAdvert.isHasBeenReimbursed()) {
+                            mHasBeenReimbursedView.setText("Status: Reimbursed.");
+                            mAmountToReimburseView.setText("Reimbursing amount:  0 Ksh");
+                            if (isCardForYesterdayAds()) {
+                                hidePayoutButtons();
+                                removeListenerForPayoutSessions();
+                            }
+                        } else {
+                            mHasBeenReimbursedView.setText("Status: NOT Reimbursed.");
+                            int numberOfUsersWhoDidntSeeAd = (mAdvert.getNumberOfUsersToReach() - mAdvert.getNumberOfTimesSeen());
+                            int ammountToBeRepaid = (numberOfUsersWhoDidntSeeAd * mAdvert.getAmountToPayPerTargetedView());
+                            double vat = (numberOfUsersWhoDidntSeeAd * (mAdvert.getAmountToPayPerTargetedView() + Constants.MPESA_CHARGES))
+                                    * Constants.VAT_CONSTANT;
 
+                            double incentiveAmm = 0;
+                            if (mAdvert.didAdvertiserAddIncentive()) {
+                                incentiveAmm = (mAdvert.getWebClickIncentive() * (mAdvert.getNumberOfUsersToReach() - mAdvert.getWebClickNumber()));
+                            }
+
+                            String number = Integer.toString(ammountToBeRepaid + ((int) vat) + ((int) incentiveAmm));
+                            mAmountToReimburseView.setText("Reimbursing amount : " + number + " Ksh");
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         @Override

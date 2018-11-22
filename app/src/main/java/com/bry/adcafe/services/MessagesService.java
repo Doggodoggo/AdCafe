@@ -264,7 +264,7 @@ public class MessagesService extends IntentService {
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
                 Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 notification = new NotificationCompat.Builder(context)
-//                    .setContentIntent(pendingIntent)
+                    .setContentIntent(pendingIntent)
                         .setSmallIcon(R.drawable.ic_stat_notification2)
                         .setTicker("ticker value")
                         .setColor(mContext.getResources().getColor(R.color.colorPrimaryDark))
