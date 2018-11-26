@@ -65,6 +65,7 @@ import com.bry.adcafe.services.TimeManager;
 import com.bry.adcafe.services.Utils;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -92,7 +93,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class AdStats extends AppCompatActivity {
+public class AdStats extends AppCompatActivity implements View.OnClickListener{
     private static final String TAG = "AdStats";
     private List<String> mAdList = new ArrayList<>();
     private List<Advert> mUploadedAds = new ArrayList<>();
@@ -186,6 +187,28 @@ public class AdStats extends AppCompatActivity {
     @Bind(R.id.webpageVisitCount) TextView webpageVisitCount;
     private DataSnapshot pinSnapshot;
 
+    @Bind(R.id.hideButton) ImageButton hideButton;
+    @Bind(R.id.starButton) ImageButton starButton;
+    @Bind(R.id.hiddenPlaceHolderViewInfo) PlaceHolderView hiddenPlaceHolderViewInfo;
+    private List<Advert> myHistoryAds = new ArrayList<>();
+    @Bind(R.id.moreButton) ImageButton moreButton;
+    @Bind(R.id.moreLayout) RelativeLayout moreLayout;
+    @Bind(R.id.showHidden) LinearLayout showHidden;
+    private boolean isOptionsShowing = false;
+    private boolean isShowingHidden = false;
+
+    private int hiddenNumber = 0;
+    private boolean isToRemove = false;
+    private  List<String> historyAdIds = new ArrayList<>();
+    private  List<String> hiddenAdIds = new ArrayList<>();
+
+    @Bind(R.id.showStarred) LinearLayout showStarred;
+    @Bind(R.id.starredTitle) TextView starredTitle;
+    @Bind(R.id.showStarredImage) ImageView showStarredImage;
+    @Bind(R.id.starredPlaceHolderView) PlaceHolderView starredPlaceHolderView;
+    private boolean isShowingStarred = false;
+    private List<Advert> starredAds = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -207,12 +230,14 @@ public class AdStats extends AppCompatActivity {
             showNoConnectionView();
         }
         DataListsView.getBuilder().setLayoutManager(new GridLayoutManager(mContext,2));
+        hiddenPlaceHolderViewInfo.getBuilder().setLayoutManager(new GridLayoutManager(mContext,2));
+        starredPlaceHolderView.getBuilder().setLayoutManager(new GridLayoutManager(mContext,2));
         addListenerForPaymentSession();
         addTouchListenerForSwipeBack();
 
-
         collapseCard();
         isTelemetryCardMinimized = true;
+        moreButton.setOnClickListener(this);
     }
 
     @Override
@@ -256,6 +281,7 @@ public class AdStats extends AppCompatActivity {
             if(isNetworkConnected(mContext)){
                 DataListsView.setVisibility(View.GONE);
                 findViewById(R.id.topText).setVisibility(View.GONE);
+                moreButton.setVisibility(View.GONE);
                 findViewById(R.id.LoadingViews).setVisibility(View.VISIBLE);
                 createProgressDialog();
                 setCurrentDateToSharedPrefs();
@@ -267,6 +293,7 @@ public class AdStats extends AppCompatActivity {
             if(isNetworkConnected(mContext)){
                 DataListsView.setVisibility(View.GONE);
                 findViewById(R.id.topText).setVisibility(View.GONE);
+                moreButton.setVisibility(View.GONE);
                 findViewById(R.id.LoadingViews).setVisibility(View.VISIBLE);
                 createProgressDialog();
                 setUpTimeIfNeedBe();
@@ -291,6 +318,7 @@ public class AdStats extends AppCompatActivity {
         TimeManager.setUpTimeManager("AD_STATS_RESET_UP_TIMER",mContext);
         DataListsView.setVisibility(View.GONE);
         findViewById(R.id.topText).setVisibility(View.GONE);
+        moreButton.setVisibility(View.GONE);
         findViewById(R.id.LoadingViews).setVisibility(View.VISIBLE);
         LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
             @Override
@@ -300,6 +328,7 @@ public class AdStats extends AppCompatActivity {
                 Log(TAG,"Unhiding views");
                 DataListsView.setVisibility(View.VISIBLE);
                 findViewById(R.id.topText).setVisibility(View.VISIBLE);
+                moreButton.setVisibility(View.VISIBLE);
                 findViewById(R.id.LoadingViews).setVisibility(View.GONE);
             }
         },new IntentFilter("AD_STATS_RESET_UP_TIMER"));
@@ -406,6 +435,7 @@ public class AdStats extends AppCompatActivity {
     private void loadTomorrowsUploadedAds() {
         loadPassData();
         if(DataListsView.getChildCount()!=0)DataListsView.removeAllViews();
+        if(hiddenPlaceHolderViewInfo.getChildCount()!=0)hiddenPlaceHolderViewInfo.removeAllViews();
         Log(TAG,"Loading ads uploaded by user for tomorrow.");
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Query query = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
@@ -455,6 +485,10 @@ public class AdStats extends AppCompatActivity {
                         }
                         Double payoutReimbursalAmm = dataSnapshot.child("payoutReimbursalAmount").getValue(Double.class);
                         adUploadedByUser.setPayoutReimbursalAmount(payoutReimbursalAmm);
+                        if(adUploadedByUser.isStarred()){
+                            starredAds.add(adUploadedByUser);
+                            starredPlaceHolderView.addView(new OlderAdsItem(mContext,starredPlaceHolderView,adUploadedByUser,starredPlaceHolderView.getChildCount()));
+                        }
                         Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds3.add(adUploadedByUser);
                         numberOfElements++;
@@ -571,6 +605,11 @@ public class AdStats extends AppCompatActivity {
                         }
                         Double payoutReimbursalAmm = dataSnapshot.child("payoutReimbursalAmount").getValue(Double.class);
                         adUploadedByUser.setPayoutReimbursalAmount(payoutReimbursalAmm);
+                        adUploadedByUser.setAdType(Constants.YESTERDAYS_ADS);
+                        if(adUploadedByUser.isStarred()){
+                            starredAds.add(adUploadedByUser);
+                            starredPlaceHolderView.addView(new OlderAdsItem(mContext,starredPlaceHolderView,adUploadedByUser,starredPlaceHolderView.getChildCount()));
+                        }
                         Log(TAG, "Gotten one ad from firebase. : " + adUploadedByUser.getPushRefInAdminConsole());
                         mUploadedAds.add(adUploadedByUser);
                         numberOfElements++;
@@ -670,6 +709,10 @@ public class AdStats extends AppCompatActivity {
                             }
                         }
                         adUploadedByUser.setAdType(Constants.YESTERDAYS_ADS);
+                        if(adUploadedByUser.isStarred()){
+                            starredAds.add(adUploadedByUser);
+                            starredPlaceHolderView.addView(new OlderAdsItem(mContext,starredPlaceHolderView,adUploadedByUser,starredPlaceHolderView.getChildCount()));
+                        }
                         DataSnapshot clusters = dataSnapshot.child("clustersToUpLoadTo");
                         for (DataSnapshot clusterSnap : clusters.getChildren()) {
                             int cluster = Integer.parseInt(clusterSnap.getKey());
@@ -719,9 +762,14 @@ public class AdStats extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log(TAG,"Loading upload history");
                 myUploadHistoryAds.clear();
+                historyAdIds.clear();
+                hiddenAdIds.clear();
+                hiddenAdIds.add("Your Hidden Ads.");hiddenAdIds.add("");
+                historyAdIds.add("Your Upload History.");historyAdIds.add("");
                 if(dataSnapshot.exists()){
                     doChildrenExist = true;
                     boolean hasTopBeenAdded = false;
+                    boolean hasTopBoi = false;
                     findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
                     int numberOfUploads = 0;
                     for(DataSnapshot snap:dataSnapshot.getChildren()){
@@ -745,9 +793,13 @@ public class AdStats extends AppCompatActivity {
                            for(DataSnapshot snapMini:snap.getChildren()){
                                Advert ad = snapMini.getValue(Advert.class);
                                if(pinSnapshot!=null){
-                                   for(DataSnapshot advertPinDataSnap:pinSnapshot.child(ad.getPushRefInAdminConsole()).getChildren()){
-                                       AdPinData adPin = advertPinDataSnap.getValue(AdPinData.class);
-                                       if(!ad.adPins.contains(adPin))ad.adPins.add(adPin);
+                                   try{
+                                       for(DataSnapshot advertPinDataSnap:pinSnapshot.child(ad.getPushRefInAdminConsole()).getChildren()){
+                                           AdPinData adPin = advertPinDataSnap.getValue(AdPinData.class);
+                                           if(!ad.adPins.contains(adPin))ad.adPins.add(adPin);
+                                       }
+                                   }catch (Exception e){
+                                       e.printStackTrace();
                                    }
                                }
                                if(dataSnapshot.child(Constants.USERS_THAT_HAVE_SEEN).exists()){
@@ -761,13 +813,30 @@ public class AdStats extends AppCompatActivity {
                                    }
                                }
                                ad.setAdType(Constants.OLDER_UPLOADS);
+                               myHistoryAds.add(ad);
                                if(ad.hasSetBackupImage())myUploadHistoryAds.add(ad);
-                               if(!hasTopBeenAdded){
-                                   DataListsView.addView(new DateForAdStats(mContext,"Your Upload History.",DataListsView));
-                                   DataListsView.addView(new DateForAdStats(mContext,"",DataListsView));
-                                   hasTopBeenAdded = true;
+                               historyAdIds.add(ad.getPushRefInAdminConsole());
+                               if(ad.isStarred()){
+                                   starredAds.add(ad);
+                                   starredPlaceHolderView.addView(new OlderAdsItem(mContext,starredPlaceHolderView,ad,starredPlaceHolderView.getChildCount()));
                                }
-                               DataListsView.addView(new OlderAdsItem(mContext,DataListsView,ad));
+                               if(ad.isAdvertiserHidden()){
+//                                   if(!hasTopBoi){
+//                                       hiddenPlaceHolderViewInfo.addView(new DateForAdStats(mContext,"Your Hidden ads History.",hiddenPlaceHolderViewInfo));
+//                                       hiddenPlaceHolderViewInfo.addView(new DateForAdStats(mContext," ",hiddenPlaceHolderViewInfo));
+//                                       hasTopBoi = true;
+//                                   }
+                                   hiddenPlaceHolderViewInfo.addView(new OlderAdsItem(mContext,hiddenPlaceHolderViewInfo,ad,hiddenPlaceHolderViewInfo.getChildCount()));
+                                   hiddenAdIds.add(ad.getPushRefInAdminConsole());
+                                   hiddenNumber++;
+                               }else{
+                                   if(!hasTopBeenAdded){
+                                       DataListsView.addView(new DateForAdStats(mContext,"Your Upload History.",DataListsView));
+                                       DataListsView.addView(new DateForAdStats(mContext," ",DataListsView));
+                                       hasTopBeenAdded = true;
+                                   }
+                                   DataListsView.addView(new OlderAdsItem(mContext,DataListsView,ad,DataListsView.getChildCount()));
+                               }
                            }
                        }
                     }
@@ -777,6 +846,7 @@ public class AdStats extends AppCompatActivity {
                 } else {
                     DataListsView.setVisibility(View.VISIBLE);
                     findViewById(R.id.topText).setVisibility(View.VISIBLE);
+                    moreButton.setVisibility(View.VISIBLE);
                     findViewById(R.id.LoadingViews).setVisibility(View.GONE);
                     if (doChildrenExist) {
                         findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
@@ -839,6 +909,7 @@ public class AdStats extends AppCompatActivity {
         if(myHistoryAdImages.isEmpty()){
             DataListsView.setVisibility(View.VISIBLE);
             findViewById(R.id.topText).setVisibility(View.VISIBLE);
+            moreButton.setVisibility(View.VISIBLE);
             findViewById(R.id.LoadingViews).setVisibility(View.GONE);
             if(doChildrenExist){
                 findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
@@ -850,6 +921,13 @@ public class AdStats extends AppCompatActivity {
             hx.execute("");
         }
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(v.equals(moreButton)){
+            openMore();
+        }
     }
 
     private class LongOperationHist extends AsyncTask<String, Void, String> {
@@ -875,6 +953,7 @@ public class AdStats extends AppCompatActivity {
             myHistoryAdImages.clear();
             DataListsView.setVisibility(View.VISIBLE);
             findViewById(R.id.topText).setVisibility(View.VISIBLE);
+            moreButton.setVisibility(View.VISIBLE);
             findViewById(R.id.LoadingViews).setVisibility(View.GONE);
             if(doChildrenExist){
                 findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
@@ -1795,32 +1874,33 @@ public class AdStats extends AppCompatActivity {
             float s = (float)(((50-(trans*0.01))/50)*1f);
             telemetryLayout.setScaleX(s);
             telemetryLayout.setScaleY(s);
+            telemetryLayout.setTranslationX((int)(trans*0.1));
 
             final RelativeLayout blackBack = findViewById(R.id.blackBack);
             final float alph = s-0.3f;
             blackBack.setAlpha(alph);
-            blackBack.animate().alpha(alph).setDuration(mAnimationTime).setListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    blackBack.setAlpha(alph);
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-
-                }
-            })
-                    .setInterpolator(new LinearOutSlowInInterpolator()).start();
+//            blackBack.animate().alpha(alph).setDuration(mAnimationTime).setListener(new Animator.AnimatorListener() {
+//                @Override
+//                public void onAnimationStart(Animator animation) {
+//
+//                }
+//
+//                @Override
+//                public void onAnimationEnd(Animator animation) {
+//                    blackBack.setAlpha(alph);
+//                }
+//
+//                @Override
+//                public void onAnimationCancel(Animator animation) {
+//
+//                }
+//
+//                @Override
+//                public void onAnimationRepeat(Animator animation) {
+//
+//                }
+//            })
+//                    .setInterpolator(new LinearOutSlowInInterpolator()).start();
         }
     }
 
@@ -1846,7 +1926,7 @@ public class AdStats extends AppCompatActivity {
 
         if(!isCardCollapsing){
             final LinearLayout mainViewLayout = findViewById(R.id.mainViewLayout);
-            telemetryLayout.animate().setDuration(myDurat).setInterpolator(new LinearOutSlowInInterpolator()).scaleX(1f).scaleY(1f).start();
+            telemetryLayout.animate().setDuration(myDurat).setInterpolator(new LinearOutSlowInInterpolator()).translationX(0).scaleX(1f).scaleY(1f).start();
             mainViewLayout.animate().setDuration(myDurat).setInterpolator(new LinearOutSlowInInterpolator()).translationX(0)
                     .setListener(new Animator.AnimatorListener() {
                         @Override
@@ -1899,6 +1979,7 @@ public class AdStats extends AppCompatActivity {
                     .setInterpolator(new LinearOutSlowInInterpolator()).start();
         }
 
+
     }
 
 
@@ -1915,11 +1996,17 @@ public class AdStats extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        if(!isTelemetryCardMinimized){
+        if (!isTelemetryCardMinimized) {
             hideSelectedAdTelemetries();
-        }
-        else{
-            super.onBackPressed();
+        } else {
+            if(isShowingHidden){
+                hideHiddenAds();
+            }else if(isShowingStarred){
+                hideStarred();
+            }
+            else{
+                super.onBackPressed();
+            }
         }
     }
 
@@ -1932,9 +2019,12 @@ public class AdStats extends AppCompatActivity {
     }
 
     private void hideSelectedAdTelemetries(){
+        Advert ad = Variables.adToBeViewedInTelemetries;
+        telemetryLayout.setTranslationX(0);
         if(!isTelemetryCardMinimized){
             collapseCard();
             isTelemetryCardMinimized = true;
+            if(isToRemove)LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ad.getPushRefInAdminConsole()+"HIDE"));
         }
     }
 
@@ -2337,6 +2427,12 @@ public class AdStats extends AppCompatActivity {
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if(dataSnapshot.getKey().equals("starred")){
+                    Variables.adToBeViewedInTelemetries.setStarred(dataSnapshot.getValue(Boolean.class));
+                }else
+                if(dataSnapshot.getKey().equals("advertiserHidden")){
+                    Variables.adToBeViewedInTelemetries.setAdvertiserHidden(dataSnapshot.getValue(Boolean.class));
+                }else
                 if(dataSnapshot.getKey().equals("flagged")){
                     Variables.adToBeViewedInTelemetries.setFlagged(dataSnapshot.getValue(Boolean.class));
                 }else
@@ -2492,6 +2588,14 @@ public class AdStats extends AppCompatActivity {
             dbRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
                     .child(tme).child(ad.getPushRefInAdminConsole());
 
+            dbExpressionRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                    .child(tme).child(Variables.adToBeViewedInTelemetries.getPushRefInAdminConsole())
+                    .child(Constants.USERS_THAT_HAVE_SEEN);
+
+            dbClickRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                    .child(tme).child(Variables.adToBeViewedInTelemetries.getPushRefInAdminConsole())
+                    .child(Constants.USERS_THAT_HAVE_CLICKED_IT);
+
         }else if(ad.getAdType().equals(Constants.TODAYS_ADS)){
             String tme = TimeManager.getDate();
             dbRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
@@ -2617,27 +2721,71 @@ public class AdStats extends AppCompatActivity {
 
         setExpressionGraph();
         setWebClickGraph();
+
+        if(ad.isStarred()){
+            ImageButton starButton = findViewById(R.id.starButton);
+            starButton.setBackground(null);
+            starButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_starred));
+            TextView starredText = findViewById(R.id.starredText);
+            starredText.setText("Starred.");
+        }else{
+            ImageButton starButton = findViewById(R.id.starButton);
+            starButton.setBackground(null);
+            starButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_unstarred));
+            TextView starredText = findViewById(R.id.starredText);
+            starredText.setText("Star");
+        }
+
+        LinearLayout hideLayout = findViewById(R.id.hideLayout);
+
+        if(ad.getAdType().equals(Constants.OLDER_UPLOADS)){
+            hideLayout.setVisibility(View.VISIBLE);
+            if(ad.isAdvertiserHidden()){
+                ImageButton hideButton = findViewById(R.id.hideButton);
+                hideButton.setBackground(null);
+                hideButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_unhide));
+                TextView starredText = findViewById(R.id.hideText);
+                starredText.setText("Unhide.");
+            }else{
+                ImageButton hideButton = findViewById(R.id.hideButton);
+                hideButton.setBackground(null);
+                hideButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_hide));
+                TextView starredText = findViewById(R.id.hideText);
+                starredText.setText("Hide");
+            }
+        }else{
+            hideLayout.setVisibility(View.GONE);
+        }
+
     }
 
     private void setExpressionGraph(){
         List<Integer> times = new ArrayList<>();
         times.add(TimeManager.getCal().get(Calendar.HOUR_OF_DAY));
-        for(int i=TimeManager.getHour()-4;i<=TimeManager.getHour();i++){
+        for(int i=TimeManager.getHour()-4;i<TimeManager.getHour();i++){
             if(i>0){
                 times.add(i);
             }
         }
         List<Entry> entries = new ArrayList<>();
+        int highest = 3;
         for (int data : times) {
             entries.add(new Entry(data, getUsersWhoSawAt(data)));
+            if(getUsersWhoSawAt(data)>highest)highest = getUsersWhoSawAt(data);
         }
-        LineDataSet dataSet = new LineDataSet(entries, "Average Views in the last 4 hours.");
+        LineDataSet dataSet = new LineDataSet(entries, "Average Views in the ad's last 4 hours.");
         dataSet.setColor(getResources().getColor(R.color.colorPrimaryDark));
         dataSet.setValueTextColor(getResources().getColor(R.color.colorPrimaryLight));
 
         LineData lineData = new LineData(dataSet);
         XAxis xAxis = expressionGraph.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.TOP);
+        xAxis.setLabelCount(5, true);
+
+        expressionGraph.getAxisRight().setEnabled(false);
+        YAxis yAxis = expressionGraph.getAxisLeft();
+        yAxis.setAxisMinimum(0f);
+        yAxis.setLabelCount(highest+2, true);
 
         expressionGraph.setData(lineData);
         expressionGraph.invalidate();
@@ -2664,16 +2812,26 @@ public class AdStats extends AppCompatActivity {
             }
         }
         List<Entry> entries = new ArrayList<>();
+        int highest = 3;
         for (int data : times) {
             entries.add(new Entry(data, getUsersWhoVisitedAt(data)));
+            if(getUsersWhoSawAt(data)>highest)highest = getUsersWhoSawAt(data);
         }
-        LineDataSet dataSet = new LineDataSet(entries, "Average website visits for the last 4 hours.");
+        LineDataSet dataSet = new LineDataSet(entries, "Average website visits for the ad's last 4 hours.");
         dataSet.setColor(getResources().getColor(R.color.colorPrimaryDark));
         dataSet.setValueTextColor(getResources().getColor(R.color.colorPrimaryLight));
 
         LineData lineData = new LineData(dataSet);
         XAxis xAxis = webpageChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.TOP);
+        xAxis.setLabelCount(5, true);
+
+        webpageChart.getAxisRight().setEnabled(false);
+        YAxis yAxis = webpageChart.getAxisLeft();
+        yAxis.setAxisMinimum(0f);
+        yAxis.setSpaceBottom(0.8f);
+        yAxis.setAxisLineColor(getResources().getColor(R.color.colorPrimaryDark));
+        yAxis.setLabelCount(highest+2, true);
 
         webpageChart.setData(lineData);
         webpageChart.invalidate();
@@ -3077,6 +3235,20 @@ public class AdStats extends AppCompatActivity {
             }
         });
 
+        hideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setHidden();
+            }
+        });
+
+        starButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setStarred();
+            }
+        });
+
     }
 
     private Double getReimbursalAmount(){
@@ -3093,6 +3265,122 @@ public class AdStats extends AppCompatActivity {
         double totalReimbursalPlusPayout = (double)ammountToBeRepaid+ad.getPayoutReimbursalAmount()+vat+incentiveAmm;
 
         return round(totalReimbursalPlusPayout);
+
+    }
+
+
+
+    private void setStarred() {
+        Advert ad = Variables.adToBeViewedInTelemetries;
+        if(ad.isStarred()){
+            Toast.makeText(mContext,"Removing Star",Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(mContext,"Adding Star",Toast.LENGTH_SHORT).show();
+        }
+        boolean newStarred = false;
+        if(!ad.isStarred()) newStarred = true;
+
+        if(!ad.getAdType().equals(Constants.OLDER_UPLOADS)) {
+            String date = getDate();
+            if(ad.getAdType().equals(Constants.TOMORROWS_ADS)){
+                date = getNextDay();
+            }else if(ad.getAdType().equals(Constants.TODAYS_ADS)){
+                date = getDate();
+            }
+
+            DatabaseReference mRef = FirebaseDatabase.getInstance().getReference(Constants.ADS_FOR_CONSOLE)
+                    .child(date)
+                    .child(ad.getPushRefInAdminConsole())
+                    .child("starred");
+            mRef.setValue(newStarred);
+
+            String dateChild = TimeManager.getNextDayYear()+TimeManager.getNextDayMonth()+TimeManager.getNextDayDay();
+            if(ad.getAdType().equals(Constants.TOMORROWS_ADS)){
+                dateChild = TimeManager.getNextDayYear()+TimeManager.getNextDayMonth()+TimeManager.getNextDayDay();
+            }else if(ad.getAdType().equals(Constants.TODAYS_ADS)){
+                dateChild = TimeManager.getYear()+TimeManager.getMonth()+TimeManager.getDay();
+            }
+
+            DatabaseReference mRef3 = FirebaseDatabase.getInstance().getReference(Constants.HISTORY_UPLOADS)
+                    .child(dateChild)
+                    .child(ad.getPushRefInAdminConsole()).child("starred");
+            mRef3.setValue(newStarred);
+        }
+
+        long dateInDays = ad.getDateInDays()+1;
+        if(ad.getAdType().equals(Constants.TODAYS_ADS)){
+            dateInDays = TimeManager.getDateInDays();
+        }
+        DatabaseReference mRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
+                .child(Long.toString(-(dateInDays)))
+                .child(ad.getPushRefInAdminConsole()).child("starred");
+        mRef2.setValue(newStarred);
+
+        Log(TAG,"Changing starred for ad : "+ad.getPushRefInAdminConsole());
+        ad.setStarred(newStarred);
+        setTelemetryData();
+
+        if(newStarred){
+            starredPlaceHolderView.addView(new OlderAdsItem(mContext,starredPlaceHolderView,ad,starredPlaceHolderView.getChildCount()));
+        }else{
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ad.getPushRefInAdminConsole()+"STARRED"));
+        }
+    }
+
+    private void setHidden(){
+        Advert ad = Variables.adToBeViewedInTelemetries;
+        if(ad.isAdvertiserHidden()){
+            Toast.makeText(mContext,"Un-Hiding.",Toast.LENGTH_SHORT).show();
+            hiddenNumber--;
+        }else{
+            Toast.makeText(mContext,"Hiding.",Toast.LENGTH_SHORT).show();
+            hiddenNumber++;
+        }
+        boolean newHidden = !ad.isAdvertiserHidden();
+
+        long dateInDays = ad.getDateInDays()+1;
+        if(ad.getAdType().equals(Constants.TODAYS_ADS)){
+            dateInDays = TimeManager.getDateInDays();
+        }
+        DatabaseReference mRef2 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(User.getUid()).child(Constants.UPLOAD_HISTORY)
+                .child(Long.toString(-(dateInDays)))
+                .child(ad.getPushRefInAdminConsole()).child("advertiserHidden");
+        mRef2.setValue(newHidden);
+
+        Log(TAG,"Changing hidden for ad : "+ad.getPushRefInAdminConsole());
+
+        ad.setAdvertiserHidden(newHidden);
+//        if(newHidden) isToRemove = true;
+
+        if(newHidden){
+//            if(hiddenPlaceHolderViewInfo.getChildCount()==0){
+//                hiddenPlaceHolderViewInfo.addView(0,new DateForAdStats(mContext,"Your Hidden Ads.",hiddenPlaceHolderViewInfo));
+//                hiddenPlaceHolderViewInfo.addView(1,new DateForAdStats(mContext," ",hiddenPlaceHolderViewInfo));
+//            }
+            hiddenAdIds.add(ad.getPushRefInAdminConsole());
+            hiddenPlaceHolderViewInfo.addView(new OlderAdsItem(mContext,hiddenPlaceHolderViewInfo,ad,hiddenAdIds.indexOf(ad.getPushRefInAdminConsole())));
+//            DataListsView.removeView(historyAdIds.indexOf(ad.getPushRefInAdminConsole()));
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ad.getPushRefInAdminConsole()+"MAIN-HIDE"));
+            if(historyAdIds.size()==0){
+                DataListsView.removeAllViews();
+            }
+        }else{
+            if(DataListsView.getChildCount()==0){
+                DataListsView.addView(0,new DateForAdStats(mContext,"Your Upload History.",DataListsView));
+                DataListsView.addView(1,new DateForAdStats(mContext," ",DataListsView));
+            }
+//            hiddenPlaceHolderViewInfo.removeView(hiddenAdIds.indexOf(ad.getPushRefInAdminConsole()));
+            hiddenAdIds.remove(ad.getPushRefInAdminConsole());
+            DataListsView.addView(historyAdIds.indexOf(ad.getPushRefInAdminConsole()),
+                    new OlderAdsItem(mContext,DataListsView,ad,historyAdIds.indexOf(ad.getPushRefInAdminConsole())));
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ad.getPushRefInAdminConsole()+"HIDDEN-HIDE"));
+            if(hiddenAdIds.size()==0){
+                hiddenPlaceHolderViewInfo.removeAllViews();
+            }
+        }
+        setTelemetryData();
 
     }
 
@@ -3456,6 +3744,242 @@ public class AdStats extends AppCompatActivity {
     }
 
 
+
+    private void openMore(){
+        isOptionsShowing = true;
+        moreLayout.setVisibility(View.VISIBLE);
+        moreLayout.animate().translationY(0).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(150)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        moreLayout.setTranslationY(0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        if(isShowingHidden){
+            ImageButton unhideOptionImage = findViewById(R.id.unhideOptionImage);
+            unhideOptionImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_unhide));
+            unhideOptionImage.setBackground(null);
+            TextView unhideOptionText = findViewById(R.id.unhideOptionText);
+            unhideOptionText.setText("Show Regular Uploads.");
+        }else{
+            ImageButton unhideOptionImage = findViewById(R.id.unhideOptionImage);
+            unhideOptionImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_unhide));
+            unhideOptionImage.setBackground(null);
+            TextView unhideOptionText = findViewById(R.id.unhideOptionText);
+            unhideOptionText.setText("Show Hidden.");
+        }
+
+        if(isShowingStarred){
+            showStarredImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_unstarred));
+            showStarredImage.setBackground(null);
+        }else{
+            showStarredImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_starred));
+            showStarredImage.setBackground(null);
+        }
+
+        showHidden.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               if(!isShowingHidden){
+                   showHiddenAds();
+               } else {
+                   hideHiddenAds();
+               }
+               closeMore();
+            }
+        });
+
+        showStarred.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isShowingStarred){
+                    hideStarred();
+                }  else {
+                    showStarred();
+                }
+                closeMore();
+            }
+        });
+
+        Handler hx = new Handler();
+        Runnable rx;
+
+        rx = new Runnable() {
+            @Override
+            public void run() {
+                closeMore();
+            }
+        };
+        hx.postDelayed(rx, 3000);
+
+    }
+
+    private void showHiddenAds() {
+        isShowingHidden = true;
+        hiddenPlaceHolderViewInfo.setVisibility(View.VISIBLE);
+        DataListsView.setVisibility(View.GONE);
+        starredPlaceHolderView.setVisibility(View.GONE);
+
+        ImageButton unhideOptionImage = findViewById(R.id.unhideOptionImage);
+        unhideOptionImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_hide));
+        unhideOptionImage.setBackground(null);
+
+        TextView unhideOptionText = findViewById(R.id.unhideOptionText);
+        unhideOptionText.setText("Show Regular Uploads.");
+
+        if(hiddenAdIds.size()==0){
+            TextView nothingHiddenText= findViewById(R.id.nothingHiddenText);
+            nothingHiddenText.setVisibility(View.VISIBLE);
+
+            TextView hiddenTitle = findViewById(R.id.hiddenTitle);
+            hiddenTitle.setVisibility(View.GONE);
+        }else{
+            TextView nothingHiddenText= findViewById(R.id.nothingHiddenText);
+            nothingHiddenText.setVisibility(View.INVISIBLE);
+
+            TextView hiddenTitle = findViewById(R.id.hiddenTitle);
+            hiddenTitle.setVisibility(View.VISIBLE);
+        }
+        TextView hiddenTitle = findViewById(R.id.starredTitle);
+        hiddenTitle.setVisibility(View.GONE);
+
+        showStarredImage.setBackground(getResources().getDrawable(R.drawable.ic_action_starred));
+
+        TextView nothingStarredText= findViewById(R.id.nothingStarredText);
+        nothingStarredText.setVisibility(View.GONE);
+
+    }
+
+    private void hideHiddenAds(){
+        isShowingHidden = false;
+        DataListsView.setVisibility(View.VISIBLE);
+
+        hiddenPlaceHolderViewInfo.animate().setDuration(mAnimationTime).translationY(Utils.dpToPx(50)).alpha(0f).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        hiddenPlaceHolderViewInfo.setVisibility(View.GONE);
+                        hiddenPlaceHolderViewInfo.setTranslationY(0);
+                        hiddenPlaceHolderViewInfo.setAlpha(1f);
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        ImageButton unhideOptionImage = findViewById(R.id.unhideOptionImage);
+        unhideOptionImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_unhide));
+        unhideOptionImage.setBackground(null);
+
+        TextView unhideOptionText = findViewById(R.id.unhideOptionText);
+        unhideOptionText.setText("Show Hidden.");
+
+        TextView nothingHiddenText= findViewById(R.id.nothingHiddenText);
+        nothingHiddenText.setVisibility(View.GONE);
+    }
+
+
+
+    private void showStarred(){
+        isShowingStarred = true;
+        starredPlaceHolderView.setVisibility(View.VISIBLE);
+        DataListsView.setVisibility(View.GONE);
+        hiddenPlaceHolderViewInfo.setVisibility(View.GONE);
+
+        showStarredImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_unstarred));
+        showStarredImage.setBackground(null);
+
+
+        if(starredAds.size()==0){
+            TextView nothingHiddenText= findViewById(R.id.nothingStarredText);
+            nothingHiddenText.setVisibility(View.VISIBLE);
+
+            TextView hiddenTitle = findViewById(R.id.starredTitle);
+            hiddenTitle.setVisibility(View.GONE);
+        }else{
+            TextView nothingHiddenText= findViewById(R.id.nothingStarredText);
+            nothingHiddenText.setVisibility(View.INVISIBLE);
+
+            TextView hiddenTitle = findViewById(R.id.starredTitle);
+            hiddenTitle.setVisibility(View.VISIBLE);
+        }
+
+        TextView hiddenTitle = findViewById(R.id.hiddenTitle);
+        hiddenTitle.setVisibility(View.GONE);
+    }
+
+    private void hideStarred(){
+        isShowingStarred = false;
+        starredPlaceHolderView.setVisibility(View.GONE);
+        DataListsView.setVisibility(View.VISIBLE);
+
+        showStarredImage.setBackground(getResources().getDrawable(R.drawable.ic_action_starred));
+//        showStarredImage.setBackground(null);
+
+
+        TextView nothingStarredText= findViewById(R.id.nothingStarredText);
+        nothingStarredText.setVisibility(View.GONE);
+
+        TextView starredTitle = findViewById(R.id.starredTitle);
+        starredTitle.setVisibility(View.GONE);
+    }
+
+    private void closeMore(){
+        isOptionsShowing = false;
+        final int trans = 90;
+        moreLayout.animate().translationY(-Utils.dpToPx(trans)).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(150)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        moreLayout.setVisibility(View.GONE);
+                        moreLayout.setTranslationY(-Utils.dpToPx(trans));
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
 
 
 }

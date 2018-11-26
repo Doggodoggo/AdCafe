@@ -51,12 +51,14 @@ public class OlderAdsItem {
     private Advert mAdvert;
     private DatabaseReference dbRef;
     private boolean isClickable = false;
+    private int pos;
 
 
-    public OlderAdsItem(Context Context, PlaceHolderView PlaceHolderView, Advert Advert){
+    public OlderAdsItem(Context Context, PlaceHolderView PlaceHolderView, Advert Advert,int pos){
         this.mContext = Context;
         this.mPlaceHolderView = PlaceHolderView;
         this.mAdvert = Advert;
+        this.pos = pos;
     }
 
     @Resolve
@@ -86,19 +88,19 @@ public class OlderAdsItem {
         double totalReimbursalPlusPayout = ammountToBeRepaid+mAdvert.getPayoutReimbursalAmount()+vat+incentiveAmm;
         String number = Double.toString(round(totalReimbursalPlusPayout));
 
-        mAmountToReimburseView.setText(String.format("Reimbursing amount: %s Ksh", number));
+        mAmountToReimburseView.setText(String.format("%s Ksh", number));
 
         try{
             if(totalReimbursalPlusPayout==0){
                 mHasBeenReimbursedView.setText("Status: All Users Reached.");
-                mAmountToReimburseView.setText("Reimbursing amount:  0Ksh");
+                mAmountToReimburseView.setText("0Ksh");
             }else{
                 if (mAdvert.isHasBeenReimbursed()) {
                     mHasBeenReimbursedView.setText("Status: Reimbursed.");
-                    mAmountToReimburseView.setText("Reimbursing amount:  0Ksh");
+                    mAmountToReimburseView.setText("0Ksh");
                 } else {
                     mHasBeenReimbursedView.setText("Status: NOT Reimbursed.");
-                    mAmountToReimburseView.setText("Reimbursing amount: " + number + "Ksh.");
+                    mAmountToReimburseView.setText(number + "Ksh.");
                 }
             }
         }catch (Exception e){
@@ -193,14 +195,32 @@ public class OlderAdsItem {
 
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForRemovingEventListeners
                 ,new IntentFilter("REMOVE-LISTENERS"));
+
+        if(mAdvert.isAdvertiserHidden()){
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForRemoveSelfFromMain,
+                    new IntentFilter(mAdvert.getPushRefInAdminConsole()+"HIDDEN-HIDE"));
+        }else{
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForRemoveSelfFromHidden,
+                    new IntentFilter(mAdvert.getPushRefInAdminConsole()+"MAIN-HIDE"));
+        }
+
+        if(mAdvert.isStarred()){
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForRemoveSelfFromHidden,
+                    new IntentFilter(mAdvert.getPushRefInAdminConsole()+"STARRED"));
+        }
+
     }
 
     private BroadcastReceiver mMessageReceiverForRemovingEventListeners = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            dbRef.removeEventListener(chil);
-            removeListenerForPayoutSessions();
-            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+          try{
+              dbRef.removeEventListener(chil);
+              removeListenerForPayoutSessions();
+              LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+          }catch (Exception e){
+              e.printStackTrace();
+          }
         }
     };
 
@@ -243,7 +263,7 @@ public class OlderAdsItem {
                     try {
                         if (mAdvert.isHasBeenReimbursed()) {
                             mHasBeenReimbursedView.setText("Status: Reimbursed.");
-                            mAmountToReimburseView.setText("Reimbursing amount:  0 Ksh");
+                            mAmountToReimburseView.setText("0 Ksh");
                             if (isCardForYesterdayAds()) {
                                 hidePayoutButtons();
                                 removeListenerForPayoutSessions();
@@ -261,7 +281,7 @@ public class OlderAdsItem {
                             }
 
                             String number = Integer.toString(ammountToBeRepaid + ((int) vat) + ((int) incentiveAmm));
-                            mAmountToReimburseView.setText("Reimbursing amount : " + number + " Ksh");
+                            mAmountToReimburseView.setText(number + " Ksh");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -306,6 +326,9 @@ public class OlderAdsItem {
     private void removeListenerForPayoutSessions(){
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForHideBtnsBecauseOfPayoutSessionStart);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForShowBtnsBecauseOfPayoutSessionStop);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForRemoveSelfFromHidden);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForRemoveSelfFromMain);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForRemoveSelfFromHidden);
     }
 
     private BroadcastReceiver mMessageReceiverForShowBtnsBecauseOfPayoutSessionStop = new BroadcastReceiver() {
@@ -314,6 +337,29 @@ public class OlderAdsItem {
             showPayoutButtons();
         }
     };
+
+    private BroadcastReceiver mMessageReceiverForRemoveSelfFromHidden = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try{
+                mPlaceHolderView.removeView(OlderAdsItem.this);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    };
+
+    private BroadcastReceiver mMessageReceiverForRemoveSelfFromMain = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try{
+                mPlaceHolderView.removeView(OlderAdsItem.this);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    };
+
 
     private void hidePayoutButtons(){
         mReimburseButton.setBackgroundColor(mContext.getResources().getColor(R.color.accent));

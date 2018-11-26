@@ -57,6 +57,8 @@ public class Advert {
     public List<WebClickData> webclicks = new ArrayList<>();
     public List<AdPinData> adPins = new ArrayList<>();
 
+    private boolean starred = false;
+    private boolean advertiserHidden = false;
 
 
     @Exclude
@@ -65,7 +67,10 @@ public class Advert {
     public Advert(String ImageUrl){
         this.imageUrl = ImageUrl;
     }
+
     public Advert(){}
+
+
 
     public int getNumberOfAds(){
         return numberOfAds;
@@ -326,6 +331,8 @@ public class Advert {
         this.numberOfPins = numberOfPins;
     }
 
+
+
     public String getAdType() {
         return AdType;
     }
@@ -340,5 +347,23 @@ public class Advert {
 
     public void setHasSetBackupImage(boolean hasSetBackupImage) {
         this.hasSetBackupImage = hasSetBackupImage;
+    }
+
+
+
+    public boolean isStarred() {
+        return starred;
+    }
+
+    public void setStarred(boolean starred) {
+        this.starred = starred;
+    }
+
+    public boolean isAdvertiserHidden() {
+        return advertiserHidden;
+    }
+
+    public void setAdvertiserHidden(boolean advertiserHidden) {
+        this.advertiserHidden = advertiserHidden;
     }
 }

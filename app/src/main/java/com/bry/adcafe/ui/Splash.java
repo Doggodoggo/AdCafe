@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.LinearInterpolator;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -48,6 +50,9 @@ public class Splash extends AppCompatActivity {
 
     private LinearLayout logoPart;
     private int duration = 300;
+    private View whiteView;
+    private ImageView adImageBoi;
+    private boolean isGoingToNextAct = false;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +68,8 @@ public class Splash extends AppCompatActivity {
         LSEText = findViewById(R.id.LSEText);
         LogoText = findViewById(R.id.logoText);
         logoPart = findViewById(R.id.logoPart);
+        whiteView = findViewById(R.id.whiteView);
+        adImageBoi = findViewById(R.id.adImageBoi);
 
         try{
             int hours = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -86,6 +93,14 @@ public class Splash extends AppCompatActivity {
         }catch (Exception e){
             e.printStackTrace();
         }
+
+        adImageBoi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToNextActivity();
+                isGoingToNextAct = true;
+            }
+        });
     }
 
     @Override
@@ -207,7 +222,7 @@ public class Splash extends AppCompatActivity {
     }
 
 
-    private void goToNextActivity(){
+    private void goToNextActivity3(){
         logoPart.setRotationY(0);
         logoPart.animate().setDuration(duration).translationY(0)
                 .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
@@ -239,6 +254,36 @@ public class Splash extends AppCompatActivity {
         colorFade.setDuration(duration-10);
         colorFade.start();
     }
+
+    private void goToNextActivity(){
+        if(!isGoingToNextAct) {
+            isGoingToNextAct = true;
+            whiteView.setVisibility(View.VISIBLE);
+            whiteView.animate().translationY(0).scaleY(1.5f).scaleX(2.7f).setDuration(500).setInterpolator(new LinearOutSlowInInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            doTheThingAfterTheThing();
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+
+                        }
+                    });
+        }
+    }
+
 
     private void doTheThingAfterTheThing() {
         myPrefManager = new SliderPrefManager(getApplicationContext());

@@ -7,7 +7,7 @@
 
     <android.support.v7.widget.CardView
         android:layout_width="160dp"
-        android:layout_height="220dp"
+        android:layout_height="230dp"
         android:layout_margin="10dp"
         app:cardCornerRadius="14dp"
         app:cardElevation="2dp">
@@ -51,11 +51,21 @@
                 android:layout_width="match_parent"
                 android:layout_marginTop="5dp"
                 android:textSize="11sp"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp"
+                android:textAlignment="center"
+                android:text="Reimbursal amount :"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_marginTop="5dp"
+                android:textSize="11sp"
                 android:id="@+id/AmountToReimburse"
                 android:paddingLeft="3dp"
                 android:paddingRight="3dp"
                 android:textAlignment="center"
-                android:text="Reimbursed amount : 1200Ksh"
+                android:text="1200Ksh"
                 android:layout_height="wrap_content" />
 
             <TextView
