@@ -666,7 +666,7 @@
     <!--Open WebVew View-->
     <RelativeLayout
         android:id="@+id/WebViewContainer"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -747,23 +747,28 @@
                 android:gravity="right"
                 android:layout_height="58dp">
 
-                <ImageButton
-                    android:layout_gravity="center_vertical"
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
                     android:layout_marginRight="10dp"
-                    android:id="@+id/reloadBtn"
                     android:layout_marginTop="1dp"
-                    android:background="@drawable/ic_action_reload"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp" />
-
-                <ImageButton
                     android:layout_gravity="center_vertical"
-                    android:layout_marginRight="10dp"
-                    android:id="@+id/closeBtn"
-                    android:visibility="gone"
-                    android:background="@drawable/ic_action_close"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp" />
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:id="@+id/reloadBtn"
+                        android:background="@drawable/ic_action_reload"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp" />
+
+                    <View
+                        android:id="@+id/reloadIndicator"
+                        android:layout_width="0dp"
+                        android:layout_gravity="center"
+                        android:background="@color/colorPrimaryDark"
+                        android:layout_height="1dp"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -784,6 +789,13 @@
                 android:layout_gravity="bottom"
                 android:layout_marginBottom="100dp"
                 android:layout_height="160dp"/>
+
+            <View
+                android:id="@+id/swipeReloadView"
+                android:layout_width="match_parent"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="20dp"
+                android:layout_height="70dp"/>
 
             <View
                 android:id="@+id/swipeBackViewIndicator"

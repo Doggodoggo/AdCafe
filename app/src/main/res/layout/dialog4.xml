@@ -5,7 +5,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:paddingTop="10dp"
+        android:paddingTop="20dp"
         android:orientation="vertical"
         android:background="@drawable/dialog_bg"
         android:minHeight="100dp"

@@ -326,7 +326,11 @@ public class TimeManager {
                     }
                     if(canUpdate) {
                         h.postDelayed(r, 4000);
-                        Log("Time-Service", "Updating timer."+getTime());
+                        try{
+                            Log("Time-Service", "Updating timer."+getTime());
+                        }catch (Exception r){
+                            r.printStackTrace();
+                        }
                     }else{
                         h.removeCallbacks(r);
                     }

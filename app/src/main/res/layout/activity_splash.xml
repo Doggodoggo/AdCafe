@@ -49,11 +49,11 @@
 
         <ImageView
             android:id="@+id/adImageBoi"
-            android:layout_width="50dp"
+            android:layout_width="55dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="250dp"
+            android:layout_marginTop="230dp"
             android:background="@drawable/app_logo"
-            android:layout_height="35dp" />
+            android:layout_height="40dp" />
 
 
         <View
@@ -61,7 +61,7 @@
             android:visibility="invisible"
             android:scaleX="0.005"
             android:scaleY="0.005"
-            android:translationY="-50dp"
+            android:translationY="-65dp"
             android:layout_width="match_parent"
             android:layout_centerHorizontal="true"
             android:background="@drawable/circle_design_timer_file"

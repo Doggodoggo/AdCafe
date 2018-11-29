@@ -1061,6 +1061,7 @@ public class Dashboard extends AppCompatActivity {
 
         final TextView jokeHeader = d.findViewById(R.id.jokeHeader);
         final TextView jokePart = d.findViewById(R.id.jokePart);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {

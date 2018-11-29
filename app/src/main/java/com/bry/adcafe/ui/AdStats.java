@@ -2,6 +2,7 @@ package com.bry.adcafe.ui;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -13,6 +14,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -30,6 +32,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -64,11 +67,14 @@ import com.bry.adcafe.services.Payments;
 import com.bry.adcafe.services.TimeManager;
 import com.bry.adcafe.services.Utils;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -140,7 +146,7 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
     @Bind(R.id.telemetryLayout) RelativeLayout telemetryLayout;
     private int mAnimationTime = 300;
     private boolean isTelemetryCardMinimized = true;
-    @Bind(R.id.telemetryBack) ImageButton telemetryBack;
+//    @Bind(R.id.telemetryBack) ImageButton telemetryBack;
     @Bind(R.id.normalTelemetryLayout) RelativeLayout normalTelemetryLayout;
     @Bind(R.id.statTelemetryIcon) ImageView statTelemetryIcon;
     @Bind(R.id.viewingDateText) TextView viewingDateText;
@@ -209,6 +215,11 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
     private boolean isShowingStarred = false;
     private List<Advert> starredAds = new ArrayList<>();
 
+    @Bind(R.id.expandImageCard) RelativeLayout expandImageCard;
+    @Bind(R.id.adImageBackground2) ImageView adImageBackground2;
+    @Bind(R.id.adImage2) ImageView adImage2;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -238,6 +249,8 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
         collapseCard();
         isTelemetryCardMinimized = true;
         moreButton.setOnClickListener(this);
+
+        closeExpandedImage();
     }
 
     @Override
@@ -605,7 +618,6 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
                         }
                         Double payoutReimbursalAmm = dataSnapshot.child("payoutReimbursalAmount").getValue(Double.class);
                         adUploadedByUser.setPayoutReimbursalAmount(payoutReimbursalAmm);
-                        adUploadedByUser.setAdType(Constants.YESTERDAYS_ADS);
                         if(adUploadedByUser.isStarred()){
                             starredAds.add(adUploadedByUser);
                             starredPlaceHolderView.addView(new OlderAdsItem(mContext,starredPlaceHolderView,adUploadedByUser,starredPlaceHolderView.getChildCount()));
@@ -1996,18 +2008,23 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
 
     @Override
     public void onBackPressed(){
-        if (!isTelemetryCardMinimized) {
-            hideSelectedAdTelemetries();
-        } else {
-            if(isShowingHidden){
-                hideHiddenAds();
-            }else if(isShowingStarred){
-                hideStarred();
-            }
-            else{
-                super.onBackPressed();
+        if(isExpandedImage){
+            closeExpandedImage();
+        }else{
+            if (!isTelemetryCardMinimized) {
+                hideSelectedAdTelemetries();
+            } else {
+                if(isShowingHidden){
+                    hideHiddenAds();
+                }else if(isShowingStarred){
+                    hideStarred();
+                }
+                else{
+                    super.onBackPressed();
+                }
             }
         }
+
     }
 
     private void showSelectedAdTelemetries(){
@@ -2390,6 +2407,7 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
     }
 
     private void onTelemetryOpen(){
+        canSetTime = true;
         setAdImage();
         setTelemetryData();
         setTelemetryEventListeners();
@@ -2410,7 +2428,7 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
 
         telemetryLayout.setScaleY(1f);
         telemetryLayout.setScaleX(1f);
-
+        canSetTime = false;
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("COLLAPSED_CARD"));
     }
 
@@ -2647,6 +2665,82 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
         dbPinRef.addChildEventListener(pinTelemetryListener);
     }
 
+    private void setTelemetryClickListeners() {
+        final Advert ad = Variables.adToBeViewedInTelemetries;
+
+//        telemetryBack.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                onBackPressed();
+//            }
+//        });
+
+        reimburseCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!ad.isHasBeenReimbursed() && getReimbursalAmount() !=0 &&
+                        !ad.getAdType().equals(Constants.TOMORROWS_ADS) && !ad.getAdType().equals(Constants.TODAYS_ADS)){
+                    startReimbursal();
+                }
+            }
+        });
+
+        takeDownCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ad.getAdType().equals(Constants.TOMORROWS_ADS)
+                        ||ad.getAdType().equals(Constants.TODAYS_ADS)){
+                    if(!ad.isAdminFlagged()) {
+                        startTakeDown();
+                    }else{
+                        showPromptForTakenDown();
+                    }
+                }
+
+            }
+        });
+
+        editWebsiteIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isEditingPhoneNo && !isEditingWebsiteUrl){
+                    startEditWebsiteUrl();
+                }
+            }
+        });
+
+        editPhoneNoIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isEditingPhoneNo && !isEditingWebsiteUrl){
+                    startEditPhoneNo();
+                }
+            }
+        });
+
+        hideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setHidden();
+            }
+        });
+
+        starButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setStarred();
+            }
+        });
+
+        adImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openExpandedImage();
+            }
+        });
+
+    }
+
     private void setTelemetryData() {
         Advert ad = Variables.adToBeViewedInTelemetries;
 
@@ -2656,7 +2750,7 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
         uploaderText.setText(String.format("Uploaded by : %s", ad.getUserEmail()));
         if(ad.isFlagged()){
             statusText.setText("Status: Taken Down.");
-            targetNumber.setText("N/A");
+            targetNumber.setText("N/A.");
 
             TextView t = findViewById(R.id.takeDownText);
             t.setText("PUT UP.");
@@ -2671,30 +2765,42 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
         setTotalAmounts();
 
         if(ad.isHasBeenReimbursed()){
-            if(isCardForYesterdayAds()){
+            if(!ad.getAdType().equals(Constants.TOMORROWS_ADS) && !ad.getAdType().equals(Constants.TODAYS_ADS)){
                 statusText.setText("Status: Reimbursed.");
             }else{
                 statusText.setText("Status: NOT Reimbursed.");
             }
-            reimburseCard.setCardBackgroundColor(getResources().getColor(R.color.grey));
+//            reimburseCard.setCardBackgroundColor(getResources().getColor(R.color.grey));
         }else{
-            reimburseCard.setCardBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+//            reimburseCard.setCardBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+        }
+
+        if(!ad.getAdType().equals(Constants.TOMORROWS_ADS) && !ad.getAdType().equals(Constants.TODAYS_ADS)){
+            if(!ad.isHasBeenReimbursed()){
+                reimburseCard.setCardBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+            }else{
+                reimburseCard.setCardBackgroundColor(getResources().getColor(R.color.grey));
+                reimburseCard.setOnClickListener(null);
+            }
+        }else{
+            reimburseCard.setCardBackgroundColor(getResources().getColor(R.color.grey));
+            reimburseCard.setOnClickListener(null);
         }
 
         if(!ad.getWebsiteLink().equals("none")){
             websiteText.setText(ad.getWebsiteLink());
         }else{
-            websiteText.setText("N/A");
+            websiteText.setText("N/A.");
         }
 
         if(!ad.getAdvertiserPhoneNo().equals("")&&!ad.getAdvertiserPhoneNo().equals("none")){
             phoneNoText.setText(ad.getAdvertiserPhoneNo());
         }else{
-            phoneNoText.setText("N/A");
+            phoneNoText.setText("N/A.");
         }
 
         if(ad.getAdvertiserLocations().isEmpty()){
-            contactLocationText.setText("N/A");
+            contactLocationText.setText("N/A.");
         }else{
             contactLocationText.setText(ad.getAdvertiserLocations().size()+" Locations.");
         }
@@ -2719,8 +2825,10 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
             takeDownCard.setCardBackgroundColor(getResources().getColor(R.color.accent));
         }
 
+
         setExpressionGraph();
         setWebClickGraph();
+        setTime();
 
         if(ad.isStarred()){
             ImageButton starButton = findViewById(R.id.starButton);
@@ -2759,12 +2867,55 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
 
     }
 
+    private boolean canSetTime = false;
+    private void setTime() {
+        TextView timeText = findViewById(R.id.timeText);
+        int hoursLeft = 23-TimeManager.getHour();
+        String hour = TimeManager.getHour()+"";
+        if(TimeManager.getHour()<10){
+            hour = "0"+TimeManager.getHour();
+        }
+        String minute = TimeManager.getCal().get(Calendar.MINUTE)+"";
+        if(TimeManager.getCal().get(Calendar.MINUTE)<10){
+            minute = "0"+TimeManager.getCal().get(Calendar.MINUTE);
+        }
+        String timeOfDay = hour+":"+minute;
+
+        if(Variables.adToBeViewedInTelemetries.getAdType().equals(Constants.TODAYS_ADS)){
+            if(hoursLeft==0){
+                timeText.setText(String.format("%s (less than 1 Hour Left).", timeOfDay));
+            }else{
+                if(hoursLeft<2){
+                    timeText.setText(String.format("%s (about %d Hour Left).", timeOfDay, hoursLeft));
+                }else{
+                    timeText.setText(String.format("%s (about %d Hours Left).", timeOfDay, hoursLeft));
+                }
+            }
+
+        }else{
+            timeText.setText(String.format("%s", timeOfDay));
+        }
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(canSetTime) setTime();
+            }
+        },10000);
+    }
+
     private void setExpressionGraph(){
         List<Integer> times = new ArrayList<>();
-        times.add(TimeManager.getCal().get(Calendar.HOUR_OF_DAY));
-        for(int i=TimeManager.getHour()-4;i<TimeManager.getHour();i++){
-            if(i>0){
-                times.add(i);
+//        times.add(TimeManager.getCal().get(Calendar.HOUR_OF_DAY));
+        if(Variables.adToBeViewedInTelemetries.getAdType().equals(Constants.TODAYS_ADS)){
+            for(int i=TimeManager.getHour()-5;i<=TimeManager.getHour();i++){
+                if(i>0){
+                    times.add(i);
+                }
+            }
+        }else{
+            for(int i=0;i<=23;i++){
+                if(i%3==0) times.add(i);
             }
         }
         List<Entry> entries = new ArrayList<>();
@@ -2773,29 +2924,64 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
             entries.add(new Entry(data, getUsersWhoSawAt(data)));
             if(getUsersWhoSawAt(data)>highest)highest = getUsersWhoSawAt(data);
         }
-        LineDataSet dataSet = new LineDataSet(entries, "Average Views in the ad's last 4 hours.");
+        LineDataSet dataSet;
+        if(Variables.adToBeViewedInTelemetries.getAdType().equals(Constants.TODAYS_ADS)){
+            dataSet = new LineDataSet(entries, "Average Views in the ad's last 4 hours.");
+        }else{
+            dataSet = new LineDataSet(entries, "Average Views in the ad's life cycle.");
+        }
         dataSet.setColor(getResources().getColor(R.color.colorPrimaryDark));
         dataSet.setValueTextColor(getResources().getColor(R.color.colorPrimaryLight));
 
         LineData lineData = new LineData(dataSet);
         XAxis xAxis = expressionGraph.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.TOP);
-        xAxis.setLabelCount(5, true);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setLabelCount(times.size(), true);
 
         expressionGraph.getAxisRight().setEnabled(false);
         YAxis yAxis = expressionGraph.getAxisLeft();
-        yAxis.setAxisMinimum(0f);
-        yAxis.setLabelCount(highest+2, true);
+        yAxis.setAxisMinimum(-0.1f);
+        yAxis.setLabelCount(highest+1, true);
+
+        expressionGraph.setDrawMarkers(false);
+        Description desc = new Description();
+        desc.setText("");
+        expressionGraph.setDescription(desc);
+        expressionGraph.setAutoScaleMinMaxEnabled(false);
 
         expressionGraph.setData(lineData);
         expressionGraph.invalidate();
     }
 
+    public class MyXAxisValueFormatter implements IAxisValueFormatter {
+
+        private List<Integer> mValues;
+
+        public MyXAxisValueFormatter(List<Integer> values) {
+            this.mValues = values;
+        }
+
+        @Override
+        public String getFormattedValue(float value, AxisBase axis) {
+            Log.e(TAG,"val: "+value);
+            if(value<mValues.size()){
+                return mValues.get((int) value).toString();
+            } else{
+                return ((mValues.size()+(int)value)+"");
+            }
+        }
+    }
+
     private int getUsersWhoSawAt(int hour){
         int number = 0;
+        List<String> usersCounted = new ArrayList<>();
         for(ExpressionData data:Variables.adToBeViewedInTelemetries.expressions){
             if(data.getViewingTime().getHour()==hour){
-                number++;
+                if(!usersCounted.contains(data.getViewerUid())){
+                    number++;
+                    Log.e(TAG,"Found user who saw at time: "+data.getViewerUid());
+                    usersCounted.add(data.getViewerUid());
+                }
             }
         }
         return number;
@@ -2805,33 +2991,48 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
 
     private void setWebClickGraph(){
         List<Integer> times = new ArrayList<>();
-        times.add(TimeManager.getCal().get(Calendar.HOUR_OF_DAY));
-        for(int i=TimeManager.getHour()-4;i<=TimeManager.getHour();i++){
-            if(i>0){
-                times.add(i);
+        if(Variables.adToBeViewedInTelemetries.getAdType().equals(Constants.TODAYS_ADS)){
+            for(int i=TimeManager.getHour()-5;i<=TimeManager.getHour();i++){
+                if(i>0){
+                    times.add(i);
+                }
+            }
+        }else{
+            for(int i=0;i<=23;i++){
+                if(i%3==0) times.add(i);
             }
         }
         List<Entry> entries = new ArrayList<>();
         int highest = 3;
         for (int data : times) {
             entries.add(new Entry(data, getUsersWhoVisitedAt(data)));
-            if(getUsersWhoSawAt(data)>highest)highest = getUsersWhoSawAt(data);
+            if(getUsersWhoVisitedAt(data)>highest)highest = getUsersWhoVisitedAt(data);
         }
-        LineDataSet dataSet = new LineDataSet(entries, "Average website visits for the ad's last 4 hours.");
+        LineDataSet dataSet;
+        if(Variables.adToBeViewedInTelemetries.getAdType().equals(Constants.TODAYS_ADS)){
+            dataSet = new LineDataSet(entries, "Average website visits for the ad's last 4 hours.");
+        }else {
+            dataSet = new LineDataSet(entries, "Average website visits for the ad's life cycle.");
+        }
         dataSet.setColor(getResources().getColor(R.color.colorPrimaryDark));
         dataSet.setValueTextColor(getResources().getColor(R.color.colorPrimaryLight));
 
         LineData lineData = new LineData(dataSet);
         XAxis xAxis = webpageChart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.TOP);
-        xAxis.setLabelCount(5, true);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setLabelCount(times.size(), true);
 
         webpageChart.getAxisRight().setEnabled(false);
         YAxis yAxis = webpageChart.getAxisLeft();
-        yAxis.setAxisMinimum(0f);
-        yAxis.setSpaceBottom(0.8f);
-        yAxis.setAxisLineColor(getResources().getColor(R.color.colorPrimaryDark));
-        yAxis.setLabelCount(highest+2, true);
+        yAxis.setAxisMinimum(-0.1f);
+        yAxis.setLabelCount(highest+1, true);
+
+        webpageChart.setDrawMarkers(false);
+        Description desc = new Description();
+        desc.setText("");
+        webpageChart.setDescription(desc);
+
+        webpageChart.setAutoScaleMinMaxEnabled(false);
 
         webpageChart.setData(lineData);
         webpageChart.invalidate();
@@ -2841,9 +3042,13 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
 
     private int getUsersWhoVisitedAt(int hour){
         int number = 0;
+        List<String> usersCounted = new ArrayList<>();
         for(WebClickData data:Variables.adToBeViewedInTelemetries.webclicks){
             if(data.getWebClickTime().getHour()==hour){
-                number++;
+                if(!usersCounted.contains(data.getWebClickUserUid())) {
+                    number++;
+                    usersCounted.add(data.getWebClickUserUid());
+                }
             }
         }
         return number;
@@ -2883,11 +3088,13 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
 
         amountPaidNumber.setText(numberTotal+" Ksh");
 
-        webclickIncentiveText.setText(incentiveAmmTotal+" Ksh ( "+ad.getNumberOfUsersToReach()+" * "+ad.getWebClickIncentive()+"Ksh ).");
+        if(ad.getWebClickIncentive()!=0){
+            webclickIncentiveText.setText(incentiveAmmTotal+" Ksh ( "+ad.getNumberOfUsersToReach()+" * "+ad.getWebClickIncentive()+"Ksh ).");
+        }else{
+            webclickIncentiveText.setText("N/A.");
+        }
 
     }
-
-
 
 
     private void setAdImage() {
@@ -2906,9 +3113,11 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
             }
         }
         adImage.setImageBitmap(ad.getImageBitmap());
+        adImage2.setImageBitmap(ad.getImageBitmap());
 
         bm = ad.getImageBitmap();
         adImageBackground.setImageBitmap(null);
+        adImageBackground2.setImageBitmap(null);
         backBl = null;
 
         loadingProgressBar.setVisibility(View.VISIBLE);
@@ -2928,11 +3137,13 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
             return "executed";
         }
 
+
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             if(backBl!=null){
                 adImageBackground.setImageBitmap(backBl);
+                adImageBackground2.setImageBitmap(backBl);
                 RelativeLayout imageLayout = findViewById(R.id.imageLayout);
 
                 imageLayout.setVisibility(View.VISIBLE);
@@ -3180,76 +3391,6 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
 
 
 
-
-
-    private void setTelemetryClickListeners() {
-        final Advert ad = Variables.adToBeViewedInTelemetries;
-
-        telemetryBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-
-        reimburseCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!ad.isHasBeenReimbursed() && getReimbursalAmount() !=0 &&
-                        !ad.getAdType().equals(Constants.TOMORROWS_ADS) && !ad.getAdType().equals(Constants.TODAYS_ADS)){
-                    startReimbursal();
-                }
-            }
-        });
-
-        takeDownCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(ad.getAdType().equals(Constants.TOMORROWS_ADS)
-                        ||ad.getAdType().equals(Constants.TODAYS_ADS)){
-                    if(!ad.isAdminFlagged()) {
-                        startTakeDown();
-                    }else{
-                        showPromptForTakenDown();
-                    }
-                }
-
-            }
-        });
-
-        editWebsiteIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!isEditingPhoneNo && !isEditingWebsiteUrl){
-                    startEditWebsiteUrl();
-                }
-            }
-        });
-
-        editPhoneNoIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!isEditingPhoneNo && !isEditingWebsiteUrl){
-                    startEditPhoneNo();
-                }
-            }
-        });
-
-        hideButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setHidden();
-            }
-        });
-
-        starButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setStarred();
-            }
-        });
-
-    }
 
     private Double getReimbursalAmount(){
         Advert ad = Variables.adToBeViewedInTelemetries;
@@ -3980,6 +4121,310 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
                     }
                 }).start();
     }
+
+
+    private boolean isExpandedImage = false;
+    private void openExpandedImage(){
+        Advert ad = Variables.adToBeViewedInTelemetries;
+        expandImageCard.setVisibility(View.VISIBLE);
+        final CardView.LayoutParams params = (CardView.LayoutParams) expandImageCard.getLayoutParams();
+
+        ValueAnimator animatorRight;
+        ValueAnimator animatorLeft;
+        ValueAnimator animatorBot;
+        ValueAnimator animatorTop;
+
+//        animatorRight = ValueAnimator.ofInt((getScreenWidth()-Utils.dpToPx(160)),200,0);
+        animatorRight = ValueAnimator.ofInt(Utils.dpToPx(140),getScreenWidth()-Utils.dpToPx(10));
+        animatorLeft = ValueAnimator.ofInt(Utils.dpToPx(30),Utils.dpToPx(10),0);
+
+        animatorTop = ValueAnimator.ofInt(Utils.dpToPx(60),Utils.dpToPx(30),0);
+//        animatorBot = ValueAnimator.ofInt((getScreenHeight()-Utils.dpToPx(170)),300,0);
+        animatorBot = ValueAnimator.ofInt(Utils.dpToPx(160),getScreenHeight()-Utils.dpToPx(10));
+
+//        animatorRight = ValueAnimator.ofInt(Utils.dpToPx(300),Utils.dpToPx(150),0);
+//        animatorLeft = ValueAnimator.ofInt(Utils.dpToPx(300),Utils.dpToPx(150),0);
+//
+//        animatorTop = ValueAnimator.ofInt(Utils.dpToPx(400),Utils.dpToPx(200),Utils.dpToPx(100),0);
+//        animatorBot = ValueAnimator.ofInt(Utils.dpToPx(600),Utils.dpToPx(300),Utils.dpToPx(100),0);
+
+
+        animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorLeft.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+
+        animatorRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.width = (Integer) valueAnimator.getAnimatedValue();
+                expandImageCard.requestLayout();
+            }
+        });
+
+        animatorLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.leftMargin = (Integer) valueAnimator.getAnimatedValue();
+                expandImageCard.requestLayout();
+            }
+        });
+
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                expandImageCard.requestLayout();
+            }
+        });
+
+        animatorBot.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.height = (Integer) valueAnimator.getAnimatedValue();
+                expandImageCard.requestLayout();
+            }
+        });
+
+
+        animatorBot.setDuration(mAnimationTime);
+        animatorTop.setDuration(mAnimationTime);
+        animatorLeft.setDuration(mAnimationTime);
+        animatorRight.setDuration(mAnimationTime);
+
+        expandImageCard.animate().alpha(1f).setDuration(mAnimationTime).setInterpolator(new LinearInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        expandImageCard.setAlpha(1f);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        CardView adImageCard = findViewById(R.id.adImageCard);
+        adImageCard.setVisibility(View.INVISIBLE);
+
+        animatorBot.start();
+        animatorTop.start();
+        animatorLeft.start();
+        animatorRight.start();
+
+        final RelativeLayout blackBackImage = findViewById(R.id.blackBackImage);
+        blackBackImage.setVisibility(View.VISIBLE);
+        final float alph = 0.8f;
+        blackBackImage.animate().alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                blackBackImage.setAlpha(alph);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        }).start();
+
+        isExpandedImage = true;
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void closeExpandedImage(){
+        Advert ad = Variables.adToBeViewedInTelemetries;
+        expandImageCard.setVisibility(View.VISIBLE);
+        isExpandedImage = false;
+        final CardView.LayoutParams params = (CardView.LayoutParams) expandImageCard.getLayoutParams();
+
+        ValueAnimator animatorRight;
+        ValueAnimator animatorLeft;
+        ValueAnimator animatorBot;
+        ValueAnimator animatorTop;
+
+//        animatorRight = ValueAnimator.ofInt(0,100,(getScreenWidth()-Utils.dpToPx(160)));
+        animatorRight = ValueAnimator.ofInt(getScreenWidth()-Utils.dpToPx(10),Utils.dpToPx(140));
+
+        animatorLeft = ValueAnimator.ofInt(0,Utils.dpToPx(10),Utils.dpToPx(30));
+
+        animatorTop = ValueAnimator.ofInt(0,Utils.dpToPx(30),Utils.dpToPx(60));
+//        animatorBot = ValueAnimator.ofInt(0,100,(getScreenHeight()-Utils.dpToPx(170)));
+        animatorBot = ValueAnimator.ofInt(getScreenHeight()-Utils.dpToPx(10),Utils.dpToPx(160));
+
+//        animatorRight = ValueAnimator.ofInt(0,Utils.dpToPx(100),Utils.dpToPx(200));
+//        animatorLeft = ValueAnimator.ofInt(0,Utils.dpToPx(100),Utils.dpToPx(200));
+//
+//        animatorTop = ValueAnimator.ofInt(0,Utils.dpToPx(200),Utils.dpToPx(400));
+//        animatorBot = ValueAnimator.ofInt(0,Utils.dpToPx(200),Utils.dpToPx(300),Utils.dpToPx(600));
+
+
+        animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorLeft.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+
+        animatorRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.width = (Integer) valueAnimator.getAnimatedValue();
+                expandImageCard.requestLayout();
+            }
+        });
+
+        animatorLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.leftMargin = (Integer) valueAnimator.getAnimatedValue();
+                expandImageCard.requestLayout();
+            }
+        });
+
+        animatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                expandImageCard.requestLayout();
+            }
+        });
+
+        animatorBot.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params.height = (Integer) valueAnimator.getAnimatedValue();
+                expandImageCard.requestLayout();
+            }
+        });
+
+
+        animatorBot.setDuration(mAnimationTime);
+        animatorTop.setDuration(mAnimationTime);
+        animatorLeft.setDuration(mAnimationTime);
+        animatorRight.setDuration(mAnimationTime);
+
+        animatorRight.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                expandImageCard.setVisibility(View.INVISIBLE);
+                CardView adImageCard = findViewById(R.id.adImageCard);
+                adImageCard.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+//        expandImageCard.animate().alpha(0f).setDuration(mAnimationTime+100).setInterpolator(new LinearInterpolator())
+//                .setListener(new Animator.AnimatorListener() {
+//            @Override
+//            public void onAnimationStart(Animator animation) {
+//
+//            }
+//
+//            @Override
+//            public void onAnimationEnd(Animator animation) {
+//                expandImageCard.setAlpha(0f);
+//            }
+//
+//            @Override
+//            public void onAnimationCancel(Animator animation) {
+//
+//            }
+//
+//            @Override
+//            public void onAnimationRepeat(Animator animation) {
+//
+//            }
+//        }).start();
+
+        animatorBot.start();
+        animatorTop.start();
+        animatorLeft.start();
+        animatorRight.start();
+
+        final RelativeLayout blackBackImage = findViewById(R.id.blackBackImage);
+        final float alph = 0f;
+        blackBackImage.animate().alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        blackBackImage.setAlpha(alph);
+                        blackBackImage.setVisibility(View.GONE);
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        expandImageCard.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
+    }
+
+    private int getScreenWidth(){
+        Display display = getWindowManager(). getDefaultDisplay();
+        Point size = new Point();
+        display. getSize(size);
+        return size. x;
+    }
+
+    private int getScreenHeight(){
+        Display display = getWindowManager(). getDefaultDisplay();
+        Point size = new Point();
+        display. getSize(size);
+        return size. y;
+    }
+
+
 
 
 }

@@ -995,6 +995,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
         fragmentMpesaPaymentInitiation.setContext(mContext);
         fragmentMpesaPaymentInitiation.setDetails(amount,phoneNo);
         fragmentMpesaPaymentInitiation.show(fm, "Mpesa pay.");
+        fragmentMpesaPaymentInitiation.setCancelable(false);
 
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSuccessfulMpesaPayments,
                 new IntentFilter("FINISHED_MPESA_PAYMENTS"));
@@ -1187,7 +1188,7 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
                     mHasUserChosenAnImage = true;
 
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mFilepath);
-                    bm = getResizedBitmap(bitmap,1300);
+                    bm = getResizedBitmap(bitmap,1500);
 
                     ImageView profileImageViewPreviewBackground = findViewById(R.id.profileImageViewPreviewBackground);
 //                    MultiTransformation multi = new MultiTransformation(new BlurTransformation(mContext, 30));

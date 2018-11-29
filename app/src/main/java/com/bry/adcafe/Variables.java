@@ -182,6 +182,7 @@ public class Variables {
 
     public static MotionEvent activeEvent;
     public static Advert adToBeViewedInTelemetries;
+    public static LinkedHashMap<String,Bitmap> blurrs = new LinkedHashMap<>();
 
 
 

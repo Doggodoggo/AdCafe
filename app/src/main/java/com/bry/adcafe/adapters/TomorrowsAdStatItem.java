@@ -97,9 +97,9 @@ public class TomorrowsAdStatItem {
 
     private void setImage(){
         try {
-            Bitmap bm = getResizedBitmap(decodeFromFirebaseBase64(mAdvert.getImageUrl()),250);
+            Bitmap bm = decodeFromFirebaseBase64(mAdvert.getImageUrl());
             Log.d("TomorrowsAdItem---","Image has been converted to bitmap.");
-            mImageBytes = bitmapToByte(bm);
+            mImageBytes = bitmapToByte(getResizedBitmap(bm,300));
             mAdvert.setImageBitmap(bm);
         } catch (Exception e) {
             e.printStackTrace();

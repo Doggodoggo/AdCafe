@@ -17,7 +17,7 @@ repositories {
 
 
 android {
-    signingConfigs {
+    signingConfigs  {
         config {
             keyAlias 'key'
             keyPassword 'adcafedirector4613alpha'
@@ -30,8 +30,8 @@ android {
         applicationId "com.bry.adstudio"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 62
-        versionName "1.62"
+        versionCode 63
+        versionName "1.63"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

@@ -45,6 +45,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
     private FragmentMpesaPaymentInitiation fmi;
 
     private boolean isToDismiss = false;
+    private boolean isMakingRequest = false;
 
 
     public void setContext(Context context){
@@ -78,7 +79,12 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        restartPaymentRequest();
+                        if(!isMakingRequest){
+                            isMakingRequest = true;
+                            Toast.makeText(mContext,"Resending payment request.",Toast.LENGTH_SHORT).show();
+                            restartPaymentRequest();
+                            prog.setVisibility(View.VISIBLE);
+                        }
                     }
                 }, 5000);
             }
@@ -127,7 +133,6 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
     }
 
     private void restartPaymentRequest() {
-        Toast.makeText(mContext,"Restarting payments",Toast.LENGTH_SHORT).show();
         mPayment.stopRecursiveChecker();
         removeTheseGodDamnReceivers();
         startPaymentProcess();
@@ -169,6 +174,8 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFinishedSendingRequest);
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
             Toast.makeText(mContext,"The payment request has failed, check your connection and retry",Toast.LENGTH_SHORT).show();
+            isMakingRequest = false;
+            prog.setVisibility(View.INVISIBLE);
         }
     };
 
@@ -178,9 +185,10 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
             Log.d(TAG, "Broadcast has been received that request for pay is successful.");
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFailedToSendRequest);
-//            prog.setVisibility(View.INVISIBLE);
+            prog.setVisibility(View.INVISIBLE);
             Toast.makeText(mContext,"Payment request sent.",Toast.LENGTH_LONG).show();
 //            listenForCompletePayments();
+            isMakingRequest = false;
         }
     };
 

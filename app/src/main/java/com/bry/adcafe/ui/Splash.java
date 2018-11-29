@@ -281,6 +281,14 @@ public class Splash extends AppCompatActivity {
 
                         }
                     });
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    doTheThingAfterTheThing();
+                }
+            },230);
+
         }
     }
 
@@ -291,10 +299,12 @@ public class Splash extends AppCompatActivity {
             Intent intent = new Intent(Splash.this,TutorialActivity.class);
             startActivity(intent);
             finish();
+            overridePendingTransition(0, 0);
         }else{
             Intent intent = new Intent(Splash.this,LoginActivity.class);
             startActivity(intent);
             finish();
+            overridePendingTransition(0, 0);
         }
     }
 

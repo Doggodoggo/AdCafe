@@ -275,8 +275,14 @@ public class Bookmarks extends AppCompatActivity{
     private int scrollAmount = 0;
     private boolean isAtTopOfPage = false;
     private boolean isCollapsingCard = false;
-
     private boolean isLoading = false;
+
+    @Bind(R.id.reloadIndicator) View reloadIndicator;
+    @Bind(R.id.swipeReloadView) View swipeReloadView;
+    private int y_delta3;
+    private boolean isDownScrolling3 = false;
+    private List<Integer> DownSwipeRawList3 = new ArrayList<>();
+    private GestureDetector mSwipeDownReloadDetector;
 
 
     @Override
@@ -1370,6 +1376,9 @@ public class Bookmarks extends AppCompatActivity{
                     if(!Variables.adToBeViewed.didAdvertiserSetContactInfo()) {
                         findViewById(R.id.Website).setAlpha(0.4f);
                         findViewById(R.id.websiteTextxx).setAlpha(0.4f);
+                    }else{
+                        findViewById(R.id.Website).setAlpha(1f);
+                        findViewById(R.id.websiteTextxx).setAlpha(1f);
                     }
                     TextView tv = findViewById(R.id.dateView);
                     tv.setText(getDateFromDays(Variables.adToBeViewed.getDateInDays()));
@@ -1720,8 +1729,8 @@ public class Bookmarks extends AppCompatActivity{
 
 
     private void setBackViewsToBeInvisible() {
-        mPlaceHolderView.setAlpha(0.1f);
-        mPlaceHolderView2.setAlpha(0.1f);
+//        mPlaceHolderView.setAlpha(0.1f);
+//        mPlaceHolderView2.setAlpha(0.1f);
         findViewById(R.id.AdArchivesLayout).setAlpha(0f);
         findViewById(R.id.topNavButtons).setVisibility(View.VISIBLE);
     }
@@ -2219,6 +2228,7 @@ public class Bookmarks extends AppCompatActivity{
         updateUrl();
         UpdateButtonsAndAll();
         setPapeHeight();
+        setReloadGestureListener();
     }
 
     private void setPapeHeight(){
@@ -2263,7 +2273,7 @@ public class Bookmarks extends AppCompatActivity{
                 myWebView.reload();
                 UpdateButtonsAndAll();
                 updateUrl();
-                mReloadButton.setBackground(getResources().getDrawable(R.drawable.ic_action_close));
+//                mReloadButton.setBackground(getResources().getDrawable(R.drawable.ic_action_close));
             }
         });
 
@@ -2707,6 +2717,7 @@ public class Bookmarks extends AppCompatActivity{
                     @Override
                     public void onAnimationEnd(Animator animator) {
                         mReloadButton.setTranslationX(0);
+                        mReloadButton.setVisibility(View.VISIBLE);
                     }
 
                     @Override
@@ -4270,14 +4281,6 @@ public class Bookmarks extends AppCompatActivity{
                         if(numBefore1>num1) DownScore++;
                         else UpScore++;
                     }
-//                    if(Math.abs(UpScore-DownScore)>10) {
-//                        if (UpScore > DownScore) {
-//                            findViewById(R.id.shareBtn).performClick();
-//                        } else {
-//                            findViewById(R.id.backBtn).performClick();
-//                        }
-//                    }
-//                    hideNupdatePositionOfLinesUnderViewPagerNavButtons();
                     hideNupdatePositionOfLinesUnderViewPagerNavButtons();
                     vpagerYrawList.clear();
                 }
@@ -4439,7 +4442,7 @@ public class Bookmarks extends AppCompatActivity{
             final View v2 = findViewById(R.id.shareIndicator);
             final RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) v2.getLayoutParams();
             ValueAnimator animatorTop2;
-            animatorTop2 = ValueAnimator.ofInt(Utils.dpToPx(24), 0);
+            animatorTop2 = ValueAnimator.ofInt(params2.width, 0);
             animatorTop2.setInterpolator(new LinearOutSlowInInterpolator());
             animatorTop2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
@@ -4677,5 +4680,120 @@ public class Bookmarks extends AppCompatActivity{
     }
 
 
+    private void setReloadGestureListener(){
+//        mSwipeDownReloadDetector = new GestureDetector(mContext,new MySwipeReloadGestureListener2());
+//        swipeReloadView.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent motionEvent) {
+//                if (mSwipeDownReloadDetector.onTouchEvent(motionEvent)) {
+//                    return true;
+//                }
+//                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+//                    if(isDownScrolling3) {
+//                        isDownScrolling3  = false;
+//
+//                        resetReloadSwipeThing();
+//                        DownSwipeRawList3.clear();
+//                    }
+//                }
+//                return false;
+//            }
+//        });
+    }
+
+    class MySwipeReloadGestureListener2 extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            Log.d("TAG", "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            Log.d("TAG", "onDown: event.getRawX(): " + event.getRawX() + " event.getRawY()" + event.getRawY());
+            CardView.LayoutParams lParams = (CardView.LayoutParams) swipeReloadView.getLayoutParams();
+            y_delta3 = Y - lParams.topMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Log.i("TAG", "onSingleTapConfirmed: ");
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            Log.i("TAG", "onLongPress: ");
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            Log.i("TAG", "onDoubleTap: ");
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+
+            showNUpdateReloadSwipeThing(X - y_delta3);
+
+            Log.d("TAG", "the e2.getAction()= " + e2.getAction() + " and the MotionEvent.ACTION_CANCEL= " + MotionEvent.ACTION_CANCEL);
+            DownSwipeRawList3.add(X);
+
+            isDownScrolling3 = true;
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if(Math.abs(velocityX)<Math.abs(velocityY)) {
+                if (velocityY > 0) {
+                    if (Math.abs(velocityY) > 1500){
+                        try{
+                            mReloadButton.performClick();
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            resetReloadSwipeThing();
+            DownSwipeRawList3.clear();
+            return false;
+
+        }
+    }
+
+    private void showNUpdateReloadSwipeThing(int newPos){
+        int pos = (int)(0.02*newPos);
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) reloadIndicator.getLayoutParams();
+        params.width = Math.abs(pos);
+        reloadIndicator.setLayoutParams(params);
+
+    }
+
+    private void resetReloadSwipeThing(){
+        final LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) reloadIndicator.getLayoutParams();
+        ValueAnimator animatorTop2;
+        animatorTop2 = ValueAnimator.ofInt(params2.width, 0);
+        animatorTop2.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                params2.width = (Integer) valueAnimator.getAnimatedValue();
+                reloadIndicator.requestLayout();
+            }
+        });
+        animatorTop2.setDuration(normalDuration).start();
+    }
 
 }

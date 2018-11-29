@@ -12,6 +12,17 @@
         android:layout_height="wrap_content">
 
         <ImageView
+            android:id="@+id/theAdImageBackground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_margin="0.3dp"
+            android:paddingBottom="60dp"
+            android:alpha="0.3"
+            android:paddingTop="50dp"
+            android:scaleType="centerCrop" />
+
+        <ImageView
             android:id="@+id/theAdImage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -19,7 +30,7 @@
             android:layout_margin="0.3dp"
             android:paddingBottom="60dp"
             android:paddingTop="50dp"
-            android:scaleType="fitXY" />
+            android:scaleType="fitCenter" />
 
         <ProgressBar
             android:id="@+id/progressBarViewImage"
@@ -28,6 +39,17 @@
             android:layout_centerInParent="true"
             android:layout_width="40dp"
             android:layout_height="40dp"/>
+
+        <ProgressBar
+            android:id="@+id/progressBarProcessImage"
+            style="?android:attr/progressBarStyle"
+            android:layout_alignParentRight="true"
+            android:visibility="invisible"
+            android:layout_width="20dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_height="20dp" />
 
     </RelativeLayout>
 

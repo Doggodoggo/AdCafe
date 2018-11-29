@@ -342,6 +342,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+        overridePendingTransition(0, 0);
     }
 
     private boolean isValidPassword(String password, String confirmPassword) {
