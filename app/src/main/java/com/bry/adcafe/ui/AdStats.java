@@ -2721,14 +2721,14 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
         hideButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setHidden();
+                areYouSureHide();
             }
         });
 
         starButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setStarred();
+                areYouSureStar();
             }
         });
 
@@ -3410,13 +3410,62 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
     }
 
 
+    private void areYouSureHide(){
+        final Dialog d = new Dialog(this);
+        d.setContentView(R.layout.dialog_hide);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        Button b1 = d.findViewById(R.id.okBtn);
+        TextView annTitle = d.findViewById(R.id.annTitle);
+        TextView annText = d.findViewById(R.id.annText);
+        if(Variables.adToBeViewedInTelemetries.isAdvertiserHidden()){
+            annTitle.setText("Un-Hide this?");
+            annText.setText(R.string.areYouSureUnHide);
+        }else{
+            annTitle.setText("Hide this?");
+            annText.setText(R.string.areYouSureHide);
+        }
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+                setHidden();
+            }
+        });
+        d.show();
+    }
+
+    private void areYouSureStar(){
+        final Dialog d = new Dialog(this);
+        d.setContentView(R.layout.dialog_star);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        Button b1 = d.findViewById(R.id.okBtn);
+        TextView annTitle = d.findViewById(R.id.annTitle);
+        TextView annText = d.findViewById(R.id.annText);
+        if(!Variables.adToBeViewedInTelemetries.isStarred()){
+            annTitle.setText("Star this?");
+            annText.setText(R.string.areYouSureStar);
+        }else{
+            annTitle.setText("Un-star this?");
+            annText.setText(R.string.areYouSureUnStar);
+        }
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+                setStarred();
+            }
+        });
+        d.show();
+    }
 
     private void setStarred() {
         Advert ad = Variables.adToBeViewedInTelemetries;
         if(ad.isStarred()){
             Toast.makeText(mContext,"Removing Star",Toast.LENGTH_SHORT).show();
         }else{
-            Toast.makeText(mContext,"Adding Star",Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext,"Starring",Toast.LENGTH_SHORT).show();
         }
         boolean newStarred = false;
         if(!ad.isStarred()) newStarred = true;

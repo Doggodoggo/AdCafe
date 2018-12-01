@@ -184,6 +184,9 @@ public class Variables {
     public static Advert adToBeViewedInTelemetries;
     public static LinkedHashMap<String,Bitmap> blurrs = new LinkedHashMap<>();
 
+    public static int xPos;
+    public static int yPos;
+
 
 
     public static void resetAllValues(){

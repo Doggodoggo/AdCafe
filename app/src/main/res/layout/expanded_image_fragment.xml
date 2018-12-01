@@ -15,11 +15,12 @@
             android:id="@+id/theAdImageBackground"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="invisible"
             android:layout_gravity="center"
             android:layout_margin="0.3dp"
             android:paddingBottom="60dp"
             android:alpha="0.3"
-            android:paddingTop="50dp"
+            android:paddingTop="40dp"
             android:scaleType="centerCrop" />
 
         <ImageView

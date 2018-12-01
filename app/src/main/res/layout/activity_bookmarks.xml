@@ -40,6 +40,7 @@
             android:textColor="@color/colorPrimaryDark"
             android:padding="10dp"
             android:text="Ad Archives." />
+
         <View
             android:layout_width="match_parent"
             android:background="@color/colorAccent"
@@ -125,6 +126,7 @@
             android:visibility="gone"
             android:textSize="10sp"
             android:layout_height="wrap_content" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -147,6 +149,16 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
+    <RelativeLayout
+        android:id="@+id/blackBackBoi"
+        android:layout_width="match_parent"
+        android:background="@color/black"
+        android:alpha="0.8"
+        android:visibility="gone"
+        android:layout_height="match_parent">
+
+
+    </RelativeLayout>
 
     <com.bry.adcafe.models.CustomViewPager
         android:id="@+id/viewPager"
@@ -175,7 +187,6 @@
         android:gravity="center"
         android:alpha="0"
         android:translationY="50dp"
-        android:background="@color/white"
         android:paddingTop="5dp"
         android:id="@+id/topNavButtons"
         android:layout_gravity="top">
@@ -189,15 +200,16 @@
             android:layout_height="match_parent">
             <ImageButton
                 android:id="@+id/backBtn"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:background="@drawable/ic_action_back"/>
+                android:layout_width="23dp"
+                android:layout_centerVertical="true"
+                android:layout_height="23dp"
+                android:background="@drawable/ic_action_back_white"/>
 
             <View
                 android:id="@+id/backIndicator"
                 android:layout_width="0dp"
                 android:layout_centerHorizontal="true"
-                android:background="@color/colorPrimary"
+                android:background="@color/whiteish"
                 android:layout_alignBottom="@id/backBtn"
                 android:layout_height="1dp"/>
 
@@ -215,6 +227,7 @@
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
                 android:id="@+id/dateView"
+                android:textColor="@color/white"
                 android:typeface="monospace"
                 android:gravity="center"
                 android:layout_marginLeft="80dp"
@@ -237,7 +250,6 @@
             android:layout_width="20dp"
             android:layout_height="20dp" />
 
-
         <RelativeLayout
             android:layout_width="wrap_content"
             android:visibility="visible"
@@ -245,19 +257,20 @@
             android:layout_marginLeft="10dp"
             android:layout_alignParentRight="true"
             android:layout_height="match_parent">
+
             <ImageButton
                 android:id="@+id/shareBtn"
                 android:layout_marginTop="10dp"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:background="@drawable/ic_action_share4"/>
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/ic_action_share4_white"/>
 
             <View
                 android:id="@+id/shareIndicator"
                 android:layout_width="0dp"
                 android:layout_marginBottom="5dp"
                 android:layout_centerHorizontal="true"
-                android:background="@color/colorPrimary"
+                android:background="@color/whiteish"
                 android:layout_alignParentBottom="true"
                 android:layout_height="1dp"/>
         </RelativeLayout>
@@ -268,58 +281,58 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:gravity="center"
-        android:background="@color/white"
-        android:paddingRight="20dp"
-        android:paddingBottom="7dp"
         android:visibility="gone"
         android:alpha="0"
+        android:paddingRight="10dp"
         android:translationY="50dp"
         android:id="@+id/bottomNavButtons"
         android:orientation="horizontal"
         android:layout_gravity="bottom">
 
-
-
         <RelativeLayout
             android:layout_width="wrap_content"
             android:visibility="visible"
+            android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_height="wrap_content">
             <ImageButton
                 android:id="@+id/Website"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginLeft="6dp"
-                android:background="@drawable/ic_action_contact2"/>
+                android:layout_width="23dp"
+                android:layout_height="23dp"
+                android:layout_marginLeft="16dp"
+                android:background="@drawable/ic_action_contact2_white"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:id="@+id/websiteTextxx"
                 android:text="Contact."
                 android:textSize="8dp"
-                android:paddingTop="40dp"
+                android:textColor="@color/white"
+                android:paddingTop="28dp"
                 android:paddingLeft="14dp"
                 android:layout_height="wrap_content" />
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_marginRight="20dp"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:visibility="visible">
 
             <ImageButton
                 android:id="@+id/Delete"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginLeft="6dp"
-                android:background="@drawable/ic_action_delete" />
+                android:layout_width="23dp"
+                android:layout_height="23dp"
+                android:layout_marginLeft="16dp"
+                android:background="@drawable/ic_action_delete_white" />
 
             <TextView
                 android:id="@+id/DeleteText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="18dp"
-                android:paddingTop="40dp"
+                android:textColor="@color/white"
+                android:paddingTop="30dp"
                 android:text="Unpin."
                 android:textSize="8dp" />
         </RelativeLayout>
@@ -327,22 +340,25 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:visibility="visible">
 
             <ImageButton
                 android:id="@+id/Download"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="23dp"
+                android:layout_height="23dp"
                 android:layout_marginTop="3dp"
-                android:layout_marginLeft="5dp"
-                android:background="@drawable/ic_action_save" />
+                android:layout_marginLeft="14dp"
+                android:background="@drawable/ic_action_save_white" />
 
             <TextView
                 android:id="@+id/DownloadText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="8dp"
-                android:paddingTop="40dp"
+                android:textColor="@color/white"
+                android:paddingTop="30dp"
                 android:text="Download."
                 android:textSize="8dp" />
         </RelativeLayout>

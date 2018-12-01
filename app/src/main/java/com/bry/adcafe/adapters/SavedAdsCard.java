@@ -33,6 +33,7 @@ import com.bry.adcafe.Variables;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.User;
 import com.bry.adcafe.services.TimeManager;
+import com.bry.adcafe.services.Utils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
@@ -74,6 +75,7 @@ public class SavedAdsCard {
     @View(R.id.savedAdCardAvi) private AVLoadingIndicatorView mAvi;
     @View(R.id.sacard) private CardView mCardView;
     @View(R.id.selectedIcon) private ImageView mSelectedIcon;
+    @View(R.id.SavedImageBack) private ImageView SavedImageBack;
 //    @View(R.id.testText) private TextView testText;
 
     private Context mContext;
@@ -98,6 +100,7 @@ public class SavedAdsCard {
     private PlaceHolderView parentPHView;
 
     private MotionEvent mEvent;
+    private Bitmap bl;
 
 
     public SavedAdsCard(int index,PlaceHolderView parentPHView,Advert advert, Context context,
@@ -162,6 +165,8 @@ public class SavedAdsCard {
         mAvi.setVisibility(android.view.View.GONE);
     }
 
+
+
     private void loadListeners() {
         if(!hasLoaded) {
             LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToUnregisterAllReceivers,
@@ -170,6 +175,7 @@ public class SavedAdsCard {
                     new IntentFilter("ADD_BLANK" + noOfDaysDate + mAdvert.getPushId()));
             LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToLoadImages,
                     new IntentFilter("SET_IMAGE" + noOfDaysDate));
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForShowSelf,new IntentFilter("SHOW_SELF"));
             hasLoaded = true;
         }
     }
@@ -598,11 +604,13 @@ public class SavedAdsCard {
 
 
     private void unregisterAllReceivers(){
-        try{LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForUnpin);
+        try{
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForUnpin);
         }catch (Exception e){
             e.printStackTrace();
         }
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForAddNewBlank);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForShowSelf);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverToUnregisterAllReceivers);
     }
 
@@ -616,11 +624,30 @@ public class SavedAdsCard {
 
     @Click(R.id.SavedImageView)
     private void onClick(){
-        float x = imageView.getX();
-        Log.e(TAG,"the X pos is: "+x);
+        int[] originalPos = new int[2];
+        imageView.getLocationOnScreen(originalPos);
+        int x = originalPos[0];
+        int y = (originalPos[1]);
+
+        Variables.xPos = x;
+        Variables.yPos = y;
+
+        Log.e(TAG,"the X pos is: "+Variables.xPos);
+        Log.e(TAG,"the Y pos is: "+Variables.yPos);
+        Log.e(TAG,"the index is: "+index);
+        Log.e(TAG,"the minus value is: "+((index+1)*(Utils.dpToPx(50))));
+
         if(Variables.isSelectingMultipleItems) selectAdForUnpinning();
         else viewAd();
     }
+
+    private BroadcastReceiver mMessageReceiverForShowSelf = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("SAVED_ADS--","Received broadcast to ad blank item.");
+            imageView.setVisibility(android.view.View.VISIBLE);
+        }
+    };
 
 
 
@@ -717,12 +744,10 @@ public class SavedAdsCard {
                     Variables.noOfDays = noOfDaysDate;
                     Variables.placeHolderView = mPlaceHolderView;
                     Variables.position = mPlaceHolderView.getViewResolverPosition(this);
-//                    if(!hasSentIntentToViewAd){
-//                        hasSentIntentToViewAd = true;
-                        Intent intent = new Intent("VIEW");
-                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-                        setUpReceiver();
-//                    }
+                    imageView.setVisibility(android.view.View.INVISIBLE);
+                    Intent intent = new Intent("VIEW");
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+                    setUpReceiver();
                 }
                 isBeingShared = false;
             }
@@ -921,11 +946,13 @@ public class SavedAdsCard {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            if(mImageBytes!=null) loadImage2();
+            if(mImageBytes!=null){
+                loadImage2();
+                setBackgroundImageBlurrs();
+            }
             else{
                 mAvi.setVisibility(android.view.View.GONE);
                 errorImageView.setVisibility(android.view.View.VISIBLE);
-                setBackgroundImageBlurrs();
             }
         }
 
@@ -1027,15 +1054,16 @@ public class SavedAdsCard {
 
         @Override
         protected String doInBackground(String... strings) {
+            bl = fastblur(bs,0.7f,27);
             if(!Variables.blurrs.containsKey(mAdvert.getPushRefInAdminConsole())){
-                Bitmap backBl = fastblur(mAdvert.getImageBitmap(),0.7f,27);
-                Variables.blurrs.put(mAdvert.getPushRefInAdminConsole(),backBl);
+                Variables.blurrs.put(mAdvert.getPushRefInAdminConsole(),bl);
             }
             return "executed";
         }
 
         @Override
         protected void onPostExecute(String result) {
+            SavedImageBack.setImageBitmap(bl);
             super.onPostExecute(result);
         }
 

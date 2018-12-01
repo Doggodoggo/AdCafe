@@ -101,7 +101,7 @@ public class SAContainer {
         PHViewForSpecificDay.setLayoutManager(glm);
 
         PHViewForSpecificDay.setNestedScrollingEnabled(false);
-        int idForDayList = mPlaceHolderView.getViewResolverPosition(ths);
+        int idForDayList = pos;
         Log.w("SAContainer","The id for days list is: "+idForDayList);
         for (Advert ad: adList) {
             int pos = adList.indexOf(ad);

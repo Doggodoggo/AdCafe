@@ -1489,7 +1489,6 @@ public class Bookmarks extends AppCompatActivity{
             }
         });
 
-
         animatorBot.setDuration(mAnimationTime);
         animatorTop.setDuration(mAnimationTime);
         animatorLeft.setDuration(mAnimationTime);
@@ -1501,6 +1500,7 @@ public class Bookmarks extends AppCompatActivity{
         animatorRight.start();
 
         vpPager.animate().alpha(0f).setDuration(250).setInterpolator(new LinearOutSlowInInterpolator()).start();
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("SHOW_SELF"));
 
         animatorRight.addListener(new Animator.AnimatorListener() {
             @Override
@@ -1561,6 +1561,34 @@ public class Bookmarks extends AppCompatActivity{
             }
         }).start();
 
+
+        final RelativeLayout blackBackBoi = findViewById(R.id.blackBackBoi);
+        final float alph = 0f;
+        blackBackBoi.setAlpha(0.7f);
+        blackBackBoi.setVisibility(View.VISIBLE);
+        blackBackBoi.animate().alpha(alph).setDuration(mAnimationTime).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                blackBackBoi.setAlpha(alph);
+                blackBackBoi.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        }).start();
+
         isSetUpSharing = false;
         findViewById(R.id.isSharingProgress).setVisibility(View.INVISIBLE);
     }
@@ -1568,18 +1596,23 @@ public class Bookmarks extends AppCompatActivity{
     private void animateExpand(){
         vpPager = findViewById(R.id.viewPager);
 
+//        int leftMargin = 0;
+//        int topMargin = getScreenHeight()/2;
+//        int bottomMargin = -getScreenHeight()/2;
+//        int rightMargin = 0;
+
         int leftMargin = 0;
-        int topMargin = getScreenHeight()/2;
-        int bottomMargin = -getScreenHeight()/2;
+        int topMargin = 300;
+        int bottomMargin = -300;
         int rightMargin = 0;
 
-        if(Variables.activeEvent!=null) {
-            Log.e(TAG,"Raw values  getRawX: "+Variables.activeEvent.getRawX()+" getRawY: "+Variables.activeEvent.getRawY());
-            leftMargin = (int) (Variables.activeEvent.getRawX());
-            topMargin = (int) (Variables.activeEvent.getRawY());
-            bottomMargin = getScreenHeight() - (topMargin +45);
-            rightMargin = getScreenWidth() - (leftMargin +45);
-        }else Log.e(TAG,"active event is null");
+//        if(Variables.activeEvent!=null) {
+//            Log.e(TAG,"Raw values  getRawX: "+Variables.activeEvent.getRawX()+" getRawY: "+Variables.activeEvent.getRawY());
+//            leftMargin = (int) (Variables.activeEvent.getRawX());
+//            topMargin = (int) (Variables.activeEvent.getRawY());
+//            bottomMargin = getScreenHeight() - (topMargin +45);
+//            rightMargin = getScreenWidth() - (leftMargin +45);
+//        }else Log.e(TAG,"active event is null");
 
         final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) vpPager.getLayoutParams();
 
@@ -1602,10 +1635,10 @@ public class Bookmarks extends AppCompatActivity{
         animatorBot = ValueAnimator.ofInt(bottomMargin,0);
 
 
-//        animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
-//        animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
-//        animatorLeft.setInterpolator(new LinearOutSlowInInterpolator());
-//        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorRight.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorBot.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorLeft.setInterpolator(new LinearOutSlowInInterpolator());
+        animatorTop.setInterpolator(new LinearOutSlowInInterpolator());
 
         animatorRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -1644,11 +1677,13 @@ public class Bookmarks extends AppCompatActivity{
 //        animatorTop.setDuration(mAnimationTime);
 //        animatorLeft.setDuration(mAnimationTime);
 //        animatorRight.setDuration(mAnimationTime);
+        int mAnimationTime = 250;
 
-        animatorBot.setDuration(mAnimationTime-110);
-        animatorTop.setDuration(mAnimationTime-110);
-        animatorLeft.setDuration(mAnimationTime-100);
-        animatorRight.setDuration(mAnimationTime-100);
+
+        animatorBot.setDuration(mAnimationTime);
+        animatorTop.setDuration(mAnimationTime);
+        animatorLeft.setDuration(mAnimationTime);
+        animatorRight.setDuration(mAnimationTime);
 
         animatorBot.start();
         animatorTop.start();
@@ -1678,10 +1713,10 @@ public class Bookmarks extends AppCompatActivity{
         });
 
         RelativeLayout topNavButtons = findViewById(R.id.topNavButtons);
-        topNavButtons.animate().alpha(1f).translationY(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator()).start();
+        topNavButtons.animate().alpha(1f).translationY(0).setDuration(this.mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator()).start();
 
         LinearLayout bottomNavButtons = findViewById(R.id.bottomNavButtons);
-        bottomNavButtons.animate().alpha(1f).translationY(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+        bottomNavButtons.animate().alpha(1f).translationY(0).setDuration(this.mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
                 .setListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -1709,6 +1744,32 @@ public class Bookmarks extends AppCompatActivity{
                     }
                 }).start();
 
+        final RelativeLayout blackBackBoi = findViewById(R.id.blackBackBoi);
+        final float alph = 0.7f;
+        blackBackBoi.setAlpha(0);
+        blackBackBoi.setVisibility(View.VISIBLE);
+        blackBackBoi.animate().alpha(alph).setDuration(mAnimationTime).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                blackBackBoi.setAlpha(alph);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        }).start();
+
     }
 
     private int getScreenWidth(){
@@ -1729,9 +1790,7 @@ public class Bookmarks extends AppCompatActivity{
 
 
     private void setBackViewsToBeInvisible() {
-//        mPlaceHolderView.setAlpha(0.1f);
-//        mPlaceHolderView2.setAlpha(0.1f);
-        findViewById(R.id.AdArchivesLayout).setAlpha(0f);
+        findViewById(R.id.AdArchivesLayout).setAlpha(1f);
         findViewById(R.id.topNavButtons).setVisibility(View.VISIBLE);
     }
 
@@ -4379,7 +4438,7 @@ public class Bookmarks extends AppCompatActivity{
             View v = findViewById(R.id.backIndicator);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v.getLayoutParams();
             params.width = Math.abs(pos);
-            if(Math.abs(pos)<Utils.dpToPx(42)) v.setLayoutParams(params);
+            if(Math.abs(pos)<Utils.dpToPx(23)) v.setLayoutParams(params);
         }else if(newPos==0){
             View v = findViewById(R.id.backIndicator);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v.getLayoutParams();
@@ -4395,7 +4454,7 @@ public class Bookmarks extends AppCompatActivity{
             View v = findViewById(R.id.shareIndicator);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v.getLayoutParams();
             params.width = Math.abs(pos);
-            if(Math.abs(pos)<Utils.dpToPx(24)) v.setLayoutParams(params);
+            if(Math.abs(pos)<Utils.dpToPx(20)) v.setLayoutParams(params);
         }
     }
 

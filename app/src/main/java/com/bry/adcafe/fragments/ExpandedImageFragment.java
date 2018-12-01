@@ -41,10 +41,10 @@ public class ExpandedImageFragment extends Fragment {
 
     private ImageView mAdImageView;
     private ProgressBar progressBarViewImage;
-    private ProgressBar progressBarProcessImage;
+//    private ProgressBar progressBarProcessImage;
     private Bitmap backBl;
     private Bitmap bm;
-    private ImageView AdImageBackground;
+//    private ImageView AdImageBackground;
 
 
     public void setfragcontext(Context context){
@@ -75,9 +75,9 @@ public class ExpandedImageFragment extends Fragment {
 //                .setInterpolator(new FastOutSlowInInterpolator());
 
         mAdImageView = view.findViewById(R.id.theAdImage);
-        AdImageBackground = view.findViewById(R.id.theAdImageBackground);
+//        AdImageBackground = view.findViewById(R.id.theAdImageBackground);
         progressBarViewImage = view.findViewById(R.id.progressBarViewImage);
-        progressBarProcessImage = view.findViewById(R.id.progressBarProcessImage);
+//        progressBarProcessImage = view.findViewById(R.id.progressBarProcessImage);
         setImageInView();
 
         return view;
@@ -87,7 +87,7 @@ public class ExpandedImageFragment extends Fragment {
         if(Variables.loadedSavedAdsList.containsKey(mAdvert.getPushRefInAdminConsole())){
             bm = Variables.loadedSavedAdsList.get(mAdvert.getPushRefInAdminConsole());
             mAdImageView.setImageBitmap(bm);
-            progressBarProcessImage.setVisibility(View.VISIBLE);
+//            progressBarProcessImage.setVisibility(View.VISIBLE);
             new LongOperationBL().execute("");
         }else{
             bm = loadImageFromMemory(mAdvert.getDownloadImageName());
@@ -97,7 +97,7 @@ public class ExpandedImageFragment extends Fragment {
                     Variables.loadedSavedAdsList.put(mAdvert.getPushRefInAdminConsole(),bm);
                 }
                 mAdImageView.setImageBitmap(bm);
-                progressBarProcessImage.setVisibility(View.VISIBLE);
+//                progressBarProcessImage.setVisibility(View.VISIBLE);
                 new LongOperationBL().execute("");
             }else{
                 progressBarViewImage.setVisibility(View.VISIBLE);
@@ -122,8 +122,8 @@ public class ExpandedImageFragment extends Fragment {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            progressBarProcessImage.setVisibility(View.INVISIBLE);
-            AdImageBackground.setImageBitmap(backBl);
+//            progressBarProcessImage.setVisibility(View.INVISIBLE);
+//            AdImageBackground.setImageBitmap(backBl);
         }
 
     }
@@ -388,7 +388,7 @@ public class ExpandedImageFragment extends Fragment {
             if(mAdvert.getImageBitmap()!=null){
                 progressBarViewImage.setVisibility(View.INVISIBLE);
                 mAdImageView.setImageBitmap(mAdvert.getImageBitmap());
-                AdImageBackground.setImageBitmap(backBl);
+//                AdImageBackground.setImageBitmap(backBl);
             }
         }
 
