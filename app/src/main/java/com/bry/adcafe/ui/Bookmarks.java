@@ -4437,8 +4437,10 @@ public class Bookmarks extends AppCompatActivity{
         if(newPos>0){
             View v = findViewById(R.id.backIndicator);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v.getLayoutParams();
-            params.width = Math.abs(pos);
-            if(Math.abs(pos)<Utils.dpToPx(23)) v.setLayoutParams(params);
+            if(Math.abs(pos)<Utils.dpToPx(23)){
+                params.width = Math.abs(pos);
+                v.setLayoutParams(params);
+            }
         }else if(newPos==0){
             View v = findViewById(R.id.backIndicator);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v.getLayoutParams();
@@ -4453,8 +4455,10 @@ public class Bookmarks extends AppCompatActivity{
         else{
             View v = findViewById(R.id.shareIndicator);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v.getLayoutParams();
-            params.width = Math.abs(pos);
-            if(Math.abs(pos)<Utils.dpToPx(20)) v.setLayoutParams(params);
+            if(Math.abs(pos)<Utils.dpToPx(20)){
+                params.width = Math.abs(pos);
+                v.setLayoutParams(params);
+            }
         }
     }
 
