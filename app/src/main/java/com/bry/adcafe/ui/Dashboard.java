@@ -2494,5 +2494,4 @@ public class Dashboard extends AppCompatActivity {
             unKindaCollapseSettings();
         }
     }
-
 }
