@@ -275,6 +275,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Bind(R.id.secureImage) ImageView secureImage;
     private boolean isAtTopOfPage = false;
     private boolean isCollapsingCard = false;
+    private GestureDetector MyTouchBackGestureListener;
 
 
 
@@ -5846,7 +5847,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         ContactSelectorContainer.setVisibility(View.VISIBLE);
         expandContactSelector();
-
+        MyTouchBackGestureListener = new GestureDetector(mContext,new MyTouchBackGestureListener());
         setContactSelectorClickListeners();
         setRelevantData();
         moveSwipeViewUpwards();
@@ -5913,13 +5914,66 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
 
-        blackView.setOnClickListener(new View.OnClickListener() {
+        blackView.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View view) {
-//                if(isCardMinimized) closeBottomPart();
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.d(TAG,"Raw Y: "+event.getRawY());
+                if (MyTouchBackGestureListener.onTouchEvent(event)) {
+                    return true;
+                }
+                return false;
             }
         });
     }
+
+    class MyTouchBackGestureListener extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            Log.d("TAG", "onDown: ");
+            if(isCardMinimized) {
+                if (!isConfirmOpenWebsiteLayout && !isConfirmDialLayout && event.getRawY() < 900) {
+                    onBackPressed();
+                } else if (isConfirmOpenWebsiteLayout || isConfirmDialLayout) {
+                    if (event.getRawY() < 530) onBackPressed();
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Log.i("TAG", "onSingleTapConfirmed: ");
+
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            Log.i("TAG", "onLongPress: ");
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            Log.i("TAG", "onDoubleTap: ");
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return false;
+
+        }
+    }
+
 
     private void setRelevantData() {
         Advert ad = Variables.getCurrentAdvert();

@@ -26,6 +26,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
@@ -79,7 +80,9 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
     private long allUsersNumber = 0;
     private LinkedHashMap<String,Long> userLastOnline = new LinkedHashMap<>();
     private List<String> users = new ArrayList<>();
-
+    @Bind(R.id.title) TextView title;
+    @Bind(R.id.explanation) TextView explanation;
+    private int mAnimationTime = 300;
 
 
     @Override
@@ -250,6 +253,52 @@ public class SelectCategoryAdvertiser extends AppCompatActivity implements View.
                 }
                 loadingLayout.setVisibility(View.GONE);
                 mainView.setVisibility(View.VISIBLE);
+
+                title.animate().translationX(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                        .setListener(new Animator.AnimatorListener() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                title.setTranslationX(0);
+                            }
+
+                            @Override
+                            public void onAnimationCancel(Animator animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animator animation) {
+
+                            }
+                        }).start();
+
+                explanation.animate().translationX(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                        .setListener(new Animator.AnimatorListener() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                explanation.setTranslationX(0);
+                            }
+
+                            @Override
+                            public void onAnimationCancel(Animator animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animator animation) {
+
+                            }
+                        }).start();
             }
 
             @Override

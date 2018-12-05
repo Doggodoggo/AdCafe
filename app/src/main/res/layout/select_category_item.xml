@@ -74,6 +74,8 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
                 android:layout_marginRight="5dp"
+                android:scaleY="0.95"
+                android:scaleX="0.95"
                 android:text="money storage services"
                 android:textColor="@color/secondary_text"
                 android:textSize="9sp"

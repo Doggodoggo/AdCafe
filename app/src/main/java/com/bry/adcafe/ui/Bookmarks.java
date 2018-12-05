@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.support.annotation.DimenRes;
 import android.support.annotation.NonNull;
@@ -283,6 +284,9 @@ public class Bookmarks extends AppCompatActivity{
     private boolean isDownScrolling3 = false;
     private List<Integer> DownSwipeRawList3 = new ArrayList<>();
     private GestureDetector mSwipeDownReloadDetector;
+    @Bind(R.id.topText) TextView topText;
+    private GestureDetector MyTouchBackGestureListener;
+    private boolean isWebViewOpen = false;
 
 
     @Override
@@ -318,6 +322,12 @@ public class Bookmarks extends AppCompatActivity{
         animateCollapse();
         addTouchListenerForSwipeBack2();
 
+        new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    topText.animate().setDuration(mAnimationTime).translationX(0).setInterpolator(new LinearOutSlowInInterpolator()).start();
+                }
+        },300);
     }
 
     private void setDeleteIcon() {
@@ -2208,7 +2218,6 @@ public class Bookmarks extends AppCompatActivity{
     @SuppressLint("SetJavaScriptEnabled")
     private void setUpWebView(){
         WebSettings webSettings = myWebView.getSettings();
-
         webSettings.setJavaScriptEnabled(true);
         myWebView.loadUrl(PAGE);
         hasPageBeenOpened = true;
@@ -3662,6 +3671,7 @@ public class Bookmarks extends AppCompatActivity{
         ContactSelectorContainer.setVisibility(View.VISIBLE);
         expandContactSelector();
 
+        MyTouchBackGestureListener = new GestureDetector(mContext,new MyTouchBackGestureListener());
         setContactSelectorClickListeners();
         setRelevantData();
         moveSwipeViewUpwards();
@@ -3782,7 +3792,67 @@ public class Bookmarks extends AppCompatActivity{
 //                if(isCardMinimized) closeBottomPart();
             }
         });
+
+        blackView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.d(TAG,"Raw Y: "+event.getRawY());
+                if (MyTouchBackGestureListener.onTouchEvent(event)) {
+                    return true;
+                }
+                return false;
+            }
+        });
     }
+
+    class MyTouchBackGestureListener extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            Log.d("TAG", "onDown: ");
+            if(isCardMinimized) {
+                if (!isConfirmOpenWebsiteLayout && !isConfirmDialLayout && event.getRawY() < 900) {
+                    onBackPressed();
+                } else if (isConfirmOpenWebsiteLayout || isConfirmDialLayout) {
+                    if (event.getRawY() < 530) onBackPressed();
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Log.i("TAG", "onSingleTapConfirmed: ");
+
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            Log.i("TAG", "onLongPress: ");
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            Log.i("TAG", "onDoubleTap: ");
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return false;
+
+        }
+    }
+
 
     private void setRelevantData() {
         Advert ad = Variables.adToBeViewed;

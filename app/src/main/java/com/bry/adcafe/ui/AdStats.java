@@ -112,6 +112,7 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
 
     private Context mContext;
     @Bind(R.id.PlaceHolderViewInfo) PlaceHolderView DataListsView;
+    @Bind(R.id.topText) TextView topText;
 
     private int cycleCount = 0;
     private int cycleCount2 = 0;
@@ -856,15 +857,7 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
                 if(!myUploadHistoryAds.isEmpty()){
                     loadImages();
                 } else {
-                    DataListsView.setVisibility(View.VISIBLE);
-                    findViewById(R.id.topText).setVisibility(View.VISIBLE);
-                    moreButton.setVisibility(View.VISIBLE);
-                    findViewById(R.id.LoadingViews).setVisibility(View.GONE);
-                    if (doChildrenExist) {
-                        findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
-                    } else {
-                        findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
-                    }
+                    animateFinishedLoading();
                 }
             }
 
@@ -919,21 +912,97 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
 
     private void setHistoryImagesData(){
         if(myHistoryAdImages.isEmpty()){
-            DataListsView.setVisibility(View.VISIBLE);
-            findViewById(R.id.topText).setVisibility(View.VISIBLE);
-            moreButton.setVisibility(View.VISIBLE);
-            findViewById(R.id.LoadingViews).setVisibility(View.GONE);
-            if(doChildrenExist){
-                findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
-            }else{
-                findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
-            }
+            animateFinishedLoading();
         }else{
             LongOperationHist hx = new LongOperationHist();
             hx.execute("");
         }
 
     }
+
+    private void animateFinishedLoading(){
+        DataListsView.setVisibility(View.VISIBLE);
+        findViewById(R.id.topText).setVisibility(View.VISIBLE);
+        moreButton.setVisibility(View.VISIBLE);
+        findViewById(R.id.LoadingViews).setVisibility(View.GONE);
+        if(doChildrenExist){
+            findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
+        }else{
+            findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
+        }
+        topText.animate().scaleY(1).scaleX(1).setDuration(150).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        topText.setScaleX(1);
+                        topText.setScaleY(1);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        topText.animate().translationX(0).scaleY(1).scaleX(1).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        topText.setTranslationX(0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        moreButton.animate().translationX(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        moreButton.setTranslationX(0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+
+
 
     @Override
     public void onClick(View v) {
@@ -963,15 +1032,7 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
             super.onPostExecute(result);
 
             myHistoryAdImages.clear();
-            DataListsView.setVisibility(View.VISIBLE);
-            findViewById(R.id.topText).setVisibility(View.VISIBLE);
-            moreButton.setVisibility(View.VISIBLE);
-            findViewById(R.id.LoadingViews).setVisibility(View.GONE);
-            if(doChildrenExist){
-                findViewById(R.id.noAdsUploadedText).setVisibility(View.INVISIBLE);
-            }else{
-                findViewById(R.id.noAdsUploadedText).setVisibility(View.VISIBLE);
-            }
+            animateFinishedLoading();
         }
 
     }
@@ -990,7 +1051,7 @@ public class AdStats extends AppCompatActivity implements View.OnClickListener{
     private static Bitmap decodeFromFirebaseBase64(String image) {
         byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
         Bitmap bitm = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
-        Bitmap newBm = getResizedBitmap(bitm,500);
+        Bitmap newBm = getResizedBitmap(bitm,1500);
         return newBm;
     }
 

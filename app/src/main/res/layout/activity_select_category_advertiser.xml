@@ -6,7 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/select_Categories"
+    android:background="@drawable/back2"
     tools:context="com.bry.adcafe.ui.SelectCategoryAdvertiser">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:background="@color/white"
+        android:alpha="@dimen/tileAlpha"
+        android:layout_height="70dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,19 +22,25 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:id="@+id/title"
             android:layout_width="match_parent"
             android:text="Before you continue..."
             android:textSize="25sp"
+            android:translationX="50dp"
             android:textColor="@color/colorPrimaryDark"
-            android:gravity="center"
             android:layout_marginTop="10dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
             android:layout_height="wrap_content" />
 
         <TextView
+            android:id="@+id/explanation"
             android:layout_width="match_parent"
+            android:translationX="50dp"
             android:text="Choose the category of product you are advertising."
-            android:gravity="center"
             android:layout_marginBottom="5dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
             android:layout_height="wrap_content" />
 
         <com.mindorks.placeholderview.PlaceHolderView

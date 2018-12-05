@@ -71,6 +71,10 @@ public class SubscriptionManager extends AppCompatActivity implements View.OnCli
     private boolean isSideScrolling2 = false;
     private int maxSideSwipeLength = 200;
 
+    @Bind(R.id.title) TextView title;
+    @Bind(R.id.explanation) TextView explanation;
+    private int mAnimationTime = 300;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,6 +164,52 @@ public class SubscriptionManager extends AppCompatActivity implements View.OnCli
                 }
                 loadingLayout.setVisibility(View.GONE);
                 mainView.setVisibility(View.VISIBLE);
+
+                title.animate().translationX(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                        .setListener(new Animator.AnimatorListener() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                title.setTranslationX(0);
+                            }
+
+                            @Override
+                            public void onAnimationCancel(Animator animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animator animation) {
+
+                            }
+                        }).start();
+
+                explanation.animate().translationX(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                        .setListener(new Animator.AnimatorListener() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                explanation.setTranslationX(0);
+                            }
+
+                            @Override
+                            public void onAnimationCancel(Animator animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animator animation) {
+
+                            }
+                        }).start();
             }
 
             @Override

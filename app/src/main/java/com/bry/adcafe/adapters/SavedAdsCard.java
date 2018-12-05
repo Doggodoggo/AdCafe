@@ -973,6 +973,7 @@ public class SavedAdsCard {
         matrix.setSaturation(val);
         ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
         imageView.setColorFilter(filter);
+//        if(val == 0)imageView.setBackgroundColor(mContext.getResources().getColor(R.color.white));
     }
 
 

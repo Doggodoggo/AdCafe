@@ -184,7 +184,7 @@ public class ChangeCPVFragment extends DialogFragment implements View.OnClickLis
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
                 dismiss();
             } else {
-                Toast.makeText(mContext, newCpv + "Ksh is already your current charge.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "That's already your current charge.", Toast.LENGTH_SHORT).show();
             }
         }
     }

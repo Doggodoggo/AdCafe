@@ -2,6 +2,7 @@ package com.bry.adcafe.ui;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.FragmentManager;
@@ -39,6 +40,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -176,6 +178,16 @@ public class Dashboard extends AppCompatActivity {
     private boolean isSideScrolling = false;
 
     @Bind(R.id.linLyt) LinearLayout linLyt;
+    @Bind(R.id.settingsIcon) ImageButton settingsIcon;
+    @Bind(R.id.settingsContainer) RelativeLayout settingsContainer;
+    private int mAnimationTime = 300;
+    @Bind(R.id.TweaksBlackBack) RelativeLayout TweaksBlackBack;
+    @Bind(R.id.TweaksLayout) RelativeLayout TweaksLayout;
+    private boolean isSettingsCardExpanded = false;
+    private GestureDetector MyTouchBackGestureListener;
+
+
+
 
 
     @Override
@@ -275,27 +287,31 @@ public class Dashboard extends AppCompatActivity {
         mInfoImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Dashboard.this,TutorialUsers.class);
-                startActivity(intent);
-                Variables.isStartFromLogin = false;
-                Variables.isInfo = true;
-                finish();
+                if(!isSettingsCardExpanded) {
+                    Intent intent = new Intent(Dashboard.this, TutorialUsers.class);
+                    startActivity(intent);
+                    Variables.isStartFromLogin = false;
+                    Variables.isInfo = true;
+                    finish();
+                }
             }
         });
 
         mUploadAnAdIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myPrefManager = new SliderPrefManager(getApplicationContext());
-                if (myPrefManager.isFirstTimeLaunchForAdvertisers()){
-                    Intent intent = new Intent(Dashboard.this,TutorialAdvertisers.class);
-                    startActivity(intent);
-                }else{
-                    if(TimeManager.isAlmostMidNight()){
-                        Toast.makeText(mContext,"Please wait for 1 minute.",Toast.LENGTH_SHORT).show();
-                    }else {
-                        Intent intent = new Intent(Dashboard.this, SelectCategoryAdvertiser.class);
+                if(!isSettingsCardExpanded) {
+                    myPrefManager = new SliderPrefManager(getApplicationContext());
+                    if (myPrefManager.isFirstTimeLaunchForAdvertisers()) {
+                        Intent intent = new Intent(Dashboard.this, TutorialAdvertisers.class);
                         startActivity(intent);
+                    } else {
+                        if (TimeManager.isAlmostMidNight()) {
+                            Toast.makeText(mContext, "Please wait for 1 minute.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Intent intent = new Intent(Dashboard.this, SelectCategoryAdvertiser.class);
+                            startActivity(intent);
+                        }
                     }
                 }
             }
@@ -304,11 +320,13 @@ public class Dashboard extends AppCompatActivity {
         findOutCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(TimeManager.isAlmostMidNight()){
-                    Toast.makeText(mContext,"Please wait for 1 minute.",Toast.LENGTH_SHORT).show();
-                }else {
-                    Intent intent = new Intent(Dashboard.this, AdStats.class);
-                    startActivity(intent);
+                if(!isSettingsCardExpanded) {
+                    if (TimeManager.isAlmostMidNight()) {
+                        Toast.makeText(mContext, "Please wait for 1 minute.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Intent intent = new Intent(Dashboard.this, AdStats.class);
+                        startActivity(intent);
+                    }
                 }
             }
         });
@@ -316,12 +334,6 @@ public class Dashboard extends AppCompatActivity {
         findViewById(R.id.uploadedAdsStats).setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if(FirebaseAuth.getInstance().getCurrentUser().getEmail().equals("bryonyoni@gmail.com")){
-                    Intent intent = new Intent(Dashboard.this, AdminConsole.class);
-//                    startActivity(intent);
-                }else{
-//                    Log("Dashboard","NOT administrator.");
-                }
                 return false;
             }
         });
@@ -335,7 +347,9 @@ public class Dashboard extends AppCompatActivity {
 //                reportDialogFragment.setMenuVisibility(false);
 //                reportDialogFragment.show(fm, "Feedback.");
 //                reportDialogFragment.setfragContext(mContext);
-                  showFeedChatView();
+                if(!isSettingsCardExpanded) {
+                    showFeedChatView();
+                }
             }
         });
 
@@ -350,8 +364,10 @@ public class Dashboard extends AppCompatActivity {
         findViewById(R.id.subscriptionsImage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Dashboard.this, SubscriptionManager.class);
-                startActivity(intent);
+                if(!isSettingsCardExpanded) {
+                    Intent intent = new Intent(Dashboard.this, SubscriptionManager.class);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -386,14 +402,17 @@ public class Dashboard extends AppCompatActivity {
         payoutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(Variables.getTotalReimbursementAmount()<1){
-                    promptUserForUnableToPayout();
-                }else{
-                    if(isOnline(mContext)){
-                        if (!TimeManager.isTimerOnline())TimeManager.setUpTimeManager("RESET_TIMER",mContext);
-                        if(!isMakingPayout) promptUserAboutPayout();
+                if(!isSettingsCardExpanded) {
+                    if (Variables.getTotalReimbursementAmount() < 1) {
+                        promptUserForUnableToPayout();
+                    } else {
+                        if (isOnline(mContext)) {
+                            if (!TimeManager.isTimerOnline())
+                                TimeManager.setUpTimeManager("RESET_TIMER", mContext);
+                            if (!isMakingPayout) promptUserAboutPayout();
+                        } else
+                            Toast.makeText(mContext, "You need internet connection first.", Toast.LENGTH_SHORT).show();
                     }
-                    else Toast.makeText(mContext,"You need internet connection first.",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -404,6 +423,14 @@ public class Dashboard extends AppCompatActivity {
 //                promptUserToShareApp();
 //            }
 //        });
+        settingsIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isSettingsCardExpanded) {
+                    expandSettings();
+                }
+            }
+        });
 
     }
 
@@ -471,17 +498,20 @@ public class Dashboard extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        if(!isCardCollapsed){
-            mCollapseFeedChatButton.performClick();
-        }else if(!Variables.isMainActivityOnline){
-            Intent intent = new Intent(Dashboard.this,MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
+        if(isSettingsCardExpanded){
+            collapseSettingsCard();
         }else{
-            super.onBackPressed();
+            if(!isCardCollapsed){
+                mCollapseFeedChatButton.performClick();
+            }else if(!Variables.isMainActivityOnline){
+                Intent intent = new Intent(Dashboard.this,MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }else{
+                super.onBackPressed();
+            }
         }
-
     }
 
     private void promptUserAboutNotifications2(){
@@ -707,7 +737,7 @@ public class Dashboard extends AppCompatActivity {
         if(Variables.doesUserWantNotifications)mDotForNotf.setVisibility(View.VISIBLE);
         else mDotForNotf.setVisibility(View.INVISIBLE);
 
-        Toast.makeText(mContext,"Your preference has been set.",Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext,"Done!",Toast.LENGTH_SHORT).show();
     }
 
     private void setUsersPreferredNotificationTime(){
@@ -734,7 +764,7 @@ public class Dashboard extends AppCompatActivity {
                 .child(uid).child(Constants.PREFERRED_NOTF_MIN);
         adRef12.setValue(Variables.preferredMinuteOfNotf);
 
-        Toast.makeText(mContext,"The time has been set.",Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext,"Done!",Toast.LENGTH_SHORT).show();
     }
 
     public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
@@ -1900,51 +1930,50 @@ public class Dashboard extends AppCompatActivity {
 
     private void addTouchListenerForSwipeBack() {
         mSwipeBackDetector = new GestureDetector(this, new MySwipebackGestureListener());
-        swipeBackView.setOnTouchListener(touchListener);
+        swipeBackView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (mSwipeBackDetector.onTouchEvent(motionEvent)) {
+                    return true;
+                }
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if (isSideScrolling) {
+                        Log.d("touchListener", " onTouch ACTION_UP");
+                        isSideScrolling = false;
+
+                        int RightScore = 0;
+                        int LeftScore = 0;
+                        if (SideSwipeRawList.size() > 15) {
+                            for (int i = SideSwipeRawList.size() - 1; i > SideSwipeRawList.size() - 15; i--) {
+                                int num1 = SideSwipeRawList.get(i);
+                                int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                                if (numBefore1 > num1) LeftScore++;
+                                else RightScore++;
+                            }
+                        } else {
+                            for (int i = SideSwipeRawList.size() - 1; i > 0; i--) {
+                                int num1 = SideSwipeRawList.get(i);
+                                int numBefore1 = SideSwipeRawList.get(i - 1);
+
+                                if (numBefore1 > num1) LeftScore++;
+                                else RightScore++;
+                            }
+                        }
+                        if (RightScore > LeftScore) {
+//                        onBackPressed();
+                        }
+                        hideNupdateSideSwipeThing();
+                        SideSwipeRawList.clear();
+                    }
+                    ;
+                }
+
+                return false;
+            }
+        });
     }
 
-    View.OnTouchListener touchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (mSwipeBackDetector.onTouchEvent(motionEvent)) {
-                return true;
-            }
-            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                if (isSideScrolling) {
-                    Log.d("touchListener", " onTouch ACTION_UP");
-                    isSideScrolling = false;
-
-                    int RightScore = 0;
-                    int LeftScore = 0;
-                    if (SideSwipeRawList.size() > 15) {
-                        for (int i = SideSwipeRawList.size() - 1; i > SideSwipeRawList.size() - 15; i--) {
-                            int num1 = SideSwipeRawList.get(i);
-                            int numBefore1 = SideSwipeRawList.get(i - 1);
-
-                            if (numBefore1 > num1) LeftScore++;
-                            else RightScore++;
-                        }
-                    } else {
-                        for (int i = SideSwipeRawList.size() - 1; i > 0; i--) {
-                            int num1 = SideSwipeRawList.get(i);
-                            int numBefore1 = SideSwipeRawList.get(i - 1);
-
-                            if (numBefore1 > num1) LeftScore++;
-                            else RightScore++;
-                        }
-                    }
-                    if (RightScore > LeftScore) {
-//                        onBackPressed();
-                    }
-                    hideNupdateSideSwipeThing();
-                    SideSwipeRawList.clear();
-                }
-                ;
-            }
-
-            return false;
-        }
-    };
 
     class MySwipebackGestureListener extends GestureDetector.SimpleOnGestureListener {
         int origX = 0;
@@ -2092,5 +2121,378 @@ public class Dashboard extends AppCompatActivity {
                 }).start();
     }
 
+
+
+
+    private void expandSettings(){
+        mScrollView.setScrollingEnabled(false);
+        isSettingsCardExpanded = true;
+        TweaksBlackBack.setVisibility(View.VISIBLE);
+        TweaksLayout.setVisibility(View.VISIBLE);
+
+
+        final float alph = 0.8f;
+        TweaksBlackBack.animate().alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                TweaksBlackBack.setAlpha(alph);
+                TweaksBlackBack.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        }).start();
+
+        final float trans = 0;
+        TweaksLayout.animate().translationY(trans).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        TweaksLayout.setTranslationY(trans);
+                        TweaksLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+
+        final View settingsLine = findViewById(R.id.settingsLine);
+        final float xtrans = 0;
+        settingsLine.animate().translationX(xtrans).setDuration(2000).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        settingsLine.setTranslationX(xtrans);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        MyTouchBackGestureListener = new GestureDetector(mContext,new MyTouchBackGestureListener());
+        setExpandedSettingsClickListeners();
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void setExpandedSettingsClickListeners(){
+        final LinearLayout notificationsLayout = findViewById(R.id.notificationsLayout);
+        final LinearLayout personalInfoLayout = findViewById(R.id.personalInfoLayout);
+        final LinearLayout TargetLayout = findViewById(R.id.TargetLayout);
+        final LinearLayout ChangeCPVLayout = findViewById(R.id.ChangeCPVLayout);
+
+        notificationsLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mNotfBtn.performClick();
+                kindaCollapseSettings();
+            }
+        });
+
+        personalInfoLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadUserDataDialog();
+                kindaCollapseSettings();
+            }
+        });
+
+        TargetLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                targetedBtn.performClick();
+                kindaCollapseSettings();
+            }
+        });
+
+        ChangeCPVLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCPVBtn.performClick();
+                kindaCollapseSettings();
+            }
+        });
+
+        TweaksBlackBack.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.d(TAG,"Raw Y: "+event.getRawY());
+                if (MyTouchBackGestureListener.onTouchEvent(event)) {
+                    return true;
+                }
+                return false;
+            }
+        });
+
+    }
+
+    class MyTouchBackGestureListener extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            Log.d("TAG", "onDown: ");
+            if(event.getRawY()<730){
+                onBackPressed();
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Log.i("TAG", "onSingleTapConfirmed: ");
+
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            Log.i("TAG", "onLongPress: ");
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            Log.i("TAG", "onDoubleTap: ");
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return false;
+
+        }
+    }
+
+    private void kindaCollapseSettings(){
+        final float alph = 0.5f;
+//        TweaksBlackBack.setAlpha(alph);
+        TweaksBlackBack.animate().alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        TweaksBlackBack.setAlpha(alph);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        final float trans = Utils.dpToPx(230);
+        TweaksLayout.animate().translationY(trans).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        TweaksLayout.setTranslationY(trans);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+    private void unKindaCollapseSettings(){
+        final float alph = 0.8f;
+        TweaksBlackBack.animate().alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        TweaksBlackBack.setAlpha(alph);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        final float trans = 0;
+        TweaksLayout.animate().translationY(trans).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        TweaksLayout.setTranslationY(trans);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+    private void collapseSettingsCard(){
+        isSettingsCardExpanded = false;
+        mScrollView.setScrollingEnabled(true);
+
+        final float alph = 0f;
+        TweaksBlackBack.animate().alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        TweaksBlackBack.setAlpha(alph);
+                        TweaksBlackBack.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        final float trans = Utils.dpToPx(250);
+        TweaksLayout.animate().translationY(trans).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        TweaksLayout.setTranslationY(trans);
+                        TweaksLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        final View settingsLine = findViewById(R.id.settingsLine);
+        final float xtrans = -Utils.dpToPx(220);
+        settingsLine.animate().translationX(xtrans).setDuration(2000).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        settingsLine.setTranslationX(xtrans);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if(hasFocus && isSettingsCardExpanded) {
+            unKindaCollapseSettings();
+        }
+    }
 
 }

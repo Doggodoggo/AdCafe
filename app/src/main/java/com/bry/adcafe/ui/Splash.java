@@ -3,6 +3,8 @@ package com.bry.adcafe.ui;
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
+import android.animation.TimeInterpolator;
+import android.animation.ValueAnimator;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.graphics.Color;
@@ -20,12 +22,14 @@ import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.services.SliderPrefManager;
 import com.bry.adcafe.services.TimeManager;
+import com.bry.adcafe.services.Utils;
 import com.crashlytics.android.Crashlytics;
 
 import java.text.DateFormatSymbols;
@@ -53,6 +57,7 @@ public class Splash extends AppCompatActivity {
     private View whiteView;
     private ImageView adImageBoi;
     private boolean isGoingToNextAct = false;
+    private View whiteViewBack;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +75,7 @@ public class Splash extends AppCompatActivity {
         logoPart = findViewById(R.id.logoPart);
         whiteView = findViewById(R.id.whiteView);
         adImageBoi = findViewById(R.id.adImageBoi);
+        whiteViewBack = findViewById(R.id.whiteViewBack);
 
         try{
             int hours = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -101,6 +107,16 @@ public class Splash extends AppCompatActivity {
                 isGoingToNextAct = true;
             }
         });
+
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) whiteView.getLayoutParams();
+        params.width = Utils.getDisplaySize(getWindowManager()).y;
+        params.height = Utils.getDisplaySize(getWindowManager()).y;
+        whiteView.setLayoutParams(params);
+
+//        RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) whiteViewBack.getLayoutParams();
+//        params2.width = Utils.getDisplaySize(getWindowManager()).y;
+//        params2.height = Utils.getDisplaySize(getWindowManager()).y;
+//        whiteView.setLayoutParams(params2);
     }
 
     @Override
@@ -259,7 +275,9 @@ public class Splash extends AppCompatActivity {
         if(!isGoingToNextAct) {
             isGoingToNextAct = true;
             whiteView.setVisibility(View.VISIBLE);
-            whiteView.animate().translationY(0).scaleY(1.5f).scaleX(2.7f).setDuration(500).setInterpolator(new LinearOutSlowInInterpolator())
+//            whiteViewBack.setVisibility(View.VISIBLE);
+
+            whiteView.animate().translationY(0).scaleX(2.7f).scaleY(1.5f).setDuration(500).setInterpolator(new LinearOutSlowInInterpolator())
                     .setListener(new Animator.AnimatorListener() {
                         @Override
                         public void onAnimationStart(Animator animation) {
@@ -280,14 +298,51 @@ public class Splash extends AppCompatActivity {
                         public void onAnimationRepeat(Animator animation) {
 
                         }
-                    });
+                    }).start();
 
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    doTheThingAfterTheThing();
-                }
-            },230);
+//            whiteViewBack.animate().translationY(0).setDuration(500).setInterpolator(new LinearOutSlowInInterpolator()).start();
+
+//            ValueAnimator animator = ValueAnimator.ofFloat(0.05f,1f,1.5f);
+//            animator.setInterpolator(new LinearOutSlowInInterpolator());
+//            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//                @Override
+//                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+//                    whiteView.setScaleY((Float) valueAnimator.getAnimatedValue());
+//                    whiteView.setScaleX((Float) valueAnimator.getAnimatedValue());
+////                    whiteViewBack.setScaleY((Float) valueAnimator.getAnimatedValue());
+////                    whiteViewBack.setScaleX((Float) valueAnimator.getAnimatedValue());
+//                }
+//            });
+//            animator.setDuration(250);
+//            animator.addListener(new Animator.AnimatorListener() {
+//                @Override
+//                public void onAnimationStart(Animator animation) {
+//
+//                }
+//
+//                @Override
+//                public void onAnimationEnd(Animator animation) {
+//                    doTheThingAfterTheThing();
+//                }
+//
+//                @Override
+//                public void onAnimationCancel(Animator animation) {
+//
+//                }
+//
+//                @Override
+//                public void onAnimationRepeat(Animator animation) {
+//
+//                }
+//            });
+//            animator.start();
+
+//            new Handler().postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+////                    doTheThingAfterTheThing();
+//                }
+//            },230);
 
         }
     }
