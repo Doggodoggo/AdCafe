@@ -1,12 +1,10 @@
-package com.bry.adcafe.models;
+package com.bry.adcafe.classes;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 
-import com.bry.adcafe.Variables;
 import com.mindorks.placeholderview.PlaceHolderView;
 
 public class MyPlaceHolderView extends PlaceHolderView {

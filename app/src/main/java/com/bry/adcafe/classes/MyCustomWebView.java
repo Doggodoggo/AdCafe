@@ -1,4 +1,4 @@
-package com.bry.adcafe.models;
+package com.bry.adcafe.classes;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -7,23 +7,23 @@ import android.webkit.WebView;
 
 import com.bry.adcafe.Variables;
 
-public class ObservableWebView extends WebView {
+public class MyCustomWebView extends WebView {
     private OnScrollChangedCallback mOnScrollChangedCallback;
     private OnTouchListener touchListener;
     private boolean startedOverScrollingY;
 
 
 
-    public ObservableWebView(final Context context)
+    public MyCustomWebView(final Context context)
     {
         super(context);
     }
 
-    public ObservableWebView(final Context context, final AttributeSet attrs) {
+    public MyCustomWebView(final Context context, final AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public ObservableWebView(final Context context, final AttributeSet attrs, final int defStyle) {
+    public MyCustomWebView(final Context context, final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
     }
 

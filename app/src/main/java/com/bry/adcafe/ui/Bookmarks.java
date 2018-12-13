@@ -44,13 +44,11 @@ import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -60,7 +58,6 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -75,23 +72,15 @@ import com.bry.adcafe.Variables;
 import com.bry.adcafe.adapters.BlankItem;
 import com.bry.adcafe.adapters.DateItem;
 import com.bry.adcafe.adapters.SAContainer;
-import com.bry.adcafe.adapters.SavedAdsCard;
-import com.bry.adcafe.fragments.ContactAdvertiserBottomsheet;
 import com.bry.adcafe.fragments.ExpandedImageFragment;
-import com.bry.adcafe.fragments.SmartFragmentStatePagerAdapter;
 import com.bry.adcafe.fragments.ViewImageFragment;
-import com.bry.adcafe.models.AdCoin;
 import com.bry.adcafe.models.Advert;
 import com.bry.adcafe.models.AdvertiserLocation;
-import com.bry.adcafe.models.CustomViewPager;
-import com.bry.adcafe.models.MyPlaceHolderView;
-import com.bry.adcafe.models.MyTime;
-import com.bry.adcafe.models.ObservableWebView;
+import com.bry.adcafe.classes.CustomViewPager;
+import com.bry.adcafe.classes.MyPlaceHolderView;
+import com.bry.adcafe.classes.MyCustomWebView;
 import com.bry.adcafe.models.User;
-import com.bry.adcafe.models.WebClickData;
 import com.bry.adcafe.models.myLatLng;
-import com.bry.adcafe.services.DatabaseManager;
-import com.bry.adcafe.services.TimeManager;
 import com.bry.adcafe.services.Utils;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -103,9 +92,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.mindorks.placeholderview.PlaceHolderView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -119,8 +105,6 @@ import java.util.List;
 import java.util.Random;
 
 import com.wang.avi.AVLoadingIndicatorView;
-
-import org.w3c.dom.Text;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -168,7 +152,7 @@ public class Bookmarks extends AppCompatActivity{
 
 
     private boolean isEnabled = true;
-    private ObservableWebView myWebView;
+    private MyCustomWebView myWebView;
     private ImageButton mReloadButton;
     private ImageButton backButton;
     private ProgressBar progressBar;
@@ -937,7 +921,8 @@ public class Bookmarks extends AppCompatActivity{
 
                         for(DataSnapshot adSnap: snap.getChildren()){
                             Advert advert = adSnap.getValue(Advert.class);
-
+                            Log.w(TAG,"pushRefInAdminConsole: "+advert.getPushRefInAdminConsole());
+//                            advert.datePinned = noOfDays;
                             if(adSnap.child("contactdata").exists()){
                                 advert.setAdvertiserPhoneNo(adSnap.child("contactdata").child(Constants.ADVERTISER_PHONE_NO)
                                         .getValue(String.class));
@@ -1906,9 +1891,48 @@ public class Bookmarks extends AppCompatActivity{
             }
         });
 
+        findViewById(R.id.unStarredBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setStarValue();
+            }
+        });
+
+        findViewById(R.id.starBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setStarValue();
+            }
+        });
+
     }
 
 
+    private void setStarValue(){
+//        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//        Advert ad = mAllAdsList.get(currentPagePosition);
+//        final ImageButton starBtn = findViewById(R.id.starBtn);
+//        boolean newVal = !ad.isUserStarred();
+//
+//        if(ad.isUserStarred()){
+//            starBtn.setVisibility(View.INVISIBLE);
+//            Toast.makeText(mContext,"Removing star",Toast.LENGTH_SHORT).show();
+//        }else{
+//            starBtn.setVisibility(View.VISIBLE);
+//            Toast.makeText(mContext,"Starring",Toast.LENGTH_SHORT).show();
+//        }
+//
+//        ad.setUserStarred(newVal);
+//
+//        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS).child(uid).child(Constants.PINNED_AD_LIST)
+//                .child(Long.toString(ad.datePinned))
+//                .child(ad.getPushRefInAdminConsole())
+//                .child("userStarred");
+//        mRef.setValue(newVal);
+//
+//        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("STAR"));
+
+    }
 
     private void saveImageDialog() {
         final Dialog d = new Dialog(Bookmarks.this);
@@ -2878,7 +2902,7 @@ public class Bookmarks extends AppCompatActivity{
             }
         });
 
-        myWebView.setOnScrollChangedCallback(new ObservableWebView.OnScrollChangedCallback(){
+        myWebView.setOnScrollChangedCallback(new MyCustomWebView.OnScrollChangedCallback(){
             public void onScroll(int l, int t, int oldl, int oldt){
                 if(t> oldt){
                     if(scrollConfirmBoolean){

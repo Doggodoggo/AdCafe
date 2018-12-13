@@ -46,7 +46,7 @@
 
     </RelativeLayout>
 
-    <com.bry.adcafe.models.LockableScrollView
+    <com.bry.adcafe.classes.LockableScrollView
         android:id="@+id/ScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -656,7 +656,7 @@
                             android:layout_marginLeft="10dp"
                             android:layout_marginRight="10dp"
                             android:layout_marginTop="5dp"
-                            android:text="Change your settings."
+                            android:text="Make Some Changes."
                             android:textAlignment="center"
                             android:textSize="13sp" />
 
@@ -674,7 +674,7 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentBottom="true"
                             android:layout_marginBottom="5dp"
-                            android:text="TWEAKS."
+                            android:text="SETTINGS."
                             android:textAlignment="center"
                             android:textSize="10sp" />
 
@@ -686,7 +686,7 @@
 
         </RelativeLayout>
 
-    </com.bry.adcafe.models.LockableScrollView>
+    </com.bry.adcafe.classes.LockableScrollView>
 
     <RelativeLayout
         android:visibility="gone"
@@ -936,6 +936,828 @@
         android:layout_height="match_parent"/>
 
     <RelativeLayout
+        android:id="@+id/TweaksContainer"
+        android:layout_width="match_parent"
+        android:layout_marginBottom="10dp"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:alpha="0"
+            android:translationY="-250dp"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="10dp"
+            android:background="@drawable/dialog_bg"
+            android:id="@+id/NotificationsLayout"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="19sp"
+                android:paddingLeft="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="20dp"
+                android:text="Daily Notifications."
+                android:textColor="@color/colorPrimary"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="10dp"
+                android:id="@+id/explanation"
+                android:layout_marginLeft="20dp"
+                android:text="Do you wish blah blah blah..."
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="20dp"
+                android:text="@string/notificationNote"
+                android:layout_marginBottom="10dp"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_marginLeft="20dp"
+                android:text="Set time : 9:45 "
+                android:id="@+id/setTimeText"
+                android:layout_height="wrap_content" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:paddingRight="20dp"
+                android:paddingLeft="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_height="50dp">
+
+                <ImageButton
+                    android:layout_width="30dp"
+                    android:layout_alignParentLeft="true"
+                    android:background="@drawable/ic_action_clock"
+                    android:id="@+id/pickTimeIcon"
+                    android:layout_marginTop="10dp"
+                    android:layout_height="30dp" />
+
+                <Button
+                    android:id="@+id/cancelBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentLeft="true"
+                    android:background="@null"
+                    android:text="No"
+                    android:visibility="invisible"
+                    android:layout_marginLeft="30dp"
+                    android:textColor="@color/colorPrimary" />
+
+                <Button
+                    android:id="@+id/continueBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:background="@null"
+                    android:text="Yes."
+                    android:textColor="@color/colorPrimary"
+                    android:layout_alignParentEnd="true" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/personalisedContentLayout"
+            android:translationY="-250dp"
+            android:visibility="gone"
+            android:alpha="0"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:visibility="visible"
+                android:id="@+id/mainLayoutPC"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="10dp"
+                android:background="@drawable/dialog_bg"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:textSize="19sp"
+                    android:paddingLeft="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:textColor="@color/colorPrimary"
+                    android:layout_marginTop="20dp"
+                    android:text="Personalised Content."
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="20dp"
+                    android:id="@+id/explanationPart"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="1dp"
+                    android:text="@string/personalInfoIntro"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_marginRight="20dp"
+                    android:visibility="gone"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/personalInfoIntroNote"
+                    android:layout_height="wrap_content" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingRight="20dp"
+                    android:paddingLeft="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_height="40dp">
+
+                    <Button
+                        android:id="@+id/okBtnPers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true"
+                        android:background="@null"
+                        android:text="Continue."
+                        android:textColor="@color/colorPrimary" />
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:visibility="visible"
+                android:layout_alignParentBottom="true"
+                android:translationX="400dp"
+                android:layout_margin="10dp"
+                android:id="@+id/mainLayout2"
+                android:background="@drawable/dialog_bg"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:textSize="19sp"
+                    android:paddingLeft="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:textColor="@color/colorPrimary"
+                    android:layout_marginTop="20dp"
+                    android:text="Why?"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="20dp"
+                    android:id="@+id/explanation2"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="1dp"
+                    android:text="@string/personalInfoExplanation"
+                    android:layout_height="wrap_content" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingRight="20dp"
+                    android:paddingLeft="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_height="40dp">
+
+                    <Button
+                        android:id="@+id/okBtn1point5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true"
+                        android:background="@null"
+                        android:text="Continue."
+                        android:textColor="@color/colorPrimary" />
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:translationX="400dp"
+                android:id="@+id/genderLayout"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="10dp"
+                android:background="@drawable/dialog_bg"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:textSize="19sp"
+                    android:paddingLeft="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:textColor="@color/colorPrimary"
+                    android:layout_marginTop="20dp"
+                    android:text="Your Sex/Gender."
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/genderInfo"
+                    android:layout_height="wrap_content" />
+
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:id="@+id/selectPaymentRadioGroup"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp"
+                    android:layout_height="wrap_content">
+
+                    <RadioButton
+                        android:id="@+id/radioButtonFemale"
+                        android:checked="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:text="Female."/>
+
+                    <RadioButton
+                        android:id="@+id/radioButtonMale"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:text="Male."/>
+
+                </RadioGroup>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingRight="20dp"
+                    android:paddingLeft="2dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_height="40dp">
+
+                    <Button
+                        android:id="@+id/skip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:visibility="invisible"
+                        android:layout_alignParentLeft="true"
+                        android:background="@null"
+                        android:text="Skip."
+                        android:textColor="@color/colorPrimary" />
+
+                    <Button
+                        android:id="@+id/okBtn2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true"
+                        android:background="@null"
+                        android:text="Continue."
+                        android:textColor="@color/colorPrimary" />
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:translationX="400dp"
+                android:layout_margin="10dp"
+                android:id="@+id/ageLayout"
+                android:background="@drawable/dialog_bg"
+                android:layout_alignParentBottom="true"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:layout_width="40dp"
+                        android:id="@+id/backBtn1"
+                        android:background="@drawable/ic_action_back"
+                        android:layout_height="40dp" />
+
+                    <TextView
+                        android:layout_width="370dp"
+                        android:textSize="19sp"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/colorPrimary"
+                        android:text="Your Birthday."
+                        android:layout_height="match_parent" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:text="@string/ageInfo"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="Your set age"
+                    android:id="@+id/setAgeText"
+                    android:visibility="invisible"
+                    android:layout_height="wrap_content" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:layout_width="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:id="@+id/calendar"
+                        android:background="@drawable/ic_action_calendar"
+                        android:layout_height="50dp" />
+
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingRight="20dp"
+                    android:paddingLeft="2dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_height="40dp">
+
+                    <Button
+                        android:id="@+id/skip2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:visibility="invisible"
+                        android:layout_alignParentLeft="true"
+                        android:background="@null"
+                        android:text="Skip."
+                        android:textColor="@color/colorPrimary" />
+
+                    <Button
+                        android:id="@+id/okBtn3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true"
+                        android:background="@null"
+                        android:text="Continue."
+                        android:textColor="@color/colorPrimary" />
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:translationX="400dp"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="10dp"
+                android:id="@+id/locationLayout"
+                android:background="@drawable/dialog_bg"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:layout_width="40dp"
+                        android:id="@+id/backBtn2"
+                        android:background="@drawable/ic_action_back"
+                        android:layout_height="40dp" />
+
+                    <TextView
+                        android:layout_width="260dp"
+                        android:textSize="19sp"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/colorPrimary"
+                        android:text="Your Residence."
+                        android:layout_height="match_parent" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/locationInfo"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:id="@+id/locationNumberText"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="Locations set: 2 Locations."
+                    android:layout_height="wrap_content" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:layout_width="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:id="@+id/openMapImg"
+                        android:background="@drawable/ic_action_map"
+                        android:layout_height="50dp" />
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:text="Open."
+                        android:visibility="invisible"
+                        android:id="@+id/openMap"
+                        android:layout_marginTop="1dp"
+                        android:layout_marginRight="10dp"
+                        android:scaleY="0.6"
+                        android:scaleX="0.6"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:background="@color/colorPrimaryDark"
+                        android:textColor="@color/white"
+                        android:layout_height="wrap_content" />
+
+
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingRight="20dp"
+                    android:paddingLeft="2dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_height="40dp">
+
+                    <Button
+                        android:id="@+id/skip3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentLeft="true"
+                        android:background="@null"
+                        android:visibility="invisible"
+                        android:text="Skip."
+                        android:textColor="@color/colorPrimary" />
+
+                    <Button
+                        android:id="@+id/okBtn4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true"
+                        android:background="@null"
+                        android:text="Finish."
+                        android:textColor="@color/colorPrimary" />
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:translationX="400dp"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="10dp"
+                android:id="@+id/concludeLayout"
+                android:background="@drawable/dialog_bg"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:textSize="19sp"
+                    android:paddingLeft="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:textColor="@color/colorPrimary"
+                    android:layout_marginTop="20dp"
+                    android:text="Your Information."
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/conclude"
+                    android:layout_height="wrap_content" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingRight="20dp"
+                    android:paddingLeft="2dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_height="40dp">
+
+                    <Button
+                        android:id="@+id/okBtn5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true"
+                        android:background="@null"
+                        android:text="Cool."
+                        android:textColor="@color/colorPrimary" />
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:translationY="-250dp"
+            android:visibility="gone"
+            android:alpha="0"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="10dp"
+            android:id="@+id/targetingLayout"
+            android:background="@drawable/dialog_bg"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="19sp"
+                android:paddingLeft="20dp"
+                android:layout_marginBottom="10dp"
+                android:textColor="@color/colorPrimary"
+                android:layout_marginTop="20dp"
+                android:text="Targeting Permission."
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:id="@+id/targetingPermissionText"
+                android:layout_marginLeft="20dp"
+                android:layout_marginBottom="10dp"
+                android:text="@string/targetingPermission"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_marginLeft="20dp"
+                android:id="@+id/targetNoteLess"
+                android:visibility="visible"
+                android:layout_marginRight="20dp"
+                android:text="This will result in less content."
+                android:layout_height="wrap_content" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:paddingRight="20dp"
+                android:paddingLeft="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_height="40dp">
+
+                <Button
+                    android:id="@+id/stopBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:background="@null"
+                    android:text="Stop."
+                    android:textColor="@color/colorPrimary" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/changeCPVLayout"
+            android:layout_width="match_parent"
+            android:translationY="-250dp"
+            android:visibility="gone"
+            android:alpha="0"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:visibility="visible"
+                android:layout_margin="10dp"
+                android:id="@+id/changingCPVMainLayout"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/dialog_bg"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:textSize="19sp"
+                    android:paddingLeft="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:textColor="@color/colorPrimary"
+                    android:layout_marginTop="20dp"
+                    android:text="Changing your charge per view."
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:text="@string/changecpvexplanation"
+                    android:layout_height="wrap_content" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingRight="20dp"
+                    android:paddingLeft="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_height="50dp">
+
+                    <Button
+                        android:id="@+id/cancelBtnCpV"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentLeft="true"
+                        android:background="@null"
+                        android:text="Cancel"
+                        android:visibility="invisible"
+                        android:textColor="@color/colorPrimary" />
+
+                    <Button
+                        android:id="@+id/continueBtnCPV"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true"
+                        android:background="@null"
+                        android:text="Continue"
+                        android:textColor="@color/colorPrimary" />
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:id="@+id/chooseAmountLayout"
+                android:translationX="350dp"
+                android:visibility="gone"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="10dp"
+                android:background="@drawable/dialog_bg"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:textSize="19sp"
+                    android:layout_marginTop="20dp"
+                    android:text="Your New Charge Per View."
+                    android:textColor="@color/colorPrimary"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/topTextCPV"
+                    android:textSize="14sp"
+                    android:layout_marginLeft="20dp"
+                    android:text="Choose the amount you wish to charge for each banner you see." />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:id="@+id/cuurentCPV"
+                    android:paddingLeft="20dp"
+                    android:text="Current charge : 3Ksh"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:id="@+id/newCPV"
+                    android:visibility="gone"
+                    android:paddingLeft="20dp"
+                    android:text=""
+                    android:layout_height="wrap_content" />
+
+                <RadioGroup
+                        android:layout_width="match_parent"
+                        android:padding="20dp"
+                        android:id="@+id/cpvRadioGroup2"
+                        android:orientation="vertical"
+                        android:layout_height="wrap_content">
+
+                        <RadioButton
+                            android:id="@+id/radioButton1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="10dp"
+                            android:text="1 Ksh per view." />
+
+                        <RadioButton
+                            android:id="@+id/radioButton3"
+                            android:checked="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="20dp"
+                            android:text="3 Ksh per view. (Recommended)" />
+
+                        <RadioButton
+                            android:id="@+id/radioButton6"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="20dp"
+                            android:text="6 Ksh per view." />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:textSize="13sp"
+                            android:text="@string/noteAboutChoosingAmmount2"
+                            android:layout_height="wrap_content" />
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:paddingLeft="10dp"
+                            android:layout_marginTop="20dp"
+                            android:layout_height="wrap_content">
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:text="Cancel"
+                                android:visibility="invisible"
+                                android:background="@null"
+                                android:layout_alignParentLeft="true"
+                                android:textColor="@color/colorPrimary"
+                                android:id="@+id/cancelButton"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentStart="true" />
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:text="change."
+                                android:textColor="@color/colorPrimary"
+                                android:background="@null"
+                                android:layout_alignParentRight="true"
+                                android:id="@+id/submitButton"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true" />
+                        </RelativeLayout>
+
+            </RadioGroup>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/TweaksLayout"
         android:translationY="250dp"
         android:visibility="gone"
@@ -966,7 +1788,7 @@
 
                 <TextView
                     android:layout_width="match_parent"
-                    android:text="TWEAKS."
+                    android:text="SETTINGS."
                     android:textColor="@color/colorPrimaryDark"
                     android:textSize="17sp"
                     android:gravity="center_vertical"
@@ -1089,7 +1911,14 @@
 
     </RelativeLayout>
 
-
-
+    <View
+        android:id="@+id/swipeDownView"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="70dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_height="220dp"/>
 
 </android.support.design.widget.CoordinatorLayout>

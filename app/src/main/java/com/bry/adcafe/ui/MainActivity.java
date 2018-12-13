@@ -27,7 +27,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
@@ -68,7 +67,7 @@ import com.bry.adcafe.models.AdCoin;
 import com.bry.adcafe.models.AdPinData;
 import com.bry.adcafe.models.ExpressionData;
 import com.bry.adcafe.models.MyTime;
-import com.bry.adcafe.models.ObservableWebView;
+import com.bry.adcafe.classes.MyCustomWebView;
 import com.bry.adcafe.models.WebClickData;
 import com.bry.adcafe.services.AlarmReceiver1;
 import com.bry.adcafe.Constants;
@@ -76,7 +75,6 @@ import com.bry.adcafe.R;
 import com.bry.adcafe.Variables;
 import com.bry.adcafe.adapters.AdvertCard;
 import com.bry.adcafe.adapters.AdCounterBar;
-import com.bry.adcafe.fragments.ContactAdvertiserBottomsheet;
 import com.bry.adcafe.fragments.FeedbackFragment;
 import com.bry.adcafe.fragments.ReportDialogFragment;
 import com.bry.adcafe.models.Advert;
@@ -123,7 +121,6 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.fabric.sdk.android.Fabric;
-import okhttp3.internal.Util;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,NetworkStateReceiver.NetworkStateReceiverListener {
     private static final String TAG = "MainActivity";
@@ -191,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DataSnapshot mTargetUsersDataList;
 
     private boolean isEnabled = true;
-    private ObservableWebView myWebView;
+    private MyCustomWebView myWebView;
     private ImageButton mReloadButton;
     private ImageButton backButton;
     private ProgressBar progressBar;
@@ -4743,7 +4740,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        myWebView.setOnScrollChangedCallback(new ObservableWebView.OnScrollChangedCallback(){
+        myWebView.setOnScrollChangedCallback(new MyCustomWebView.OnScrollChangedCallback(){
             public void onScroll(int l, int t, int oldl, int oldt){
                 if(Math.abs(t-oldt)>Math.abs(l-oldl)) {
                     if (t > oldt) {
@@ -6577,5 +6574,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+
+
 
 }

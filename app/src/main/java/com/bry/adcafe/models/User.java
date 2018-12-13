@@ -28,13 +28,13 @@ public class User {
 //    }
 
     public static void setID(int number,String Key){
-        if(Key == mKey){
+        if(Key.equals(mKey)){
             mClusterID = number;
         }
     }
 
     public static int getClusterID(String Key){
-         if(Key == mKey){
+         if(Key.equals(mKey)){
              return mClusterID;
          }else{
              return 0;
@@ -49,7 +49,7 @@ public class User {
          return mUid;
      }
 
-    public void setSubscriptionList(HashMap subscriptionList){
+    public void setSubscriptionList(HashMap<String,Integer> subscriptionList){
         this.mAdCategorySubscriptionsAndCorrespondingCluster = subscriptionList;
     }
 

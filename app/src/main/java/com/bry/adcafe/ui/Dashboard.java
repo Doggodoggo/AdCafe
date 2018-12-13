@@ -1,9 +1,11 @@
 package com.bry.adcafe.ui;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.FragmentManager;
 import android.app.NotificationManager;
@@ -43,12 +45,13 @@ import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -63,7 +66,7 @@ import com.bry.adcafe.fragments.FragmentUserPayoutBottomSheet;
 import com.bry.adcafe.fragments.SetUsersPersonalInfo;
 import com.bry.adcafe.fragments.myMapFragment;
 import com.bry.adcafe.models.AdCoin;
-import com.bry.adcafe.models.LockableScrollView;
+import com.bry.adcafe.classes.LockableScrollView;
 import com.bry.adcafe.models.Message;
 import com.bry.adcafe.models.PayoutResponse;
 import com.bry.adcafe.models.User;
@@ -89,8 +92,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.sql.Time;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
@@ -498,47 +501,159 @@ public class Dashboard extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        if(isSettingsCardExpanded){
-            collapseSettingsCard();
-        }else{
-            if(!isCardCollapsed){
-                mCollapseFeedChatButton.performClick();
-            }else if(!Variables.isMainActivityOnline){
-                Intent intent = new Intent(Dashboard.this,MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
-            }else{
-                super.onBackPressed();
+        if(isShowingPromptAboutChangingPrice){
+            unShowPromptUserAboutChangingPrice();
+        }else {
+            if (isPromptingUserToStopTargeting) {
+                hidePromptForStopTargeting();
+            } else {
+                if (isLoadedUserDataDialog) {
+                    hideUserDataDialog();
+                } else {
+                    if (isNotificationsOpen) {
+                        hidePromptAboutNotif(brr);
+                    } else {
+                        if (isSettingsCardExpanded) {
+                            collapseSettingsCard();
+                        } else {
+                            if (!isCardCollapsed) {
+                                mCollapseFeedChatButton.performClick();
+                            } else if (!Variables.isMainActivityOnline) {
+                                Intent intent = new Intent(Dashboard.this, MainActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                super.onBackPressed();
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 
-    private void promptUserAboutNotifications2(){
+    private boolean isNotificationsOpen = false;
+    private BroadcastReceiver brr;
+    private void promptUserAboutNotifications(){
+        isNotificationsOpen = true;
+        addTouchListenerForSwipeUpToGoBack();
+        final LinearLayout mainLayout = findViewById(R.id.NotificationsLayout);
+        mainLayout.setVisibility(View.VISIBLE);
+        mainLayout.animate().translationY(0).alpha(1f).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mainLayout.setTranslationY(0);
+//                        mainLayout.setScaleY(1f);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
         String message;
         if(Variables.doesUserWantNotifications)
-            message = "Do you wish to put off daily morning alerts about new ads?";
-        else message = "Do you wish to put back on daily morning notifications?";
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Morning Notifications");
-        builder.setMessage(message)
-                .setCancelable(true)
-                .setPositiveButton("Yes.", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        boolean newValue = !Variables.doesUserWantNotifications;
-                        setUsersPreferedNotfStatus(newValue);
-                    }
-                })
-                .setNegativeButton("No.", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                }).show();
+            message = "Do you wish to put off daily alerts about new ads?";
+        else message = "Do you wish to put back on daily notifications?";
+        Button b1 = findViewById(R.id.continueBtn);
+        Button b2 = findViewById(R.id.cancelBtn);
+        if(Variables.doesUserWantNotifications)b1.setText("PUT OFF.");
+        else b1.setText("PUT ON.");
+        TextView t = findViewById(R.id.explanation);
+        ImageButton imgBtn = findViewById(R.id.pickTimeIcon);
+        final TextView timeTxt = findViewById(R.id.setTimeText);
+        t.setText(message);
+
+        String hour = Integer.toString(Variables.preferredHourOfNotf);
+        String minute = Integer.toString(Variables.preferredMinuteOfNotf);
+        if(Variables.preferredHourOfNotf<10) hour = "0"+hour;
+        if(Variables.preferredMinuteOfNotf<10) minute = "0"+minute;
+        timeTxt.setText(String.format("Set time : %s:%s", hour, minute));
+
+        final BroadcastReceiver br = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String hour = Integer.toString(Variables.preferredHourOfNotf);
+                String minute = Integer.toString(Variables.preferredMinuteOfNotf);
+                if(Variables.preferredHourOfNotf<10) hour = "0"+hour;
+                if(Variables.preferredMinuteOfNotf<10) minute = "0"+minute;
+                timeTxt.setText(String.format("Set time : %s:%s", hour, minute));
+                setUsersPreferredNotificationTime();
+            }
+        };
+        brr = br;
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean newValue = !Variables.doesUserWantNotifications;
+                setUsersPreferedNotfStatus(newValue);
+                hidePromptAboutNotif(br);
+            }
+        });
+        b2.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                hidePromptAboutNotif(br);
+            }
+        });
+        imgBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment newFragment = new TimePickerFragment();
+                newFragment.show(getSupportFragmentManager(), "timePicker");
+            }
+        });
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(br,new IntentFilter("UPDATE_CHOSEN_TIME"));
+
     }
 
-    private void promptUserAboutNotifications(){
+    private void hidePromptAboutNotif(BroadcastReceiver br){
+        isNotificationsOpen = false;
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(br);
+        unKindaCollapseSettings();
+        removeTouchListenerForSwipeUpToGoBack();
+        final LinearLayout mainLayout = findViewById(R.id.NotificationsLayout);
+        mainLayout.animate().translationY(-Utils.dpToPx(250)).alpha(0f).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mainLayout.setTranslationY(-Utils.dpToPx(250));
+//                        mainLayout.setScaleY(0.8f);
+                        mainLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+    private void promptUserAboutNotifications2(){
         String message;
         if(Variables.doesUserWantNotifications)
             message = "Do you wish to put off daily alerts about new ads?";
@@ -607,7 +722,7 @@ public class Dashboard extends AppCompatActivity {
         d.show();
     }
 
-    private void promptUserAboutChangingPrice(){
+    private void promptUserAboutChangingPrice2(){
         FragmentManager fm = getFragmentManager();
         ChangeCPVFragment cpvFragment = new ChangeCPVFragment();
         cpvFragment.setMenuVisibility(false);
@@ -615,6 +730,238 @@ public class Dashboard extends AppCompatActivity {
         cpvFragment.setContext(mContext);
     }
 
+    private Button cancelBtnCpV;private Button continueBtnCPV;private Button cancelBtn2;private Button changeBtn;
+    private LinearLayout changingCPVMainLayout;private LinearLayout chooseAmountLayout;
+
+    private boolean isShowingPromptAboutChangingPrice = false;
+    private void promptUserAboutChangingPrice(){
+        isShowingPromptAboutChangingPrice = true;
+        addTouchListenerForSwipeUpToGoBack();
+        final RelativeLayout changeCPVLayout = findViewById(R.id.changeCPVLayout);
+        changeCPVLayout.setVisibility(View.VISIBLE);
+        changeCPVLayout.animate().alpha(1f).translationY(0).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                changeCPVLayout.setAlpha(1f);
+                changeCPVLayout.setTranslationY(0);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        }).start();
+
+        cancelBtnCpV = findViewById(R.id.cancelBtnCpV);
+        continueBtnCPV = findViewById(R.id.continueBtnCPV);
+        cancelBtn2 = findViewById(R.id.cancelButton);
+        changeBtn = findViewById(R.id. submitButton);
+        changingCPVMainLayout = findViewById(R.id.changingCPVMainLayout);
+        chooseAmountLayout = findViewById(R.id.chooseAmountLayout);
+        TextView currentCpv = findViewById(R.id.cuurentCPV);
+        currentCpv.setText(String.format("Current charge : %dKsh.", Variables.constantAmountPerView));
+
+        changingCPVMainLayout.setVisibility(View.VISIBLE);
+        changingCPVMainLayout.setAlpha(1f);
+        boolean hasChangedPrev =  mContext.getSharedPreferences(Constants.IS_CHANGING_CPV, MODE_PRIVATE)
+                .getBoolean(Constants.IS_CHANGING_CPV, false);
+        if(hasChangedPrev){
+            int hasChangedPrevValue = mContext.getSharedPreferences(Constants.NEW_CPV, MODE_PRIVATE)
+                    .getInt(Constants.NEW_CPV, Variables.constantAmountPerView);
+            TextView newCPV = findViewById(R.id.newCPV);
+            newCPV.setVisibility(View.VISIBLE);
+            newCPV.setText(String.format("New set charge : %dKsh.", hasChangedPrevValue));
+        }
+        cancelBtnCpV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unShowPromptUserAboutChangingPrice();
+            }
+        });
+        cancelBtn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unShowPromptUserAboutChangingPrice();
+            }
+        });
+        continueBtnCPV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changingCPVMainLayout.setVisibility(View.VISIBLE);
+                changingCPVMainLayout.setTranslationX(0);
+                changingCPVMainLayout.animate().setDuration(mAnimationTime).translationX(-200).alpha(0f)
+                        .setInterpolator(new LinearOutSlowInInterpolator())
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                                changingCPVMainLayout.setVisibility(View.GONE);
+                                changingCPVMainLayout.setTranslationX(1);
+                            }
+                        });
+                chooseAmountLayout.setVisibility(View.VISIBLE);
+                chooseAmountLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                        .setInterpolator(new LinearOutSlowInInterpolator())
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                            }
+                        });
+            }
+        });
+        changeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int cpv;
+                RadioButton button3 = findViewById(R.id.radioButton1);
+                RadioButton button5 = findViewById(R.id.radioButton3);
+                RadioButton button8 = findViewById(R.id.radioButton6);
+                if(button3.isChecked()) cpv = 1;
+                else if(button5.isChecked()) cpv = 3;
+                else cpv = 6;
+                if(isNetworkConnected(mContext)) makeChanges(cpv);
+                else Toast.makeText(mContext,"You need an internet connection to make that change.",Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void onclicks(){
+        cancelBtnCpV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unShowPromptUserAboutChangingPrice();
+            }
+        });
+        cancelBtn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unShowPromptUserAboutChangingPrice();
+            }
+        });
+        continueBtnCPV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changingCPVMainLayout.setVisibility(View.VISIBLE);
+                changingCPVMainLayout.setTranslationX(0);
+                changingCPVMainLayout.animate().setDuration(mAnimationTime).translationX(-200).alpha(0f)
+                        .setInterpolator(new LinearOutSlowInInterpolator())
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                                changingCPVMainLayout.setVisibility(View.GONE);
+                                changingCPVMainLayout.setTranslationX(1);
+                            }
+                        });
+                chooseAmountLayout.setVisibility(View.VISIBLE);
+                chooseAmountLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                        .setInterpolator(new LinearOutSlowInInterpolator())
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                            }
+                        });
+            }
+        });
+        changeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int cpv;
+                RadioButton button3 = findViewById(R.id.radioButton1);
+                RadioButton button5 = findViewById(R.id.radioButton3);
+                RadioButton button8 = findViewById(R.id.radioButton6);
+                if(button3.isChecked()) cpv = 1;
+                else if(button5.isChecked()) cpv = 3;
+                else cpv = 6;
+                if(isNetworkConnected(mContext)) makeChanges(cpv);
+                else Toast.makeText(mContext,"You need an internet connection to make that change.",Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void makeChanges(int newCpv) {
+        SharedPreferences prefs2 = mContext.getSharedPreferences(Constants.IS_CHANGING_CPV, MODE_PRIVATE);
+        boolean hasChangedPrev = prefs2.getBoolean(Constants.IS_CHANGING_CPV, false);
+
+        SharedPreferences prefs = mContext.getSharedPreferences(Constants.NEW_CPV, MODE_PRIVATE);
+        int hasChangedPrevValue = prefs.getInt(Constants.NEW_CPV, Variables.constantAmountPerView);
+
+        if(hasChangedPrev){
+            new DatabaseManager().setBooleanForResetSubscriptions(newCpv, mContext);
+            Intent intent = new Intent("SHOW_PROMPT");
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+            unShowPromptUserAboutChangingPrice();
+        }else{
+            if (newCpv != Variables.constantAmountPerView) {
+                new DatabaseManager().setBooleanForResetSubscriptions(newCpv, mContext);
+                Intent intent = new Intent("SHOW_PROMPT");
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+                unShowPromptUserAboutChangingPrice();
+            } else {
+                if(isShowingPromptAboutChangingPrice)Toast.makeText(mContext, "That's already your current charge.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private boolean isNetworkConnected(Context context){
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return (netInfo != null && netInfo.isConnected());
+    }
+
+    private void unShowPromptUserAboutChangingPrice(){
+        isShowingPromptAboutChangingPrice = false;
+        final RelativeLayout changeCPVLayout = findViewById(R.id.changeCPVLayout);
+        changeCPVLayout.setVisibility(View.VISIBLE);
+        final int trans = -Utils.dpToPx(250);
+        changeCPVLayout.animate().alpha(0f).translationY(trans).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        changeCPVLayout.setAlpha(0f);
+                        changeCPVLayout.setTranslationY(trans);
+                        resetCPVViews();
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+        unKindaCollapseSettings();
+        removeTouchListenerForSwipeUpToGoBack();
+    }
+
+    private void resetCPVViews() {
+        changingCPVMainLayout.setVisibility(View.VISIBLE);
+        changingCPVMainLayout.setTranslationX(0);
+
+        chooseAmountLayout.setVisibility(View.GONE);
+        chooseAmountLayout.setTranslationX(Utils.dpToPx(350));
+    }
 
 
     private void promptUserIfSureToLogout2(){
@@ -1191,7 +1538,7 @@ public class Dashboard extends AppCompatActivity {
         });
     }
 
-    private void loadUserDataDialog(){
+    private void loadUserDataDialog2(){
         FragmentManager fm = getFragmentManager();
         SetUsersPersonalInfo cpvFragment = new SetUsersPersonalInfo();
         cpvFragment.setMenuVisibility(false);
@@ -1199,6 +1546,684 @@ public class Dashboard extends AppCompatActivity {
         cpvFragment.setfragcontext(mContext);
         cpvFragment.setActivity(thisActivity);
     }
+
+    private boolean isLoadedUserDataDialog = false;
+    private LinearLayout mainLayout;private Button okBtn;private LinearLayout mainLaout2;private Button okBtn1point5;
+    private LinearLayout genderLayout;private RadioButton radioButtonFemale;private RadioButton radioButtonMale;private Button skip;
+    private Button okBtn2;
+    private LinearLayout ageLayout;private ImageButton backBtn1;private ImageButton openCalendar;private TextView setAgeTextView;
+    private Button skip2;private Button okBtn3;
+    private LinearLayout locationLayout;private ImageButton backBtn2;private TextView locationNumberText;private ImageButton openMapImg;
+    private Button openMap;private Button skip3;private Button okBtn4;
+    private LinearLayout concludeLayout;private Button okBtn5;private float NEG = -50;
+    private int durat = Constants.ANIMATION_DURATION;
+
+
+    private void loadUserDataDialog(){
+        isLoadedUserDataDialog = true;
+        addTouchListenerForSwipeUpToGoBack();
+        mainLayout = findViewById(R.id.mainLayoutPC);
+        okBtn = findViewById(R.id.okBtnPers);
+
+        mainLaout2 = findViewById(R.id.mainLayout2);
+        okBtn1point5 = findViewById(R.id.okBtn1point5);
+
+        genderLayout = findViewById(R.id.genderLayout);
+        radioButtonFemale = findViewById(R.id.radioButtonFemale);
+        radioButtonMale = findViewById(R.id.radioButtonMale);
+        skip = findViewById(R.id.skip);
+        okBtn2 = findViewById(R.id.okBtn2);
+
+        ageLayout = findViewById(R.id.ageLayout);
+        backBtn1 = findViewById(R.id.backBtn1);
+        openCalendar = findViewById(R.id.calendar);
+        setAgeTextView = findViewById(R.id.setAgeText);
+        skip2 = findViewById(R.id.skip2);
+        okBtn3 = findViewById(R.id.okBtn3);
+
+        locationLayout = findViewById(R.id.locationLayout);
+        locationNumberText = findViewById(R.id.locationNumberText);
+        backBtn2 = findViewById(R.id.backBtn2);
+        openMapImg = findViewById(R.id.openMapImg);
+        openMap = findViewById(R.id.openMap);
+        skip3 = findViewById(R.id.skip3);
+        okBtn4 = findViewById(R.id.okBtn4);
+
+        concludeLayout= findViewById(R.id.concludeLayout);
+        okBtn5= findViewById(R.id.okBtn5);
+
+        concludeLayout.setVisibility(View.GONE);
+        locationLayout.setVisibility(View.GONE);
+        ageLayout.setVisibility(View.GONE);
+        genderLayout.setVisibility(View.GONE);
+        mainLaout2.setVisibility(View.GONE);
+        mainLayout.setVisibility(View.VISIBLE);
+
+        final RelativeLayout personalisedContentLayout = findViewById(R.id.personalisedContentLayout);
+        personalisedContentLayout.setVisibility(View.VISIBLE);
+        mainLayout.setAlpha(1f);
+        personalisedContentLayout.animate().alpha(1f).translationY(0).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(mAnimationTime)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        personalisedContentLayout.setTranslationY(0);
+                        personalisedContentLayout.setAlpha(1f);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        loadFirstView();
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSetLocations,
+                new IntentFilter("SET_USER_PERSONAL_LOCATIONS"));
+    }
+
+    private void loadFirstView() {
+        mainLayout.setVisibility(View.VISIBLE);
+        mainLayout.setAlpha(1f);
+        mainLayout.setTranslationX(0);
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mainLayout.animate().setDuration(durat).translationX(-200).alpha(0f)
+                        .setInterpolator(new LinearOutSlowInInterpolator());
+                loadFirstView2();
+            }
+        });
+    }
+
+    private void loadFirstView2(){
+        mainLaout2.setVisibility(View.VISIBLE);
+        mainLaout2.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new LinearOutSlowInInterpolator());
+        okBtn1point5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mainLaout2.animate().setDuration(durat).translationX(-200).alpha(0f)
+                        .setInterpolator(new LinearOutSlowInInterpolator());
+                loadSetGenderView();
+            }
+        });
+    }
+
+    private void loadSetGenderView() {
+        genderLayout.setVisibility(View.VISIBLE);
+        genderLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new LinearOutSlowInInterpolator());
+        SharedPreferences prefs2 = mContext.getSharedPreferences(Constants.GENDER, MODE_PRIVATE);
+        String gender = prefs2.getString(Constants.GENDER, "NULL");
+        if(!gender.equals("NULL")&&gender.equals(Constants.MALE)) radioButtonMale.setChecked(true);
+        skip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                genderLayout.setVisibility(View.GONE);
+                genderLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
+                        .setInterpolator(new LinearOutSlowInInterpolator());
+                loadSetBirthdayView();
+            }
+        });
+        okBtn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(radioButtonFemale.isChecked()){
+                    setGender(Constants.FEMALE);
+                }else{
+                    setGender(Constants.MALE);
+                }
+//                genderLayout.setVisibility(View.GONE);
+                genderLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
+                        .setInterpolator(new LinearOutSlowInInterpolator());
+                loadSetBirthdayView();
+            }
+        });
+    }
+
+    private void setGender(String gender){
+        SharedPreferences pref = mContext.getSharedPreferences(Constants.GENDER, MODE_PRIVATE);
+        pref.edit().clear().putString(Constants.GENDER, gender).apply();
+
+        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(user).child(Constants.GENDER);
+        mref.setValue(gender);
+
+        setConsentToTargetPC(true);
+    }
+
+
+    private void loadSetBirthdayView() {
+        ageLayout.setVisibility(View.VISIBLE);
+        ageLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                ageLayout.setTranslationX(0);
+                ageLayout.setAlpha(1f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+        SharedPreferences pref = mContext.getSharedPreferences(Constants.DATE_OF_BIRTH, MODE_PRIVATE);
+        if(pref.getInt("year",0)!=0) {
+            int day = pref.getInt("day", 0);
+            int month = pref.getInt("month", 0);
+            int year = pref.getInt("year", 0);
+            setAgeTextView.setVisibility(View.VISIBLE);
+            setAgeTextView.setText(String.format("Set birthday date: %d %s,%d", day, getMonthName_Abbr(month), year));
+        }
+
+        openCalendar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                android.app.DialogFragment newFragment = new DatePickerFragment();
+                newFragment.show(getFragmentManager(), "datePicker");
+                kindaCollapseAll();
+                BroadcastReceiver mMessageReceiverForClosedCalendar = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        unKindaCollapseAll();
+                    }
+                };
+
+                LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+                        unKindaCollapseAll();
+                    }
+                },new IntentFilter("cal"));
+            }
+        });
+
+        backBtn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                ageLayout.setVisibility(View.GONE);
+                ageLayout.animate().translationX(Utils.dpToPx(400)).setDuration(Constants.ANIMATION_DURATION)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        ageLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
+                loadSetGenderView();
+            }
+        });
+
+        skip2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                ageLayout.setVisibility(View.GONE);
+                ageLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
+                        .setInterpolator(new LinearOutSlowInInterpolator());;
+                loadSetLocationsView();
+            }
+        });
+        okBtn3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                ageLayout.setVisibility(View.GONE);
+                ageLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        ageLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
+                loadSetLocationsView();
+            }
+        });
+    }
+
+
+
+    private void loadSetLocationsView() {
+        locationLayout.setVisibility(View.VISIBLE);
+        locationLayout.setTranslationX(Utils.dpToPx(400));
+        locationLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                locationLayout.setAlpha(1f);
+                locationLayout.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+        if(Variables.usersLatLongs.isEmpty()){
+            locationNumberText.setText(Html.fromHtml("Locations set:<b> None.</b>"));
+        }else{
+            locationNumberText.setText(Html.fromHtml("Locations set: <b>"+ Variables.usersLatLongs.size()+" Locations.</b>"));
+        }
+        openMapImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openMapSelector();
+            }
+        });
+        openMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openMapImg.performClick();
+            }
+        });
+
+        backBtn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                locationLayout.setVisibility(View.GONE);
+                locationLayout.animate().translationX(800).setDuration(durat)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        locationLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
+                loadSetBirthdayView();
+            }
+        });
+
+        skip3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                locationLayout.setVisibility(View.GONE);
+                locationLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        locationLayout.setAlpha(0f);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+                loadFifthView();
+            }
+        });
+        okBtn4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                locationLayout.setVisibility(View.GONE);
+                locationLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        locationLayout.setAlpha(0f);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+                loadFifthView();
+            }
+        });
+    }
+
+    private BroadcastReceiver mMessageReceiverForSetLocations = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(Variables.usersLatLongs.isEmpty()){
+                locationNumberText.setText(Html.fromHtml("Locations set:<b> None.</b>"));
+            }else{
+                locationNumberText.setText(Html.fromHtml("Locations set: <b>"+ Variables.usersLatLongs.size()+" Locations.</b>"));
+            }
+        }
+    };
+
+    private void openMapSelector() {
+        FragmentManager fm = getFragmentManager();
+        myMapFragment mapFragment = new myMapFragment();
+        mapFragment.setMenuVisibility(false);
+        mapFragment.show(fm,"Edit User Location.");
+        mapFragment.setfragcontext(mContext);
+        mapFragment.setActivity(Dashboard.this);
+//        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("SHOW_MAP"));
+    }
+
+    private void loadFifthView() {
+        concludeLayout.setVisibility(View.VISIBLE);
+        concludeLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
+                .setInterpolator(new LinearOutSlowInInterpolator());
+        okBtn5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hideUserDataDialog();
+            }
+        });
+    }
+
+    private void setConsentToTargetPC(Boolean bol){
+        SharedPreferences pref = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);
+        pref.edit().clear().putBoolean(Constants.CONSENT_TO_TARGET, bol).apply();
+
+        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(user).child(Constants.CONSENT_TO_TARGET);
+        mref.setValue(bol);
+    }
+
+
+    private String getMonthName_Abbr(int month) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH, month);
+        SimpleDateFormat month_date = new SimpleDateFormat("MMM");
+        return month_date.format(cal.getTime());
+    }
+
+
+    public static class DatePickerFragment extends android.app.DialogFragment implements DatePickerDialog.OnDateSetListener {
+        Context context;
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            int year = Integer.parseInt(TimeManager.getYear());
+            int month = TimeManager.getMonthVal();
+            int day = Integer.parseInt(TimeManager.getDay());
+            context = getActivity().getApplicationContext();
+            SharedPreferences pref = context.getSharedPreferences(Constants.DATE_OF_BIRTH, MODE_PRIVATE);
+            if(pref.getInt("year",0)!=0) {
+                day = pref.getInt("day", 0);
+                month = pref.getInt("month", 0);
+                year = pref.getInt("year", 0);
+            }
+
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        @Override
+        public void onDestroy(){
+            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("cal"));
+            super.onDestroy();
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            setUsersAge(day,month,year);
+        }
+
+        private void setUsersAge(int birthDay,int birthMonth,int birthYear) {
+            SharedPreferences pref = context.getSharedPreferences(Constants.DATE_OF_BIRTH, MODE_PRIVATE);
+            pref.edit().putInt("day", birthDay).putInt("month",birthMonth).putInt("year",birthYear).apply();
+
+            String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            DatabaseReference mref = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                    .child(user).child(Constants.DATE_OF_BIRTH);
+            mref.child("day").setValue(birthDay);
+            mref.child("month").setValue(birthMonth);
+            mref.child("year").setValue(birthYear);
+
+            Toast.makeText(context,"Birthday set",Toast.LENGTH_SHORT).show();
+//            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("cal"));
+        }
+
+    }
+
+    public void kindaCollapseAll(){
+        final float trans = Utils.dpToPx(300);
+        TweaksLayout.animate().translationY(trans).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        TweaksLayout.setTranslationY(trans);
+                        TweaksLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        final float trans2 = Utils.dpToPx(230);
+        ageLayout.animate().translationY(trans2).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        ageLayout.setTranslationY(trans2);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+    public void unKindaCollapseAll(){
+        final float trans = Utils.dpToPx(230);
+        TweaksLayout.animate().translationY(trans).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        TweaksLayout.setTranslationY(trans);
+                        TweaksLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        final float trans2 = 0;
+        ageLayout.animate().translationY(trans2).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        ageLayout.setTranslationY(trans2);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+    private void hideUserDataDialog(){
+        isLoadedUserDataDialog = false;
+        final RelativeLayout personalisedContentLayout = findViewById(R.id.personalisedContentLayout);
+        personalisedContentLayout.animate().alpha(0f).translationY(-Utils.dpToPx(250)).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(mAnimationTime)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        personalisedContentLayout.setTranslationY(-Utils.dpToPx(250));
+                        personalisedContentLayout.setAlpha(0f);
+                        personalisedContentLayout.setVisibility(View.GONE);
+                        resetViews();
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForSetLocations);
+
+        unKindaCollapseSettings();
+        removeTouchListenerForSwipeUpToGoBack();
+    }
+
+    private void resetViews(){
+        concludeLayout.setVisibility(View.GONE);
+        concludeLayout.setTranslationX(Utils.dpToPx(400));
+
+        locationLayout.setVisibility(View.GONE);
+        locationLayout.setTranslationX(Utils.dpToPx(400));
+
+        ageLayout.setVisibility(View.GONE);
+        ageLayout.setTranslationX(Utils.dpToPx(400));
+
+        genderLayout.setVisibility(View.GONE);
+        genderLayout.setTranslationX(Utils.dpToPx(400));
+
+        mainLaout2.setVisibility(View.GONE);
+        mainLaout2.setTranslationX(Utils.dpToPx(400));
+
+        mainLayout.setVisibility(View.VISIBLE);
+        locationLayout.setTranslationX(0);
+    }
+
+
+
+
 
     private BroadcastReceiver mMessageReceiverForShowMap = new BroadcastReceiver() {
         @Override
@@ -1217,7 +2242,7 @@ public class Dashboard extends AppCompatActivity {
         mapFragment.setActivity(thisActivity);
     }
 
-    private void promptUserToStopTargeting(){
+    private void promptUserToStopTargeting2(){
         final Dialog d = new Dialog(this);
         d.setTitle("Targeting.");
         d.setContentView(R.layout.targeted_dialog);
@@ -1241,6 +2266,89 @@ public class Dashboard extends AppCompatActivity {
         });
         d.show();
     }
+
+    private boolean isPromptingUserToStopTargeting = false;
+    private void promptUserToStopTargeting(){
+        isPromptingUserToStopTargeting = true;
+        addTouchListenerForSwipeUpToGoBack();
+        final LinearLayout targetingLayout = findViewById(R.id.targetingLayout);
+        targetingLayout.setVisibility(View.VISIBLE);
+        targetingLayout.animate().translationY(0).alpha(1).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        targetingLayout.setTranslationY(0);
+                        targetingLayout.setAlpha(1f);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        Button setButton = findViewById(R.id.stopBtn);
+        TextView targetingPermissionText = findViewById(R.id.targetingPermissionText);
+        TextView targetNoteLess = findViewById(R.id.targetNoteLess);
+        SharedPreferences pref = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);
+        final boolean canUseData = pref.getBoolean(Constants.CONSENT_TO_TARGET,false);
+        if(!canUseData){
+            setButton.setText("START.");
+            targetingPermissionText.setText(R.string.targetingPermissonOn);
+            targetNoteLess.setText("This will result in more content.");
+        }
+        setButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setConsentToTarget(!canUseData);
+                hidePromptForStopTargeting();
+            }
+        });
+    }
+
+    private void hidePromptForStopTargeting(){
+        isPromptingUserToStopTargeting = false;
+        removeTouchListenerForSwipeUpToGoBack();
+        final LinearLayout targetingLayout = findViewById(R.id.targetingLayout);
+        final int trans = -Utils.dpToPx(250);
+        targetingLayout.animate().translationY(trans).alpha(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        targetingLayout.setTranslationY(trans);
+                        targetingLayout.setAlpha(0f);
+                        targetingLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+        unKindaCollapseSettings();
+    }
+
+
 
     private void setConsentToTarget(Boolean bol){
         SharedPreferences pref = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);
@@ -2130,7 +3238,6 @@ public class Dashboard extends AppCompatActivity {
         TweaksBlackBack.setVisibility(View.VISIBLE);
         TweaksLayout.setVisibility(View.VISIBLE);
 
-
         final float alph = 0.8f;
         TweaksBlackBack.animate().alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearInterpolator())
                 .setListener(new Animator.AnimatorListener() {
@@ -2209,6 +3316,7 @@ public class Dashboard extends AppCompatActivity {
 
         MyTouchBackGestureListener = new GestureDetector(mContext,new MyTouchBackGestureListener());
         setExpandedSettingsClickListeners();
+        findViewById(R.id.TweaksLayout).setVisibility(View.VISIBLE);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -2253,7 +3361,7 @@ public class Dashboard extends AppCompatActivity {
         TweaksBlackBack.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Log.d(TAG,"Raw Y: "+event.getRawY());
+//                Log.d(TAG,"Raw Y: "+event.getRawY());
                 if (MyTouchBackGestureListener.onTouchEvent(event)) {
                     return true;
                 }
@@ -2270,7 +3378,7 @@ public class Dashboard extends AppCompatActivity {
 
         @Override
         public boolean onDown(MotionEvent event) {
-            Log.d("TAG", "onDown: ");
+//            Log.d("TAG", "onDown: ");
             if(event.getRawY()<730){
                 onBackPressed();
             }
@@ -2279,19 +3387,19 @@ public class Dashboard extends AppCompatActivity {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            Log.i("TAG", "onSingleTapConfirmed: ");
+//            Log.i("TAG", "onSingleTapConfirmed: ");
 
             return true;
         }
 
         @Override
         public void onLongPress(MotionEvent e) {
-            Log.i("TAG", "onLongPress: ");
+//            Log.i("TAG", "onLongPress: ");
         }
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            Log.i("TAG", "onDoubleTap: ");
+//            Log.i("TAG", "onDoubleTap: ");
             return true;
         }
 
@@ -2308,7 +3416,7 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void kindaCollapseSettings(){
-        final float alph = 0.5f;
+        final float alph = 0.8f;
 //        TweaksBlackBack.setAlpha(alph);
         TweaksBlackBack.animate().alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearInterpolator())
                 .setListener(new Animator.AnimatorListener() {
@@ -2334,7 +3442,8 @@ public class Dashboard extends AppCompatActivity {
                 }).start();
 
         final float trans = Utils.dpToPx(230);
-        TweaksLayout.animate().translationY(trans).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+        final float alph2 = 0.6f;
+        TweaksLayout.animate().translationY(trans).alpha(alph2).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
                 .setListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -2344,6 +3453,7 @@ public class Dashboard extends AppCompatActivity {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         TweaksLayout.setTranslationY(trans);
+                        TweaksLayout.setAlpha(alph2);
                     }
 
                     @Override
@@ -2384,7 +3494,8 @@ public class Dashboard extends AppCompatActivity {
                 }).start();
 
         final float trans = 0;
-        TweaksLayout.animate().translationY(trans).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+        final float alph2 = 1f;
+        TweaksLayout.animate().translationY(trans).alpha(alph2).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
                 .setListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -2394,6 +3505,7 @@ public class Dashboard extends AppCompatActivity {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         TweaksLayout.setTranslationY(trans);
+                        TweaksLayout.setAlpha(alph2);
                     }
 
                     @Override
@@ -2413,7 +3525,7 @@ public class Dashboard extends AppCompatActivity {
         mScrollView.setScrollingEnabled(true);
 
         final float alph = 0f;
-        TweaksBlackBack.animate().alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearInterpolator())
+        TweaksBlackBack.animate().alpha(alph).setDuration(mAnimationTime)
                 .setListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -2486,12 +3598,156 @@ public class Dashboard extends AppCompatActivity {
 
                     }
                 }).start();
+
+//        findViewById(R.id.TweaksLayout).setVisibility(View.INVISIBLE);
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        if(hasFocus && isSettingsCardExpanded) {
-            unKindaCollapseSettings();
+//        if(hasFocus && isSettingsCardExpanded) {
+//            unKindaCollapseSettings();
+//        }
+    }
+
+
+
+    private int y_promptDialog;
+    private boolean isUpSwipingSwiping = false;
+    private GestureDetector gt;
+    private void addTouchListenerForSwipeUpToGoBack(){
+        gt = new GestureDetector(this ,new MySwipebackPromptGestureListener());
+        View swipeDownView = findViewById(R.id.swipeDownView);
+        swipeDownView.setVisibility(View.VISIBLE);
+        swipeDownView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (gt.onTouchEvent(event)) {
+                    return true;
+                }
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (isUpSwipingSwiping) {
+                        isSideScrolling = false;
+                        restoreOnBottomsheetDialog();
+                    }
+                }
+                return false;
+            }
+        });
+    }
+
+    private void removeTouchListenerForSwipeUpToGoBack(){
+        final View swipeDownView = findViewById(R.id.swipeDownView);
+        swipeDownView.setVisibility(View.GONE);
+
+        final RelativeLayout TweaksContainer = findViewById(R.id.TweaksContainer);
+        TweaksContainer.setTranslationY(0);
+        TweaksContainer.setAlpha(1f);
+    }
+
+    class MySwipebackPromptGestureListener extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+//            Log.d(TAG, "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            Log.e(TAG, "onDown: event.getRawX(): " + event.getRawX() + " event.getRawY()" + event.getRawY());
+            View swipeDownView = findViewById(R.id.swipeDownView);
+            CoordinatorLayout.LayoutParams lParams = (CoordinatorLayout.LayoutParams) swipeDownView.getLayoutParams();
+            y_promptDialog = Y - lParams.topMargin;
+            Log.e(TAG, "onDown: top margin: " + lParams.topMargin+" y_promptDialog: "+y_promptDialog);
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+
+            Log.d(TAG, "the scroll pos= " + ((double)(Y-y_promptDialog)));
+
+            animateTouchOnBottomsheetDialog((double)(Y - y_promptDialog));
+            isUpSwipingSwiping = true;
+
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Log.d(TAG,"velocityY-"+velocityY);
+            if (Math.abs(velocityY) > Math.abs(velocityX) && Math.abs(velocityY)>1400 && Math.abs(velocityY)<8000) {
+                onBackPressed();
+            }else{
+                restoreOnBottomsheetDialog();
+            }
+            isUpSwipingSwiping = false;
+            return false;
+
         }
     }
+
+    private void animateTouchOnBottomsheetDialog(double pos){
+        double newPos = (pos/10);
+        final RelativeLayout TweaksContainer = findViewById(R.id.TweaksContainer);
+        TweaksContainer.setTranslationY(((float)newPos));
+
+        TweaksLayout.setTranslationY(Utils.dpToPx(230)+((float)newPos));
+
+        final float alph = 0.6f;
+        float alphPos = (((float)((pos/10)))/100f);
+        final float TweaksContainerAlph = 1f+alphPos;
+        Log.w(TAG,"Set Alpha for TweaksContainer: " + TweaksContainerAlph );
+        TweaksContainer.setAlpha(TweaksContainerAlph);
+
+        final float TweaksLayoutAlph = alph-alphPos;
+        Log.w(TAG,"Set Alpha for TweaksLayout: " + TweaksLayoutAlph);
+        TweaksLayout.setAlpha(TweaksLayoutAlph);
+    }
+
+    private void restoreOnBottomsheetDialog(){
+        final float newPos = 0;
+        final RelativeLayout TweaksContainer = findViewById(R.id.TweaksContainer);
+        final float alph2 = 1f;
+        TweaksContainer.animate().translationY(newPos).alpha(alph2).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(mAnimationTime).start();
+
+        final float trans = Utils.dpToPx(230);
+        final float alph = 0.6f;
+        TweaksLayout.animate().translationY(trans).alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        TweaksLayout.setTranslationY(trans);
+                        TweaksLayout.setAlpha(alph);
+
+                        TweaksContainer.setTranslationY(newPos);
+                        TweaksContainer.setAlpha(alph2);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+
+
 }

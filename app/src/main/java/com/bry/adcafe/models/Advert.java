@@ -26,11 +26,14 @@ public class Advert {
     private Bitmap imageBitmap;
     private int numberOfTimesSeen;
     private int numberOfUsersToReach;
+
     private String pushRefInAdminConsole;
     private String userEmail;
     private String websiteLink;
     private String category;
     private boolean isFlagged = false;
+
+
     private boolean isAdminFlagged = false;
     public LinkedHashMap<Integer,Integer> clusters  = new LinkedHashMap<>();
     private boolean hasBeenReimbursed;
@@ -43,22 +46,21 @@ public class Advert {
     private String paymentMethod;
     private double payoutReimbursalAmount = 0;
     private String downloadImageName;
-
     private String advertiserPhoneNo;
-
     private double webClickIncentive = 0;
     private Integer webClickNumber = 0;
 
     private int numberOfPins = 0;
     private String AdType;
     private boolean hasSetBackupImage = false;
-
     public List<ExpressionData> expressions = new ArrayList<>();
     public List<WebClickData> webclicks = new ArrayList<>();
     public List<AdPinData> adPins = new ArrayList<>();
 
     private boolean starred = false;
     private boolean advertiserHidden = false;
+//    private boolean userStarred = false;
+//    public long datePinned;
 
 
     @Exclude
@@ -366,4 +368,16 @@ public class Advert {
     public void setAdvertiserHidden(boolean advertiserHidden) {
         this.advertiserHidden = advertiserHidden;
     }
+
+
+
+
+//    public boolean isUserStarred() {
+//        return userStarred;
+//    }
+//
+//    public void setUserStarred(boolean userStarred) {
+//        this.userStarred = userStarred;
+//    }
+
 }

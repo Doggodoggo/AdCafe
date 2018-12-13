@@ -177,6 +177,7 @@ public class SavedAdsCard {
             LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToLoadImages,
                     new IntentFilter("SET_IMAGE" + noOfDaysDate));
             LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForShowSelf,new IntentFilter("SHOW_SELF"));
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForResetStarValue,new IntentFilter("STAR"));
             hasLoaded = true;
         }
     }
@@ -196,36 +197,42 @@ public class SavedAdsCard {
             setImage2();
         }else{
             Log.d("SavedAdsCard", "Loading the image from firebase first");
-            DatabaseReference adRef2 = FirebaseDatabase.getInstance().getReference(Constants.PINNED_AD_POOL)
-                    .child(Long.toString(mAdvert.getDateInDays())).child(mAdvert.getPushRefInAdminConsole()).child("imageUrl");
+            try{
+                DatabaseReference adRef2 = FirebaseDatabase.getInstance().getReference(Constants.PINNED_AD_POOL)
+                        .child(Long.toString(mAdvert.getDateInDays()))
+                        .child(mAdvert.getPushRefInAdminConsole())
+                        .child("imageUrl");
 
-            Log.d("SavedAdsCard", "Query set up is --" + Constants.PINNED_AD_POOL + " : " +
-                    mAdvert.getDateInDays() + " : " + mAdvert.getPushRefInAdminConsole());
+                Log.d("SavedAdsCard", "Query set up is --" + Constants.PINNED_AD_POOL + " : " +
+                        mAdvert.getDateInDays() + " : " + mAdvert.getPushRefInAdminConsole());
 
-            adRef2.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        String image = dataSnapshot.getValue(String.class);
-                        if (image != null)
-                            Log.d("SavedAdsCard", "String of image has been loaded from firebase");
-                        try {
-                            mAdvert.setImageUrl(image);
-                        }catch (Exception e){
-                            e.printStackTrace();
+                adRef2.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            String image = dataSnapshot.getValue(String.class);
+                            if (image != null)
+                                Log.d("SavedAdsCard", "String of image has been loaded from firebase");
+                            try {
+                                mAdvert.setImageUrl(image);
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
+                            Log.d("SavedAdsCard", "Now running the setImage method");
+                            setImage();
+                        } else {
+                            isLoadingImageFromFirebase = false;
                         }
-                        Log.d("SavedAdsCard", "Now running the setImage method");
-                        setImage();
-                    } else {
-                        isLoadingImageFromFirebase = false;
                     }
-                }
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.e("SavedAdsCard", "Something went wrong while loading image from firebase : " + databaseError.getDetails());
-                }
-            });
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e("SavedAdsCard", "Something went wrong while loading image from firebase : " + databaseError.getDetails());
+                    }
+                });
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 
@@ -613,6 +620,7 @@ public class SavedAdsCard {
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForAddNewBlank);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForShowSelf);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverToUnregisterAllReceivers);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForResetStarValue);
     }
 
     @LongClick(R.id.SavedImageView)
@@ -694,6 +702,13 @@ public class SavedAdsCard {
             }catch (Exception e){
                 e.printStackTrace();
             }
+        }
+    };
+
+    private BroadcastReceiver mMessageReceiverForResetStarValue = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+//            mAdvert.setStarred(!mAdvert.isUserStarred());
         }
     };
 

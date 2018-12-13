@@ -405,7 +405,7 @@
                             </LinearLayout>
 
                             <LinearLayout
-                                android:id="@+id/startLayout"
+                                android:id="@+id/starLayout"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
@@ -442,7 +442,7 @@
                         android:visibility="invisible"
                         android:background="@color/colorPrimaryDark" />
 
-                    <com.bry.adcafe.models.LockableScrollView
+                    <com.bry.adcafe.classes.LockableScrollView
                         android:id="@+id/ScrollView"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -1176,7 +1176,7 @@
 
                         </RelativeLayout>
 
-                    </com.bry.adcafe.models.LockableScrollView>
+                    </com.bry.adcafe.classes.LockableScrollView>
 
                 </LinearLayout>
 

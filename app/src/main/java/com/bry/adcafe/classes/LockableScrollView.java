@@ -1,4 +1,4 @@
-package com.bry.adcafe.models;
+package com.bry.adcafe.classes;
 
 import android.content.Context;
 import android.util.AttributeSet;
