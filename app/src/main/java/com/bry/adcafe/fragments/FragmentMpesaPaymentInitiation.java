@@ -17,7 +17,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bry.adcafe.Constants;
@@ -46,6 +48,8 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
 
     private boolean isToDismiss = false;
     private boolean isMakingRequest = false;
+    private TextView waitingText;
+    private ImageButton backBtn;
 
 
     public void setContext(Context context){
@@ -64,6 +68,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
 
         Button cancelBtn = rootView.findViewById(R.id.cancelBtn);
         prog = rootView.findViewById(R.id.progBr);
+        waitingText = rootView.findViewById(R.id.waitingText);
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -76,30 +81,39 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
             @Override
             public void onClick(View view) {
                 prog.setVisibility(View.VISIBLE);
+                Toast.makeText(mContext,"Resending payment request.",Toast.LENGTH_SHORT).show();
+                prog.setVisibility(View.VISIBLE);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         if(!isMakingRequest){
                             isMakingRequest = true;
-                            Toast.makeText(mContext,"Resending payment request.",Toast.LENGTH_SHORT).show();
                             restartPaymentRequest();
-                            prog.setVisibility(View.VISIBLE);
                         }
                     }
                 }, 5000);
             }
         });
+
+        backBtn = rootView.findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+
         fmi = this;
         prog.setVisibility(View.VISIBLE);
 
         getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
 
         startPaymentProcess();
         return rootView;
     }
 
     private void startPaymentProcess() {
+        waitingText.setVisibility(View.GONE);
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.PAY_POOL);
         DatabaseReference pushRef = adRef.push();
         mTransactionId= "TRANS"+pushRef.getKey();
@@ -175,6 +189,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
             Toast.makeText(mContext,"The payment request has failed, check your connection and retry",Toast.LENGTH_SHORT).show();
             isMakingRequest = false;
+            waitingText.setVisibility(View.GONE);
             prog.setVisibility(View.INVISIBLE);
         }
     };
@@ -187,6 +202,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverForFailedToSendRequest);
             prog.setVisibility(View.INVISIBLE);
             Toast.makeText(mContext,"Payment request sent.",Toast.LENGTH_LONG).show();
+            waitingText.setVisibility(View.VISIBLE);
 //            listenForCompletePayments();
             isMakingRequest = false;
         }

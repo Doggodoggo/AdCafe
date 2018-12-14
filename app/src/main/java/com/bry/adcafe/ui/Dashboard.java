@@ -192,7 +192,6 @@ public class Dashboard extends AppCompatActivity {
 
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -221,8 +220,10 @@ public class Dashboard extends AppCompatActivity {
         fastCollapseTheFeedChatView();
 
         addTouchListenerForSwipeBack();
-
-
+        SetOnTopScrollListener();
+/*        TODO
+            Fix the SetOnTopScrollListener skipping bug
+*/
     }
 
     @Override
@@ -481,14 +482,38 @@ public class Dashboard extends AppCompatActivity {
             monthsTotals = Variables.getMonthAdTotals(mKey);
             reimbursementTotals = Variables.getTotalReimbursementAmount();
         }
-        mTotalAdsSeenToday.setText(Integer.toString(todaysTotals));
-        if(monthsTotals>9999){
-            mTotalAdsSeenAllTime.setTextSize(35);
-            mTotalAdsSeenToday.setTextSize(35);
+        mTotalAdsSeenToday.setText(format.format(todaysTotals));
+        if(monthsTotals<10000){//10 K
+            int size = 50;
+            mTotalAdsSeenAllTime.setTextSize(size);
+            mTotalAdsSeenToday.setTextSize(size);
+        }else if(monthsTotals<1000000){//1 Mil
+            int size = (40);
+            mTotalAdsSeenAllTime.setTextSize(size);
+            mTotalAdsSeenToday.setTextSize(size);
+        }else if(monthsTotals<10000000){//10 Mil
+            int size = (30);
+            mTotalAdsSeenAllTime.setTextSize(size);
+            mTotalAdsSeenToday.setTextSize(size);
+        }else if(monthsTotals<100000000){//100 Mil
+            int size = (25);
+            mTotalAdsSeenAllTime.setTextSize(size);
+            mTotalAdsSeenToday.setTextSize(size);
+        }else if(monthsTotals<1000000000){//1 Bil
+            int size = (20);
+            mTotalAdsSeenAllTime.setTextSize(size);
+            mTotalAdsSeenToday.setTextSize(size);
+        }else{//above 1 Bil (if that's even possible... which it isn't... because Integers can't be that big... because magic...)
+            int size = (15);
+            mTotalAdsSeenAllTime.setTextSize(size);
+            mTotalAdsSeenToday.setTextSize(size);
         }
-        mTotalAdsSeenAllTime.setText(Integer.toString(monthsTotals));
+        if(reimbursementTotals>1000000){
+            int size = 20;
+            mAmmountNumber.setTextSize(size);
+        }
         mTotalAdsSeenAllTime.setText(format.format(monthsTotals));
-        mAmmountNumber.setText(Integer.toString(reimbursementTotals));
+        mAmmountNumber.setText(format.format(reimbursementTotals));
 
         if(Variables.doesUserWantNotifications)mDotForNotf.setVisibility(View.VISIBLE);
 
@@ -496,6 +521,133 @@ public class Dashboard extends AppCompatActivity {
         final boolean canUseData = pref.getBoolean(Constants.CONSENT_TO_TARGET,false);
         if(!canUseData) findViewById(R.id.dotForTargeted).setVisibility(View.VISIBLE);
     }
+
+
+    private int y_deltaBoi;
+    private boolean isDownSwipingBoi = false;
+    private GestureDetector swipeTopGestureDetector;
+    private boolean isAtTopOfPage = true;
+    private void SetOnTopScrollListener(){
+        swipeTopGestureDetector = new GestureDetector(this, new MySwipebackMainGestureListener());
+        mScrollView.setOnScrollChangedCallback(new LockableScrollView.OnScrollChangedCallback() {
+            @Override
+            public void onScroll(int l, int t, int oldl, int oldt) {
+                Log.d(TAG,"T: "+t);
+                isAtTopOfPage = t<=1;
+            }
+        });
+
+        mScrollView.setOnTouchEvent(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (swipeTopGestureDetector.onTouchEvent(event)) {
+                    return true;
+                }
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (isDownSwipingBoi) {
+                        isDownSwipingBoi = false;
+                        restoreScrollView();
+                    }
+                }
+                return false;
+            }
+        });
+        restoreScrollView();
+    }
+
+    private int prevPos = 0;
+    class MySwipebackMainGestureListener extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+//            Log.d(TAG, "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            Log.e(TAG, "onDown: event.getRawX(): " + event.getRawX() + " event.getRawY()" + event.getRawY());
+
+            CoordinatorLayout.LayoutParams lParams = (CoordinatorLayout.LayoutParams) mScrollView.getLayoutParams();
+            y_deltaBoi = Y - lParams.topMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+
+            if(isAtTopOfPage){
+                onTouchScrollView((double)(Y - y_deltaBoi));
+            }else restoreScrollView();
+            isDownSwipingBoi = true;
+
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Log.d(TAG,"velocityY-"+velocityY);
+            if(isAtTopOfPage) {
+                if (velocityY>0 && Math.abs(velocityY) > Math.abs(velocityX) && Math.abs(velocityY) > 1400 && Math.abs(velocityY) < 8000 ) {
+                    onBackPressed();
+                }else{
+                    restoreScrollView();
+                }
+            }else restoreScrollView();
+            isDownSwipingBoi = false;
+            return false;
+
+        }
+
+    }
+
+    private boolean isScrollPosChanged = false;
+    private void onTouchScrollView(double pos){
+        if(!isScrollPosChanged)isScrollPosChanged = true;
+        if(pos-10>0)pos-=10;
+        double newPos = (pos/10);
+        RelativeLayout linLyt = findViewById(R.id.allElLay);
+        if(newPos<Utils.dpToPx(30))
+            linLyt.setTranslationY((float)newPos);
+    }
+
+    private void restoreScrollView(){
+        if(isScrollPosChanged) {
+            final float pos = 0;
+            final RelativeLayout linLyt = findViewById(R.id.allElLay);
+            linLyt.animate().translationY(pos).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            linLyt.setTranslationY(pos);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+
+                        }
+                    }).start();
+        }
+    }
+
+
 
 
 
@@ -2730,7 +2882,7 @@ public class Dashboard extends AppCompatActivity {
         List<Message> myMessages = loadSavedMessages();
         addFirstMessageIfEmpty();
         for(Message message:myMessages){
-            addMessageToList(message);
+            addMessageToList(message,false);
         }
         mChatsPlaceHolderView.setItemViewCacheSize(myMessages.size());
         removeNewMessageBubble();
@@ -2762,7 +2914,7 @@ public class Dashboard extends AppCompatActivity {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    addMessageToList(message);
+                    addMessageToList(message,true);
                 }
             }, 400);
 
@@ -2838,7 +2990,7 @@ public class Dashboard extends AppCompatActivity {
         message.setIsUsersMessage(true);
         message.setHasBeenSent(false);
 
-        addMessageToList(message);
+        addMessageToList(message,false);
     }
 
     private boolean checkPermissionsForSendImage(){
@@ -2878,8 +3030,8 @@ public class Dashboard extends AppCompatActivity {
 
 
 
-    private void addMessageToList(Message message){
-        mChatsPlaceHolderView.addView(0,new MessageItem(mContext,mChatsPlaceHolderView,message));
+    private void addMessageToList(Message message,boolean isNewMessage){
+        mChatsPlaceHolderView.addView(0,new MessageItem(mContext,mChatsPlaceHolderView,message,isNewMessage));
         mChatsPlaceHolderView.scrollToPosition(0);
         numberOfItemsAdded++;
     }
@@ -3237,6 +3389,7 @@ public class Dashboard extends AppCompatActivity {
         isSettingsCardExpanded = true;
         TweaksBlackBack.setVisibility(View.VISIBLE);
         TweaksLayout.setVisibility(View.VISIBLE);
+        findViewById(R.id.TweaksContainer).setVisibility(View.VISIBLE);
 
         final float alph = 0.8f;
         TweaksBlackBack.animate().alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearInterpolator())
@@ -3561,6 +3714,7 @@ public class Dashboard extends AppCompatActivity {
                     public void onAnimationEnd(Animator animation) {
                         TweaksLayout.setTranslationY(trans);
                         TweaksLayout.setVisibility(View.GONE);
+                        findViewById(R.id.TweaksContainer).setVisibility(View.VISIBLE);
                     }
 
                     @Override

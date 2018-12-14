@@ -75,18 +75,20 @@ public class MessageItem {
     private Context mContext;
     private PlaceHolderView mPlaceHolderView;
     private Message mMessage;
+    private boolean isToSend = false;
 
 
 
-    public MessageItem(Context context,PlaceHolderView placeHolderView, Message message){
+    public MessageItem(Context context,PlaceHolderView placeHolderView, Message message, boolean isToSend){
         this.mContext = context;
         this.mMessage = message;
         this.mPlaceHolderView = placeHolderView;
+        this.isToSend = isToSend;
     }
 
     @Resolve
     public void onResolved(){
-        if(mMessage.IsUsersMessage()&& !mMessage.HasBeenSent()){
+        if(mMessage.IsUsersMessage()&& !mMessage.HasBeenSent() && isToSend){
             if(mMessage.getMessageType().equals(Constants.IMAGE_MESSAGE)){
                 sendImageMessageInFirebase();
             }else{
@@ -352,7 +354,7 @@ public class MessageItem {
 
     private void updatePosition(){
         mPlaceHolderView.removeView(this);
-        mPlaceHolderView.addView(0,new MessageItem(mContext,mPlaceHolderView,mMessage));
+        mPlaceHolderView.addView(0,new MessageItem(mContext,mPlaceHolderView,mMessage,false));
     }
 
     private String encodeBitmapForFirebaseStorage(Bitmap bitmap){

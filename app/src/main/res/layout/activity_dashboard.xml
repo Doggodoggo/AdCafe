@@ -55,6 +55,7 @@
         android:scrollbars="none">
 
         <RelativeLayout
+            android:id="@+id/allElLay"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -85,7 +86,7 @@
                             android:layout_gravity="center"
                             android:textColor="@color/colorPrimaryLight"
                             android:text="94"
-                            android:textSize="50dp" />
+                            android:textSize="50sp" />
 
                         <TextView
                             android:layout_width="match_parent"
@@ -262,7 +263,7 @@
                             android:layout_gravity="center"
                             android:layout_marginTop="5dp"
                             android:textColor="@color/colorPrimaryLight"
-                            android:text="1626"
+                            android:text="626"
                             android:textSize="30sp" />
 
                         <TextView
@@ -937,6 +938,7 @@
 
     <RelativeLayout
         android:id="@+id/TweaksContainer"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_marginBottom="10dp"
         android:layout_height="match_parent">

@@ -8,6 +8,7 @@ import android.os.Build;
 import android.support.constraint.solver.widgets.Snapshot;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.WindowManager;
 
@@ -97,6 +98,14 @@ public class Utils{
 
     public static int dpToPx(int dp) {
         return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
+    }
+
+    public static int spToPx(float sp, Context context) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, context.getResources().getDisplayMetrics());
+    }
+
+    public static int dpToSp(int dp, Context context) {
+        return (int) (dpToPx(dp) / context.getResources().getDisplayMetrics().scaledDensity);
     }
 
 

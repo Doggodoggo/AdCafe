@@ -1938,6 +1938,8 @@ public class AdUpload extends AppCompatActivity implements NumberPicker.OnValueC
             @Override
             public void onClick(View v) {
                 d.dismiss();
+                Intent intent = new Intent(AdUpload.this,AdStats.class);
+                startActivity(intent);
                 finish();
             }
         });
