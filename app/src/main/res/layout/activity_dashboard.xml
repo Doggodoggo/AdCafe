@@ -1006,6 +1006,15 @@
                     android:layout_marginTop="10dp"
                     android:layout_height="30dp" />
 
+                <TextView
+                    android:id="@+id/pickTimeExp"
+                    android:layout_width="wrap_content"
+                    android:layout_toRightOf="@+id/pickTimeIcon"
+                    android:text="Pick a time."
+                    android:paddingLeft="2dp"
+                    android:gravity="center_vertical"
+                    android:layout_height="match_parent" />
+
                 <Button
                     android:id="@+id/cancelBtn"
                     android:layout_width="wrap_content"
@@ -1108,7 +1117,7 @@
                 android:orientation="vertical"
                 android:visibility="visible"
                 android:layout_alignParentBottom="true"
-                android:translationX="400dp"
+                android:translationX="350dp"
                 android:layout_margin="10dp"
                 android:id="@+id/mainLayout2"
                 android:background="@drawable/dialog_bg"
@@ -1161,7 +1170,7 @@
                 android:layout_width="match_parent"
                 android:orientation="vertical"
                 android:visibility="gone"
-                android:translationX="400dp"
+                android:translationX="350dp"
                 android:id="@+id/genderLayout"
                 android:layout_alignParentBottom="true"
                 android:layout_margin="10dp"
@@ -1303,10 +1312,17 @@
 
                     <ImageButton
                         android:layout_width="50dp"
-                        android:layout_marginLeft="20dp"
+                        android:layout_marginLeft="5dp"
                         android:id="@+id/calendar"
                         android:background="@drawable/ic_action_calendar"
                         android:layout_height="50dp" />
+
+                    <TextView
+                        android:id="@+id/calendarExp"
+                        android:layout_width="wrap_content"
+                        android:gravity="center_vertical"
+                        android:text="Set your birthday."
+                        android:layout_height="match_parent" />
 
                 </LinearLayout>
 
@@ -1403,10 +1419,17 @@
 
                     <ImageButton
                         android:layout_width="50dp"
-                        android:layout_marginLeft="20dp"
+                        android:layout_marginLeft="5dp"
                         android:id="@+id/openMapImg"
                         android:background="@drawable/ic_action_map"
                         android:layout_height="50dp" />
+
+                    <TextView
+                        android:id="@+id/locationExp"
+                        android:layout_width="wrap_content"
+                        android:gravity="center_vertical"
+                        android:text="Add or remove a location."
+                        android:layout_height="match_parent" />
 
                     <Button
                         android:layout_width="wrap_content"
@@ -1782,6 +1805,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageButton
+                    android:id="@+id/notIcon"
                     android:layout_width="25dp"
                     android:background="@drawable/options_icon"
                     android:layout_marginRight="10dp"
@@ -1805,7 +1829,6 @@
                 android:background="@color/colorPrimaryDark"
                 android:layout_marginBottom="5dp"
                 android:layout_height="0.5dp"/>
-
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -1844,6 +1867,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageButton
+                    android:id="@+id/userInfo"
                     android:layout_width="40dp"
                     android:background="@drawable/ic_action_user_info"
                     android:layout_height="40dp" />
@@ -1915,12 +1939,12 @@
 
     <View
         android:id="@+id/swipeDownView"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_width="match_parent"
         android:layout_gravity="bottom"
         android:layout_marginBottom="70dp"
-        android:layout_marginLeft="40dp"
+        android:layout_marginLeft="120dp"
         android:layout_marginRight="40dp"
-        android:layout_height="220dp"/>
+        android:layout_height="160dp"/>
 
 </android.support.design.widget.CoordinatorLayout>

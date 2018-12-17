@@ -19,6 +19,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -39,6 +40,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -218,6 +220,7 @@ public class Dashboard extends AppCompatActivity {
         addListenerForChangeInPayoutTotals();
 
         fastCollapseTheFeedChatView();
+        NEG = -(getScreenWidth()-Utils.dpToPx(10));
 
         addTouchListenerForSwipeBack();
         SetOnTopScrollListener();
@@ -595,7 +598,7 @@ public class Dashboard extends AppCompatActivity {
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             Log.d(TAG,"velocityY-"+velocityY);
             if(isAtTopOfPage) {
-                if (velocityY>0 && Math.abs(velocityY) > Math.abs(velocityX) && Math.abs(velocityY) > 1400 && Math.abs(velocityY) < 8000 ) {
+                if (velocityY>0 && Math.abs(velocityY) > Math.abs(velocityX) && Math.abs(velocityY) > 2800 && Math.abs(velocityY) < 8000 ) {
                     onBackPressed();
                 }else{
                     restoreScrollView();
@@ -725,7 +728,7 @@ public class Dashboard extends AppCompatActivity {
         if(Variables.doesUserWantNotifications)b1.setText("PUT OFF.");
         else b1.setText("PUT ON.");
         TextView t = findViewById(R.id.explanation);
-        ImageButton imgBtn = findViewById(R.id.pickTimeIcon);
+        final ImageButton imgBtn = findViewById(R.id.pickTimeIcon);
         final TextView timeTxt = findViewById(R.id.setTimeText);
         t.setText(message);
 
@@ -762,24 +765,116 @@ public class Dashboard extends AppCompatActivity {
                 hidePromptAboutNotif(br);
             }
         });
+        findViewById(R.id.pickTimeExp).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imgBtn.performClick();
+            }
+        });
         imgBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DialogFragment newFragment = new TimePickerFragment();
                 newFragment.show(getSupportFragmentManager(), "timePicker");
+                getSupportFragmentManager().executePendingTransactions();
+                newFragment.getDialog().setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        unKindaCollapseNotifAll();
+                    }
+                });
+//                newFragment.setCancelable(false);
+                kindaCollapseNotifAll();
             }
         });
         LocalBroadcastManager.getInstance(mContext).registerReceiver(br,new IntentFilter("UPDATE_CHOSEN_TIME"));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+                unKindaCollapseNotifAll();
+            }
+        },new IntentFilter("unKindaCollapseNotifAll"));
+    }
 
+    private void setUsersPreferredNotificationTime(){
+        SharedPreferences pref = mContext.getSharedPreferences(Constants.PREFERRED_NOTF_HOUR,MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.putInt(Constants.PREFERRED_NOTF_HOUR,Variables.preferredHourOfNotf);
+        Log("DashBoard","Set the users preferred noification hour to : "+Variables.preferredHourOfNotf);
+        editor.apply();
+
+        SharedPreferences pref7 = mContext.getSharedPreferences(Constants.PREFERRED_NOTF_MIN,MODE_PRIVATE);
+        SharedPreferences.Editor editor7 = pref7.edit();
+        editor7.clear();
+        editor7.putInt(Constants.PREFERRED_NOTF_MIN,Variables.preferredMinuteOfNotf);
+        Log("DashBoard","Set the users preferred noification minute to : "+Variables.preferredMinuteOfNotf);
+        editor7.apply();
+
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference adRef11 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.PREFERRED_NOTF_HOUR);
+        adRef11.setValue(Variables.preferredHourOfNotf);
+
+        DatabaseReference adRef12 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
+                .child(uid).child(Constants.PREFERRED_NOTF_MIN);
+        adRef12.setValue(Variables.preferredMinuteOfNotf);
+
+        Toast.makeText(mContext,"Done!",Toast.LENGTH_SHORT).show();
+    }
+
+    public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener, DialogInterface.OnDismissListener  {
+        private Context mContext = getContext();
+
+        public void setContext(Context context){
+            mContext = context;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current time as the default values for the picker
+            final Calendar c = Calendar.getInstance();
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            int minute = c.get(Calendar.MINUTE);
+
+            // Create a new instance of TimePickerDialog and return it
+            return new TimePickerDialog(getActivity(), this, Variables.preferredHourOfNotf, Variables.preferredMinuteOfNotf,
+                    DateFormat.is24HourFormat(getActivity()));
+        }
+
+        @Override
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            // Do something with the time chosen by the user
+            Variables.preferredHourOfNotf = hourOfDay;
+            Variables.preferredMinuteOfNotf = minute;
+
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("UPDATE_CHOSEN_TIME"));
+        }
+
+        @Override
+        public void onDismiss(final DialogInterface dialog){
+            try{
+                super.onDismiss(dialog);
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("unKindaCollapseNotifAll"));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            final Activity activity = getActivity();
+            if (activity instanceof DialogInterface.OnDismissListener) {
+                ((DialogInterface.OnDismissListener) activity).onDismiss(dialog);
+            }
+        }
     }
 
     private void hidePromptAboutNotif(BroadcastReceiver br){
         isNotificationsOpen = false;
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(br);
-        unKindaCollapseSettings();
-        removeTouchListenerForSwipeUpToGoBack();
-        final LinearLayout mainLayout = findViewById(R.id.NotificationsLayout);
-        mainLayout.animate().translationY(-Utils.dpToPx(250)).alpha(0f).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+
+        final LinearLayout NotificationsLayout = findViewById(R.id.NotificationsLayout);
+        NotificationsLayout.setVisibility(View.VISIBLE);
+        final int trans = -Utils.dpToPx(250);
+        NotificationsLayout.animate().alpha(0f).translationY(trans).setInterpolator(new LinearOutSlowInInterpolator())
                 .setListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -788,9 +883,9 @@ public class Dashboard extends AppCompatActivity {
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        mainLayout.setTranslationY(-Utils.dpToPx(250));
-//                        mainLayout.setScaleY(0.8f);
-                        mainLayout.setVisibility(View.GONE);
+                        NotificationsLayout.setAlpha(0f);
+                        NotificationsLayout.setTranslationY(trans);
+                        NotificationsLayout.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -803,6 +898,9 @@ public class Dashboard extends AppCompatActivity {
 
                     }
                 }).start();
+
+        unKindaCollapseSettings();
+        removeTouchListenerForSwipeUpToGoBack();
     }
 
     private void promptUserAboutNotifications2(){
@@ -886,11 +984,14 @@ public class Dashboard extends AppCompatActivity {
     private LinearLayout changingCPVMainLayout;private LinearLayout chooseAmountLayout;
 
     private boolean isShowingPromptAboutChangingPrice = false;
+    private boolean isShowing_changingCPVMainLayout = false;
+    private boolean isShowing_chooseAmountLayout = false;
     private void promptUserAboutChangingPrice(){
         isShowingPromptAboutChangingPrice = true;
         addTouchListenerForSwipeUpToGoBack();
         final RelativeLayout changeCPVLayout = findViewById(R.id.changeCPVLayout);
         changeCPVLayout.setVisibility(View.VISIBLE);
+        isShowing_changingCPVMainLayout = true;
         changeCPVLayout.animate().alpha(1f).translationY(0).setInterpolator(new LinearOutSlowInInterpolator())
                 .setListener(new Animator.AnimatorListener() {
             @Override
@@ -952,14 +1053,17 @@ public class Dashboard extends AppCompatActivity {
             public void onClick(View v) {
                 changingCPVMainLayout.setVisibility(View.VISIBLE);
                 changingCPVMainLayout.setTranslationX(0);
-                changingCPVMainLayout.animate().setDuration(mAnimationTime).translationX(-200).alpha(0f)
+                changingCPVMainLayout.animate().setDuration(mAnimationTime).translationX(NEG).alpha(0f)
                         .setInterpolator(new LinearOutSlowInInterpolator())
                         .setListener(new AnimatorListenerAdapter() {
                             @Override
                             public void onAnimationEnd(Animator animation) {
                                 super.onAnimationEnd(animation);
                                 changingCPVMainLayout.setVisibility(View.GONE);
-                                changingCPVMainLayout.setTranslationX(1);
+
+                                isShowing_changingCPVMainLayout = false;
+                                isShowing_chooseAmountLayout = true;
+                                changingCPVMainLayout.setTranslationX(NEG);
                             }
                         });
                 chooseAmountLayout.setVisibility(View.VISIBLE);
@@ -969,6 +1073,7 @@ public class Dashboard extends AppCompatActivity {
                             @Override
                             public void onAnimationEnd(Animator animation) {
                                 super.onAnimationEnd(animation);
+                                addTouchListenerForGoingNext_chooseAmountLayout();
                             }
                         });
             }
@@ -987,7 +1092,239 @@ public class Dashboard extends AppCompatActivity {
                 else Toast.makeText(mContext,"You need an internet connection to make that change.",Toast.LENGTH_SHORT).show();
             }
         });
+
+        addTouchListenerForGoingNext_changingCPVMainLayout();
     }
+
+    private int x_bottomSheet_changingCPVMainLayout;
+    private boolean isContinueSwiping_changingCPVMainLayout = false;
+    private GestureDetector continueGt_changingCPVMainLayout;
+    private void addTouchListenerForGoingNext_changingCPVMainLayout(){
+        continueGt_changingCPVMainLayout = new GestureDetector(this, new MySwipeContinueGestureListener_changingCPVMainLayout());
+    }
+    private void onTouch_changingCPVMainLayout(MotionEvent event){
+        continueGt_changingCPVMainLayout.onTouchEvent(event);
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (isContinueSwiping_changingCPVMainLayout) {
+                isContinueSwiping_changingCPVMainLayout = false;
+                restoreOnBottomsheetContinue_changingCPVMainLayout();
+            }
+        }
+    }
+    class MySwipeContinueGestureListener_changingCPVMainLayout extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+//            Log.d(TAG, "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) changingCPVMainLayout.getLayoutParams();
+            x_bottomSheet_changingCPVMainLayout = X - lParams.leftMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+
+            Log.d(TAG, "the scroll pos= " + ((double)(X-x_bottomSheet_changingCPVMainLayout)));
+
+            animateContinueBottomsheetDialog_changingCPVMainLayout((double)(X - x_bottomSheet_changingCPVMainLayout));
+            isContinueSwiping_changingCPVMainLayout = true;
+
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if (Math.abs(velocityX) > Math.abs(velocityY) && Math.abs(velocityX)>1400 && Math.abs(velocityX)<8000) {
+                continueBtnCPV.performClick();
+            }else{
+                restoreOnBottomsheetContinue_changingCPVMainLayout();
+            }
+            isContinueSwiping_changingCPVMainLayout = false;
+            return false;
+
+        }
+    }
+    private void animateContinueBottomsheetDialog_changingCPVMainLayout(double pos){
+        double newPos = (pos/10);
+        changingCPVMainLayout.setVisibility(View.VISIBLE);
+        chooseAmountLayout.setVisibility(View.VISIBLE);
+
+        changingCPVMainLayout.setTranslationX(((float)newPos));
+        chooseAmountLayout.setTranslationX(Utils.dpToPx(350)+(float)newPos);
+
+        final float alph = 0f;
+        float alphPos = (((float)((pos/10)))/100f);
+        final float TweaksContainerAlph = 1f+alphPos;
+        changingCPVMainLayout.setAlpha(TweaksContainerAlph);
+
+        final float TweaksLayoutAlph = alph-alphPos;
+        chooseAmountLayout.setAlpha(TweaksLayoutAlph);
+    }
+    private void restoreOnBottomsheetContinue_changingCPVMainLayout(){
+        final float newPos = 0;
+        final float alph2 = 1f;
+        changingCPVMainLayout.animate().translationX(newPos).alpha(alph2).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(mAnimationTime).start();
+
+        final float trans = Utils.dpToPx(350);
+        final float alph = 0f;
+        chooseAmountLayout.animate().translationX(trans).alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        chooseAmountLayout.setTranslationX(trans);
+                        chooseAmountLayout.setAlpha(alph);
+
+                        changingCPVMainLayout.setTranslationX(newPos);
+                        changingCPVMainLayout.setAlpha(alph2);
+                        changingCPVMainLayout.setVisibility(View.VISIBLE);
+                        chooseAmountLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+
+    private int x_bottomSheet_chooseAmountLayout;
+    private boolean isContinueSwiping_chooseAmountLayout = false;
+    private GestureDetector continueGt_chooseAmountLayout;
+    private void addTouchListenerForGoingNext_chooseAmountLayout(){
+        continueGt_chooseAmountLayout = new GestureDetector(this, new MySwipeContinueGestureListener_chooseAmountLayout());
+    }
+    private void onTouch_chooseAmountLayout(MotionEvent event){
+        continueGt_chooseAmountLayout.onTouchEvent(event);
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (isContinueSwiping_chooseAmountLayout) {
+                isContinueSwiping_chooseAmountLayout = false;
+                restoreOnBottomsheetContinue_chooseAmountLayout();
+            }
+        }
+    }
+    class MySwipeContinueGestureListener_chooseAmountLayout extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+//            Log.d(TAG, "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) chooseAmountLayout.getLayoutParams();
+            x_bottomSheet_chooseAmountLayout = X - lParams.leftMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+
+            Log.d(TAG, "the scroll pos= " + ((double)(X-x_bottomSheet_chooseAmountLayout)));
+
+            animateContinueBottomsheetDialog_chooseAmountLayout((double)(X - x_bottomSheet_chooseAmountLayout));
+            isContinueSwiping_chooseAmountLayout = true;
+
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            restoreOnBottomsheetContinue_chooseAmountLayout();
+            if (Math.abs(velocityX) > Math.abs(velocityY) && Math.abs(velocityX)>1400 && Math.abs(velocityX)<8000) {
+//                continueBtnCPV.performClick();
+            }else{
+                restoreOnBottomsheetContinue_chooseAmountLayout();
+            }
+            isContinueSwiping_chooseAmountLayout = false;
+            return false;
+
+        }
+    }
+    private void animateContinueBottomsheetDialog_chooseAmountLayout(double pos){
+        double newPos = (pos/10);
+        changingCPVMainLayout.setVisibility(View.VISIBLE);
+        chooseAmountLayout.setVisibility(View.VISIBLE);
+
+        changingCPVMainLayout.setTranslationX(NEG+((float)newPos));
+        chooseAmountLayout.setTranslationX((float)newPos);
+
+        final float alph = 0f;
+        float alphPos = (((float)((pos/10)))/100f);
+        final float TweaksContainerAlph = 1f+alphPos;
+//        chooseAmountLayout.setAlpha(TweaksContainerAlph);
+
+        final float TweaksLayoutAlph = alph-alphPos;
+        changingCPVMainLayout.setAlpha(0.4f-TweaksLayoutAlph);
+    }
+    private void restoreOnBottomsheetContinue_chooseAmountLayout(){
+        final float newPos = 0;
+        final float alph2 = 1f;
+        chooseAmountLayout.animate().translationX(newPos).alpha(alph2).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(mAnimationTime).start();
+
+        final float trans = NEG;
+        final float alph = 0.4f;
+        changingCPVMainLayout.animate().translationX(trans).alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        changingCPVMainLayout.setTranslationX(trans);
+                        changingCPVMainLayout.setAlpha(alph);
+
+                        chooseAmountLayout.setTranslationX(newPos);
+                        chooseAmountLayout.setAlpha(alph2);
+                        chooseAmountLayout.setVisibility(View.VISIBLE);
+                        changingCPVMainLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+
 
     private void onclicks(){
         cancelBtnCpV.setOnClickListener(new View.OnClickListener() {
@@ -1076,6 +1413,7 @@ public class Dashboard extends AppCompatActivity {
 
     private void unShowPromptUserAboutChangingPrice(){
         isShowingPromptAboutChangingPrice = false;
+        isShowing_chooseAmountLayout = false;
         final RelativeLayout changeCPVLayout = findViewById(R.id.changeCPVLayout);
         changeCPVLayout.setVisibility(View.VISIBLE);
         final int trans = -Utils.dpToPx(250);
@@ -1114,6 +1452,8 @@ public class Dashboard extends AppCompatActivity {
         chooseAmountLayout.setVisibility(View.GONE);
         chooseAmountLayout.setTranslationX(Utils.dpToPx(350));
     }
+
+
 
 
     private void promptUserIfSureToLogout2(){
@@ -1239,61 +1579,7 @@ public class Dashboard extends AppCompatActivity {
         Toast.makeText(mContext,"Done!",Toast.LENGTH_SHORT).show();
     }
 
-    private void setUsersPreferredNotificationTime(){
-        SharedPreferences pref = mContext.getSharedPreferences(Constants.PREFERRED_NOTF_HOUR,MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.clear();
-        editor.putInt(Constants.PREFERRED_NOTF_HOUR,Variables.preferredHourOfNotf);
-        Log("DashBoard","Set the users preferred noification hour to : "+Variables.preferredHourOfNotf);
-        editor.apply();
 
-        SharedPreferences pref7 = mContext.getSharedPreferences(Constants.PREFERRED_NOTF_MIN,MODE_PRIVATE);
-        SharedPreferences.Editor editor7 = pref7.edit();
-        editor7.clear();
-        editor7.putInt(Constants.PREFERRED_NOTF_MIN,Variables.preferredMinuteOfNotf);
-        Log("DashBoard","Set the users preferred noification minute to : "+Variables.preferredMinuteOfNotf);
-        editor7.apply();
-
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference adRef11 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
-                .child(uid).child(Constants.PREFERRED_NOTF_HOUR);
-        adRef11.setValue(Variables.preferredHourOfNotf);
-
-        DatabaseReference adRef12 = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_USERS)
-                .child(uid).child(Constants.PREFERRED_NOTF_MIN);
-        adRef12.setValue(Variables.preferredMinuteOfNotf);
-
-        Toast.makeText(mContext,"Done!",Toast.LENGTH_SHORT).show();
-    }
-
-    public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
-        private Context mContext = getContext();
-
-        public void setContext(Context context){
-            mContext = context;
-        }
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the current time as the default values for the picker
-            final Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
-
-            // Create a new instance of TimePickerDialog and return it
-            return new TimePickerDialog(getActivity(), this, Variables.preferredHourOfNotf, Variables.preferredMinuteOfNotf,
-                    DateFormat.is24HourFormat(getActivity()));
-        }
-
-        @Override
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            // Do something with the time chosen by the user
-            Variables.preferredHourOfNotf = hourOfDay;
-            Variables.preferredMinuteOfNotf = minute;
-
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent("UPDATE_CHOSEN_TIME"));
-        }
-    }
 
 
 
@@ -1690,6 +1976,20 @@ public class Dashboard extends AppCompatActivity {
         });
     }
 
+    private int getScreenWidth(){
+        Display display = getWindowManager(). getDefaultDisplay();
+        Point size = new Point();
+        display. getSize(size);
+        return size. x;
+    }
+
+    private int getScreenHeight(){
+        Display display = getWindowManager(). getDefaultDisplay();
+        Point size = new Point();
+        display. getSize(size);
+        return size. y;
+    }
+
     private void loadUserDataDialog2(){
         FragmentManager fm = getFragmentManager();
         SetUsersPersonalInfo cpvFragment = new SetUsersPersonalInfo();
@@ -1707,9 +2007,8 @@ public class Dashboard extends AppCompatActivity {
     private Button skip2;private Button okBtn3;
     private LinearLayout locationLayout;private ImageButton backBtn2;private TextView locationNumberText;private ImageButton openMapImg;
     private Button openMap;private Button skip3;private Button okBtn4;
-    private LinearLayout concludeLayout;private Button okBtn5;private float NEG = -50;
+    private LinearLayout concludeLayout;private Button okBtn5;private float NEG;
     private int durat = Constants.ANIMATION_DURATION;
-
 
     private void loadUserDataDialog(){
         isLoadedUserDataDialog = true;
@@ -1778,53 +2077,348 @@ public class Dashboard extends AppCompatActivity {
                     }
                 }).start();
 
+        resetViews();
         loadFirstView();
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverForSetLocations,
                 new IntentFilter("SET_USER_PERSONAL_LOCATIONS"));
     }
 
+
+
     private void loadFirstView() {
+        isShowing_mainLayout = true;
         mainLayout.setVisibility(View.VISIBLE);
         mainLayout.setAlpha(1f);
         mainLayout.setTranslationX(0);
         okBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainLayout.animate().setDuration(durat).translationX(-200).alpha(0f)
-                        .setInterpolator(new LinearOutSlowInInterpolator());
+                mainLayout.animate().setDuration(durat).translationX(NEG).alpha(0f)
+                        .setInterpolator(new LinearOutSlowInInterpolator())
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                                mainLayout.setTranslationX(NEG);
+                                mainLayout.setVisibility(View.GONE);
+                                mainLayout.setAlpha(0f);
+                            }
+                        });
                 loadFirstView2();
+                isShowing_mainLayout = false;
             }
         });
+        addTouchListenerForGoingNext_mainLayout();
     }
 
+    private int x_bottomSheet_mainLayout;
+    private boolean isShowing_mainLayout = false;
+    private boolean isContinueSwiping_mainLayout = false;
+    private GestureDetector continueGt_mainLayout;
+    private void addTouchListenerForGoingNext_mainLayout(){
+        continueGt_mainLayout = new GestureDetector(this, new MySwipeContinueGestureListener_mainLayout());
+    }
+    private void onTouch_mainLayout(MotionEvent event){
+        continueGt_mainLayout.onTouchEvent(event);
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (isContinueSwiping_mainLayout) {
+                isContinueSwiping_mainLayout = false;
+                restoreOnBottomsheetContinue_mainLayout();
+            }
+        }
+    }
+    class MySwipeContinueGestureListener_mainLayout extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+//            Log.d(TAG, "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) mainLayout.getLayoutParams();
+            x_bottomSheet_mainLayout = X - lParams.leftMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+
+            Log.d(TAG, "the scroll pos= " + ((double)(X-x_bottomSheet_mainLayout)));
+
+            animateContinueBottomsheetDialog_mainLayout((double)(X - x_bottomSheet_mainLayout));
+            isContinueSwiping_mainLayout = true;
+
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if (Math.abs(velocityX) > Math.abs(velocityY) && Math.abs(velocityX)>1400 && Math.abs(velocityX)<8000 && velocityX<0) {
+                okBtn.performClick();
+            }else{
+                restoreOnBottomsheetContinue_mainLayout();
+            }
+            isContinueSwiping_mainLayout = false;
+            return false;
+
+        }
+    }
+    private void animateContinueBottomsheetDialog_mainLayout(double pos){
+        double newPos = (pos/10);
+        mainLaout2.setVisibility(View.VISIBLE);
+        mainLayout.setVisibility(View.VISIBLE);
+
+        mainLayout.setTranslationX(((float)newPos));
+        mainLaout2.setTranslationX(Utils.dpToPx(350)+(float)newPos);
+
+        final float alph = 0f;
+        float alphPos = (((float)((pos/10)))/100f);
+        final float TweaksContainerAlph = 1f+alphPos;
+        mainLayout.setAlpha(TweaksContainerAlph);
+
+        final float TweaksLayoutAlph = alph+alphPos;
+        mainLaout2.setAlpha(0.6f);
+    }
+    private void restoreOnBottomsheetContinue_mainLayout(){
+        final float newPos = 0;
+        final float alph2 = 1f;
+        mainLayout.animate().translationX(newPos).alpha(alph2).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(mAnimationTime).start();
+
+        final float trans = Utils.dpToPx(350);
+        final float alph = 0f;
+        mainLaout2.animate().translationX(trans).alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mainLaout2.setTranslationX(trans);
+                        mainLaout2.setAlpha(alph);
+
+                        mainLayout.setTranslationX(newPos);
+                        mainLayout.setAlpha(alph2);
+
+                        mainLayout.setVisibility(View.VISIBLE);
+                        mainLaout2.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+
+
     private void loadFirstView2(){
+        isShowing_mainLaout2 = true;
         mainLaout2.setVisibility(View.VISIBLE);
         mainLaout2.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
-                .setInterpolator(new LinearOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mainLaout2.setTranslationX(0);
+                mainLaout2.setAlpha(1f);
+                mainLayout.setVisibility(View.VISIBLE);
+                super.onAnimationEnd(animation);
+            }
+        });
         okBtn1point5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainLaout2.animate().setDuration(durat).translationX(-200).alpha(0f)
-                        .setInterpolator(new LinearOutSlowInInterpolator());
+                mainLaout2.animate().setDuration(durat).translationX(NEG).alpha(0f)
+                        .setInterpolator(new LinearOutSlowInInterpolator())
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                mainLaout2.setTranslationX(NEG);
+                                mainLaout2.setVisibility(View.GONE);
+                                mainLaout2.setAlpha(0f);
+                                super.onAnimationEnd(animation);
+                            }
+                        });
                 loadSetGenderView();
+                isShowing_mainLaout2 = false;
             }
         });
+        addTouchListenerForGoingNext_mainLaout2();
     }
 
+    private int x_bottomSheet_mainLaout2;
+    private boolean isContinueSwiping_mainLaout2 = false;
+    private boolean isShowing_mainLaout2 = false;
+    private GestureDetector continueGt_mainLaout2;
+    private void addTouchListenerForGoingNext_mainLaout2(){
+        continueGt_mainLaout2 = new GestureDetector(this, new MySwipeContinueGestureListener_mainLaout2());
+    }
+    private void onTouch_mainLaout2(MotionEvent event){
+        continueGt_mainLaout2.onTouchEvent(event);
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (isContinueSwiping_mainLaout2) {
+                isContinueSwiping_mainLaout2 = false;
+                restoreOnBottomsheetContinue_mainLaout2();
+            }
+        }
+    }
+    class MySwipeContinueGestureListener_mainLaout2 extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+//            Log.d(TAG, "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) mainLaout2.getLayoutParams();
+            x_bottomSheet_mainLaout2 = X - lParams.leftMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+
+            Log.d(TAG, "the scroll pos= " + ((double)(X-x_bottomSheet_mainLaout2)));
+
+            animateContinueBottomsheetDialog_mainLaout2((double)(X - x_bottomSheet_mainLaout2));
+            isContinueSwiping_mainLaout2 = true;
+
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if (Math.abs(velocityX) > Math.abs(velocityY) && Math.abs(velocityX)>1400 && Math.abs(velocityX)<8000 && velocityX<0) {
+                okBtn1point5.performClick();
+            }else{
+                restoreOnBottomsheetContinue_mainLaout2();
+            }
+            isContinueSwiping_mainLaout2 = false;
+            return false;
+
+        }
+    }
+    private void animateContinueBottomsheetDialog_mainLaout2(double pos){
+        double newPos = (pos/10);
+        mainLayout.setVisibility(View.VISIBLE);
+        genderLayout.setVisibility(View.VISIBLE);
+        mainLaout2.setVisibility(View.VISIBLE);
+
+        mainLaout2.setTranslationX(((float)newPos));
+        genderLayout.setTranslationX(Utils.dpToPx(350)+(float)newPos);
+        mainLayout.setTranslationX(NEG+(float)newPos);
+
+        final float alph = 0f;
+        float alphPos = (((float)((pos/10)))/100f);
+        final float TweaksContainerAlph = 1f+alphPos;
+        mainLaout2.setAlpha(TweaksContainerAlph);
+
+        final float TweaksLayoutAlph = alph-alphPos;
+        genderLayout.setAlpha(0.6f);
+        mainLayout.setAlpha(0.4f-TweaksLayoutAlph);
+    }
+    private void restoreOnBottomsheetContinue_mainLaout2(){
+        final float newPos = 0;
+        final float alph2 = 1f;
+        mainLaout2.animate().translationX(newPos).alpha(alph2).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(mAnimationTime).start();
+
+        final float trans = Utils.dpToPx(350);
+        final float alph = 0.4f;
+        mainLayout.animate().translationX(NEG).alpha(alph).setDuration(mAnimationTime).start();
+        genderLayout.animate().translationX(trans).alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        genderLayout.setTranslationX(trans);
+                        genderLayout.setAlpha(alph);
+
+                        mainLaout2.setTranslationX(newPos);
+                        mainLaout2.setAlpha(alph2);
+
+                        mainLayout.setTranslationX(NEG);
+                        mainLayout.setAlpha(alph);
+                        mainLayout.setVisibility(View.GONE);
+
+                        mainLaout2.setVisibility(View.VISIBLE);
+                        genderLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+
+
     private void loadSetGenderView() {
+        isShowing_genderLayout = true;
         genderLayout.setVisibility(View.VISIBLE);
         genderLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
-                .setInterpolator(new LinearOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                genderLayout.setTranslationX(0);
+                genderLayout.setAlpha(1f);
+                genderLayout.setVisibility(View.VISIBLE);
+                super.onAnimationEnd(animation);
+            }
+        });
         SharedPreferences prefs2 = mContext.getSharedPreferences(Constants.GENDER, MODE_PRIVATE);
-        String gender = prefs2.getString(Constants.GENDER, "NULL");
+        final String gender = prefs2.getString(Constants.GENDER, "NULL");
         if(!gender.equals("NULL")&&gender.equals(Constants.MALE)) radioButtonMale.setChecked(true);
         skip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                genderLayout.setVisibility(View.GONE);
                 genderLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
-                        .setInterpolator(new LinearOutSlowInInterpolator());
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        genderLayout.setTranslationX(NEG);
+                        genderLayout.setAlpha(0f);
+                        genderLayout.setVisibility(View.GONE);
+                        super.onAnimationEnd(animation);
+                    }
+                });
                 loadSetBirthdayView();
+                isShowing_genderLayout = false;
             }
         });
         okBtn2.setOnClickListener(new View.OnClickListener() {
@@ -1837,10 +2431,143 @@ public class Dashboard extends AppCompatActivity {
                 }
 //                genderLayout.setVisibility(View.GONE);
                 genderLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
-                        .setInterpolator(new LinearOutSlowInInterpolator());
+                        .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        genderLayout.setTranslationX(NEG);
+                        genderLayout.setVisibility(View.GONE);
+                        genderLayout.setAlpha(1f);
+                        super.onAnimationEnd(animation);
+                    }
+                });
                 loadSetBirthdayView();
+                isShowing_genderLayout = false;
             }
         });
+        addTouchListenerForGoingNext_genderLayout();
+    }
+
+    private int x_bottomSheet_genderLayout;
+    private boolean isContinueSwiping_genderLayout = false;
+    private boolean isShowing_genderLayout = false;
+    private GestureDetector continueGt_genderLayout;
+    private void addTouchListenerForGoingNext_genderLayout(){
+        continueGt_genderLayout = new GestureDetector(this, new MySwipeContinueGestureListener_genderLayout());
+    }
+    private void onTouch_genderLayout(MotionEvent event){
+        continueGt_genderLayout.onTouchEvent(event);
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (isContinueSwiping_genderLayout) {
+                isContinueSwiping_genderLayout = false;
+                restoreOnBottomsheetContinue_genderLayout();
+            }
+        }
+    }
+    class MySwipeContinueGestureListener_genderLayout extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+//            Log.d(TAG, "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) genderLayout.getLayoutParams();
+            x_bottomSheet_genderLayout = X - lParams.leftMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+
+            Log.d(TAG, "the scroll pos= " + ((double)(X-x_bottomSheet_genderLayout)));
+
+            animateContinueBottomsheetDialog_genderLayout((double)(X - x_bottomSheet_genderLayout));
+            isContinueSwiping_genderLayout = true;
+
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if (Math.abs(velocityX) > Math.abs(velocityY) && Math.abs(velocityX)>1400 && Math.abs(velocityX)<8000 && velocityX<0) {
+                skip.performClick();
+            }else{
+                restoreOnBottomsheetContinue_genderLayout();
+            }
+            isContinueSwiping_genderLayout = false;
+            return false;
+
+        }
+    }
+    private void animateContinueBottomsheetDialog_genderLayout(double pos){
+        double newPos = (pos/10);
+        mainLaout2.setVisibility(View.VISIBLE);
+        ageLayout.setVisibility(View.VISIBLE);
+        genderLayout.setVisibility(View.VISIBLE);
+
+        genderLayout.setTranslationX(((float)newPos));
+        ageLayout.setTranslationX(Utils.dpToPx(350)+(float)newPos);
+        mainLaout2.setTranslationX(NEG+(float)newPos);
+
+        final float alph = 0f;
+        float alphPos = (((float)((pos/10)))/100f);
+        final float TweaksContainerAlph = 1f+alphPos;
+        genderLayout.setAlpha(TweaksContainerAlph);
+
+        final float TweaksLayoutAlph = alph-alphPos;
+        ageLayout.setAlpha(0.6f);
+        mainLaout2.setAlpha(0.4f-TweaksLayoutAlph);
+    }
+    private void restoreOnBottomsheetContinue_genderLayout(){
+        final float newPos = 0;
+        final float alph2 = 1f;
+        genderLayout.animate().translationX(newPos).alpha(alph2).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(mAnimationTime).start();
+
+        final float trans = Utils.dpToPx(350);
+        final float alph = 0.4f;
+        mainLaout2.animate().translationX(NEG).alpha(alph).setDuration(mAnimationTime).start();
+        ageLayout.animate().translationX(trans).alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        ageLayout.setTranslationX(trans);
+                        ageLayout.setAlpha(alph);
+
+                        genderLayout.setTranslationX(newPos);
+                        genderLayout.setAlpha(alph2);
+
+                        mainLaout2.setTranslationX(NEG);
+                        mainLaout2.setAlpha(alph);
+                        mainLaout2.setVisibility(View.GONE);
+
+                        genderLayout.setVisibility(View.VISIBLE);
+                        ageLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
     }
 
     private void setGender(String gender){
@@ -1856,7 +2583,10 @@ public class Dashboard extends AppCompatActivity {
     }
 
 
+
+
     private void loadSetBirthdayView() {
+        isShowing_ageLayout = true;
         ageLayout.setVisibility(View.VISIBLE);
         ageLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
                 .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
@@ -1890,6 +2620,13 @@ public class Dashboard extends AppCompatActivity {
             setAgeTextView.setText(String.format("Set birthday date: %d %s,%d", day, getMonthName_Abbr(month), year));
         }
 
+        findViewById(R.id.calendarExp).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openCalendar.performClick();
+            }
+        });
+
         openCalendar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1917,7 +2654,7 @@ public class Dashboard extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 //                ageLayout.setVisibility(View.GONE);
-                ageLayout.animate().translationX(Utils.dpToPx(400)).setDuration(Constants.ANIMATION_DURATION)
+                ageLayout.animate().translationX(Utils.dpToPx(350)).setDuration(Constants.ANIMATION_DURATION)
                         .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animator) {
@@ -1940,6 +2677,7 @@ public class Dashboard extends AppCompatActivity {
                     }
                 });
                 loadSetGenderView();
+                isShowing_ageLayout = false;
             }
         });
 
@@ -1948,8 +2686,18 @@ public class Dashboard extends AppCompatActivity {
             public void onClick(View view) {
 //                ageLayout.setVisibility(View.GONE);
                 ageLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
-                        .setInterpolator(new LinearOutSlowInInterpolator());;
+                        .setInterpolator(new LinearOutSlowInInterpolator())
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                ageLayout.setVisibility(View.GONE);
+                                ageLayout.setAlpha(0f);
+                                ageLayout.setTranslationX(NEG);
+                                super.onAnimationEnd(animation);
+                            }
+                        });
                 loadSetLocationsView();
+                isShowing_ageLayout = false;
             }
         });
         okBtn3.setOnClickListener(new View.OnClickListener() {
@@ -1965,7 +2713,9 @@ public class Dashboard extends AppCompatActivity {
 
                     @Override
                     public void onAnimationEnd(Animator animator) {
+                        ageLayout.setTranslationX(NEG);
                         ageLayout.setVisibility(View.GONE);
+                        ageLayout.setAlpha(1f);
                     }
 
                     @Override
@@ -1979,15 +2729,144 @@ public class Dashboard extends AppCompatActivity {
                     }
                 });
                 loadSetLocationsView();
+                isShowing_ageLayout = false;
             }
         });
+        addTouchListenerForGoingNext_ageLayout();
+    }
+
+    private int x_bottomSheet_ageLayout;
+    private boolean isContinueSwiping_ageLayout = false;
+    private boolean isShowing_ageLayout = false;
+    private GestureDetector continueGt_ageLayout;
+    private void addTouchListenerForGoingNext_ageLayout(){
+        continueGt_ageLayout = new GestureDetector(this, new MySwipeContinueGestureListener_ageLayout());
+    }
+    private void onTouch_ageLayout(MotionEvent event){
+        continueGt_ageLayout.onTouchEvent(event);
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (isContinueSwiping_ageLayout) {
+                isContinueSwiping_ageLayout = false;
+                restoreOnBottomsheetContinue_ageLayout();
+            }
+        }
+    }
+    class MySwipeContinueGestureListener_ageLayout extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+//            Log.d(TAG, "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) ageLayout.getLayoutParams();
+            x_bottomSheet_ageLayout = X - lParams.leftMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+
+            Log.d(TAG, "the scroll pos= " + ((double)(X-x_bottomSheet_ageLayout)));
+
+            animateContinueBottomsheetDialog_ageLayout((double)(X - x_bottomSheet_ageLayout));
+            isContinueSwiping_ageLayout = true;
+
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if (Math.abs(velocityX) > Math.abs(velocityY) && Math.abs(velocityX)>1400 && Math.abs(velocityX)<8000) {
+                if(velocityX<0) okBtn3.performClick();
+                else backBtn1.performClick();
+            }else{
+                restoreOnBottomsheetContinue_ageLayout();
+            }
+            isContinueSwiping_ageLayout = false;
+            return false;
+
+        }
+    }
+    private void animateContinueBottomsheetDialog_ageLayout(double pos){
+        double newPos = (pos/10);
+
+        genderLayout.setVisibility(View.VISIBLE);
+        ageLayout.setVisibility(View.VISIBLE);
+        locationLayout.setVisibility(View.VISIBLE);
+
+        genderLayout.setTranslationX(NEG+(float)newPos);
+        ageLayout.setTranslationX(((float)newPos));
+        locationLayout.setTranslationX(Utils.dpToPx(350)+(float)newPos);
+
+        final float alph = 0f;
+        float alphPos = (((float)((pos/10)))/100f);
+        final float TweaksLayoutAlph = alph-alphPos;
+        final float TweaksContainerAlph = 1f+alphPos;
+
+        genderLayout.setAlpha(0.4f-TweaksLayoutAlph);
+        ageLayout.setAlpha(TweaksContainerAlph);
+        locationLayout.setAlpha(0.6f);
+    }
+    private void restoreOnBottomsheetContinue_ageLayout(){
+        genderLayout.animate().translationX(NEG).alpha(0).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(mAnimationTime).start();
+
+        final float newPos = 0;
+        final float alph2 = 1f;
+        ageLayout.animate().translationX(newPos).alpha(alph2).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(mAnimationTime).start();
+
+        final float trans = Utils.dpToPx(350);
+        final float alph = 0f;
+        locationLayout.animate().translationX(trans).alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        genderLayout.setTranslationX(NEG);
+                        genderLayout.setAlpha(0);
+
+                        locationLayout.setTranslationX(trans);
+                        locationLayout.setAlpha(alph);
+
+                        ageLayout.setTranslationX(newPos);
+                        ageLayout.setAlpha(alph2);
+
+                        genderLayout.setVisibility(View.GONE);
+                        ageLayout.setVisibility(View.VISIBLE);
+                        locationLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
     }
 
 
 
     private void loadSetLocationsView() {
+        isShowing_locationLayout = true;
         locationLayout.setVisibility(View.VISIBLE);
-        locationLayout.setTranslationX(Utils.dpToPx(400));
+//        locationLayout.setTranslationX(Utils.dpToPx(400));
         locationLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
                 .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
             @Override
@@ -1998,6 +2877,7 @@ public class Dashboard extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animator animator) {
                 locationLayout.setAlpha(1f);
+                locationLayout.setTranslationX(0);
                 locationLayout.setVisibility(View.VISIBLE);
             }
 
@@ -2016,6 +2896,12 @@ public class Dashboard extends AppCompatActivity {
         }else{
             locationNumberText.setText(Html.fromHtml("Locations set: <b>"+ Variables.usersLatLongs.size()+" Locations.</b>"));
         }
+        findViewById(R.id.locationExp).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openMapImg.performClick();
+            }
+        });
         openMapImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -2032,8 +2918,9 @@ public class Dashboard extends AppCompatActivity {
         backBtn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                isShowing_locationLayout = false;
 //                locationLayout.setVisibility(View.GONE);
-                locationLayout.animate().translationX(800).setDuration(durat)
+                locationLayout.animate().translationX(Utils.dpToPx(350)).setDuration(durat)
                         .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animator) {
@@ -2043,6 +2930,8 @@ public class Dashboard extends AppCompatActivity {
                     @Override
                     public void onAnimationEnd(Animator animator) {
                         locationLayout.setVisibility(View.GONE);
+                        locationLayout.setAlpha(1f);
+                        locationLayout.setTranslationX(NEG);
                     }
 
                     @Override
@@ -2062,6 +2951,7 @@ public class Dashboard extends AppCompatActivity {
         skip3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                isShowing_locationLayout = false;
 //                locationLayout.setVisibility(View.GONE);
                 locationLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
                         .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
@@ -2091,6 +2981,7 @@ public class Dashboard extends AppCompatActivity {
         okBtn4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                isShowing_locationLayout = false;
 //                locationLayout.setVisibility(View.GONE);
                 locationLayout.animate().translationX(NEG).alpha(0f).setDuration(durat)
                         .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
@@ -2101,7 +2992,9 @@ public class Dashboard extends AppCompatActivity {
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        locationLayout.setAlpha(0f);
+                        locationLayout.setVisibility(View.GONE);
+                        locationLayout.setTranslationX(NEG);
+                        locationLayout.setAlpha(1f);
                     }
 
                     @Override
@@ -2117,6 +3010,133 @@ public class Dashboard extends AppCompatActivity {
                 loadFifthView();
             }
         });
+        addTouchListenerForGoingNext_locationLayout();
+    }
+
+    private int x_bottomSheet_locationLayout;
+    private boolean isContinueSwiping_locationLayout = false;
+    private boolean isShowing_locationLayout = false;
+    private GestureDetector continueGt_locationLayout;
+    private void addTouchListenerForGoingNext_locationLayout(){
+        continueGt_locationLayout = new GestureDetector(this, new MySwipeContinueGestureListener_locationLayout());
+    }
+    private void onTouch_locationLayout(MotionEvent event){
+        continueGt_locationLayout.onTouchEvent(event);
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (isContinueSwiping_locationLayout) {
+                isContinueSwiping_locationLayout = false;
+                restoreOnBottomsheetContinue_locationLayout();
+            }
+        }
+    }
+    class MySwipeContinueGestureListener_locationLayout extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+//            Log.d(TAG, "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) locationLayout.getLayoutParams();
+            x_bottomSheet_locationLayout = X - lParams.leftMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+
+            Log.d(TAG, "the scroll pos= " + ((double)(X-x_bottomSheet_locationLayout)));
+
+            animateContinueBottomsheetDialog_locationLayout((double)(X - x_bottomSheet_locationLayout));
+            isContinueSwiping_locationLayout = true;
+
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if (Math.abs(velocityX) > Math.abs(velocityY) && Math.abs(velocityX)>1400 && Math.abs(velocityX)<8000) {
+                if(velocityX<0) skip3.performClick();
+                else backBtn2.performClick();
+            }else{
+                restoreOnBottomsheetContinue_locationLayout();
+            }
+            isContinueSwiping_locationLayout = false;
+            return false;
+
+        }
+    }
+    private void animateContinueBottomsheetDialog_locationLayout(double pos){
+        double newPos = (pos/10);
+
+        ageLayout.setVisibility(View.VISIBLE);
+        locationLayout.setVisibility(View.VISIBLE);
+        concludeLayout.setVisibility(View.VISIBLE);
+
+        ageLayout.setTranslationX(NEG+(float)newPos);
+        locationLayout.setTranslationX(((float)newPos));
+        concludeLayout.setTranslationX(Utils.dpToPx(350)+(float)newPos);
+
+        final float alph = 0f;
+        float alphPos = (((float)((pos/10)))/100f);
+        final float TweaksLayoutAlph = alph-alphPos;
+        final float TweaksContainerAlph = 1f+alphPos;
+
+        ageLayout.setAlpha(0.4f-TweaksLayoutAlph);
+        locationLayout.setAlpha(TweaksContainerAlph);
+        concludeLayout.setAlpha(0.6f);
+    }
+    private void restoreOnBottomsheetContinue_locationLayout(){
+        ageLayout.animate().translationX(NEG).alpha(0.4f).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(mAnimationTime).start();
+
+        final float newPos = 0;
+        final float alph2 = 1f;
+        locationLayout.animate().translationX(newPos).alpha(alph2).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(mAnimationTime).start();
+
+        final float trans = Utils.dpToPx(350);
+        final float alph = 0.4f;
+        concludeLayout.animate().translationX(trans).alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        ageLayout.setTranslationX(NEG);
+                        ageLayout.setAlpha(0);
+
+                        locationLayout.setTranslationX(newPos);
+                        locationLayout.setAlpha(alph2);
+
+                        concludeLayout.setTranslationX(trans);
+                        concludeLayout.setAlpha(alph);
+
+                        ageLayout.setVisibility(View.GONE);
+                        locationLayout.setVisibility(View.VISIBLE);
+                        concludeLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
     }
 
     private BroadcastReceiver mMessageReceiverForSetLocations = new BroadcastReceiver() {
@@ -2127,10 +3147,12 @@ public class Dashboard extends AppCompatActivity {
             }else{
                 locationNumberText.setText(Html.fromHtml("Locations set: <b>"+ Variables.usersLatLongs.size()+" Locations.</b>"));
             }
+            unKindaCollapseLocationAll();
         }
     };
 
     private void openMapSelector() {
+        kindaCollapseLocationAll();
         FragmentManager fm = getFragmentManager();
         myMapFragment mapFragment = new myMapFragment();
         mapFragment.setMenuVisibility(false);
@@ -2141,16 +3163,144 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void loadFifthView() {
+        isShowing_concludeLayout = true;
         concludeLayout.setVisibility(View.VISIBLE);
         concludeLayout.animate().setDuration(Constants.ANIMATION_DURATION).translationX(0).alpha(1f)
-                .setInterpolator(new LinearOutSlowInInterpolator());
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                concludeLayout.setTranslationX(0);
+                concludeLayout.setAlpha(1f);
+                super.onAnimationEnd(animation);
+            }
+        });
         okBtn5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 hideUserDataDialog();
+                isShowing_concludeLayout = false;
             }
         });
+        addTouchListenerForGoingNext_concludeLayout();
     }
+
+    private int x_bottomSheet_concludeLayout;
+    private boolean isContinueSwiping_concludeLayout = false;
+    private boolean isShowing_concludeLayout = false;
+    private GestureDetector continueGt_concludeLayout;
+    private void addTouchListenerForGoingNext_concludeLayout(){
+        continueGt_concludeLayout = new GestureDetector(this, new MySwipeContinueGestureListener_concludeLayout());
+    }
+    private void onTouch_concludeLayout(MotionEvent event){
+        continueGt_concludeLayout.onTouchEvent(event);
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (isContinueSwiping_concludeLayout) {
+                isContinueSwiping_concludeLayout = false;
+                restoreOnBottomsheetContinue_concludeLayout();
+            }
+        }
+    }
+    class MySwipeContinueGestureListener_concludeLayout extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+//            Log.d(TAG, "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) concludeLayout.getLayoutParams();
+            x_bottomSheet_concludeLayout = X - lParams.leftMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+
+            Log.d(TAG, "the scroll pos= " + ((double)(X-x_bottomSheet_concludeLayout)));
+
+            animateContinueBottomsheetDialog_concludeLayout((double)(X - x_bottomSheet_concludeLayout));
+            isContinueSwiping_concludeLayout = true;
+
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            restoreOnBottomsheetContinue_concludeLayout();
+            if (Math.abs(velocityX) > Math.abs(velocityY) && Math.abs(velocityX)>1400 && Math.abs(velocityX)<8000) {
+//                continueBtnCPV.performClick();
+            }else{
+                restoreOnBottomsheetContinue_concludeLayout();
+            }
+            isContinueSwiping_concludeLayout = false;
+            return false;
+
+        }
+    }
+    private void animateContinueBottomsheetDialog_concludeLayout(double pos){
+        double newPos = (pos/10);
+        locationLayout.setVisibility(View.VISIBLE);
+        concludeLayout.setVisibility(View.VISIBLE);
+
+        locationLayout.setTranslationX(NEG+((float)newPos));
+        concludeLayout.setTranslationX((float)newPos);
+
+        final float alph = 0f;
+        float alphPos = (((float)((pos/10)))/100f);
+        final float TweaksContainerAlph = 1f+alphPos;
+//        chooseAmountLayout.setAlpha(TweaksContainerAlph);
+
+        final float TweaksLayoutAlph = alph-alphPos;
+//        changingCPVMainLayout.setAlpha(TweaksLayoutAlph);
+        locationLayout.setAlpha(0.4f-TweaksLayoutAlph);
+    }
+    private void restoreOnBottomsheetContinue_concludeLayout(){
+        final float newPos = 0;
+        final float alph2 = 1f;
+        concludeLayout.animate().translationX(newPos).alpha(alph2).setInterpolator(new LinearOutSlowInInterpolator()).setDuration(mAnimationTime).start();
+
+        final float trans = NEG;
+        final float alph = 0.4f;
+        locationLayout.animate().translationX(trans).alpha(alph).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        locationLayout.setTranslationX(trans);
+                        locationLayout.setAlpha(alph);
+
+                        concludeLayout.setTranslationX(newPos);
+                        concludeLayout.setAlpha(alph2);
+                        concludeLayout.setVisibility(View.VISIBLE);
+
+                        locationLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
 
     private void setConsentToTargetPC(Boolean bol){
         SharedPreferences pref = mContext.getSharedPreferences(Constants.CONSENT_TO_TARGET, MODE_PRIVATE);
@@ -2319,6 +3469,214 @@ public class Dashboard extends AppCompatActivity {
                 }).start();
     }
 
+    public void kindaCollapseLocationAll(){
+        final float trans = Utils.dpToPx(300);
+        TweaksLayout.animate().translationY(trans).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        TweaksLayout.setTranslationY(trans);
+                        TweaksLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        final float trans2 = Utils.dpToPx(230);
+        locationLayout.animate().translationY(trans2).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        locationLayout.setTranslationY(trans2);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+    public void unKindaCollapseLocationAll(){
+        final float trans = Utils.dpToPx(230);
+        TweaksLayout.animate().translationY(trans).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        TweaksLayout.setTranslationY(trans);
+                        TweaksLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        final float trans2 = 0;
+        locationLayout.animate().translationY(trans2).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        locationLayout.setTranslationY(trans2);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+    public void kindaCollapseNotifAll(){
+        final LinearLayout mainLayout = findViewById(R.id.NotificationsLayout);
+        final float trans = Utils.dpToPx(300);
+        TweaksLayout.animate().translationY(trans).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        TweaksLayout.setTranslationY(trans);
+                        TweaksLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        final float trans2 = Utils.dpToPx(200);
+        mainLayout.animate().translationY(trans2).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mainLayout.setTranslationY(trans2);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+    public void unKindaCollapseNotifAll(){
+        final LinearLayout mainLayout = findViewById(R.id.NotificationsLayout);
+        final float trans = Utils.dpToPx(230);
+        TweaksLayout.animate().translationY(trans).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        TweaksLayout.setTranslationY(trans);
+                        TweaksLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+        final float trans2 = 0;
+        mainLayout.animate().translationY(trans2).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mainLayout.setTranslationY(trans2);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+    }
+
+
+
     private void hideUserDataDialog(){
         isLoadedUserDataDialog = false;
         final RelativeLayout personalisedContentLayout = findViewById(R.id.personalisedContentLayout);
@@ -2355,22 +3713,40 @@ public class Dashboard extends AppCompatActivity {
 
     private void resetViews(){
         concludeLayout.setVisibility(View.GONE);
-        concludeLayout.setTranslationX(Utils.dpToPx(400));
+        concludeLayout.setAlpha(1f);
+        isShowing_concludeLayout = false;
+        isContinueSwiping_concludeLayout = false;
+        concludeLayout.setTranslationX(Utils.dpToPx(350));
 
         locationLayout.setVisibility(View.GONE);
-        locationLayout.setTranslationX(Utils.dpToPx(400));
+        locationLayout.setAlpha(1f);
+        isShowing_locationLayout = false;
+        isContinueSwiping_locationLayout = false;
+        locationLayout.setTranslationX(Utils.dpToPx(350));
 
         ageLayout.setVisibility(View.GONE);
-        ageLayout.setTranslationX(Utils.dpToPx(400));
+        ageLayout.setAlpha(1f);
+        isShowing_ageLayout = false;
+        isContinueSwiping_ageLayout = false;
+        ageLayout.setTranslationX(Utils.dpToPx(350));
 
         genderLayout.setVisibility(View.GONE);
-        genderLayout.setTranslationX(Utils.dpToPx(400));
+        genderLayout.setAlpha(1f);
+        isShowing_genderLayout = false;
+        isContinueSwiping_genderLayout = false;
+        genderLayout.setTranslationX(Utils.dpToPx(350));
 
         mainLaout2.setVisibility(View.GONE);
-        mainLaout2.setTranslationX(Utils.dpToPx(400));
+        mainLaout2.setAlpha(1f);
+        isShowing_mainLaout2 = false;
+        isContinueSwiping_mainLaout2 = false;
+        mainLaout2.setTranslationX(Utils.dpToPx(350));
 
         mainLayout.setVisibility(View.VISIBLE);
-        locationLayout.setTranslationX(0);
+        mainLayout.setAlpha(1f);
+        isShowing_mainLayout = false;
+        isContinueSwiping_mainLayout = false;
+        mainLayout.setTranslationX(0);
     }
 
 
@@ -3511,6 +4887,34 @@ public class Dashboard extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.phoneIcon).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                notificationsLayout.performClick();
+            }
+        });
+
+        findViewById(R.id.userInfo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                personalInfoLayout.performClick();
+            }
+        });
+
+        findViewById(R.id.locationIcon).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TargetLayout.performClick();
+            }
+        });
+
+        findViewById(R.id.changeCPVIcon).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ChangeCPVLayout.performClick();
+            }
+        });
+
         TweaksBlackBack.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -3532,8 +4936,14 @@ public class Dashboard extends AppCompatActivity {
         @Override
         public boolean onDown(MotionEvent event) {
 //            Log.d("TAG", "onDown: ");
-            if(event.getRawY()<730){
-                onBackPressed();
+            if(isShowing_chooseAmountLayout){
+                if (event.getRawY() < 450) {
+                    onBackPressed();
+                }
+            }else {
+                if (event.getRawY() < 730) {
+                    onBackPressed();
+                }
             }
             return true;
         }
@@ -3775,6 +5185,7 @@ public class Dashboard extends AppCompatActivity {
         swipeDownView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                passTouchEvents(event);
                 if (gt.onTouchEvent(event)) {
                     return true;
                 }
@@ -3902,6 +5313,15 @@ public class Dashboard extends AppCompatActivity {
                 }).start();
     }
 
-
+    private void passTouchEvents(MotionEvent event){
+        if(isShowing_changingCPVMainLayout)onTouch_changingCPVMainLayout(event);
+        if(isShowing_chooseAmountLayout)onTouch_chooseAmountLayout(event);
+        if(isShowing_mainLayout) onTouch_mainLayout(event);
+        if(isShowing_mainLaout2) onTouch_mainLaout2(event);
+        if(isShowing_genderLayout) onTouch_genderLayout(event);
+        if(isShowing_ageLayout) onTouch_ageLayout(event);
+        if(isShowing_locationLayout) onTouch_locationLayout(event);
+        if(isShowing_concludeLayout) onTouch_concludeLayout(event);
+    }
 
 }

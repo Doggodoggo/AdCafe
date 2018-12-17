@@ -50,6 +50,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
     private boolean isMakingRequest = false;
     private TextView waitingText;
     private ImageButton backBtn;
+    private TextView requestingText;
 
 
     public void setContext(Context context){
@@ -69,6 +70,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
         Button cancelBtn = rootView.findViewById(R.id.cancelBtn);
         prog = rootView.findViewById(R.id.progBr);
         waitingText = rootView.findViewById(R.id.waitingText);
+        requestingText = rootView.findViewById(R.id.requestingText);
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -114,6 +116,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
 
     private void startPaymentProcess() {
         waitingText.setVisibility(View.GONE);
+        requestingText.setVisibility(View.VISIBLE);
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference(Constants.PAY_POOL);
         DatabaseReference pushRef = adRef.push();
         mTransactionId= "TRANS"+pushRef.getKey();
@@ -191,6 +194,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
             isMakingRequest = false;
             waitingText.setVisibility(View.GONE);
             prog.setVisibility(View.INVISIBLE);
+            requestingText.setVisibility(View.GONE);
         }
     };
 
@@ -203,6 +207,7 @@ public class FragmentMpesaPaymentInitiation  extends DialogFragment {
             prog.setVisibility(View.INVISIBLE);
             Toast.makeText(mContext,"Payment request sent.",Toast.LENGTH_LONG).show();
             waitingText.setVisibility(View.VISIBLE);
+            requestingText.setVisibility(View.GONE);
 //            listenForCompletePayments();
             isMakingRequest = false;
         }
