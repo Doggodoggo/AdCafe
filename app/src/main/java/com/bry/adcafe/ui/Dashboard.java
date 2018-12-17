@@ -110,6 +110,7 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.internal.Util;
 
 public class Dashboard extends AppCompatActivity {
     private final String TAG = "Dashboard";
@@ -3416,8 +3417,12 @@ public class Dashboard extends AppCompatActivity {
 
                     }
                 }).start();
-    }
 
+        RelativeLayout TweaksContainer = findViewById(R.id.TweaksContainer);
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) TweaksContainer.getLayoutParams();
+        params.bottomMargin = Utils.dpToPx(0);
+        TweaksContainer.setLayoutParams(params);
+    }
 
     public void unKindaCollapseAll(){
         final float trans = Utils.dpToPx(230);
@@ -3468,6 +3473,11 @@ public class Dashboard extends AppCompatActivity {
 
                     }
                 }).start();
+
+        RelativeLayout TweaksContainer = findViewById(R.id.TweaksContainer);
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) TweaksContainer.getLayoutParams();
+        params.bottomMargin = Utils.dpToPx(10);
+        TweaksContainer.setLayoutParams(params);
     }
 
     public void kindaCollapseLocationAll(){
@@ -3519,6 +3529,11 @@ public class Dashboard extends AppCompatActivity {
 
                     }
                 }).start();
+
+        RelativeLayout TweaksContainer = findViewById(R.id.TweaksContainer);
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) TweaksContainer.getLayoutParams();
+        params.bottomMargin = Utils.dpToPx(0);
+        TweaksContainer.setLayoutParams(params);
     }
 
     public void unKindaCollapseLocationAll(){
@@ -3570,6 +3585,11 @@ public class Dashboard extends AppCompatActivity {
 
                     }
                 }).start();
+
+        RelativeLayout TweaksContainer = findViewById(R.id.TweaksContainer);
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) TweaksContainer.getLayoutParams();
+        params.bottomMargin = Utils.dpToPx(10);
+        TweaksContainer.setLayoutParams(params);
     }
 
     public void kindaCollapseNotifAll(){
@@ -3622,6 +3642,11 @@ public class Dashboard extends AppCompatActivity {
 
                     }
                 }).start();
+
+        RelativeLayout TweaksContainer = findViewById(R.id.TweaksContainer);
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) TweaksContainer.getLayoutParams();
+        params.bottomMargin = Utils.dpToPx(0);
+        TweaksContainer.setLayoutParams(params);
     }
 
     public void unKindaCollapseNotifAll(){
@@ -3674,6 +3699,11 @@ public class Dashboard extends AppCompatActivity {
 
                     }
                 }).start();
+
+        RelativeLayout TweaksContainer = findViewById(R.id.TweaksContainer);
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) TweaksContainer.getLayoutParams();
+        params.bottomMargin = Utils.dpToPx(10);
+        TweaksContainer.setLayoutParams(params);
     }
 
 
