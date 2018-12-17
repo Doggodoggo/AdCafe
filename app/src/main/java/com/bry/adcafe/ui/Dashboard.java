@@ -3418,6 +3418,7 @@ public class Dashboard extends AppCompatActivity {
                 }).start();
     }
 
+
     public void unKindaCollapseAll(){
         final float trans = Utils.dpToPx(230);
         TweaksLayout.animate().translationY(trans).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
